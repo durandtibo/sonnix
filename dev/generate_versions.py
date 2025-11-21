@@ -24,6 +24,7 @@ def get_package_versions() -> dict[str, list[str]]:
     return {
         "coola": list(get_versions("coola", lower="0.9.1")),
         "numpy": list(get_latest_minor_versions("numpy", lower="1.22")),
+        "objectory": list(get_versions("objectory", lower="0.2.1")),
         "torch": list(get_latest_minor_versions("torch", lower="2.4")),
     }
 
