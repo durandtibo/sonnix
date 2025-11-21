@@ -46,6 +46,7 @@ dependencies = [
 
 [project.optional-dependencies]
 numpy = [ "numpy >=1.24,<3.0" ]
+objectory = [ "objectory >=0.2.1,<1.0" ]
 
 [dependency-groups]
 dev = [

@@ -1,0 +1,26 @@
+name: Cyclic Imports
+on:
+  workflow_call:
+  workflow_dispatch:  # to trigger manually
+
+permissions:
+  contents: read
+
+jobs:
+  cyclic-imports:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup python environment
+        uses: ./.github/actions/setup-env
+
+      - name: check sonnix
+        run: |
+          python -c "import sonnix"
+
+      - name: check sonnix.utils
+        run: |
+          python -c "from sonnix import utils"
