@@ -1,1 +1,1 @@
-r"""Root package"""
+r"""Root package."""
