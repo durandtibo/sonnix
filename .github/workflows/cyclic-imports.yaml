@@ -20,8 +20,6 @@ jobs:
       - name: check sonnix
         run: |
           python -c "import sonnix"
-          python -c "from sonnix import factory"
-          python -c "from sonnix import AbstractFactory"
 
       - name: check sonnix.utils
         run: |
