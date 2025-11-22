@@ -43,7 +43,7 @@ def test_module_mode_eval() -> None:
 def test_module_mode_with_exception() -> None:
     module = nn.ModuleDict({"module1": nn.Linear(4, 6), "module2": nn.Linear(2, 4).eval()})
     assert module.training
-    with pytest.raises(RuntimeError, match="Exception"), module_mode(module):  # noqa: PT012
+    with pytest.raises(RuntimeError, match=r"Exception"), module_mode(module):  # noqa: PT012
         module.eval()
         assert not module.training
         assert not module["module1"].training
@@ -83,7 +83,7 @@ def test_top_module_mode_eval() -> None:
 def test_top_module_mode_with_exception() -> None:
     module = nn.Linear(4, 6)
     assert module.training
-    with pytest.raises(RuntimeError, match="Exception"), top_module_mode(module):  # noqa: PT012
+    with pytest.raises(RuntimeError, match=r"Exception"), top_module_mode(module):  # noqa: PT012
         module.eval()
         assert not module.training
         msg = "Exception"
