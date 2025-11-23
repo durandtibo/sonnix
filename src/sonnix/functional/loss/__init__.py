@@ -1,10 +1,8 @@
-r"""Contain functional implementation of some modules."""
+r"""Contain functional implementation of some loss functions."""
 
 from __future__ import annotations
 
 __all__ = [
-    "absolute_error",
-    "absolute_relative_error",
     "arithmetical_mean_indicator",
     "asinh_mse_loss",
     "asinh_smooth_l1_loss",
@@ -12,7 +10,6 @@ __all__ = [
     "binary_focal_loss_with_logits",
     "binary_poly1_loss",
     "binary_poly1_loss_with_logits",
-    "check_loss_reduction_strategy",
     "classical_relative_indicator",
     "general_robust_regression_loss",
     "geometric_mean_indicator",
@@ -23,20 +20,10 @@ __all__ = [
     "msle_loss",
     "poisson_regression_loss",
     "quantile_regression_loss",
-    "reduce_loss",
     "relative_loss",
     "reversed_relative_indicator",
-    "safe_exp",
-    "safe_log",
-    "symmetric_absolute_relative_error",
 ]
 
-from sonnix.functional.activations import safe_exp, safe_log
-from sonnix.functional.error import (
-    absolute_error,
-    absolute_relative_error,
-    symmetric_absolute_relative_error,
-)
 from sonnix.functional.loss.asinh import asinh_mse_loss, asinh_smooth_l1_loss
 from sonnix.functional.loss.focal import (
     binary_focal_loss,
@@ -45,7 +32,10 @@ from sonnix.functional.loss.focal import (
 from sonnix.functional.loss.general_robust import general_robust_regression_loss
 from sonnix.functional.loss.log import log_cosh_loss, msle_loss
 from sonnix.functional.loss.poisson import poisson_regression_loss
-from sonnix.functional.loss.poly import binary_poly1_loss, binary_poly1_loss_with_logits
+from sonnix.functional.loss.poly import (
+    binary_poly1_loss,
+    binary_poly1_loss_with_logits,
+)
 from sonnix.functional.loss.quantile import quantile_regression_loss
 from sonnix.functional.loss.relative import (
     arithmetical_mean_indicator,
@@ -57,4 +47,3 @@ from sonnix.functional.loss.relative import (
     relative_loss,
     reversed_relative_indicator,
 )
-from sonnix.functional.reduction import check_loss_reduction_strategy, reduce_loss
