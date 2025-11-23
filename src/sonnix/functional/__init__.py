@@ -7,9 +7,12 @@ __all__ = [
     "absolute_relative_error",
     "check_loss_reduction_strategy",
     "reduce_loss",
+    "safe_exp",
+    "safe_log",
     "symmetric_absolute_relative_error",
 ]
 
+from sonnix.functional.activations import safe_exp, safe_log
 from sonnix.functional.error import (
     absolute_error,
     absolute_relative_error,
