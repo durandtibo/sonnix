@@ -30,7 +30,7 @@ def get_module_device(module: nn.Module) -> torch.device:
     ```pycon
 
     >>> import torch
-    >>> from sonnix.utils import get_module_device
+    >>> from sonnix.utils.device import get_module_device
     >>> get_module_device(torch.nn.Linear(4, 6))
     device(type='cpu')
 

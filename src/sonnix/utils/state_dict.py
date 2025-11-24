@@ -38,7 +38,7 @@ def find_module_state_dict(state_dict: dict | list | tuple | set, module_keys: s
     ```pycon
 
     >>> import torch
-    >>> from sonnix.utils import find_module_state_dict
+    >>> from sonnix.utils.state_dict import find_module_state_dict
     >>> state = {
     ...     "model": {
     ...         "weight": 42,
@@ -93,7 +93,7 @@ def load_state_dict_to_module(state_dict: dict, module: nn.Module, strict: bool 
     ```pycon
 
     >>> import torch
-    >>> from sonnix.utils import load_state_dict_to_module
+    >>> from sonnix.utils.state_dict import load_state_dict_to_module
     >>> state = {
     ...     "model": {
     ...         "weight": 42,
