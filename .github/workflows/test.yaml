@@ -24,7 +24,6 @@ jobs:
           macos-26,
           macos-15,
           macos-14,
-          macos-15-intel,
         ]
         python-version: [ '3.14', '3.13', '3.12', '3.11', '3.10' ]
 
@@ -62,7 +61,6 @@ jobs:
           macos-26,
           macos-15,
           macos-14,
-          macos-15-intel,
         ]
         python-version: [ '3.14', '3.13', '3.12', '3.11', '3.10' ]
 
