@@ -20,6 +20,7 @@ __all__ = [
     "NLinear",
     "Quadratic",
     "ReLUn",
+    "ResidualBlock",
     "SafeExp",
     "SafeLog",
     "Sin",
@@ -57,3 +58,4 @@ from sonnix.modules.fusion import (
 )
 from sonnix.modules.fusion.clamp import Clamp
 from sonnix.modules.nlinear import NLinear
+from sonnix.modules.residual import ResidualBlock
