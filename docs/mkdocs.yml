@@ -31,6 +31,7 @@ nav:
   - Reference:
       - sonnix: refs/root.md
       - sonnix.functional: refs/functional.md
+      - sonnix.testing: refs/testing.md
       - sonnix.utils: refs/utils.md
   - GitHub: https://github.com/durandtibo/sonnix
 
