@@ -4,6 +4,7 @@ import pytest
 import torch
 from coola import objects_are_allclose
 from coola.utils.tensor import get_available_devices
+
 from sonnix.modules import NLinear
 
 SIZES = (1, 2, 3)
