@@ -8,7 +8,7 @@ __all__ = ["ResidualBlock"]
 import torch
 from torch import nn
 
-from sonnix.utils import setup_module
+from sonnix.utils.factory import setup_module
 
 
 class ResidualBlock(nn.Module):
