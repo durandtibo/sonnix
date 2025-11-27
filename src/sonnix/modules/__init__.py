@@ -6,6 +6,7 @@ __all__ = [
     "Asinh",
     "AverageFusion",
     "BaseAlphaActivation",
+    "Clamp",
     "ConcatFusion",
     "Exp",
     "ExpSin",
@@ -53,3 +54,4 @@ from sonnix.modules.fusion import (
     MultiplicationFusion,
     SumFusion,
 )
+from sonnix.modules.fusion.clamp import Clamp
