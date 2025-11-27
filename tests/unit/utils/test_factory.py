@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 import pytest
 import torch
 from torch import nn
 from torch.nn import Module, ReLU
 
-from sonnix.testing import objectory_available
+from sonnix.testing import objectory_available, objectory_not_available
 from sonnix.testing.dummy import DummyDataset
 from sonnix.utils.factory import (
     create_sequential,
@@ -55,6 +54,18 @@ def test_is_dataset_config_false() -> None:
     assert not is_dataset_config({OBJECT_TARGET: "torch.nn.Identity"})
 
 
+@objectory_not_available
+def test_is_dataset_config_without_objectory() -> None:
+    with pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."):
+        is_dataset_config(
+            {
+                OBJECT_TARGET: "sonnix.testing.dummy.DummyDataset",
+                "num_examples": 10,
+                "feature_size": 4,
+            }
+        )
+
+
 ######################################
 #     Tests for is_module_config     #
 ######################################
@@ -68,6 +79,12 @@ def test_is_module_config_true() -> None:
 @objectory_available
 def test_is_module_config_false() -> None:
     assert not is_module_config({OBJECT_TARGET: "torch.device"})
+
+
+@objectory_not_available
+def test_is_module_config_without_objectory() -> None:
+    with pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."):
+        is_module_config({OBJECT_TARGET: "torch.nn.Identity"})
 
 
 #########################################
@@ -85,6 +102,14 @@ def test_is_optimizer_config_true() -> None:
 @objectory_available
 def test_is_optimizer_config_false() -> None:
     assert not is_optimizer_config({OBJECT_TARGET: "torch.nn.Identity"})
+
+
+@objectory_not_available
+def test_is_optimizer_config_without_objectory() -> None:
+    with pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."):
+        is_optimizer_config(
+            {OBJECT_TARGET: "torch.optim.SGD", "params": [torch.ones(2, 4, requires_grad=True)]}
+        )
 
 
 ###################################
@@ -121,11 +146,9 @@ def test_setup_dataset_incorrect_type(caplog: pytest.LogCaptureFixture) -> None:
         assert caplog.messages
 
 
-def test_setup_dataset_object_no_objectory() -> None:
-    with (
-        patch("sonnix.utils.imports.is_objectory_available", lambda: False),
-        pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."),
-    ):
+@objectory_not_available
+def test_setup_dataset_object_without_objectory() -> None:
+    with pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."):
         setup_dataset(
             {
                 OBJECT_TARGET: "sonnix.testing.dummy.DummyDataset",
@@ -161,11 +184,9 @@ def test_setup_module_incorrect_type(caplog: pytest.LogCaptureFixture) -> None:
         assert caplog.messages
 
 
-def test_setup_module_object_no_objectory() -> None:
-    with (
-        patch("sonnix.utils.imports.is_objectory_available", lambda: False),
-        pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."),
-    ):
+@objectory_not_available
+def test_setup_module_object_without_objectory() -> None:
+    with pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."):
         setup_module({OBJECT_TARGET: "torch.nn.ReLU"})
 
 
@@ -199,11 +220,9 @@ def test_setup_optimizer_incorrect_type(caplog: pytest.LogCaptureFixture) -> Non
         assert caplog.messages
 
 
-def test_setup_optimizer_object_no_objectory() -> None:
-    with (
-        patch("sonnix.utils.imports.is_objectory_available", lambda: False),
-        pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."),
-    ):
+@objectory_not_available
+def test_setup_optimizer_object_without_objectory() -> None:
+    with pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."):
         setup_optimizer(
             {OBJECT_TARGET: "torch.optim.SGD", "params": [torch.ones(2, 4, requires_grad=True)]}
         )
@@ -253,11 +272,9 @@ def test_setup_object_object() -> None:
     assert setup_object(module) is module
 
 
-def test_setup_object_object_no_objectory() -> None:
-    with (
-        patch("sonnix.utils.imports.is_objectory_available", lambda: False),
-        pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."),
-    ):
+@objectory_not_available
+def test_setup_object_object_without_objectory() -> None:
+    with pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."):
         setup_object({OBJECT_TARGET: "torch.nn.ReLU"})
 
 
@@ -294,11 +311,9 @@ def test_setup_object_typed_incorrect_type(caplog: pytest.LogCaptureFixture) -> 
         assert caplog.messages
 
 
-def test_setup_object_typed_object_no_objectory() -> None:
-    with (
-        patch("sonnix.utils.imports.is_objectory_available", lambda: False),
-        pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."),
-    ):
+@objectory_not_available
+def test_setup_object_typed_object_without_objectory() -> None:
+    with pytest.raises(RuntimeError, match=r"'objectory' package is required but not installed."):
         setup_object_typed({OBJECT_TARGET: "torch.nn.ReLU"}, cls=torch.nn.Module)
 
 
@@ -307,11 +322,9 @@ def test_setup_object_typed_object_no_objectory() -> None:
 #######################################
 
 
-@objectory_available
 def test_str_target_object_with_target() -> None:
     assert str_target_object({OBJECT_TARGET: "something.MyClass"}) == "something.MyClass"
 
 
-@objectory_available
 def test_str_target_object_without_target() -> None:
     assert str_target_object({}) == "N/A"
