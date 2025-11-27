@@ -1,0 +1,31 @@
+r"""Contain fallback implementations used when ``objectory`` dependency
+is not available."""
+
+from __future__ import annotations
+
+__all__ = ["OBJECT_TARGET", "AbstractFactory", "factory", "is_object_config"]
+
+from abc import ABCMeta
+from typing import Any
+
+from sonnix.utils.imports import raise_error_objectory_missing
+
+OBJECT_TARGET = "_target_"
+
+
+class AbstractFactory(ABCMeta):
+    r"""Fallback of ``objectory.AbstractFactory``."""
+
+    def factory(cls, *args: Any, **kwargs: Any) -> Any:  # noqa: ARG002
+        r"""Fallback of ``objectory.AbstractFactory.factory``."""
+        raise_error_objectory_missing()
+
+
+def factory(*args: Any, **kwargs: Any) -> Any:  # noqa: ARG001
+    r"""Fallback of ``objectory.factory``."""
+    raise_error_objectory_missing()
+
+
+def is_object_config(*args: Any, **kwargs: Any) -> Any:  # noqa: ARG001
+    r"""Fallback of ``objectory.utils.is_object_config``."""
+    raise_error_objectory_missing()
