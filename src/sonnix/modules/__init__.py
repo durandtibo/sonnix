@@ -17,6 +17,7 @@ __all__ = [
     "Log1p",
     "MultiQuadratic",
     "MultiplicationFusion",
+    "NLinear",
     "Quadratic",
     "ReLUn",
     "SafeExp",
@@ -55,3 +56,4 @@ from sonnix.modules.fusion import (
     SumFusion,
 )
 from sonnix.modules.fusion.clamp import Clamp
+from sonnix.modules.nlinear import NLinear
