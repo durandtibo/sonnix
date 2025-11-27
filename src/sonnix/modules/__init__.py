@@ -4,7 +4,9 @@ from __future__ import annotations
 
 __all__ = [
     "Asinh",
+    "AverageFusion",
     "BaseAlphaActivation",
+    "ConcatFusion",
     "Exp",
     "ExpSin",
     "Expm1",
@@ -13,6 +15,7 @@ __all__ = [
     "Log",
     "Log1p",
     "MultiQuadratic",
+    "MultiplicationFusion",
     "Quadratic",
     "ReLUn",
     "SafeExp",
@@ -21,6 +24,7 @@ __all__ = [
     "Sinh",
     "Snake",
     "SquaredReLU",
+    "SumFusion",
 ]
 
 from sonnix.modules.activations import (
@@ -42,4 +46,10 @@ from sonnix.modules.activations import (
     Sinh,
     Snake,
     SquaredReLU,
+)
+from sonnix.modules.fusion import (
+    AverageFusion,
+    ConcatFusion,
+    MultiplicationFusion,
+    SumFusion,
 )
