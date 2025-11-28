@@ -31,6 +31,8 @@ __all__ = [
     "SquaredReLU",
     "Squeeze",
     "SumFusion",
+    "ToFloat",
+    "ToLong",
     "View",
 ]
 
@@ -54,6 +56,7 @@ from sonnix.modules.activations import (
     Snake,
     SquaredReLU,
 )
+from sonnix.modules.dtype import ToFloat, ToLong
 from sonnix.modules.exu import ExU
 from sonnix.modules.fusion import (
     AverageFusion,
