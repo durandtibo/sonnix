@@ -23,6 +23,7 @@ __all__ = [
     "msle_loss",
     "poisson_regression_loss",
     "quantile_regression_loss",
+    "rectifier_asinh_unit",
     "reduce_loss",
     "relative_loss",
     "reversed_relative_indicator",
@@ -31,7 +32,7 @@ __all__ = [
     "symmetric_absolute_relative_error",
 ]
 
-from sonnix.functional.activation import safe_exp, safe_log
+from sonnix.functional.activation import rectifier_asinh_unit, safe_exp, safe_log
 from sonnix.functional.error import (
     absolute_error,
     absolute_relative_error,
