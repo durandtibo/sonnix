@@ -23,7 +23,7 @@ __all__ = [
     "SquaredReLU",
 ]
 
-from sonnix.modules.activations.alpha import (
+from sonnix.modules.activation.alpha import (
     BaseAlphaActivation,
     ExpSin,
     Gaussian,
@@ -31,7 +31,7 @@ from sonnix.modules.activations.alpha import (
     MultiQuadratic,
     Quadratic,
 )
-from sonnix.modules.activations.math import (
+from sonnix.modules.activation.math import (
     Asinh,
     Exp,
     Expm1,
@@ -42,5 +42,5 @@ from sonnix.modules.activations.math import (
     Sin,
     Sinh,
 )
-from sonnix.modules.activations.relu import ReLUn, SquaredReLU
-from sonnix.modules.activations.snake import Snake
+from sonnix.modules.activation.relu import ReLUn, SquaredReLU
+from sonnix.modules.activation.snake import Snake

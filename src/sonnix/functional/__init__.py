@@ -31,7 +31,7 @@ __all__ = [
     "symmetric_absolute_relative_error",
 ]
 
-from sonnix.functional.activations import safe_exp, safe_log
+from sonnix.functional.activation import safe_exp, safe_log
 from sonnix.functional.error import (
     absolute_error,
     absolute_relative_error,

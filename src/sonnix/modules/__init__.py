@@ -66,7 +66,7 @@ __all__ = [
     "View",
 ]
 
-from sonnix.modules.activations import (
+from sonnix.modules.activation import (
     Asinh,
     BaseAlphaActivation,
     Exp,
