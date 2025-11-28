@@ -4,7 +4,18 @@ import pytest
 import torch
 from torch import nn
 
-from sonnix.modules import Asinh, Exp, Expm1, Log, Log1p, SafeExp, SafeLog, Sin, Sinh
+from sonnix.modules import (
+    Asinh,
+    Exp,
+    Expm1,
+    Log,
+    Log1p,
+    SafeExp,
+    SafeLog,
+    Sin,
+    Sinh,
+    Square,
+)
 from sonnix.utils.loss import is_loss_decreasing_with_adam
 
 
@@ -20,6 +31,7 @@ from sonnix.utils.loss import is_loss_decreasing_with_adam
         SafeLog(),
         Sin(),
         Sinh(),
+        Square(),
     ],
 )
 def test_activation_is_loss_decreasing(activation: nn.Module) -> None:
