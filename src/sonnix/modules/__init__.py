@@ -69,8 +69,6 @@ __all__ = [
 from sonnix.modules.activations import (
     Asinh,
     BaseAlphaActivation,
-    DynamicSinh,
-    DynamicTanh,
     Exp,
     Expm1,
     ExpSin,
@@ -122,6 +120,7 @@ from sonnix.modules.loss import (
     TransformedLoss,
 )
 from sonnix.modules.nlinear import NLinear
+from sonnix.modules.normalization import DynamicSinh, DynamicTanh
 from sonnix.modules.numerical import (
     AsinhCosSinNumericalEncoder,
     AsinhNumericalEncoder,
