@@ -5,6 +5,7 @@ from __future__ import annotations
 __all__ = [
     "Asinh",
     "BaseAlphaActivation",
+    "DynamicSinh",
     "DynamicTanh",
     "Exp",
     "ExpSin",
@@ -32,7 +33,7 @@ from sonnix.modules.activations.alpha import (
     MultiQuadratic,
     Quadratic,
 )
-from sonnix.modules.activations.dyt import DynamicTanh
+from sonnix.modules.activations.dynamic import DynamicSinh, DynamicTanh
 from sonnix.modules.activations.math import (
     Asinh,
     Exp,

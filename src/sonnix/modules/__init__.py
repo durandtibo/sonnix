@@ -20,6 +20,7 @@ __all__ = [
     "ClassicalRelativeIndicator",
     "ConcatFusion",
     "CosSinNumericalEncoder",
+    "DynamicSinh",
     "DynamicTanh",
     "ExU",
     "Exp",
@@ -68,6 +69,7 @@ __all__ = [
 from sonnix.modules.activations import (
     Asinh,
     BaseAlphaActivation,
+    DynamicSinh,
     DynamicTanh,
     Exp,
     Expm1,
