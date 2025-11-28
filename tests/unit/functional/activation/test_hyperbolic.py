@@ -30,5 +30,5 @@ def test_rectifier_asinh_unit_max_value_default(device: str) -> None:
 def test_rectifier_asinh_unit_shape(device: str, shape: tuple[int, ...]) -> None:
     device = torch.device(device)
     assert objects_are_allclose(
-        rectifier_asinh_unit(torch.zeros(*shape, device=device)), torch.ones(*shape, device=device)
+        rectifier_asinh_unit(torch.zeros(*shape, device=device)), torch.zeros(*shape, device=device)
     )
