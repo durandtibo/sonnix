@@ -51,8 +51,9 @@ class ScaleAndShift(nn.Module):
             normalized_shape = (normalized_shape,)
         self._normalized_shape = tuple(normalized_shape)
 
-        self.weight = nn.Parameter(torch.ones(self._normalized_shape))
-        self.bias = nn.Parameter(torch.zeros(self._normalized_shape))
+        self.weight = nn.Parameter(torch.empty(self._normalized_shape))
+        self.bias = nn.Parameter(torch.empty(self._normalized_shape))
+        self.reset_parameters()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x * self.weight + self.bias
