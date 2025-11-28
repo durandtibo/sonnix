@@ -5,7 +5,9 @@ from __future__ import annotations
 __all__ = [
     "ArithmeticalMeanIndicator",
     "Asinh",
+    "AsinhCosSinNumericalEncoder",
     "AsinhMSELoss",
+    "AsinhNumericalEncoder",
     "AsinhSmoothL1Loss",
     "AverageFusion",
     "BaseAlphaActivation",
@@ -17,6 +19,7 @@ __all__ = [
     "Clamp",
     "ClassicalRelativeIndicator",
     "ConcatFusion",
+    "CosSinNumericalEncoder",
     "ExU",
     "Exp",
     "ExpSin",
@@ -34,6 +37,7 @@ __all__ = [
     "MulticlassFlatten",
     "MultiplicationFusion",
     "NLinear",
+    "PiecewiseLinearNumericalEncoder",
     "PoissonRegressionLoss",
     "Quadratic",
     "QuantileRegressionLoss",
@@ -113,5 +117,11 @@ from sonnix.modules.loss import (
     TransformedLoss,
 )
 from sonnix.modules.nlinear import NLinear
+from sonnix.modules.numerical import (
+    AsinhCosSinNumericalEncoder,
+    AsinhNumericalEncoder,
+    CosSinNumericalEncoder,
+    PiecewiseLinearNumericalEncoder,
+)
 from sonnix.modules.residual import ResidualBlock
 from sonnix.modules.shape import MulticlassFlatten, Squeeze, View
