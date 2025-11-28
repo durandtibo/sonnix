@@ -49,6 +49,7 @@ __all__ = [
     "ReversedRelativeIndicator",
     "SafeExp",
     "SafeLog",
+    "ScaleAndShift",
     "Sin",
     "Sinh",
     "Snake",
@@ -124,4 +125,5 @@ from sonnix.modules.numerical import (
     PiecewiseLinearNumericalEncoder,
 )
 from sonnix.modules.residual import ResidualBlock
+from sonnix.modules.scale_and_shift import ScaleAndShift
 from sonnix.modules.shape import MulticlassFlatten, Squeeze, View
