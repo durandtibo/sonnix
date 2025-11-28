@@ -20,7 +20,7 @@ __all__ = [
     "ClassicalRelativeIndicator",
     "ConcatFusion",
     "CosSinNumericalEncoder",
-    "DynamicSinh",
+    "DynamicAsinh",
     "DynamicTanh",
     "ExU",
     "Exp",
@@ -120,7 +120,7 @@ from sonnix.modules.loss import (
     TransformedLoss,
 )
 from sonnix.modules.nlinear import NLinear
-from sonnix.modules.normalization import DynamicSinh, DynamicTanh
+from sonnix.modules.normalization import DynamicAsinh, DynamicTanh
 from sonnix.modules.numerical import (
     AsinhCosSinNumericalEncoder,
     AsinhNumericalEncoder,
