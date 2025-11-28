@@ -63,7 +63,7 @@ def install(
     if optional_deps:
         cmd.append("--all-extras")
     if dev_deps:
-        cmd.append("--group dev")
+        cmd.append("--group dev --group dev-visu")
     if docs_deps:
         cmd.append("--group docs")
     c.run(" ".join(cmd), pty=True)
@@ -75,6 +75,7 @@ def update(c: Context) -> None:
     c.run("uv sync --upgrade", pty=True)
     c.run("uv tool upgrade --all", pty=True)
     c.run("pre-commit autoupdate", pty=True)
+    install(c, docs_deps=True)
 
 
 @task
