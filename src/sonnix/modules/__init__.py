@@ -51,6 +51,8 @@ __all__ = [
     "SquaredReLU",
     "Squeeze",
     "SumFusion",
+    "ToBinaryLabel",
+    "ToCategoricalLabel",
     "ToFloat",
     "ToLong",
     "TransformedLoss",
@@ -77,6 +79,7 @@ from sonnix.modules.activations import (
     Snake,
     SquaredReLU,
 )
+from sonnix.modules.classification import ToBinaryLabel, ToCategoricalLabel
 from sonnix.modules.dtype import ToFloat, ToLong
 from sonnix.modules.exu import ExU
 from sonnix.modules.fusion import (
