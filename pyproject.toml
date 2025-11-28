@@ -70,6 +70,12 @@ docs = [
     "mkdocstrings[python] >=0.30,<1.0",
 ]
 
+dev-visu = [
+    "jupyterlab >=4.5,<5.0",
+    "matplotlib >=3.10,<4.0",
+    "seaborn >=0.13,<1.0",
+]
+
 [project.urls]
 homepage = "https://github.com/durandtibo/sonnix"
 repository = "https://github.com/durandtibo/sonnix"
