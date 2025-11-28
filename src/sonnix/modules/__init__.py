@@ -55,6 +55,7 @@ __all__ = [
     "Sin",
     "Sinh",
     "Snake",
+    "Square",
     "SquaredReLU",
     "Squeeze",
     "SumFusion",
@@ -84,6 +85,7 @@ from sonnix.modules.activation import (
     Sin,
     Sinh,
     Snake,
+    Square,
     SquaredReLU,
 )
 from sonnix.modules.classification import ToBinaryLabel, ToCategoricalLabel

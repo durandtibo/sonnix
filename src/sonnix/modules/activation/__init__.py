@@ -20,6 +20,7 @@ __all__ = [
     "Sin",
     "Sinh",
     "Snake",
+    "Square",
     "SquaredReLU",
 ]
 
@@ -41,6 +42,7 @@ from sonnix.modules.activation.math import (
     SafeLog,
     Sin,
     Sinh,
+    Square,
 )
 from sonnix.modules.activation.relu import ReLUn, SquaredReLU
 from sonnix.modules.activation.snake import Snake

@@ -5,7 +5,18 @@ import torch
 from coola import objects_are_allclose
 from coola.utils.tensor import get_available_devices
 
-from sonnix.modules import Asinh, Exp, Expm1, Log, Log1p, SafeExp, SafeLog, Sin, Sinh
+from sonnix.modules import (
+    Asinh,
+    Exp,
+    Expm1,
+    Log,
+    Log1p,
+    SafeExp,
+    SafeLog,
+    Sin,
+    Sinh,
+    Square,
+)
 
 SHAPES = [(2,), (2, 3), (2, 3, 4), (2, 3, 4, 5)]
 
@@ -310,6 +321,38 @@ def test_sin_forward(device: str) -> None:
 def test_sin_forward_shape(device: str, shape: tuple[int, ...]) -> None:
     device = torch.device(device)
     module = Sin().to(device=device)
+    out = module(torch.randn(*shape, device=device, requires_grad=True))
+    out.mean().backward()
+    assert out.shape == shape
+    assert out.dtype == torch.float
+    assert out.device == device
+
+
+############################
+#     Tests for Square     #
+############################
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+def test_square_forward(device: str) -> None:
+    device = torch.device(device)
+    module = Square().to(device=device)
+    assert module(
+        torch.tensor([-2.0, -1.0, 0.0, 1.0, 2.0], dtype=torch.float, device=device)
+    ).allclose(
+        torch.tensor(
+            [4.0, 1.0, 0.0, 1.0, 4.0],
+            dtype=torch.float,
+            device=device,
+        )
+    )
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_square_forward_shape(device: str, shape: tuple[int, ...]) -> None:
+    device = torch.device(device)
+    module = Square().to(device=device)
     out = module(torch.randn(*shape, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == shape
