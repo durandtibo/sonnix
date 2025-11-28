@@ -7,20 +7,20 @@ https://arxiv.org/pdf/2503.10622
 
 from __future__ import annotations
 
-__all__ = ["DynamicSinh", "DynamicTanh"]
+__all__ = ["DynamicAsinh", "DynamicTanh"]
 
 import torch
 from torch import nn
 from torch.nn import init
 
 
-class DynamicSinh(nn.Module):
-    r"""Applies the Dynamic Sinh normalization over a mini-batch of
+class DynamicAsinh(nn.Module):
+    r"""Applies the Dynamic Asinh normalization over a mini-batch of
     inputs.
 
     This layer implements the following operation:
 
-    y = gamma * sinh(alpha * x) + beta
+    y = gamma * asinh(alpha * x) + beta
 
     Args:
         normalized_shape: The input shape to normalize.
@@ -38,10 +38,10 @@ class DynamicSinh(nn.Module):
     ```pycon
 
     >>> import torch
-    >>> from sonnix.modules import DynamicSinh
-    >>> m = DynamicSinh(normalized_shape=5)
+    >>> from sonnix.modules import DynamicAsinh
+    >>> m = DynamicAsinh(normalized_shape=5)
     >>> m
-    DynamicSinh(normalized_shape=(5,))
+    DynamicAsinh(normalized_shape=(5,))
     >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
     >>> out
     tensor([[-1.1752, -0.5211,  0.0000,  0.5211,  1.1752],
@@ -65,7 +65,7 @@ class DynamicSinh(nn.Module):
         self.reset_parameters()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.sinh(self.alpha * x) * self.weight + self.bias
+        return torch.asinh(self.alpha * x) * self.weight + self.bias
 
     def extra_repr(self) -> str:
         return f"normalized_shape={self._normalized_shape}"
