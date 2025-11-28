@@ -11,6 +11,7 @@ from sonnix.modules import (
     Expm1,
     Log,
     Log1p,
+    Pow,
     SafeExp,
     SafeLog,
     Sin,
@@ -161,6 +162,54 @@ def test_log1p_forward_shape(device: str, shape: tuple[int, ...]) -> None:
     assert objects_are_allclose(
         module(torch.zeros(*shape, device=device)), torch.zeros(*shape, device=device)
     )
+
+
+#########################
+#     Tests for Pow     #
+#########################
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+def test_pow_2_forward(device: str) -> None:
+    device = torch.device(device)
+    module = Pow(exponent=2.0).to(device=device)
+    assert module(
+        torch.tensor([-2.0, -1.0, 0.0, 1.0, 2.0], dtype=torch.float, device=device)
+    ).allclose(
+        torch.tensor(
+            [4.0, 1.0, 0.0, 1.0, 4.0],
+            dtype=torch.float,
+            device=device,
+        )
+    )
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+def test_pow_3_forward(device: str) -> None:
+    device = torch.device(device)
+    module = Pow(exponent=3.0).to(device=device)
+    assert module(
+        torch.tensor([-2.0, -1.0, 0.0, 1.0, 2.0], dtype=torch.float, device=device)
+    ).allclose(
+        torch.tensor(
+            [-8.0, -1.0, 0.0, 1.0, 8.0],
+            dtype=torch.float,
+            device=device,
+        )
+    )
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+@pytest.mark.parametrize("exponent", [-2.0, -1.0, 0.0, 1.0, 2.0])
+def test_pow_forward_shape(device: str, shape: tuple[int, ...], exponent: float) -> None:
+    device = torch.device(device)
+    module = Pow(exponent).to(device=device)
+    out = module(torch.randn(*shape, device=device, requires_grad=True))
+    out.mean().backward()
+    assert out.shape == shape
+    assert out.dtype == torch.float
+    assert out.device == device
 
 
 #############################

@@ -163,6 +163,44 @@ class Log1p(nn.Module):
         return input.log1p()
 
 
+class Pow(nn.Module):
+    r"""Implement a ``torch.nn.Module`` to compute the natural logarithm
+    of the input.
+
+    This module is equivalent to  ``pow(input, exponent)``
+
+    Shape:
+        - Input: ``(*)``, where ``*`` means any number of dimensions.
+        - Output: ``(*)``, same shape as the input.
+
+    Example usage:
+
+    ```pycon
+
+    >>> import torch
+    >>> from sonnix.modules import Pow
+    >>> m = Pow(exponent=2)
+    >>> m
+    Pow(exponent=2.0)
+    >>> out = m(torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]))
+    >>> out
+    tensor([[ 1.,  4.,  9.],
+            [16., 25., 36.]])
+
+    ```
+    """
+
+    def __init__(self, exponent: float) -> None:
+        super().__init__()
+        self._exponent = float(exponent)
+
+    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        return input.pow(self._exponent)
+
+    def extra_repr(self) -> str:
+        return f"exponent={self._exponent}"
+
+
 class SafeExp(nn.Module):
     r"""Implement a ``torch.nn.Module`` to compute the exponential of the
     elements.
@@ -321,7 +359,7 @@ class Square(nn.Module):
     >>> from sonnix.modules import Square
     >>> m = Square()
     >>> m
-    Squared()
+    Square()
     >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
     >>> out
     tensor([[ 0.,  1.,  4.,  9.],
