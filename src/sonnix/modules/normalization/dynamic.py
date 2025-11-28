@@ -44,8 +44,8 @@ class DynamicAsinh(nn.Module):
     DynamicAsinh(normalized_shape=(5,))
     >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
     >>> out
-    tensor([[-1.1752, -0.5211,  0.0000,  0.5211,  1.1752],
-            [ 2.1293,  1.1752,  0.5211,  1.1752,  2.1293]], grad_fn=<AddBackward0>)
+    tensor([[-0.8814, -0.4812,  0.0000,  0.4812,  0.8814],
+            [ 1.1948,  0.8814,  0.4812,  0.8814,  1.1948]], grad_fn=<AddBackward0>)
 
     ```
     """
