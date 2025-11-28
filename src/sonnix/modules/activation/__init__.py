@@ -16,6 +16,7 @@ __all__ = [
     "Pow",
     "Quadratic",
     "ReLUn",
+    "RectifierAsinhUnit",
     "SafeExp",
     "SafeLog",
     "Sin",
@@ -33,6 +34,7 @@ from sonnix.modules.activation.alpha import (
     MultiQuadratic,
     Quadratic,
 )
+from sonnix.modules.activation.hyperbolic import RectifierAsinhUnit
 from sonnix.modules.activation.math import (
     Asinh,
     Exp,
