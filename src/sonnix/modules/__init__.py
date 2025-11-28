@@ -17,6 +17,7 @@ __all__ = [
     "Log",
     "Log1p",
     "MultiQuadratic",
+    "MulticlassFlatten",
     "MultiplicationFusion",
     "NLinear",
     "Quadratic",
@@ -28,7 +29,9 @@ __all__ = [
     "Sinh",
     "Snake",
     "SquaredReLU",
+    "Squeeze",
     "SumFusion",
+    "View",
 ]
 
 from sonnix.modules.activations import (
@@ -61,3 +64,4 @@ from sonnix.modules.fusion import (
 from sonnix.modules.fusion.clamp import Clamp
 from sonnix.modules.nlinear import NLinear
 from sonnix.modules.residual import ResidualBlock
+from sonnix.modules.shape import MulticlassFlatten, Squeeze, View
