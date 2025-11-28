@@ -8,6 +8,7 @@ __all__ = [
     "BaseAlphaActivation",
     "Clamp",
     "ConcatFusion",
+    "ExU",
     "Exp",
     "ExpSin",
     "Expm1",
@@ -50,6 +51,7 @@ from sonnix.modules.activations import (
     Snake,
     SquaredReLU,
 )
+from sonnix.modules.exu import ExU
 from sonnix.modules.fusion import (
     AverageFusion,
     ConcatFusion,
