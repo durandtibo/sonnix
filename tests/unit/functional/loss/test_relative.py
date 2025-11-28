@@ -62,9 +62,10 @@ def test_relative_loss_reduction_none(device: str) -> None:
         loss=torch.nn.functional.mse_loss(prediction, target, reduction="none"),
         indicator=classical_relative_indicator(prediction, target),
         reduction="none",
+        eps=0.01,
     )
     assert objects_are_equal(
-        loss, torch.tensor([[4e8, 0.0, 1.0], [12.0, 16.0, 0.0]], device=device)
+        loss, torch.tensor([[400.0, 0.0, 1.0], [12.0, 16.0, 0.0]], device=device)
     )
 
 
@@ -105,9 +106,10 @@ def test_relative_loss_indicator_classical_relative(device: str) -> None:
         loss=torch.nn.functional.mse_loss(prediction, target, reduction="none"),
         indicator=classical_relative_indicator(prediction, target),
         reduction="none",
+        eps=0.01,
     )
     assert objects_are_equal(
-        loss, torch.tensor([[4e8, 0.0, 1.0], [12.0, 16.0, 0.0]], device=device)
+        loss, torch.tensor([[400.0, 0.0, 1.0], [12.0, 16.0, 0.0]], device=device)
     )
 
 
@@ -121,8 +123,11 @@ def test_relative_loss_indicator_reversed_relative(device: str) -> None:
         loss=torch.nn.functional.mse_loss(prediction, target, reduction="none"),
         indicator=reversed_relative_indicator(prediction, target),
         reduction="none",
+        eps=0.01,
     )
-    assert objects_are_equal(loss, torch.tensor([[2.0, 0.0, 1e8], [12.0, 3.2, 0.0]], device=device))
+    assert objects_are_equal(
+        loss, torch.tensor([[2.0, 0.0, 100.0], [12.0, 3.2, 0.0]], device=device)
+    )
 
 
 def test_relative_loss_incorrect_shapes() -> None:
