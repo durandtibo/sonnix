@@ -1,4 +1,4 @@
-# Contributing to `objectory`
+# Contributing to `sonnix`
 
 We want to make contributing to this project as easy and transparent as possible.
 
@@ -39,5 +39,5 @@ Please outline the motivation for the proposal.
 
 ## License
 
-By contributing to `objectory`, you agree that your contributions will be licensed under the LICENSE
+By contributing to `sonnix`, you agree that your contributions will be licensed under the LICENSE
 file in the root directory of this source tree.
