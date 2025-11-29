@@ -56,16 +56,22 @@ def docformat(c: Context) -> None:
 
 @task
 def install(
-    c: Context, optional_deps: bool = True, dev_deps: bool = True, docs_deps: bool = False
+    c: Context,
+    optional_deps: bool = True,
+    dev_deps: bool = True,
+    docs_deps: bool = False,
+    notebook_deps: bool = False,
 ) -> None:
     r"""Install packages."""
     cmd = ["uv sync --frozen"]
     if optional_deps:
         cmd.append("--all-extras")
     if dev_deps:
-        cmd.append("--group dev --group dev-visu")
+        cmd.append("--group dev")
     if docs_deps:
         cmd.append("--group docs")
+    if notebook_deps:
+        cmd.append("--group notebook")
     c.run(" ".join(cmd), pty=True)
 
 
