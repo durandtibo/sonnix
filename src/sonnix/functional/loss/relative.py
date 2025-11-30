@@ -114,6 +114,8 @@ def classical_relative_indicator(
     Returns:
         The indicator values.
 
+    Example usage:
+
     ```pycon
 
     >>> import torch
@@ -139,6 +141,8 @@ def geometric_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> 
 
     Returns:
         The indicator values.
+
+    Example usage:
 
     ```pycon
 
@@ -166,6 +170,8 @@ def maximum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
     Returns:
         The indicator values.
 
+    Example usage:
+
     ```pycon
 
     >>> import torch
@@ -191,6 +197,8 @@ def minimum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
 
     Returns:
         The indicator values.
+
+    Example usage:
 
     ```pycon
 
@@ -221,6 +229,8 @@ def moment_mean_indicator(
     Returns:
         The indicator values.
 
+    Example usage:
+
     ```pycon
 
     >>> import torch
@@ -249,6 +259,8 @@ def reversed_relative_indicator(
 
     Returns:
         The indicator values.
+
+    Example usage:
 
     ```pycon
 

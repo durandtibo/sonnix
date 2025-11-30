@@ -12,7 +12,7 @@ from sonnix.functional import rectifier_asinh_unit
 
 class RectifierAsinhUnit(nn.Module):
     r"""Implement a ``torch.nn.Module`` to compute the inverse hyperbolic
-    sine (arcsinh) of the positive elements, and zero for the nagetive
+    sine (arcsinh) of the positive elements, and zero for the negative
     elements.
 
     Shape:
