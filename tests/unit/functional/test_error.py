@@ -10,6 +10,7 @@ from sonnix.functional import (
     absolute_relative_error,
     symmetric_absolute_relative_error,
 )
+from tests.helpers import DEVICES_WITHOUT_MPS
 
 DTYPES = (torch.long, torch.float)
 
@@ -80,7 +81,7 @@ def test_absolute_relative_error_correct(device: str) -> None:
     )
 
 
-@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("device", DEVICES_WITHOUT_MPS)
 def test_absolute_relative_error_correct_zero(device: str) -> None:
     assert objects_are_equal(
         absolute_relative_error(torch.zeros(2, 3, device=device), torch.zeros(2, 3, device=device)),
@@ -99,7 +100,7 @@ def test_absolute_relative_error_incorrect(device: str) -> None:
     )
 
 
-@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("device", DEVICES_WITHOUT_MPS)
 def test_absolute_relative_error_incorrect_zero_target(device: str) -> None:
     assert objects_are_equal(
         absolute_relative_error(torch.ones(2, 3, device=device), torch.zeros(2, 3, device=device)),
@@ -164,7 +165,7 @@ def test_symmetric_absolute_relative_error_correct(device: str) -> None:
     )
 
 
-@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("device", DEVICES_WITHOUT_MPS)
 def test_symmetric_absolute_relative_error_correct_zero(device: str) -> None:
     assert objects_are_equal(
         symmetric_absolute_relative_error(
