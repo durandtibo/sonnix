@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def rectifier_asinh_unit(input: torch.Tensor) -> torch.Tensor:  # noqa: A002
     r"""Compute the inverse hyperbolic sine (arcsinh) of the positive
-    elements, and zero for the nagetive elements.
+    elements, and zero for the negative elements.
 
     Args:
         input: The input tensor.

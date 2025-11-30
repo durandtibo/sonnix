@@ -1,4 +1,8 @@
-r"""Define some PyTest fixtures."""
+r"""Define PyTest fixtures and markers for conditional test execution.
+
+This module provides reusable pytest markers that can be used to skip tests
+based on the availability of optional dependencies or hardware features.
+"""
 
 from __future__ import annotations
 

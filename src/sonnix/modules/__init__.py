@@ -1,4 +1,9 @@
-r"""Contain modules."""
+r"""Provide custom PyTorch modules and layers.
+
+This subpackage contains custom ``torch.nn.Module`` implementations
+including activation functions, loss functions, fusion layers, numerical
+encoders, and other building blocks for neural networks.
+"""
 
 from __future__ import annotations
 

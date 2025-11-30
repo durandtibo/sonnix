@@ -1,4 +1,9 @@
-r"""Contain testing/debugging modules."""
+r"""Provide dummy modules and datasets for testing and debugging purposes.
+
+This module contains lightweight implementations that can be used for unit
+tests and debugging without requiring real data or complex model
+initialization.
+"""
 
 from __future__ import annotations
 
