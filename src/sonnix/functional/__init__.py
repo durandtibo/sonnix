@@ -1,9 +1,9 @@
 r"""Provide functional implementations of PyTorch modules and layers.
 
 This subpackage contains pure function implementations of various neural
-network operations including activation functions, error calculations, and
-loss functions that can be used directly without instantiating module
-objects.
+network operations including activation functions, error calculations,
+and loss functions that can be used directly without instantiating
+module objects.
 """
 
 from __future__ import annotations
