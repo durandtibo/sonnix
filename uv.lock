@@ -780,8 +780,8 @@ name = "docformatter"
 version = "1.7.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "charset-normalizer" },
-    { name = "untokenize" },
+    { name = "charset-normalizer", marker = "python_full_version < '3.14'" },
+    { name = "untokenize", marker = "python_full_version < '3.14'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2a/7b/ee08cb5fe2627ed0b6f0cc4a1c6be6c9c71de5a3e9785de8174273fc3128/docformatter-1.7.7.tar.gz", hash = "sha256:ea0e1e8867e5af468dfc3f9e947b92230a55be9ec17cd1609556387bffac7978", size = 26587, upload-time = "2025-05-11T04:54:04.356Z" }
 wheels = [
@@ -2256,14 +2256,11 @@ wheels = [
 
 [[package]]
 name = "objectory"
-version = "0.2.2"
+version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "tornado" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b1/d7/e63f92136f8d9470b7b3c1b5ce1d2ab87ea3f7d6b5a11ef2c841ada3219c/objectory-0.2.2.tar.gz", hash = "sha256:31b62a66313fa9da8f0845b7b298567bf387ee182dac6a5b018c2cd9f0a21c42", size = 101746, upload-time = "2025-11-16T03:33:38.485Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9b/96/1ccd3e6367c149906bdee2e09c7998fe40eac74a68d9f3b001799fb3081c/objectory-0.3.0.tar.gz", hash = "sha256:9d9a8365934b97654e8d6286b502e0f2c7603db5c9fd9b1b3dad8f66f857bb02", size = 16590, upload-time = "2025-12-14T18:15:12.119Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b3/d5/ee790674e0d7089ede85e465cc6d17e21ea2931eacaa562aa536e1007b71/objectory-0.2.2-py3-none-any.whl", hash = "sha256:40ac83229c07ef172f22e01966b3d39d6335a7539431ee619f80d1d403a2e461", size = 17709, upload-time = "2025-11-16T03:33:37.318Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/d3/01a6f8ab0083eacf8c41fc25c7756edf0a6ed05dc0efa6a4f058c999f6ee/objectory-0.3.0-py3-none-any.whl", hash = "sha256:d09bfb733543143b46ff7d90835907ba5fb3ecbd7df24b2bcb61e142c210626f", size = 20666, upload-time = "2025-12-14T18:15:13.793Z" },
 ]
 
 [[package]]
