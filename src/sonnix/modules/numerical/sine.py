@@ -42,41 +42,41 @@ class CosSinNumericalEncoder(Module):
             the same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import CosSinNumericalEncoder
-    >>> # Example with 1 feature
-    >>> m = CosSinNumericalEncoder(
-    ...     frequency=torch.tensor([[1.0, 2.0, 4.0]]),
-    ...     phase_shift=torch.zeros(1, 3),
-    ... )
-    >>> m
-    CosSinNumericalEncoder(frequency=(1, 6), phase_shift=(1, 6), learnable=False)
-    >>> out = m(torch.tensor([[0.0], [1.0], [2.0], [3.0]]))
-    >>> out
-    tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000]],
-            [[ 0.8415,  0.9093, -0.7568,  0.5403, -0.4161, -0.6536]],
-            [[ 0.9093, -0.7568,  0.9894, -0.4161, -0.6536, -0.1455]],
-            [[ 0.1411, -0.2794, -0.5366, -0.9900,  0.9602,  0.8439]]])
-    >>> # Example with 2 features
-    >>> m = CosSinNumericalEncoder(
-    ...     frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 4.0, 6.0]]),
-    ...     phase_shift=torch.zeros(2, 3),
-    ... )
-    >>> m
-    CosSinNumericalEncoder(frequency=(2, 6), phase_shift=(2, 6), learnable=False)
-    >>> out = m(torch.tensor([[0.0, 3.0], [1.0, 2.0], [2.0, 1.0], [3.0, 0.0]]))
-    >>> out
-    tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000],
-             [-0.2794, -0.5366, -0.7510,  0.9602,  0.8439,  0.6603]],
-            [[ 0.8415,  0.9093, -0.7568,  0.5403, -0.4161, -0.6536],
-             [-0.7568,  0.9894, -0.5366, -0.6536, -0.1455,  0.8439]],
-            [[ 0.9093, -0.7568,  0.9894, -0.4161, -0.6536, -0.1455],
-             [ 0.9093, -0.7568, -0.2794, -0.4161, -0.6536,  0.9602]],
-            [[ 0.1411, -0.2794, -0.5366, -0.9900,  0.9602,  0.8439],
-             [ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000]]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import CosSinNumericalEncoder
+        >>> # Example with 1 feature
+        >>> m = CosSinNumericalEncoder(
+        ...     frequency=torch.tensor([[1.0, 2.0, 4.0]]),
+        ...     phase_shift=torch.zeros(1, 3),
+        ... )
+        >>> m
+        CosSinNumericalEncoder(frequency=(1, 6), phase_shift=(1, 6), learnable=False)
+        >>> out = m(torch.tensor([[0.0], [1.0], [2.0], [3.0]]))
+        >>> out
+        tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000]],
+                [[ 0.8415,  0.9093, -0.7568,  0.5403, -0.4161, -0.6536]],
+                [[ 0.9093, -0.7568,  0.9894, -0.4161, -0.6536, -0.1455]],
+                [[ 0.1411, -0.2794, -0.5366, -0.9900,  0.9602,  0.8439]]])
+        >>> # Example with 2 features
+        >>> m = CosSinNumericalEncoder(
+        ...     frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 4.0, 6.0]]),
+        ...     phase_shift=torch.zeros(2, 3),
+        ... )
+        >>> m
+        CosSinNumericalEncoder(frequency=(2, 6), phase_shift=(2, 6), learnable=False)
+        >>> out = m(torch.tensor([[0.0, 3.0], [1.0, 2.0], [2.0, 1.0], [3.0, 0.0]]))
+        >>> out
+        tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000],
+                 [-0.2794, -0.5366, -0.7510,  0.9602,  0.8439,  0.6603]],
+                [[ 0.8415,  0.9093, -0.7568,  0.5403, -0.4161, -0.6536],
+                 [-0.7568,  0.9894, -0.5366, -0.6536, -0.1455,  0.8439]],
+                [[ 0.9093, -0.7568,  0.9894, -0.4161, -0.6536, -0.1455],
+                 [ 0.9093, -0.7568, -0.2794, -0.4161, -0.6536,  0.9602]],
+                [[ 0.1411, -0.2794, -0.5366, -0.9900,  0.9602,  0.8439],
+                 [ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000]]])
 
-    ```
+        ```
     """
 
     def __init__(self, frequency: Tensor, phase_shift: Tensor, learnable: bool = False) -> None:
@@ -143,17 +143,16 @@ class CosSinNumericalEncoder(Module):
                 range.
 
         Example:
-        ```pycon
+            ```pycon
+            >>> import torch
+            >>> from sonnix.modules import CosSinNumericalEncoder
+            >>> m = CosSinNumericalEncoder.create_rand_frequency(
+            ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
+            ... )
+            >>> m
+            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
 
-        >>> import torch
-        >>> from sonnix.modules import CosSinNumericalEncoder
-        >>> m = CosSinNumericalEncoder.create_rand_frequency(
-        ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
-        ... )
-        >>> m
-        CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
-
-        ```
+            ```
         """
         check_frequency(
             num_frequencies=num_frequencies,
@@ -192,17 +191,16 @@ class CosSinNumericalEncoder(Module):
                 value range.
 
         Example:
-        ```pycon
+            ```pycon
+            >>> import torch
+            >>> from sonnix.modules import CosSinNumericalEncoder
+            >>> m = CosSinNumericalEncoder.create_rand_value_range(
+            ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
+            ... )
+            >>> m
+            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
 
-        >>> import torch
-        >>> from sonnix.modules import CosSinNumericalEncoder
-        >>> m = CosSinNumericalEncoder.create_rand_value_range(
-        ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
-        ... )
-        >>> m
-        CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
-
-        ```
+            ```
         """
         check_abs_range(min_abs_value=min_abs_value, max_abs_value=max_abs_value)
         return cls.create_rand_frequency(
@@ -235,17 +233,16 @@ class CosSinNumericalEncoder(Module):
                 frequencies are evenly spaced in a frequency range.
 
         Example:
-        ```pycon
+            ```pycon
+            >>> import torch
+            >>> from sonnix.modules import CosSinNumericalEncoder
+            >>> m = CosSinNumericalEncoder.create_linspace_frequency(
+            ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
+            ... )
+            >>> m
+            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
 
-        >>> import torch
-        >>> from sonnix.modules import CosSinNumericalEncoder
-        >>> m = CosSinNumericalEncoder.create_linspace_frequency(
-        ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
-        ... )
-        >>> m
-        CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
-
-        ```
+            ```
         """
         check_frequency(
             num_frequencies=num_frequencies,
@@ -281,17 +278,16 @@ class CosSinNumericalEncoder(Module):
                 frequencies are evenly spaced.
 
         Example:
-        ```pycon
+            ```pycon
+            >>> import torch
+            >>> from sonnix.modules import CosSinNumericalEncoder
+            >>> m = CosSinNumericalEncoder.create_linspace_value_range(
+            ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
+            ... )
+            >>> m
+            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
 
-        >>> import torch
-        >>> from sonnix.modules import CosSinNumericalEncoder
-        >>> m = CosSinNumericalEncoder.create_linspace_value_range(
-        ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
-        ... )
-        >>> m
-        CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
-
-        ```
+            ```
         """
         check_abs_range(min_abs_value=min_abs_value, max_abs_value=max_abs_value)
         return cls.create_linspace_frequency(
@@ -325,17 +321,16 @@ class CosSinNumericalEncoder(Module):
                 frequency range.
 
         Example:
-        ```pycon
+            ```pycon
+            >>> import torch
+            >>> from sonnix.modules import CosSinNumericalEncoder
+            >>> m = CosSinNumericalEncoder.create_logspace_frequency(
+            ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
+            ... )
+            >>> m
+            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
 
-        >>> import torch
-        >>> from sonnix.modules import CosSinNumericalEncoder
-        >>> m = CosSinNumericalEncoder.create_logspace_frequency(
-        ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
-        ... )
-        >>> m
-        CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
-
-        ```
+            ```
         """
         check_frequency(
             num_frequencies=num_frequencies,
@@ -375,17 +370,16 @@ class CosSinNumericalEncoder(Module):
                 frequencies are evenly spaced in the log space.
 
         Example:
-        ```pycon
+            ```pycon
+            >>> import torch
+            >>> from sonnix.modules import CosSinNumericalEncoder
+            >>> m = CosSinNumericalEncoder.create_logspace_value_range(
+            ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
+            ... )
+            >>> m
+            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
 
-        >>> import torch
-        >>> from sonnix.modules import CosSinNumericalEncoder
-        >>> m = CosSinNumericalEncoder.create_logspace_value_range(
-        ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
-        ... )
-        >>> m
-        CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
-
-        ```
+            ```
         """
         check_abs_range(min_abs_value=min_abs_value, max_abs_value=max_abs_value)
         return cls.create_logspace_frequency(
@@ -417,41 +411,41 @@ class AsinhCosSinNumericalEncoder(CosSinNumericalEncoder):
             has the same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import AsinhCosSinNumericalEncoder
-    >>> # Example with 1 feature
-    >>> m = AsinhCosSinNumericalEncoder(
-    ...     frequency=torch.tensor([[1.0, 2.0, 4.0]]),
-    ...     phase_shift=torch.zeros(1, 3),
-    ... )
-    >>> m
-    AsinhCosSinNumericalEncoder(frequency=(1, 6), phase_shift=(1, 6), learnable=False)
-    >>> out = m(torch.tensor([[0.0], [1.0], [2.0], [3.0]]))
-    >>> out
-    tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000,  0.0000]],
-            [[ 0.8415,  0.9093, -0.7568,  0.5403, -0.4161, -0.6536,  0.8814]],
-            [[ 0.9093, -0.7568,  0.9894, -0.4161, -0.6536, -0.1455,  1.4436]],
-            [[ 0.1411, -0.2794, -0.5366, -0.9900,  0.9602,  0.8439,  1.8184]]])
-    >>> # Example with 2 features
-    >>> m = AsinhCosSinNumericalEncoder(
-    ...     frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 4.0, 6.0]]),
-    ...     phase_shift=torch.zeros(2, 3),
-    ... )
-    >>> m
-    AsinhCosSinNumericalEncoder(frequency=(2, 6), phase_shift=(2, 6), learnable=False)
-    >>> out = m(torch.tensor([[0.0, 3.0], [1.0, 2.0], [2.0, 1.0], [3.0, 0.0]]))
-    >>> out
-    tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000,  0.0000],
-             [-0.2794, -0.5366, -0.7510,  0.9602,  0.8439,  0.6603,  1.8184]],
-            [[ 0.8415,  0.9093, -0.7568,  0.5403, -0.4161, -0.6536,  0.8814],
-             [-0.7568,  0.9894, -0.5366, -0.6536, -0.1455,  0.8439,  1.4436]],
-            [[ 0.9093, -0.7568,  0.9894, -0.4161, -0.6536, -0.1455,  1.4436],
-             [ 0.9093, -0.7568, -0.2794, -0.4161, -0.6536,  0.9602,  0.8814]],
-            [[ 0.1411, -0.2794, -0.5366, -0.9900,  0.9602,  0.8439,  1.8184],
-             [ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000,  0.0000]]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import AsinhCosSinNumericalEncoder
+        >>> # Example with 1 feature
+        >>> m = AsinhCosSinNumericalEncoder(
+        ...     frequency=torch.tensor([[1.0, 2.0, 4.0]]),
+        ...     phase_shift=torch.zeros(1, 3),
+        ... )
+        >>> m
+        AsinhCosSinNumericalEncoder(frequency=(1, 6), phase_shift=(1, 6), learnable=False)
+        >>> out = m(torch.tensor([[0.0], [1.0], [2.0], [3.0]]))
+        >>> out
+        tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000,  0.0000]],
+                [[ 0.8415,  0.9093, -0.7568,  0.5403, -0.4161, -0.6536,  0.8814]],
+                [[ 0.9093, -0.7568,  0.9894, -0.4161, -0.6536, -0.1455,  1.4436]],
+                [[ 0.1411, -0.2794, -0.5366, -0.9900,  0.9602,  0.8439,  1.8184]]])
+        >>> # Example with 2 features
+        >>> m = AsinhCosSinNumericalEncoder(
+        ...     frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 4.0, 6.0]]),
+        ...     phase_shift=torch.zeros(2, 3),
+        ... )
+        >>> m
+        AsinhCosSinNumericalEncoder(frequency=(2, 6), phase_shift=(2, 6), learnable=False)
+        >>> out = m(torch.tensor([[0.0, 3.0], [1.0, 2.0], [2.0, 1.0], [3.0, 0.0]]))
+        >>> out
+        tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000,  0.0000],
+                 [-0.2794, -0.5366, -0.7510,  0.9602,  0.8439,  0.6603,  1.8184]],
+                [[ 0.8415,  0.9093, -0.7568,  0.5403, -0.4161, -0.6536,  0.8814],
+                 [-0.7568,  0.9894, -0.5366, -0.6536, -0.1455,  0.8439,  1.4436]],
+                [[ 0.9093, -0.7568,  0.9894, -0.4161, -0.6536, -0.1455,  1.4436],
+                 [ 0.9093, -0.7568, -0.2794, -0.4161, -0.6536,  0.9602,  0.8814]],
+                [[ 0.1411, -0.2794, -0.5366, -0.9900,  0.9602,  0.8439,  1.8184],
+                 [ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000,  0.0000]]])
 
-    ```
+        ```
     """
 
     @property

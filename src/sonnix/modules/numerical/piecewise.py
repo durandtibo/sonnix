@@ -39,37 +39,37 @@ class PiecewiseLinearNumericalEncoder(Module):
             the same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import PiecewiseLinearNumericalEncoder
-    >>> # Example with 1 feature
-    >>> m = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[1.0, 2.0, 4.0, 8.0]]))
-    >>> m
-    PiecewiseLinearNumericalEncoder(n_features=1, feature_size=3)
-    >>> out = m(torch.tensor([[0.0], [1.0], [2.0], [3.0]]))
-    >>> out
-    tensor([[[-1.0000,  0.0000,  0.0000]],
-            [[ 0.0000,  0.0000,  0.0000]],
-            [[ 1.0000,  0.0000,  0.0000]],
-            [[ 1.0000,  0.5000,  0.0000]]])
-    >>> # Example with 2 features
-    >>> m = PiecewiseLinearNumericalEncoder(
-    ...     bins=torch.tensor([[1.0, 2.0, 4.0, 8.0], [0.0, 2.0, 4.0, 6.0]])
-    ... )
-    >>> m
-    PiecewiseLinearNumericalEncoder(n_features=2, feature_size=3)
-    >>> out = m(torch.tensor([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0], [3.0, 3.0]]))
-    >>> out
-    tensor([[[-1.0000,  0.0000,  0.0000],
-             [ 0.0000,  0.0000,  0.0000]],
-            [[ 0.0000,  0.0000,  0.0000],
-             [ 0.5000,  0.0000,  0.0000]],
-            [[ 1.0000,  0.0000,  0.0000],
-             [ 1.0000,  0.0000,  0.0000]],
-            [[ 1.0000,  0.5000,  0.0000],
-             [ 1.0000,  0.5000,  0.0000]]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import PiecewiseLinearNumericalEncoder
+        >>> # Example with 1 feature
+        >>> m = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[1.0, 2.0, 4.0, 8.0]]))
+        >>> m
+        PiecewiseLinearNumericalEncoder(n_features=1, feature_size=3)
+        >>> out = m(torch.tensor([[0.0], [1.0], [2.0], [3.0]]))
+        >>> out
+        tensor([[[-1.0000,  0.0000,  0.0000]],
+                [[ 0.0000,  0.0000,  0.0000]],
+                [[ 1.0000,  0.0000,  0.0000]],
+                [[ 1.0000,  0.5000,  0.0000]]])
+        >>> # Example with 2 features
+        >>> m = PiecewiseLinearNumericalEncoder(
+        ...     bins=torch.tensor([[1.0, 2.0, 4.0, 8.0], [0.0, 2.0, 4.0, 6.0]])
+        ... )
+        >>> m
+        PiecewiseLinearNumericalEncoder(n_features=2, feature_size=3)
+        >>> out = m(torch.tensor([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0], [3.0, 3.0]]))
+        >>> out
+        tensor([[[-1.0000,  0.0000,  0.0000],
+                 [ 0.0000,  0.0000,  0.0000]],
+                [[ 0.0000,  0.0000,  0.0000],
+                 [ 0.5000,  0.0000,  0.0000]],
+                [[ 1.0000,  0.0000,  0.0000],
+                 [ 1.0000,  0.0000,  0.0000]],
+                [[ 1.0000,  0.5000,  0.0000],
+                 [ 1.0000,  0.5000,  0.0000]]])
 
-    ```
+        ```
     """
 
     def __init__(self, bins: Tensor) -> None:

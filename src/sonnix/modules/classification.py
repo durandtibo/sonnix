@@ -20,17 +20,17 @@ class ToBinaryLabel(nn.Module):
             labels.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import ToBinaryLabel
-    >>> transform = ToBinaryLabel()
-    >>> transform
-    ToBinaryLabel(threshold=0.0)
-    >>> out = transform(torch.tensor([-1.0, 1.0, -2.0, 1.0]))
-    >>> out
-    tensor([0, 1, 0, 1])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import ToBinaryLabel
+        >>> transform = ToBinaryLabel()
+        >>> transform
+        ToBinaryLabel(threshold=0.0)
+        >>> out = transform(torch.tensor([-1.0, 1.0, -2.0, 1.0]))
+        >>> out
+        tensor([0, 1, 0, 1])
 
-    ```
+        ```
     """
 
     def __init__(self, threshold: float = 0.0) -> None:
@@ -59,16 +59,15 @@ class ToBinaryLabel(nn.Module):
                 and shape ``(d0, d1, ..., dn)``.
 
         Example:
-        ```pycon
+            ```pycon
+            >>> import torch
+            >>> from sonnix.modules import ToBinaryLabel
+            >>> transform = ToBinaryLabel()
+            >>> out = transform(torch.tensor([-1.0, 1.0, -2.0, 1.0]))
+            >>> out
+            tensor([0, 1, 0, 1])
 
-        >>> import torch
-        >>> from sonnix.modules import ToBinaryLabel
-        >>> transform = ToBinaryLabel()
-        >>> out = transform(torch.tensor([-1.0, 1.0, -2.0, 1.0]))
-        >>> out
-        tensor([0, 1, 0, 1])
-
-        ```
+            ```
         """
         return (scores > self._threshold).long()
 
@@ -78,17 +77,17 @@ class ToCategoricalLabel(nn.Module):
     from scores.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import ToCategoricalLabel
-    >>> transform = ToCategoricalLabel()
-    >>> transform
-    ToCategoricalLabel()
-    >>> out = transform(torch.tensor([[1.0, 2.0, 3.0, 4.0], [5.0, 3.0, 2.0, 2.0]]))
-    >>> out
-    tensor([3, 0])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import ToCategoricalLabel
+        >>> transform = ToCategoricalLabel()
+        >>> transform
+        ToCategoricalLabel()
+        >>> out = transform(torch.tensor([[1.0, 2.0, 3.0, 4.0], [5.0, 3.0, 2.0, 2.0]]))
+        >>> out
+        tensor([3, 0])
 
-    ```
+        ```
     """
 
     def forward(self, scores: torch.Tensor) -> torch.Tensor:
@@ -106,15 +105,14 @@ class ToCategoricalLabel(nn.Module):
                 ``(d0, d1, ..., dn)``.
 
         Example:
-        ```pycon
+            ```pycon
+            >>> import torch
+            >>> from sonnix.modules import ToCategoricalLabel
+            >>> transform = ToCategoricalLabel()
+            >>> out = transform(torch.tensor([[1.0, 2.0, 3.0, 4.0], [5.0, 3.0, 2.0, 2.0]]))
+            >>> out
+            tensor([3, 0])
 
-        >>> import torch
-        >>> from sonnix.modules import ToCategoricalLabel
-        >>> transform = ToCategoricalLabel()
-        >>> out = transform(torch.tensor([[1.0, 2.0, 3.0, 4.0], [5.0, 3.0, 2.0, 2.0]]))
-        >>> out
-        tensor([3, 0])
-
-        ```
+            ```
         """
         return scores.argmax(dim=-1, keepdim=False)

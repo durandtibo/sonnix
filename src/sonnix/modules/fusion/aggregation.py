@@ -12,21 +12,21 @@ class MultiplicationFusion(nn.Module):
     r"""Implement a fusion layer that multiplies the inputs.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import MultiplicationFusion
-    >>> module = MultiplicationFusion()
-    >>> module
-    MultiplicationFusion()
-    >>> x1 = torch.tensor([[2.0, 3.0, 4.0], [5.0, 6.0, 7.0]], requires_grad=True)
-    >>> x2 = torch.tensor([[12.0, 13.0, 14.0], [15.0, 16.0, 17.0]], requires_grad=True)
-    >>> out = module(x1, x2)
-    >>> out
-    tensor([[ 24.,  39.,  56.],
-            [ 75.,  96., 119.]], grad_fn=<MulBackward0>)
-    >>> out.mean().backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import MultiplicationFusion
+        >>> module = MultiplicationFusion()
+        >>> module
+        MultiplicationFusion()
+        >>> x1 = torch.tensor([[2.0, 3.0, 4.0], [5.0, 6.0, 7.0]], requires_grad=True)
+        >>> x2 = torch.tensor([[12.0, 13.0, 14.0], [15.0, 16.0, 17.0]], requires_grad=True)
+        >>> out = module(x1, x2)
+        >>> out
+        tensor([[ 24.,  39.,  56.],
+                [ 75.,  96., 119.]], grad_fn=<MulBackward0>)
+        >>> out.mean().backward()
 
-    ```
+        ```
     """
 
     def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
@@ -46,21 +46,21 @@ class SumFusion(nn.Module):
         normalized: The output is normalized by the number of inputs.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import SumFusion
-    >>> module = SumFusion()
-    >>> module
-    SumFusion(normalized=False)
-    >>> x1 = torch.tensor([[2.0, 3.0, 4.0], [5.0, 6.0, 7.0]], requires_grad=True)
-    >>> x2 = torch.tensor([[12.0, 13.0, 14.0], [15.0, 16.0, 17.0]], requires_grad=True)
-    >>> out = module(x1, x2)
-    >>> out
-    tensor([[14., 16., 18.],
-            [20., 22., 24.]], grad_fn=<AddBackward0>)
-    >>> out.mean().backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import SumFusion
+        >>> module = SumFusion()
+        >>> module
+        SumFusion(normalized=False)
+        >>> x1 = torch.tensor([[2.0, 3.0, 4.0], [5.0, 6.0, 7.0]], requires_grad=True)
+        >>> x2 = torch.tensor([[12.0, 13.0, 14.0], [15.0, 16.0, 17.0]], requires_grad=True)
+        >>> out = module(x1, x2)
+        >>> out
+        tensor([[14., 16., 18.],
+                [20., 22., 24.]], grad_fn=<AddBackward0>)
+        >>> out.mean().backward()
 
-    ```
+        ```
     """
 
     def __init__(self, normalized: bool = False) -> None:
@@ -88,21 +88,21 @@ class AverageFusion(SumFusion):
     r"""Implement a layer to average the inputs.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import AverageFusion
-    >>> module = AverageFusion()
-    >>> module
-    AverageFusion(normalized=True)
-    >>> x1 = torch.tensor([[2.0, 3.0, 4.0], [5.0, 6.0, 7.0]], requires_grad=True)
-    >>> x2 = torch.tensor([[12.0, 13.0, 14.0], [15.0, 16.0, 17.0]], requires_grad=True)
-    >>> out = module(x1, x2)
-    >>> out
-    tensor([[ 7.,  8.,  9.],
-            [10., 11., 12.]], grad_fn=<DivBackward0>)
-    >>> out.mean().backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import AverageFusion
+        >>> module = AverageFusion()
+        >>> module
+        AverageFusion(normalized=True)
+        >>> x1 = torch.tensor([[2.0, 3.0, 4.0], [5.0, 6.0, 7.0]], requires_grad=True)
+        >>> x2 = torch.tensor([[12.0, 13.0, 14.0], [15.0, 16.0, 17.0]], requires_grad=True)
+        >>> out = module(x1, x2)
+        >>> out
+        tensor([[ 7.,  8.,  9.],
+                [10., 11., 12.]], grad_fn=<DivBackward0>)
+        >>> out.mean().backward()
 
-    ```
+        ```
     """
 
     def __init__(self) -> None:

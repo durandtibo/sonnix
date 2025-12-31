@@ -30,18 +30,18 @@ class BaseDynamicNorm(nn.Module):
         - Output: ``(N, *)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import DynamicTanh
-    >>> m = DynamicTanh(normalized_shape=5)
-    >>> m
-    DynamicTanh(normalized_shape=(5,))
-    >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
-    >>> out
-    tensor([[-0.7616, -0.4621,  0.0000,  0.4621,  0.7616],
-            [ 0.9051,  0.7616,  0.4621,  0.7616,  0.9051]], grad_fn=<AddBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import DynamicTanh
+        >>> m = DynamicTanh(normalized_shape=5)
+        >>> m
+        DynamicTanh(normalized_shape=(5,))
+        >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
+        >>> out
+        tensor([[-0.7616, -0.4621,  0.0000,  0.4621,  0.7616],
+                [ 0.9051,  0.7616,  0.4621,  0.7616,  0.9051]], grad_fn=<AddBackward0>)
 
-    ```
+        ```
     """
 
     def __init__(
@@ -87,18 +87,18 @@ class DynamicAsinh(BaseDynamicNorm):
         - Output: ``(N, *)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import DynamicAsinh
-    >>> m = DynamicAsinh(normalized_shape=5)
-    >>> m
-    DynamicAsinh(normalized_shape=(5,))
-    >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
-    >>> out
-    tensor([[-0.8814, -0.4812,  0.0000,  0.4812,  0.8814],
-            [ 1.1948,  0.8814,  0.4812,  0.8814,  1.1948]], grad_fn=<AddBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import DynamicAsinh
+        >>> m = DynamicAsinh(normalized_shape=5)
+        >>> m
+        DynamicAsinh(normalized_shape=(5,))
+        >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
+        >>> out
+        tensor([[-0.8814, -0.4812,  0.0000,  0.4812,  0.8814],
+                [ 1.1948,  0.8814,  0.4812,  0.8814,  1.1948]], grad_fn=<AddBackward0>)
 
-    ```
+        ```
     """
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -129,18 +129,18 @@ class DynamicTanh(BaseDynamicNorm):
         - Output: ``(N, *)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import DynamicTanh
-    >>> m = DynamicTanh(normalized_shape=5)
-    >>> m
-    DynamicTanh(normalized_shape=(5,))
-    >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
-    >>> out
-    tensor([[-0.7616, -0.4621,  0.0000,  0.4621,  0.7616],
-            [ 0.9051,  0.7616,  0.4621,  0.7616,  0.9051]], grad_fn=<AddBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import DynamicTanh
+        >>> m = DynamicTanh(normalized_shape=5)
+        >>> m
+        DynamicTanh(normalized_shape=(5,))
+        >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
+        >>> out
+        tensor([[-0.7616, -0.4621,  0.0000,  0.4621,  0.7616],
+                [ 0.9051,  0.7616,  0.4621,  0.7616,  0.9051]], grad_fn=<AddBackward0>)
 
-    ```
+        ```
     """
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

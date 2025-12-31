@@ -29,18 +29,18 @@ class ScaleAndShift(nn.Module):
         - Output: ``(N, *)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import ScaleAndShift
-    >>> m = ScaleAndShift(normalized_shape=5)
-    >>> m
-    ScaleAndShift(normalized_shape=(5,))
-    >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
-    >>> out
-    tensor([[-2., -1.,  0.,  1.,  2.],
-            [ 3.,  2.,  1.,  2.,  3.]], grad_fn=<AddBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import ScaleAndShift
+        >>> m = ScaleAndShift(normalized_shape=5)
+        >>> m
+        ScaleAndShift(normalized_shape=(5,))
+        >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
+        >>> out
+        tensor([[-2., -1.,  0.,  1.,  2.],
+                [ 3.,  2.,  1.,  2.,  3.]], grad_fn=<AddBackward0>)
 
-    ```
+        ```
     """
 
     def __init__(self, normalized_shape: int | list[int] | tuple[int, ...]) -> None:

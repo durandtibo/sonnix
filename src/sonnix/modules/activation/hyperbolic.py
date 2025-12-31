@@ -20,18 +20,18 @@ class RectifierAsinhUnit(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import RectifierAsinhUnit
-    >>> m = RectifierAsinhUnit()
-    >>> m
-    RectifierAsinhUnit()
-    >>> out = m(torch.tensor([[-1.0, 0.0, 1.0], [-2.0, 2.0, 4.0]]))
-    >>> out
-    tensor([[0.0000, 0.0000, 0.8814],
-            [0.0000, 1.4436, 2.0947]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import RectifierAsinhUnit
+        >>> m = RectifierAsinhUnit()
+        >>> m
+        RectifierAsinhUnit()
+        >>> out = m(torch.tensor([[-1.0, 0.0, 1.0], [-2.0, 2.0, 4.0]]))
+        >>> out
+        tensor([[0.0000, 0.0000, 0.8814],
+                [0.0000, 1.4436, 2.0947]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002

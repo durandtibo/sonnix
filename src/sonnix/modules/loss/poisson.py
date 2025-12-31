@@ -29,18 +29,18 @@ class PoissonRegressionLoss(nn.Module):
             undefined results when the count is zero.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import PoissonRegressionLoss
-    >>> criterion = PoissonRegressionLoss()
-    >>> criterion
-    PoissonRegressionLoss(reduction=mean, eps=1e-08)
-    >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import PoissonRegressionLoss
+        >>> criterion = PoissonRegressionLoss()
+        >>> criterion
+        PoissonRegressionLoss(reduction=mean, eps=1e-08)
+        >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(self, reduction: str = "mean", eps: float = 1e-8) -> None:

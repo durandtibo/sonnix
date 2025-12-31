@@ -22,19 +22,19 @@ class MulticlassFlatten(nn.Module):
     and is reshaped to ``(d1 * d2 * ... * dn,)``.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import MulticlassFlatten
-    >>> m = MulticlassFlatten(torch.nn.CrossEntropyLoss())
-    >>> m
-    MulticlassFlatten(
-      (module): CrossEntropyLoss()
-    )
-    >>> out = m(torch.ones(6, 2, 4, requires_grad=True), torch.zeros(6, 2, dtype=torch.long))
-    >>> out
-    tensor(1.3863, grad_fn=<NllLossBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import MulticlassFlatten
+        >>> m = MulticlassFlatten(torch.nn.CrossEntropyLoss())
+        >>> m
+        MulticlassFlatten(
+          (module): CrossEntropyLoss()
+        )
+        >>> out = m(torch.ones(6, 2, 4, requires_grad=True), torch.zeros(6, 2, dtype=torch.long))
+        >>> out
+        tensor(1.3863, grad_fn=<NllLossBackward0>)
 
-    ```
+        ```
     """
 
     def __init__(self, module: nn.Module | dict) -> None:
@@ -55,17 +55,17 @@ class Squeeze(nn.Module):
             removed.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Squeeze
-    >>> m = Squeeze()
-    >>> m
-    Squeeze(dim=None)
-    >>> out = m(torch.ones(2, 1, 3, 1))
-    >>> out.shape
-    torch.Size([2, 3])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Squeeze
+        >>> m = Squeeze()
+        >>> m
+        Squeeze(dim=None)
+        >>> out = m(torch.ones(2, 1, 3, 1))
+        >>> out.shape
+        torch.Size([2, 3])
 
-    ```
+        ```
     """
 
     def __init__(self, dim: int | None = None) -> None:
@@ -89,17 +89,17 @@ class View(nn.Module):
         shape: The desired shape.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import View
-    >>> m = View(shape=(-1, 2, 3))
-    >>> m
-    View(shape=(-1, 2, 3))
-    >>> out = m(torch.ones(4, 5, 2, 3))
-    >>> out.shape
-    torch.Size([20, 2, 3])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import View
+        >>> m = View(shape=(-1, 2, 3))
+        >>> m
+        View(shape=(-1, 2, 3))
+        >>> out = m(torch.ones(4, 5, 2, 3))
+        >>> out.shape
+        torch.Size([20, 2, 3])
 
-    ```
+        ```
     """
 
     def __init__(self, shape: tuple[int, ...] | list[int]) -> None:

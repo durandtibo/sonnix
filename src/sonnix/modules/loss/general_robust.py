@@ -49,20 +49,20 @@ class GeneralRobustRegressionLoss(nn.Module):
           shape as input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import GeneralRobustRegressionLoss
-    >>> criterion = GeneralRobustRegressionLoss()
-    >>> criterion
-    GeneralRobustRegressionLoss(alpha=2.0, scale=1.0, max=None, reduction=mean)
-    >>> input = torch.randn(3, 2, requires_grad=True)
-    >>> target = torch.rand(3, 2, requires_grad=False)
-    >>> loss = criterion(input, target)
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import GeneralRobustRegressionLoss
+        >>> criterion = GeneralRobustRegressionLoss()
+        >>> criterion
+        GeneralRobustRegressionLoss(alpha=2.0, scale=1.0, max=None, reduction=mean)
+        >>> input = torch.randn(3, 2, requires_grad=True)
+        >>> target = torch.rand(3, 2, requires_grad=False)
+        >>> loss = criterion(input, target)
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(

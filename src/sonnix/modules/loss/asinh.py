@@ -29,18 +29,18 @@ class AsinhMSELoss(nn.Module):
             input, ``'sum'``: the output will be summed.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import AsinhMSELoss
-    >>> criterion = AsinhMSELoss()
-    >>> criterion
-    AsinhMSELoss(reduction=mean)
-    >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
-    >>> loss
-    tensor(..., grad_fn=<MseLossBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import AsinhMSELoss
+        >>> criterion = AsinhMSELoss()
+        >>> criterion
+        AsinhMSELoss(reduction=mean)
+        >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss
+        tensor(..., grad_fn=<MseLossBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(self, reduction: str = "mean") -> None:
@@ -73,18 +73,18 @@ class AsinhSmoothL1Loss(nn.Module):
             The value must be non-negative.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import AsinhSmoothL1Loss
-    >>> criterion = AsinhSmoothL1Loss()
-    >>> criterion
-    AsinhSmoothL1Loss(reduction=mean, beta=1.0)
-    >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
-    >>> loss
-    tensor(..., grad_fn=<SmoothL1LossBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import AsinhSmoothL1Loss
+        >>> criterion = AsinhSmoothL1Loss()
+        >>> criterion
+        AsinhSmoothL1Loss(reduction=mean, beta=1.0)
+        >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss
+        tensor(..., grad_fn=<SmoothL1LossBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(self, reduction: str = "mean", beta: float = 1.0) -> None:

@@ -17,18 +17,18 @@ class ToFloat(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import ToFloat
-    >>> m = ToFloat()
-    >>> m
-    ToFloat()
-    >>> out = m(torch.tensor([[2, -1, 0], [1, 2, 3]]))
-    >>> out
-    tensor([[ 2., -1.,  0.],
-            [ 1.,  2.,  3.]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import ToFloat
+        >>> m = ToFloat()
+        >>> m
+        ToFloat()
+        >>> out = m(torch.tensor([[2, -1, 0], [1, 2, 3]]))
+        >>> out
+        tensor([[ 2., -1.,  0.],
+                [ 1.,  2.,  3.]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
@@ -44,18 +44,18 @@ class ToLong(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import ToLong
-    >>> m = ToLong()
-    >>> m
-    ToLong()
-    >>> out = m(torch.tensor([[2.0, -1.0, 0.0], [1.0, 2.0, 3.0]]))
-    >>> out
-    tensor([[ 2, -1,  0],
-            [ 1,  2,  3]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import ToLong
+        >>> m = ToLong()
+        >>> m
+        ToLong()
+        >>> out = m(torch.tensor([[2.0, -1.0, 0.0], [1.0, 2.0, 3.0]]))
+        >>> out
+        tensor([[ 2, -1,  0],
+                [ 1,  2,  3]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002

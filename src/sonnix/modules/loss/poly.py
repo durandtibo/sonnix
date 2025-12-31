@@ -40,20 +40,20 @@ class BinaryPoly1Loss(nn.Module):
             same shape as input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import BinaryPoly1Loss
-    >>> criterion = BinaryPoly1Loss()
-    >>> criterion
-    BinaryPoly1Loss(alpha=1.0, reduction=mean)
-    >>> prediction = torch.rand(2, 4, requires_grad=True)
-    >>> target = torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]])
-    >>> loss = criterion(prediction, target)
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import BinaryPoly1Loss
+        >>> criterion = BinaryPoly1Loss()
+        >>> criterion
+        BinaryPoly1Loss(alpha=1.0, reduction=mean)
+        >>> prediction = torch.rand(2, 4, requires_grad=True)
+        >>> target = torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]])
+        >>> loss = criterion(prediction, target)
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(self, alpha: float = 1.0, reduction: str = "mean") -> None:
@@ -118,20 +118,20 @@ class BinaryPoly1LossWithLogits(nn.Module):
             same shape as input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import BinaryPoly1LossWithLogits
-    >>> criterion = BinaryPoly1LossWithLogits()
-    >>> criterion
-    BinaryPoly1LossWithLogits(alpha=1.0, reduction=mean)
-    >>> prediction = torch.randn(2, 4, requires_grad=True)
-    >>> target = torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]])
-    >>> loss = criterion(prediction, target)
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import BinaryPoly1LossWithLogits
+        >>> criterion = BinaryPoly1LossWithLogits()
+        >>> criterion
+        BinaryPoly1LossWithLogits(alpha=1.0, reduction=mean)
+        >>> prediction = torch.randn(2, 4, requires_grad=True)
+        >>> target = torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]])
+        >>> loss = criterion(prediction, target)
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(self, alpha: float = 1.0, reduction: str = "mean") -> None:
