@@ -12,10 +12,10 @@ __all__ = [
 ]
 
 import torch
-from torch.nn import Module, Parameter
+from torch import nn
 
 
-class BaseAlphaActivation(Module):
+class BaseAlphaActivation(nn.Module):
     r"""Define a base class to implement an activation layer with a
     learnable parameter ``alpha``.
 
@@ -53,7 +53,7 @@ class BaseAlphaActivation(Module):
 
     def __init__(self, num_parameters: int = 1, init: float = 1.0, learnable: bool = True) -> None:
         super().__init__()
-        self.alpha = Parameter(
+        self.alpha: nn.Parameter = nn.Parameter(
             torch.full((num_parameters,), init, dtype=torch.float), requires_grad=learnable
         )
 

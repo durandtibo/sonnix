@@ -17,7 +17,7 @@ __all__ = [
 ]
 
 import logging
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from torch.nn import Module, Sequential
 from torch.optim import Optimizer
@@ -37,10 +37,10 @@ else:  # pragma: no cover
 T = TypeVar("T")
 
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-def is_dataset_config(config: dict) -> bool:
+def is_dataset_config(config: dict[Any, Any]) -> bool:
     r"""Indicate if the input configuration is a configuration for a
     ``torch.nn.Module``.
 
@@ -73,7 +73,7 @@ def is_dataset_config(config: dict) -> bool:
     return is_object_config(config, Dataset)
 
 
-def is_module_config(config: dict) -> bool:
+def is_module_config(config: dict[Any, Any]) -> bool:
     r"""Indicate if the input configuration is a configuration for a
     ``torch.nn.Module``.
 
@@ -100,7 +100,7 @@ def is_module_config(config: dict) -> bool:
     return is_object_config(config, Module)
 
 
-def is_optimizer_config(config: dict) -> bool:
+def is_optimizer_config(config: dict[Any, Any]) -> bool:
     r"""Indicate if the input configuration is a configuration for a
     ``torch.optim.Optimizer``.
 
@@ -129,7 +129,7 @@ def is_optimizer_config(config: dict) -> bool:
     return is_object_config(config, Optimizer)
 
 
-def setup_dataset(dataset: Dataset | dict) -> Dataset:
+def setup_dataset(dataset: Dataset[T] | dict[Any, Any]) -> Dataset[T]:
     r"""Set up a ``torch.utils.data.Dataset`` object.
 
     Args:
@@ -156,7 +156,7 @@ def setup_dataset(dataset: Dataset | dict) -> Dataset:
     return setup_object_typed(obj_or_config=dataset, cls=Dataset, name="torch.utils.data.Dataset")
 
 
-def setup_module(module: Module | dict) -> Module:
+def setup_module(module: Module | dict[Any, Any]) -> Module:
     r"""Set up a ``torch.nn.Module`` object.
 
     Args:
@@ -179,7 +179,7 @@ def setup_module(module: Module | dict) -> Module:
     return setup_object_typed(obj_or_config=module, cls=Module, name="torch.nn.Module")
 
 
-def setup_optimizer(optimizer: Optimizer | dict) -> Optimizer:
+def setup_optimizer(optimizer: Optimizer | dict[Any, Any]) -> Optimizer:
     r"""Set up a ``torch.optim.Optimizer`` object.
 
     Args:
@@ -213,7 +213,7 @@ def setup_optimizer(optimizer: Optimizer | dict) -> Optimizer:
     return setup_object_typed(obj_or_config=optimizer, cls=Optimizer, name="torch.optim.Optimizer")
 
 
-def create_sequential(modules: Sequence[Module | dict]) -> Sequential:
+def create_sequential(modules: Sequence[Module | dict[Any, Any]]) -> Sequential:
     r"""Create a ``torch.nn.Sequential`` from a sequence of modules.
 
     Args:
@@ -244,7 +244,7 @@ def create_sequential(modules: Sequence[Module | dict]) -> Sequential:
     return Sequential(*[setup_module(module) for module in modules])
 
 
-def setup_object(obj_or_config: T | dict) -> T:
+def setup_object(obj_or_config: T | dict[Any, Any]) -> T:
     r"""Set up an object from its configuration.
 
     Args:
@@ -277,7 +277,7 @@ def setup_object(obj_or_config: T | dict) -> T:
     return obj_or_config
 
 
-def setup_object_typed(obj_or_config: T | dict, cls: type, name: str | None = None) -> T:
+def setup_object_typed(obj_or_config: T | dict[Any, Any], cls: type, name: str | None = None) -> T:
     r"""Set up an object from its configuration.
 
     Args:
@@ -320,7 +320,7 @@ def setup_object_typed(obj_or_config: T | dict, cls: type, name: str | None = No
     return obj
 
 
-def str_target_object(config: dict) -> str:
+def str_target_object(config: dict[Any, Any]) -> str:
     r"""Get a string that indicates the target object in the config.
 
     Args:

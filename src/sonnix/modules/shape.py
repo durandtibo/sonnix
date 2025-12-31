@@ -37,9 +37,9 @@ class MulticlassFlatten(nn.Module):
         ```
     """
 
-    def __init__(self, module: nn.Module | dict) -> None:
+    def __init__(self, module: nn.Module | dict[Any, Any]) -> None:
         super().__init__()
-        self.module = setup_module(module)
+        self.module: nn.Module = setup_module(module)
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> Any:
         target = torch.flatten(target)

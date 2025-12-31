@@ -7,14 +7,15 @@ __all__ = ["NLinear"]
 import math
 from typing import TYPE_CHECKING
 
-import torch.nn
-from torch.nn import Module, Parameter, init
+import torch
+from torch import nn
+from torch.nn import init
 
 if TYPE_CHECKING:
     from torch import Tensor
 
 
-class NLinear(Module):
+class NLinear(nn.Module):
     r"""Implement N separate linear layers.
 
     Technically, ``NLinear(n, in, out)`` is just a layout of ``n``
@@ -62,9 +63,11 @@ class NLinear(Module):
     ) -> None:
         super().__init__()
         factory_kwargs = {"device": device, "dtype": dtype}
-        self.weight = Parameter(torch.empty((n, in_features, out_features), **factory_kwargs))
+        self.weight: nn.Parameter = nn.Parameter(
+            torch.empty((n, in_features, out_features), **factory_kwargs)
+        )
         if bias:
-            self.bias = Parameter(torch.empty(n, out_features, **factory_kwargs))
+            self.bias: nn.Parameter = nn.Parameter(torch.empty(n, out_features, **factory_kwargs))
         else:
             self.register_parameter("bias", None)
         self.reset_parameters()

@@ -46,7 +46,7 @@ class AsinhMSELoss(nn.Module):
     def __init__(self, reduction: str = "mean") -> None:
         super().__init__()
         check_loss_reduction_strategy(reduction)
-        self.reduction = str(reduction)
+        self.reduction = reduction
 
     def extra_repr(self) -> str:
         return f"reduction={self.reduction}"
@@ -90,7 +90,7 @@ class AsinhSmoothL1Loss(nn.Module):
     def __init__(self, reduction: str = "mean", beta: float = 1.0) -> None:
         super().__init__()
         check_loss_reduction_strategy(reduction)
-        self.reduction = str(reduction)
+        self.reduction = reduction
         self._beta = float(beta)
 
     def extra_repr(self) -> str:

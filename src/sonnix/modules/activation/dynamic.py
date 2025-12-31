@@ -53,9 +53,9 @@ class BaseDynamicNorm(nn.Module):
         self._normalized_shape = tuple(normalized_shape)
         self._alpha_init_value = alpha_init_value
 
-        self.alpha = nn.Parameter(torch.empty(1))
-        self.weight = nn.Parameter(torch.empty(self._normalized_shape))
-        self.bias = nn.Parameter(torch.empty(self._normalized_shape))
+        self.alpha: nn.Parameter = nn.Parameter(torch.empty(1))
+        self.weight: nn.Parameter = nn.Parameter(torch.empty(self._normalized_shape))
+        self.bias: nn.Parameter = nn.Parameter(torch.empty(self._normalized_shape))
         self.reset_parameters()
 
     def extra_repr(self) -> str:
