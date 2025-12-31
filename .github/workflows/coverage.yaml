@@ -9,13 +9,13 @@ permissions:
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
       - name: Setup python environment
-        uses: ./.github/actions/setup-env
+        uses: durandtibo/setup-venv-uv-action@v0.0.3
 
       - name: Run unit tests
         run: |

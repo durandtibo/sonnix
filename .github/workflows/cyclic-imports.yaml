@@ -9,17 +9,31 @@ permissions:
 jobs:
   cyclic-imports:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
 
     steps:
       - uses: actions/checkout@v6
 
       - name: Setup python environment
-        uses: ./.github/actions/setup-env
+        uses: durandtibo/setup-venv-uv-action@v0.0.3
 
       - name: check sonnix
         run: |
           python -c "import sonnix"
+
+      - name: check sonnix.functional
+        run: |
+          python -c "from sonnix import functional"
+          python -c "from sonnix.functional import activation"
+          python -c "from sonnix.functional import loss"
+
+      - name: check sonnix.modules
+        run: |
+          python -c "from sonnix import modules"
+          python -c "from sonnix.modules import activation"
+          python -c "from sonnix.modules import fusion"
+          python -c "from sonnix.modules import loss"
+          python -c "from sonnix.modules import numerical"
 
       - name: check sonnix.utils
         run: |
