@@ -28,10 +28,8 @@ class AsinhMSELoss(nn.Module):
             sum will be divided by the number of elements in the
             input, ``'sum'``: the output will be summed.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import AsinhMSELoss
     >>> criterion = AsinhMSELoss()
@@ -74,10 +72,8 @@ class AsinhSmoothL1Loss(nn.Module):
         beta: The threshold at which to change between L1 and L2 loss.
             The value must be non-negative.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import AsinhSmoothL1Loss
     >>> criterion = AsinhSmoothL1Loss()

@@ -36,10 +36,8 @@ class RelativeLoss(nn.Module):
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import RelativeLoss
     >>> from sonnix.modules.loss import ClassicalRelativeIndicator
@@ -107,10 +105,8 @@ class RelativeMSELoss(RelativeLoss):
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import RelativeMSELoss
     >>> from sonnix.modules.loss import ClassicalRelativeIndicator
@@ -160,10 +156,8 @@ class RelativeSmoothL1Loss(RelativeLoss):
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import RelativeSmoothL1Loss
     >>> from sonnix.modules.loss import ClassicalRelativeIndicator

@@ -36,10 +36,8 @@ class BaseAlphaActivation(Module):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import MultiQuadratic
     >>> m = MultiQuadratic()
@@ -86,10 +84,8 @@ class ExpSin(BaseAlphaActivation):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import ExpSin
     >>> m = ExpSin()
@@ -130,10 +126,8 @@ class Gaussian(BaseAlphaActivation):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import Gaussian
     >>> m = Gaussian()
@@ -174,10 +168,8 @@ class Laplacian(BaseAlphaActivation):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import Laplacian
     >>> m = Laplacian()
@@ -218,10 +210,8 @@ class MultiQuadratic(BaseAlphaActivation):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import MultiQuadratic
     >>> m = MultiQuadratic()
@@ -262,10 +252,8 @@ class Quadratic(BaseAlphaActivation):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import Quadratic
     >>> m = Quadratic()

@@ -37,18 +37,16 @@ def log_cosh_loss(
     Returns:
         The logarithm of the hyperbolic cosine of the prediction error.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import log_cosh_loss
+        >>> loss = log_cosh_loss(torch.randn(3, 5, requires_grad=True), torch.randn(3, 5))
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import log_cosh_loss
-    >>> loss = log_cosh_loss(torch.randn(3, 5, requires_grad=True), torch.randn(3, 5))
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
-
-    ```
+        ```
     """
     return reduce_loss(
         target.sub(prediction).div(scale).cosh().log(),
@@ -82,17 +80,15 @@ def msle_loss(
         The mean squared logarithmic error. The shape of
             the tensor depends on the reduction strategy.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import msle_loss
+        >>> loss = msle_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss
+        tensor(..., grad_fn=<MseLossBackward0>)
+        >>> loss.backward()
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import msle_loss
-    >>> loss = msle_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
-    >>> loss
-    tensor(..., grad_fn=<MseLossBackward0>)
-    >>> loss.backward()
-
-    ```
+        ```
     """
     return mse_loss(prediction.log1p(), target.log1p(), reduction=reduction)

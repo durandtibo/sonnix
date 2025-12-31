@@ -19,10 +19,8 @@ class ToBinaryLabel(nn.Module):
         threshold: The threshold value used to compute the binary
             labels.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import ToBinaryLabel
     >>> transform = ToBinaryLabel()
@@ -60,8 +58,7 @@ class ToBinaryLabel(nn.Module):
                 ``1``. The output is a ``torch.Tensor`` of type long
                 and shape ``(d0, d1, ..., dn)``.
 
-        Example usage:
-
+        Example:
         ```pycon
 
         >>> import torch
@@ -80,10 +77,8 @@ class ToCategoricalLabel(nn.Module):
     r"""Implement a ``torch.nn.Module`` to compute categorical labels
     from scores.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import ToCategoricalLabel
     >>> transform = ToCategoricalLabel()
@@ -110,8 +105,7 @@ class ToCategoricalLabel(nn.Module):
                 ``torch.Tensor`` of type long and shape
                 ``(d0, d1, ..., dn)``.
 
-        Example usage:
-
+        Example:
         ```pycon
 
         >>> import torch

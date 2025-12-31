@@ -20,8 +20,7 @@ class ResidualBlock(nn.Module):
         skip: The skip mapping module or its configuration
             (dictionary). If ``None``, the ``Identity`` module is used.
 
-    Example usage:
-
+    Example:
     ```pycon
     >>> import torch
     >>> from torch import nn

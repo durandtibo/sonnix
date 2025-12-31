@@ -25,16 +25,14 @@ def get_module_device(module: nn.Module) -> torch.device:
     Returns:
         The device
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.device import get_module_device
+        >>> get_module_device(torch.nn.Linear(4, 6))
+        device(type='cpu')
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.device import get_module_device
-    >>> get_module_device(torch.nn.Linear(4, 6))
-    device(type='cpu')
-
-    ```
+        ```
     """
     if not has_parameters(module):
         return torch.device("cpu")
@@ -50,16 +48,14 @@ def get_module_devices(module: nn.Module) -> list[torch.device]:
     Returns:
         The list of ``torch.device``s used in the module.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.device import get_module_devices
+        >>> get_module_devices(torch.nn.Linear(4, 6))
+        [device(type='cpu')]
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.device import get_module_devices
-    >>> get_module_devices(torch.nn.Linear(4, 6))
-    [device(type='cpu')]
-
-    ```
+        ```
     """
     return list({param.device for param in module.parameters()})
 
@@ -76,15 +72,13 @@ def is_module_on_device(module: nn.Module, device: torch.device) -> bool:
         ``True`` if all the parameters of the module are on the
             specified device, otherwise ``False``.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.device import is_module_on_device
+        >>> is_module_on_device(torch.nn.Linear(4, 6), torch.device("cpu"))
+        True
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.device import is_module_on_device
-    >>> is_module_on_device(torch.nn.Linear(4, 6), torch.device("cpu"))
-    True
-
-    ```
+        ```
     """
     return all(p.device == device for p in module.parameters())

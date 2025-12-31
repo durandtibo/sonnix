@@ -49,24 +49,22 @@ def is_loss_decreasing(
         ``True`` if the loss decreased after some iterations,
             otherwise ``False``.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from torch import nn
+        >>> from sonnix.utils.loss import is_loss_decreasing
+        >>> module = nn.Linear(4, 2)
+        >>> is_loss_decreasing(
+        ...     module=module,
+        ...     criterion=nn.MSELoss(),
+        ...     optimizer=SGD(module.parameters(), lr=0.01),
+        ...     feature=torch.rand(4, 4),
+        ...     target=torch.rand(4, 2),
+        ... )
+        True
 
-    ```pycon
-
-    >>> import torch
-    >>> from torch import nn
-    >>> from sonnix.utils.loss import is_loss_decreasing
-    >>> module = nn.Linear(4, 2)
-    >>> is_loss_decreasing(
-    ...     module=module,
-    ...     criterion=nn.MSELoss(),
-    ...     optimizer=SGD(module.parameters(), lr=0.01),
-    ...     feature=torch.rand(4, 4),
-    ...     target=torch.rand(4, 2),
-    ... )
-    True
-
-    ```
+        ```
     """
     with module_mode(module):
         module.eval()
@@ -117,23 +115,21 @@ def is_loss_decreasing_with_adam(
         ``True`` if the loss decreased after some iterations,
             otherwise ``False``.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from torch import nn
+        >>> from sonnix.utils.loss import is_loss_decreasing_with_adam
+        >>> is_loss_decreasing_with_adam(
+        ...     module=nn.Linear(4, 2),
+        ...     criterion=nn.MSELoss(),
+        ...     feature=torch.rand(4, 4),
+        ...     target=torch.rand(4, 2),
+        ...     lr=0.0003,
+        ... )
+        True
 
-    ```pycon
-
-    >>> import torch
-    >>> from torch import nn
-    >>> from sonnix.utils.loss import is_loss_decreasing_with_adam
-    >>> is_loss_decreasing_with_adam(
-    ...     module=nn.Linear(4, 2),
-    ...     criterion=nn.MSELoss(),
-    ...     feature=torch.rand(4, 4),
-    ...     target=torch.rand(4, 2),
-    ...     lr=0.0003,
-    ... )
-    True
-
-    ```
+        ```
     """
     return is_loss_decreasing(
         module=module,
@@ -174,23 +170,21 @@ def is_loss_decreasing_with_sgd(
         ``True`` if the loss decreased after some iterations,
             otherwise ``False``.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from torch import nn
+        >>> from sonnix.utils.loss import is_loss_decreasing_with_adam
+        >>> is_loss_decreasing_with_adam(
+        ...     module=nn.Linear(4, 2),
+        ...     criterion=nn.MSELoss(),
+        ...     feature=torch.rand(4, 4),
+        ...     target=torch.rand(4, 2),
+        ...     lr=0.01,
+        ... )
+        True
 
-    ```pycon
-
-    >>> import torch
-    >>> from torch import nn
-    >>> from sonnix.utils.loss import is_loss_decreasing_with_adam
-    >>> is_loss_decreasing_with_adam(
-    ...     module=nn.Linear(4, 2),
-    ...     criterion=nn.MSELoss(),
-    ...     feature=torch.rand(4, 4),
-    ...     target=torch.rand(4, 2),
-    ...     lr=0.01,
-    ... )
-    True
-
-    ```
+        ```
     """
     return is_loss_decreasing(
         module=module,

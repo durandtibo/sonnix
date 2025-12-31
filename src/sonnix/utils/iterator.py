@@ -23,37 +23,35 @@ def get_named_modules(module: nn.Module, depth: int = 0) -> Generator[tuple[str,
     Returns:
         The iterator over the modules and their names.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.iterator import get_named_modules
+        >>> module = torch.nn.Linear(4, 6)
+        >>> named_modules = list(get_named_modules(module))
+        >>> named_modules
+        [('[root]', Linear(in_features=4, out_features=6, bias=True))]
+        >>> module = torch.nn.Sequential(
+        ...     torch.nn.Linear(4, 6), torch.nn.ReLU(), torch.nn.Linear(6, 3)
+        ... )
+        >>> named_modules = list(get_named_modules(module))
+        >>> named_modules
+        [('[root]', Sequential(
+          (0): Linear(in_features=4, out_features=6, bias=True)
+          (1): ReLU()
+          (2): Linear(in_features=6, out_features=3, bias=True)
+        ))]
+        >>> named_modules = list(get_named_modules(module, depth=1))
+        >>> named_modules
+        [('[root]', Sequential(
+          (0): Linear(in_features=4, out_features=6, bias=True)
+          (1): ReLU()
+          (2): Linear(in_features=6, out_features=3, bias=True)
+        )),
+        ('0', Linear(in_features=4, out_features=6, bias=True)),
+        ('1', ReLU()), ('2', Linear(in_features=6, out_features=3, bias=True))]
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.iterator import get_named_modules
-    >>> module = torch.nn.Linear(4, 6)
-    >>> named_modules = list(get_named_modules(module))
-    >>> named_modules
-    [('[root]', Linear(in_features=4, out_features=6, bias=True))]
-    >>> module = torch.nn.Sequential(
-    ...     torch.nn.Linear(4, 6), torch.nn.ReLU(), torch.nn.Linear(6, 3)
-    ... )
-    >>> named_modules = list(get_named_modules(module))
-    >>> named_modules
-    [('[root]', Sequential(
-      (0): Linear(in_features=4, out_features=6, bias=True)
-      (1): ReLU()
-      (2): Linear(in_features=6, out_features=3, bias=True)
-    ))]
-    >>> named_modules = list(get_named_modules(module, depth=1))
-    >>> named_modules
-    [('[root]', Sequential(
-      (0): Linear(in_features=4, out_features=6, bias=True)
-      (1): ReLU()
-      (2): Linear(in_features=6, out_features=3, bias=True)
-    )),
-    ('0', Linear(in_features=4, out_features=6, bias=True)),
-    ('1', ReLU()), ('2', Linear(in_features=6, out_features=3, bias=True))]
-
-    ```
+        ```
     """
     yield ("[root]", module)
     if depth == 1:

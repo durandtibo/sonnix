@@ -24,17 +24,15 @@ def absolute_error(prediction: Tensor, target: Tensor) -> Tensor:
         The absolute error tensor, which has the same shape and data
             type as the inputs.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import absolute_error
+        >>> absolute_error(torch.eye(2), torch.ones(2, 2))
+        tensor([[0., 1.],
+                [1., 0.]])
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import absolute_error
-    >>> absolute_error(torch.eye(2), torch.ones(2, 2))
-    tensor([[0., 1.],
-            [1., 0.]])
-
-    ```
+        ```
     """
     return target.sub(prediction).abs()
 
@@ -54,17 +52,15 @@ def absolute_relative_error(prediction: Tensor, target: Tensor, eps: float = 1e-
         The absolute relative error tensor, which has the same shape
             and data type as the inputs.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import absolute_relative_error
+        >>> absolute_relative_error(torch.eye(2), torch.ones(2, 2))
+        tensor([[0., 1.],
+                [1., 0.]])
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import absolute_relative_error
-    >>> absolute_relative_error(torch.eye(2), torch.ones(2, 2))
-    tensor([[0., 1.],
-            [1., 0.]])
-
-    ```
+        ```
     """
     return target.sub(prediction).div(target.abs().clamp(min=eps)).abs()
 
@@ -86,17 +82,15 @@ def symmetric_absolute_relative_error(
         The symmetric absolute relative error tensor, which has the
             same shape and data type as the inputs.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import symmetric_absolute_relative_error
+        >>> symmetric_absolute_relative_error(torch.eye(2), torch.ones(2, 2))
+        tensor([[0., 2.],
+                [2., 0.]])
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import symmetric_absolute_relative_error
-    >>> symmetric_absolute_relative_error(torch.eye(2), torch.ones(2, 2))
-    tensor([[0., 2.],
-            [2., 0.]])
-
-    ```
+        ```
     """
     return (
         target.sub(prediction).div(target.abs().add(prediction.abs()).mul(0.5).clamp(min=eps)).abs()

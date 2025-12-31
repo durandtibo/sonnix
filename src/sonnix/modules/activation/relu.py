@@ -25,10 +25,8 @@ class ReLUn(nn.Module):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import ReLUn
     >>> m = ReLUn(max=5)
@@ -66,10 +64,8 @@ class SquaredReLU(nn.Module):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import SquaredReLU
     >>> m = SquaredReLU()

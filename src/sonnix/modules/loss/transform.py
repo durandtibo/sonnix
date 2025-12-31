@@ -25,10 +25,8 @@ class TransformedLoss(nn.Module):
             configuration. If ``None``, the identity transformation
             is used.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import TransformedLoss, Asinh
     >>> criterion = TransformedLoss(

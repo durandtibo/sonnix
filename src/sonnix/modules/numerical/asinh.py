@@ -32,10 +32,8 @@ class AsinhNumericalEncoder(Module):
         - Output: ``(*, n_features, feature_size)``,  where ``*`` has
             the same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import AsinhNumericalEncoder
     >>> # Example with 1 feature

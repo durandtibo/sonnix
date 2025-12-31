@@ -36,20 +36,18 @@ def quantile_regression_loss(
         The quantile regression loss. The shape of the tensor depends
             on the reduction strategy.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import quantile_regression_loss
+        >>> loss = quantile_regression_loss(
+        ...     torch.randn(2, 4, requires_grad=True), torch.randn(2, 4)
+        ... )
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import quantile_regression_loss
-    >>> loss = quantile_regression_loss(
-    ...     torch.randn(2, 4, requires_grad=True), torch.randn(2, 4)
-    ... )
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
-
-    ```
+        ```
     """
     diff = target - prediction
     loss = q * diff.clamp_min(0.0) + (1.0 - q) * (diff.neg().clamp_min(0.0))

@@ -19,15 +19,13 @@ def get_random_seed(seed: int) -> int:
         int: A random seed. The value is between ``-2 ** 63`` and
             ``2 ** 63 - 1``.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.random import get_random_seed
+        >>> get_random_seed(44)
+        6176747449835261347
 
-    ```pycon
-
-    >>> from sonnix.utils.random import get_random_seed
-    >>> get_random_seed(44)
-    6176747449835261347
-
-    ```
+        ```
     """
     return torch.randint(-(2**63), 2**63 - 1, size=(1,), generator=get_torch_generator(seed)).item()
 
@@ -44,22 +42,20 @@ def get_torch_generator(
     Returns:
         A ``torch.Generator`` object.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.random import get_torch_generator
+        >>> generator = get_torch_generator(42)
+        >>> torch.rand(2, 4, generator=generator)
+        tensor([[0.8823, 0.9150, 0.3829, 0.9593],
+                [0.3904, 0.6009, 0.2566, 0.7936]])
+        >>> generator = get_torch_generator(42)
+        >>> torch.rand(2, 4, generator=generator)
+        tensor([[0.8823, 0.9150, 0.3829, 0.9593],
+                [0.3904, 0.6009, 0.2566, 0.7936]])
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.random import get_torch_generator
-    >>> generator = get_torch_generator(42)
-    >>> torch.rand(2, 4, generator=generator)
-    tensor([[0.8823, 0.9150, 0.3829, 0.9593],
-            [0.3904, 0.6009, 0.2566, 0.7936]])
-    >>> generator = get_torch_generator(42)
-    >>> torch.rand(2, 4, generator=generator)
-    tensor([[0.8823, 0.9150, 0.3829, 0.9593],
-            [0.3904, 0.6009, 0.2566, 0.7936]])
-
-    ```
+        ```
     """
     generator = torch.Generator(device)
     generator.manual_seed(random_seed)
@@ -76,16 +72,14 @@ def setup_torch_generator(generator_or_seed: int | torch.Generator) -> torch.Gen
     Returns:
         A ``torch.Generator`` object.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.random import setup_torch_generator
+        >>> generator = setup_torch_generator(42)
+        >>> generator
+        <torch._C.Generator object at 0x...>
 
-    ```pycon
-
-    >>> from sonnix.utils.random import setup_torch_generator
-    >>> generator = setup_torch_generator(42)
-    >>> generator
-    <torch._C.Generator object at 0x...>
-
-    ```
+        ```
     """
     if isinstance(generator_or_seed, torch.Generator):
         return generator_or_seed

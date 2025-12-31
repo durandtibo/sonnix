@@ -19,10 +19,8 @@ class RectifierAsinhUnit(nn.Module):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import RectifierAsinhUnit
     >>> m = RectifierAsinhUnit()

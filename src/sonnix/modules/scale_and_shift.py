@@ -28,10 +28,8 @@ class ScaleAndShift(nn.Module):
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.
         - Output: ``(N, *)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import ScaleAndShift
     >>> m = ScaleAndShift(normalized_shape=5)

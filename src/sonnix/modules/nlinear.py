@@ -33,10 +33,8 @@ class NLinear(Module):
         - Output: ``(*, n, out_features)``,  where ``*`` has
             the same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import NLinear
     >>> # Example with 1 feature

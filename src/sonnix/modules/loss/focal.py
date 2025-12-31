@@ -38,10 +38,8 @@ class BinaryFocalLoss(nn.Module):
         - Output: scalar. If ``reduction`` is ``'none'``, then ``(*)``,
             same shape as input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import BinaryFocalLoss
     >>> criterion = BinaryFocalLoss()
@@ -124,10 +122,8 @@ class BinaryFocalLossWithLogits(nn.Module):
         - Output: scalar. If ``reduction`` is ``'none'``, then ``(*)``,
             same shape as input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import BinaryFocalLossWithLogits
     >>> criterion = BinaryFocalLossWithLogits()
