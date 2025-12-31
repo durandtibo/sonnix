@@ -5,6 +5,8 @@ from __future__ import annotations
 
 __all__ = ["TransformedLoss"]
 
+from typing import Any
+
 import torch
 from torch import nn
 
@@ -44,14 +46,14 @@ class TransformedLoss(nn.Module):
 
     def __init__(
         self,
-        criterion: nn.Module | dict,
-        prediction: nn.Module | dict | None = None,
-        target: nn.Module | dict | None = None,
+        criterion: nn.Module | dict[Any, Any],
+        prediction: nn.Module | dict[Any, Any] | None = None,
+        target: nn.Module | dict[Any, Any] | None = None,
     ) -> None:
         super().__init__()
-        self.criterion = setup_module(criterion)
-        self.prediction = setup_module(prediction or nn.Identity())
-        self.target = setup_module(target or nn.Identity())
+        self.criterion: nn.Module = setup_module(criterion)
+        self.prediction: nn.Module = setup_module(prediction or nn.Identity())
+        self.target: nn.Module = setup_module(target or nn.Identity())
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         prediction = self.prediction(prediction)

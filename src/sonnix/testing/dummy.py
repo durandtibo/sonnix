@@ -16,7 +16,7 @@ from torch.utils.data import Dataset
 from sonnix.utils.random import get_torch_generator
 
 
-class DummyDataset(Dataset):
+class DummyDataset(Dataset[dict[str, torch.Tensor]]):
     r"""Implement a dummy map-style dataset for testing purpose.
 
     Args:
@@ -45,7 +45,7 @@ class DummyDataset(Dataset):
         )
         self._target = 0.6 * self._features[:, :1] + 0.4 * self._features[:, -1:]
 
-    def __getitem__(self, item: int) -> dict:
+    def __getitem__(self, item: int) -> dict[str, torch.Tensor]:
         return {"feature": self._features[item], "target": self._target[item]}
 
     def __len__(self) -> int:

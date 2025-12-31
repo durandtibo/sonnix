@@ -6,15 +6,17 @@ from __future__ import annotations
 __all__ = ["find_module_state_dict", "load_state_dict_to_module"]
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from torch import nn
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-def find_module_state_dict(state_dict: dict | list | tuple | set, module_keys: set) -> dict:
+def find_module_state_dict(
+    state_dict: dict[Any, Any] | list[Any] | tuple[Any, ...] | set[Any], module_keys: set[Any]
+) -> dict[Any, Any]:
     r"""Try to find automatically the part of the state dict related to a
     module.
 
@@ -72,7 +74,9 @@ def find_module_state_dict(state_dict: dict | list | tuple | set, module_keys: s
     return {}
 
 
-def load_state_dict_to_module(state_dict: dict, module: nn.Module, strict: bool = True) -> None:
+def load_state_dict_to_module(
+    state_dict: dict[Any, Any], module: nn.Module, strict: bool = True
+) -> None:
     r"""Load a state dict into a given module.
 
     This function will automatically try to find the module state dict

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from torch import Tensor
     from torch.nn import Module
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def is_loss_decreasing(

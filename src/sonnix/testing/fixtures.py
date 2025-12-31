@@ -14,14 +14,16 @@ import torch
 
 from sonnix.utils.imports import is_objectory_available
 
-cuda_available = pytest.mark.skipif(
+cuda_available: pytest.MarkDecorator = pytest.mark.skipif(
     not torch.cuda.is_available(), reason="Requires a device with CUDA"
 )
-cuda_not_available = pytest.mark.skipif(
+cuda_not_available: pytest.MarkDecorator = pytest.mark.skipif(
     torch.cuda.is_available(), reason="Skip if CUDA is available"
 )
 
-objectory_available = pytest.mark.skipif(not is_objectory_available(), reason="Require objectory")
-objectory_not_available = pytest.mark.skipif(
+objectory_available: pytest.MarkDecorator = pytest.mark.skipif(
+    not is_objectory_available(), reason="Require objectory"
+)
+objectory_not_available: pytest.MarkDecorator = pytest.mark.skipif(
     is_objectory_available(), reason="Skip if objectory is available"
 )

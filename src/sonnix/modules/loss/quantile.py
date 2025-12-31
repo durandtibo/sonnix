@@ -46,7 +46,7 @@ class QuantileRegressionLoss(nn.Module):
     def __init__(self, reduction: str = "mean", q: float = 0.5) -> None:
         super().__init__()
         check_loss_reduction_strategy(reduction)
-        self.reduction = str(reduction)
+        self.reduction = reduction
         self._q = float(q)
 
     def extra_repr(self) -> str:

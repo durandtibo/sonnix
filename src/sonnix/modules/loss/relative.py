@@ -4,7 +4,7 @@ from __future__ import annotations
 
 __all__ = ["RelativeLoss", "RelativeMSELoss", "RelativeSmoothL1Loss"]
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import torch
 from torch import nn
@@ -63,14 +63,14 @@ class RelativeLoss(nn.Module):
 
     def __init__(
         self,
-        criterion: nn.Module | dict,
-        indicator: BaseRelativeIndicator | dict | None = None,
+        criterion: nn.Module | dict[Any, Any],
+        indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
         reduction: str = "mean",
         eps: float = 1e-8,
     ) -> None:
         super().__init__()
-        self.criterion = setup_module(criterion)
-        self.indicator = setup_module(indicator or ClassicalRelativeIndicator())
+        self.criterion: nn.Module = setup_module(criterion)
+        self.indicator: nn.Module = setup_module(indicator or ClassicalRelativeIndicator())
 
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction
@@ -129,7 +129,7 @@ class RelativeMSELoss(RelativeLoss):
 
     def __init__(
         self,
-        indicator: BaseRelativeIndicator | dict | None = None,
+        indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
         reduction: str = "mean",
         eps: float = 1e-8,
     ) -> None:
@@ -180,7 +180,7 @@ class RelativeSmoothL1Loss(RelativeLoss):
 
     def __init__(
         self,
-        indicator: BaseRelativeIndicator | dict | None = None,
+        indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
         reduction: str = "mean",
         eps: float = 1e-8,
     ) -> None:

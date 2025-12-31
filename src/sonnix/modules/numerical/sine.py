@@ -15,13 +15,13 @@ import math
 from typing import TYPE_CHECKING
 
 import torch
-from torch.nn import Module, Parameter
+from torch import nn
 
 if TYPE_CHECKING:
     from torch import Tensor
 
 
-class CosSinNumericalEncoder(Module):
+class CosSinNumericalEncoder(nn.Module):
     r"""Implement a frequency/phase-shift numerical encoder where the
     periodic functions are cosine and sine.
 
@@ -82,10 +82,12 @@ class CosSinNumericalEncoder(Module):
     def __init__(self, frequency: Tensor, phase_shift: Tensor, learnable: bool = False) -> None:
         super().__init__()
         frequency = prepare_tensor_param(frequency, name="frequency")
-        self.frequency = Parameter(frequency.repeat(1, 2), requires_grad=learnable)
+        self.frequency: nn.Parameter = nn.Parameter(frequency.repeat(1, 2), requires_grad=learnable)
 
         phase_shift = prepare_tensor_param(phase_shift, name="phase_shift")
-        self.phase_shift = Parameter(phase_shift.repeat(1, 2), requires_grad=learnable)
+        self.phase_shift: nn.Parameter = nn.Parameter(
+            phase_shift.repeat(1, 2), requires_grad=learnable
+        )
         if self.frequency.shape != self.phase_shift.shape:
             msg = (
                 f"'frequency' and 'phase_shift' shapes do not match: {self.frequency.shape} "

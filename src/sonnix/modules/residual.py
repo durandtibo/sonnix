@@ -4,6 +4,7 @@ from __future__ import annotations
 
 __all__ = ["ResidualBlock"]
 
+from typing import Any
 
 import torch
 from torch import nn
@@ -44,12 +45,12 @@ class ResidualBlock(nn.Module):
 
     def __init__(
         self,
-        residual: nn.Module | dict,
-        skip: nn.Module | dict | None = None,
+        residual: nn.Module | dict[Any, Any],
+        skip: nn.Module | dict[Any, Any] | None = None,
     ) -> None:
         super().__init__()
-        self.residual = setup_module(residual)
-        self.skip = setup_module(skip or nn.Identity())
+        self.residual: nn.Module = setup_module(residual)
+        self.skip: nn.Module = setup_module(skip or nn.Identity())
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return self.skip(input) + self.residual(input)

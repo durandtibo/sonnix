@@ -8,7 +8,7 @@ __all__ = ["PiecewiseLinearNumericalEncoder"]
 from typing import TYPE_CHECKING
 
 import torch
-from torch.nn import Module
+from torch import nn
 
 from sonnix.modules.numerical.sine import prepare_tensor_param
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from torch import Tensor
 
 
-class PiecewiseLinearNumericalEncoder(Module):
+class PiecewiseLinearNumericalEncoder(nn.Module):
     r"""Implement a numerical encoder using piecewise linear functions.
 
     This layer was proposed in the following paper:

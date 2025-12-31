@@ -7,7 +7,7 @@ __all__ = ["ExU"]
 
 import torch
 from torch import Tensor, nn
-from torch.nn import Parameter, functional
+from torch.nn import functional
 from torch.nn.init import trunc_normal_, zeros_
 
 
@@ -62,9 +62,11 @@ class ExU(nn.Module):
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
-        self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
+        self.weight: nn.Parameter = nn.Parameter(
+            torch.empty((out_features, in_features), **factory_kwargs)
+        )
         if bias:
-            self.bias = Parameter(torch.empty(in_features, **factory_kwargs))
+            self.bias: nn.Parameter = nn.Parameter(torch.empty(in_features, **factory_kwargs))
         else:
             self.register_parameter("bias", None)
         self.reset_parameters()

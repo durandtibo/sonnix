@@ -46,7 +46,7 @@ class PoissonRegressionLoss(nn.Module):
     def __init__(self, reduction: str = "mean", eps: float = 1e-8) -> None:
         super().__init__()
         check_loss_reduction_strategy(reduction)
-        self.reduction = str(reduction)
+        self.reduction = reduction
         self._eps = float(eps)
 
     def extra_repr(self) -> str:

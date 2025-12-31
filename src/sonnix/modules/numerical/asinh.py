@@ -7,7 +7,7 @@ __all__ = ["AsinhNumericalEncoder"]
 
 from typing import TYPE_CHECKING
 
-from torch.nn import Module, Parameter
+from torch import nn
 
 from sonnix.modules.numerical.sine import prepare_tensor_param
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from torch import Tensor
 
 
-class AsinhNumericalEncoder(Module):
+class AsinhNumericalEncoder(nn.Module):
     r"""Implement a numerical encoder using the inverse hyperbolic sine
     (asinh).
 
@@ -63,7 +63,7 @@ class AsinhNumericalEncoder(Module):
     def __init__(self, scale: Tensor, learnable: bool = False) -> None:
         super().__init__()
         scale = prepare_tensor_param(scale, name="scale")
-        self.scale = Parameter(scale, requires_grad=learnable)
+        self.scale: nn.Parameter = nn.Parameter(scale, requires_grad=learnable)
 
     @property
     def input_size(self) -> int:
