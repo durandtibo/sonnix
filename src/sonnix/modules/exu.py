@@ -36,8 +36,7 @@ class ExU(nn.Module):
         - Output: ``(*, out_features)``, where ``*`` is the same shape
             as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
     >>> import torch
     >>> from sonnix.modules import ExU

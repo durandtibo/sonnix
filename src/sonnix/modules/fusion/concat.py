@@ -14,10 +14,8 @@ class ConcatFusion(nn.Module):
     Args:
         dim: The fusion dimension. ``-1`` means the last dimension.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import ConcatFusion
     >>> module = ConcatFusion()

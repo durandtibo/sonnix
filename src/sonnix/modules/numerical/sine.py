@@ -41,10 +41,8 @@ class CosSinNumericalEncoder(Module):
         - Output: ``(*, n_features, feature_size)``,  where ``*`` has
             the same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import CosSinNumericalEncoder
     >>> # Example with 1 feature
@@ -144,8 +142,7 @@ class CosSinNumericalEncoder(Module):
                 frequencies are uniformly initialized in a frequency
                 range.
 
-        Example usage:
-
+        Example:
         ```pycon
 
         >>> import torch
@@ -194,8 +191,7 @@ class CosSinNumericalEncoder(Module):
                 frequencies are uniformly initialized for a given
                 value range.
 
-        Example usage:
-
+        Example:
         ```pycon
 
         >>> import torch
@@ -238,8 +234,7 @@ class CosSinNumericalEncoder(Module):
             An instantiated ``CosSinNumericalEncoder`` where the
                 frequencies are evenly spaced in a frequency range.
 
-        Example usage:
-
+        Example:
         ```pycon
 
         >>> import torch
@@ -285,8 +280,7 @@ class CosSinNumericalEncoder(Module):
             An instantiated ``CosSinNumericalEncoder`` where the
                 frequencies are evenly spaced.
 
-        Example usage:
-
+        Example:
         ```pycon
 
         >>> import torch
@@ -330,8 +324,7 @@ class CosSinNumericalEncoder(Module):
                 frequencies are evenly spaced in the log space in a
                 frequency range.
 
-        Example usage:
-
+        Example:
         ```pycon
 
         >>> import torch
@@ -381,8 +374,7 @@ class CosSinNumericalEncoder(Module):
             An instantiated ``CosSinNumericalEncoder`` where the
                 frequencies are evenly spaced in the log space.
 
-        Example usage:
-
+        Example:
         ```pycon
 
         >>> import torch
@@ -424,10 +416,8 @@ class AsinhCosSinNumericalEncoder(CosSinNumericalEncoder):
         - Output: ``(*, n_features, feature_size + 1)``,  where ``*``
             has the same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import AsinhCosSinNumericalEncoder
     >>> # Example with 1 feature

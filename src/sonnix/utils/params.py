@@ -28,18 +28,16 @@ def has_parameters(module: nn.Module) -> bool:
         ``True`` if the module has at least one parameter,
             ``False`` otherwise.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.params import has_parameters
+        >>> has_parameters(torch.nn.Linear(4, 6))
+        True
+        >>> has_parameters(torch.nn.Identity())
+        False
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.params import has_parameters
-    >>> has_parameters(torch.nn.Linear(4, 6))
-    True
-    >>> has_parameters(torch.nn.Identity())
-    False
-
-    ```
+        ```
     """
     try:
         next(module.parameters())
@@ -59,22 +57,20 @@ def has_learnable_parameters(module: nn.Module) -> bool:
         ``True`` if the module has at least one learnable parameter,
             ``False`` otherwise.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.params import has_learnable_parameters, freeze_module
+        >>> has_learnable_parameters(torch.nn.Linear(4, 6))
+        True
+        >>> module = torch.nn.Linear(4, 6)
+        >>> freeze_module(module)
+        >>> has_learnable_parameters(module)
+        False
+        >>> has_learnable_parameters(torch.nn.Identity())
+        False
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.params import has_learnable_parameters, freeze_module
-    >>> has_learnable_parameters(torch.nn.Linear(4, 6))
-    True
-    >>> module = torch.nn.Linear(4, 6)
-    >>> freeze_module(module)
-    >>> has_learnable_parameters(module)
-    False
-    >>> has_learnable_parameters(torch.nn.Identity())
-    False
-
-    ```
+        ```
     """
     return num_learnable_parameters(module) > 0
 
@@ -88,18 +84,16 @@ def num_parameters(module: nn.Module) -> int:
     Returns:
         The number of parameters.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.params import num_parameters
+        >>> num_parameters(torch.nn.Linear(4, 6))
+        30
+        >>> num_parameters(torch.nn.Identity())
+        0
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.params import num_parameters
-    >>> num_parameters(torch.nn.Linear(4, 6))
-    30
-    >>> num_parameters(torch.nn.Identity())
-    0
-
-    ```
+        ```
     """
     return sum(params.numel() for params in module.parameters())
 
@@ -114,22 +108,20 @@ def num_learnable_parameters(module: nn.Module) -> int:
     Returns:
         int: The number of learnable parameters.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.params import num_learnable_parameters
+        >>> num_learnable_parameters(torch.nn.Linear(4, 6))
+        30
+        >>> module = torch.nn.Linear(4, 6)
+        >>> freeze_module(module)
+        >>> num_learnable_parameters(module)
+        0
+        >>> num_learnable_parameters(torch.nn.Identity())
+        0
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.params import num_learnable_parameters
-    >>> num_learnable_parameters(torch.nn.Linear(4, 6))
-    30
-    >>> module = torch.nn.Linear(4, 6)
-    >>> freeze_module(module)
-    >>> num_learnable_parameters(module)
-    0
-    >>> num_learnable_parameters(torch.nn.Identity())
-    0
-
-    ```
+        ```
     """
     return sum(params.numel() for params in module.parameters() if params.requires_grad)
 
@@ -140,21 +132,19 @@ def freeze_module(module: nn.Module) -> None:
     Args:
         module: The module to freeze.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.params import freeze_module
+        >>> module = torch.nn.Linear(4, 6)
+        >>> freeze_module(module)
+        >>> for name, param in module.named_parameters():
+        ...     print(name, param.requires_grad)
+        ...
+        weight False
+        bias False
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.params import freeze_module
-    >>> module = torch.nn.Linear(4, 6)
-    >>> freeze_module(module)
-    >>> for name, param in module.named_parameters():
-    ...     print(name, param.requires_grad)
-    ...
-    weight False
-    bias False
-
-    ```
+        ```
     """
     for param in module.parameters():
         param.requires_grad = False
@@ -166,21 +156,19 @@ def unfreeze_module(module: nn.Module) -> None:
     Args:
         module: The module to unfreeze.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.params import unfreeze_module
+        >>> module = torch.nn.Linear(4, 6)
+        >>> unfreeze_module(module)
+        >>> for name, param in module.named_parameters():
+        ...     print(name, param.requires_grad)
+        ...
+        weight True
+        bias True
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.params import unfreeze_module
-    >>> module = torch.nn.Linear(4, 6)
-    >>> unfreeze_module(module)
-    >>> for name, param in module.named_parameters():
-    ...     print(name, param.requires_grad)
-    ...
-    weight True
-    bias True
-
-    ```
+        ```
     """
     for param in module.parameters():
         param.requires_grad = True

@@ -11,10 +11,8 @@ from torch import nn
 class MultiplicationFusion(nn.Module):
     r"""Implement a fusion layer that multiplies the inputs.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import MultiplicationFusion
     >>> module = MultiplicationFusion()
@@ -47,10 +45,8 @@ class SumFusion(nn.Module):
     Args:
         normalized: The output is normalized by the number of inputs.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import SumFusion
     >>> module = SumFusion()
@@ -91,10 +87,8 @@ class SumFusion(nn.Module):
 class AverageFusion(SumFusion):
     r"""Implement a layer to average the inputs.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import AverageFusion
     >>> module = AverageFusion()

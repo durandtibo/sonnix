@@ -23,16 +23,14 @@ class DummyDataset(Dataset):
         feature_size: The feature size.
         num_examples: The number of examples.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.testing.dummy import DummyDataset
+        >>> dataset = DummyDataset(num_examples=10, feature_size=7)
+        >>> dataset[0]
+        {'feature': tensor([...]), 'target': tensor([...])}
 
-    ```pycon
-
-    >>> from sonnix.testing.dummy import DummyDataset
-    >>> dataset = DummyDataset(num_examples=10, feature_size=7)
-    >>> dataset[0]
-    {'feature': tensor([...]), 'target': tensor([...])}
-
-    ```
+        ```
     """
 
     def __init__(

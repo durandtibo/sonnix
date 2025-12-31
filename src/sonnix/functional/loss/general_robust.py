@@ -57,20 +57,18 @@ def general_robust_regression_loss(
     Raises:
         ValueError: if the reduction is not valid.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import general_robust_regression_loss
+        >>> loss = general_robust_regression_loss(
+        ...     torch.randn(2, 4, requires_grad=True), torch.randn(2, 4)
+        ... )
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import general_robust_regression_loss
-    >>> loss = general_robust_regression_loss(
-    ...     torch.randn(2, 4, requires_grad=True), torch.randn(2, 4)
-    ... )
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
-
-    ```
+        ```
     """
     squared_error = prediction.sub(target).div(scale).pow(2)
     if alpha == 2:

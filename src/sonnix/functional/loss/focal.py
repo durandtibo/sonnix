@@ -45,21 +45,19 @@ def binary_focal_loss(
         The computed binary focal loss. The shape of the tensor depends
             on the reduction strategy.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import binary_focal_loss
+        >>> loss = binary_focal_loss(
+        ...     torch.rand(2, 4, requires_grad=True),
+        ...     torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]]),
+        ... )
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import binary_focal_loss
-    >>> loss = binary_focal_loss(
-    ...     torch.rand(2, 4, requires_grad=True),
-    ...     torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]]),
-    ... )
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
-
-    ```
+        ```
     """
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
     p_t = prediction * target + (1 - prediction) * (1 - target)
@@ -105,21 +103,19 @@ def binary_focal_loss_with_logits(
         The computed binary focal loss. The shape of the tensor depends
             on the reduction strategy.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import binary_focal_loss_with_logits
+        >>> loss = binary_focal_loss_with_logits(
+        ...     torch.randn(2, 4, requires_grad=True),
+        ...     torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]]),
+        ... )
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import binary_focal_loss_with_logits
-    >>> loss = binary_focal_loss_with_logits(
-    ...     torch.randn(2, 4, requires_grad=True),
-    ...     torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]]),
-    ... )
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
-
-    ```
+        ```
     """
     p = torch.sigmoid(prediction)
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")

@@ -33,31 +33,29 @@ def find_module_state_dict(state_dict: dict | list | tuple | set, module_keys: s
         The part of the state dict related to a module if it is
             found, otherwise an empty dict.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.state_dict import find_module_state_dict
+        >>> state = {
+        ...     "model": {
+        ...         "weight": 42,
+        ...         "network": {
+        ...             "weight": torch.ones(5, 4),
+        ...             "bias": 2 * torch.ones(5),
+        ...         },
+        ...     }
+        ... }
+        >>> module = torch.nn.Linear(4, 5)
+        >>> state_dict = find_module_state_dict(state, module_keys=set(module.state_dict().keys()))
+        >>> state_dict
+        {'weight': tensor([[1., 1., 1., 1.],
+                [1., 1., 1., 1.],
+                [1., 1., 1., 1.],
+                [1., 1., 1., 1.],
+                [1., 1., 1., 1.]]), 'bias': tensor([2., 2., 2., 2., 2.])}
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.state_dict import find_module_state_dict
-    >>> state = {
-    ...     "model": {
-    ...         "weight": 42,
-    ...         "network": {
-    ...             "weight": torch.ones(5, 4),
-    ...             "bias": 2 * torch.ones(5),
-    ...         },
-    ...     }
-    ... }
-    >>> module = torch.nn.Linear(4, 5)
-    >>> state_dict = find_module_state_dict(state, module_keys=set(module.state_dict().keys()))
-    >>> state_dict
-    {'weight': tensor([[1., 1., 1., 1.],
-            [1., 1., 1., 1.],
-            [1., 1., 1., 1.],
-            [1., 1., 1., 1.],
-            [1., 1., 1., 1.]]), 'bias': tensor([2., 2., 2., 2., 2.])}
-
-    ```
+        ```
     """
     if isinstance(state_dict, dict):
         if set(state_dict.keys()) == module_keys:
@@ -88,29 +86,27 @@ def load_state_dict_to_module(state_dict: dict, module: nn.Module, strict: bool 
             keys in ``state_dict`` match the keys returned by this
             module's ``torch.nn.Module.state_dict`` function.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.state_dict import load_state_dict_to_module
+        >>> state = {
+        ...     "model": {
+        ...         "weight": 42,
+        ...         "network": {
+        ...             "weight": torch.ones(5, 4),
+        ...             "bias": 2 * torch.ones(5),
+        ...         },
+        ...     }
+        ... }
+        >>> module = torch.nn.Linear(4, 5)
+        >>> load_state_dict_to_module(state, module)
+        >>> out = module(torch.ones(2, 4))
+        >>> out
+        tensor([[6., 6., 6., 6., 6.],
+                [6., 6., 6., 6., 6.]], grad_fn=<AddmmBackward0>)
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.state_dict import load_state_dict_to_module
-    >>> state = {
-    ...     "model": {
-    ...         "weight": 42,
-    ...         "network": {
-    ...             "weight": torch.ones(5, 4),
-    ...             "bias": 2 * torch.ones(5),
-    ...         },
-    ...     }
-    ... }
-    >>> module = torch.nn.Linear(4, 5)
-    >>> load_state_dict_to_module(state, module)
-    >>> out = module(torch.ones(2, 4))
-    >>> out
-    tensor([[6., 6., 6., 6., 6.],
-            [6., 6., 6., 6., 6.]], grad_fn=<AddmmBackward0>)
-
-    ```
+        ```
     """
     try:
         module.load_state_dict(state_dict, strict)

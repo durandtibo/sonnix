@@ -21,10 +21,8 @@ class MulticlassFlatten(nn.Module):
     The input target tensor shape is ``(d1, d2, ..., dn)``
     and is reshaped to ``(d1 * d2 * ... * dn,)``.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import MulticlassFlatten
     >>> m = MulticlassFlatten(torch.nn.CrossEntropyLoss())
@@ -56,10 +54,8 @@ class Squeeze(nn.Module):
             all the dimensions of the input tensor of size 1 are
             removed.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import Squeeze
     >>> m = Squeeze()
@@ -92,10 +88,8 @@ class View(nn.Module):
     Args:
         shape: The desired shape.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import View
     >>> m = View(shape=(-1, 2, 3))

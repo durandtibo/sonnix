@@ -29,10 +29,8 @@ class BaseDynamicNorm(nn.Module):
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.
         - Output: ``(N, *)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import DynamicTanh
     >>> m = DynamicTanh(normalized_shape=5)
@@ -88,10 +86,8 @@ class DynamicAsinh(BaseDynamicNorm):
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.
         - Output: ``(N, *)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import DynamicAsinh
     >>> m = DynamicAsinh(normalized_shape=5)
@@ -132,10 +128,8 @@ class DynamicTanh(BaseDynamicNorm):
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.
         - Output: ``(N, *)``, same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import DynamicTanh
     >>> m = DynamicTanh(normalized_shape=5)

@@ -28,10 +28,8 @@ class QuantileRegressionLoss(nn.Module):
         q: The quantile value. ``q=0.5`` is equivalent to the Mean
             Absolute Error (MAE).
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import QuantileRegressionLoss
     >>> criterion = QuantileRegressionLoss()

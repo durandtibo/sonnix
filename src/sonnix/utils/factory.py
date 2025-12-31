@@ -56,21 +56,19 @@ def is_dataset_config(config: dict) -> bool:
         ``True`` if the input configuration is a configuration
             for a ``torch.nn.Module`` object, otherwise ``False``.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.factory import is_dataset_config
+        >>> is_dataset_config(
+        ...     {
+        ...         "_target_": "sonnix.testing.dummy.DummyDataset",
+        ...         "num_examples": 10,
+        ...         "feature_size": 4,
+        ...     }
+        ... )
+        True
 
-    ```pycon
-
-    >>> from sonnix.utils.factory import is_dataset_config
-    >>> is_dataset_config(
-    ...     {
-    ...         "_target_": "sonnix.testing.dummy.DummyDataset",
-    ...         "num_examples": 10,
-    ...         "feature_size": 4,
-    ...     }
-    ... )
-    True
-
-    ```
+        ```
     """
     return is_object_config(config, Dataset)
 
@@ -91,15 +89,13 @@ def is_module_config(config: dict) -> bool:
         ``True`` if the input configuration is a configuration
             for a ``torch.nn.Module`` object, otherwise ``False``.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.factory import is_module_config
+        >>> is_module_config({"_target_": "torch.nn.Identity"})
+        True
 
-    ```pycon
-
-    >>> from sonnix.utils.factory import is_module_config
-    >>> is_module_config({"_target_": "torch.nn.Identity"})
-    True
-
-    ```
+        ```
     """
     return is_object_config(config, Module)
 
@@ -120,17 +116,15 @@ def is_optimizer_config(config: dict) -> bool:
         ``True`` if the input configuration is a configuration
             for a ``torch.optim.Optimizer`` object, otherwise ``False``.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from torch import nn
+        >>> from sonnix.utils.factory import is_optimizer_config
+        >>> linear = nn.Linear(4, 6)
+        >>> is_optimizer_config({"_target_": "torch.optim.SGD", "params": linear.parameters()})
+        True
 
-    ```pycon
-
-    >>> from torch import nn
-    >>> from sonnix.utils.factory import is_optimizer_config
-    >>> linear = nn.Linear(4, 6)
-    >>> is_optimizer_config({"_target_": "torch.optim.SGD", "params": linear.parameters()})
-    True
-
-    ```
+        ```
     """
     return is_object_config(config, Optimizer)
 
@@ -144,22 +138,20 @@ def setup_dataset(dataset: Dataset | dict) -> Dataset:
     Returns:
         The instantiated ``torch.utils.data.Dataset`` object.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.factory import setup_dataset
+        >>> dataset = setup_dataset(
+        ...     {
+        ...         "_target_": "sonnix.testing.dummy.DummyDataset",
+        ...         "num_examples": 10,
+        ...         "feature_size": 4,
+        ...     }
+        ... )
+        >>> dataset
+        DummyDataset(num_examples=10, feature_size=4, rng_seed=14700295087918620795)
 
-    ```pycon
-
-    >>> from sonnix.utils.factory import setup_dataset
-    >>> dataset = setup_dataset(
-    ...     {
-    ...         "_target_": "sonnix.testing.dummy.DummyDataset",
-    ...         "num_examples": 10,
-    ...         "feature_size": 4,
-    ...     }
-    ... )
-    >>> dataset
-    DummyDataset(num_examples=10, feature_size=4, rng_seed=14700295087918620795)
-
-    ```
+        ```
     """
     return setup_object_typed(obj_or_config=dataset, cls=Dataset, name="torch.utils.data.Dataset")
 
@@ -173,18 +165,16 @@ def setup_module(module: Module | dict) -> Module:
     Returns:
         The instantiated ``torch.nn.Module`` object.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.factory import setup_module
+        >>> linear = setup_module(
+        ...     {"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 6}
+        ... )
+        >>> linear
+        Linear(in_features=4, out_features=6, bias=True)
 
-    ```pycon
-
-    >>> from sonnix.utils.factory import setup_module
-    >>> linear = setup_module(
-    ...     {"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 6}
-    ... )
-    >>> linear
-    Linear(in_features=4, out_features=6, bias=True)
-
-    ```
+        ```
     """
     return setup_object_typed(obj_or_config=module, cls=Module, name="torch.nn.Module")
 
@@ -198,29 +188,27 @@ def setup_optimizer(optimizer: Optimizer | dict) -> Optimizer:
     Returns:
         The instantiated ``torch.optim.Optimizer`` object.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from torch import nn
+        >>> from sonnix.utils.factory import setup_optimizer
+        >>> linear = nn.Linear(4, 6)
+        >>> sgd = setup_optimizer({"_target_": "torch.optim.SGD", "params": linear.parameters()})
+        >>> sgd
+        SGD (
+        Parameter Group 0
+            dampening: 0
+            differentiable: False
+            foreach: None
+            fused: None
+            lr: 0.001
+            maximize: False
+            momentum: 0
+            nesterov: False
+            weight_decay: 0
+        )
 
-    ```pycon
-
-    >>> from torch import nn
-    >>> from sonnix.utils.factory import setup_optimizer
-    >>> linear = nn.Linear(4, 6)
-    >>> sgd = setup_optimizer({"_target_": "torch.optim.SGD", "params": linear.parameters()})
-    >>> sgd
-    SGD (
-    Parameter Group 0
-        dampening: 0
-        differentiable: False
-        foreach: None
-        fused: None
-        lr: 0.001
-        maximize: False
-        momentum: 0
-        nesterov: False
-        weight_decay: 0
-    )
-
-    ```
+        ```
     """
     return setup_object_typed(obj_or_config=optimizer, cls=Optimizer, name="torch.optim.Optimizer")
 
@@ -234,26 +222,24 @@ def create_sequential(modules: Sequence[Module | dict]) -> Sequential:
     Returns:
         The instantiated ``torch.nn.Sequential`` object.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.factory import create_sequential
+        >>> seq = create_sequential(
+        ...     [
+        ...         {"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 6},
+        ...         {"_target_": "torch.nn.ReLU"},
+        ...         {"_target_": "torch.nn.Linear", "in_features": 6, "out_features": 6},
+        ...     ]
+        ... )
+        >>> seq
+        Sequential(
+          (0): Linear(in_features=4, out_features=6, bias=True)
+          (1): ReLU()
+          (2): Linear(in_features=6, out_features=6, bias=True)
+        )
 
-    ```pycon
-
-    >>> from sonnix.utils.factory import create_sequential
-    >>> seq = create_sequential(
-    ...     [
-    ...         {"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 6},
-    ...         {"_target_": "torch.nn.ReLU"},
-    ...         {"_target_": "torch.nn.Linear", "in_features": 6, "out_features": 6},
-    ...     ]
-    ... )
-    >>> seq
-    Sequential(
-      (0): Linear(in_features=4, out_features=6, bias=True)
-      (1): ReLU()
-      (2): Linear(in_features=6, out_features=6, bias=True)
-    )
-
-    ```
+        ```
     """
     return Sequential(*[setup_module(module) for module in modules])
 
@@ -270,20 +256,18 @@ def setup_object(obj_or_config: T | dict) -> T:
     Raises:
         RuntimeError: if the ``objectory`` package is not installed.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.factory import setup_object
+        >>> linear = setup_object(
+        ...     {"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 6}
+        ... )
+        >>> linear
+        Linear(in_features=4, out_features=6, bias=True)
+        >>> setup_object(linear)  # Do nothing because the module is already instantiated
+        Linear(in_features=4, out_features=6, bias=True)
 
-    ```pycon
-
-    >>> from sonnix.utils.factory import setup_object
-    >>> linear = setup_object(
-    ...     {"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 6}
-    ... )
-    >>> linear
-    Linear(in_features=4, out_features=6, bias=True)
-    >>> setup_object(linear)  # Do nothing because the module is already instantiated
-    Linear(in_features=4, out_features=6, bias=True)
-
-    ```
+        ```
     """
     if isinstance(obj_or_config, dict):
         logger.info(
@@ -307,24 +291,22 @@ def setup_object_typed(obj_or_config: T | dict, cls: type, name: str | None = No
     Raises:
         RuntimeError: if the ``objectory`` package is not installed.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.utils.factory import setup_object_typed
+        >>> linear = setup_object_typed(
+        ...     {"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 6},
+        ...     cls=torch.nn.Module,
+        ... )
+        >>> linear
+        Linear(in_features=4, out_features=6, bias=True)
+        >>> setup_object_typed(
+        ...     linear, cls=torch.nn.Module
+        ... )  # Do nothing because the module is already instantiated
+        Linear(in_features=4, out_features=6, bias=True)
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.utils.factory import setup_object_typed
-    >>> linear = setup_object_typed(
-    ...     {"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 6},
-    ...     cls=torch.nn.Module,
-    ... )
-    >>> linear
-    Linear(in_features=4, out_features=6, bias=True)
-    >>> setup_object_typed(
-    ...     linear, cls=torch.nn.Module
-    ... )  # Do nothing because the module is already instantiated
-    Linear(in_features=4, out_features=6, bias=True)
-
-    ```
+        ```
     """
     if name is None:
         name = cls.__qualname__
@@ -349,16 +331,14 @@ def str_target_object(config: dict) -> str:
     Returns:
         str: A string with the target object.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.factory import str_target_object
+        >>> str_target_object({"_target_": "something.MyClass"})
+        something.MyClass
+        >>> str_target_object({})
+        N/A
 
-    ```pycon
-
-    >>> from sonnix.utils.factory import str_target_object
-    >>> str_target_object({"_target_": "something.MyClass"})
-    something.MyClass
-    >>> str_target_object({})
-    N/A
-
-    ```
+        ```
     """
     return config.get(OBJECT_TARGET, "N/A")

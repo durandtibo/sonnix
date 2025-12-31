@@ -34,10 +34,8 @@ class BaseRelativeIndicator(nn.Module):
     The indicators are designed based on
     https://en.wikipedia.org/wiki/Relative_change#Indicators_of_relative_change.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules.loss import ClassicalRelativeIndicator
     >>> prediction = torch.randn(3, 5, requires_grad=True)
@@ -71,10 +69,8 @@ class BaseRelativeIndicator(nn.Module):
 class ArithmeticalMeanIndicator(BaseRelativeIndicator):
     r"""Implement the arithmetical mean change indicator function.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules.loss import ArithmeticalMeanIndicator
     >>> prediction = torch.randn(3, 5, requires_grad=True)
@@ -100,10 +96,8 @@ class ArithmeticalMeanIndicator(BaseRelativeIndicator):
 class ClassicalRelativeIndicator(BaseRelativeIndicator):
     r"""Implement the classical relative indicator function.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules.loss import ClassicalRelativeIndicator
     >>> prediction = torch.randn(3, 5, requires_grad=True)
@@ -129,10 +123,8 @@ class ClassicalRelativeIndicator(BaseRelativeIndicator):
 class GeometricMeanIndicator(BaseRelativeIndicator):
     r"""Implement the geometric mean indicator function.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules.loss import GeometricMeanIndicator
     >>> prediction = torch.randn(3, 5, requires_grad=True)
@@ -158,10 +150,8 @@ class GeometricMeanIndicator(BaseRelativeIndicator):
 class MaximumMeanIndicator(BaseRelativeIndicator):
     r"""Implement the maximum mean change indicator function.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules.loss import MaximumMeanIndicator
     >>> prediction = torch.randn(3, 5, requires_grad=True)
@@ -187,10 +177,8 @@ class MaximumMeanIndicator(BaseRelativeIndicator):
 class MinimumMeanIndicator(BaseRelativeIndicator):
     r"""Implement the minimum mean change indicator function.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules.loss import MinimumMeanIndicator
     >>> prediction = torch.randn(3, 5, requires_grad=True)
@@ -216,10 +204,8 @@ class MinimumMeanIndicator(BaseRelativeIndicator):
 class MomentMeanIndicator(BaseRelativeIndicator):
     r"""Implement the moment mean change of order k indicator function.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules.loss import MomentMeanIndicator
     >>> prediction = torch.randn(3, 5, requires_grad=True)
@@ -252,10 +238,8 @@ class MomentMeanIndicator(BaseRelativeIndicator):
 class ReversedRelativeIndicator(BaseRelativeIndicator):
     r"""Implement the reversed relative indicator function.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules.loss import ReversedRelativeIndicator
     >>> prediction = torch.randn(3, 5, requires_grad=True)

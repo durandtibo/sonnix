@@ -24,14 +24,12 @@ def check_loss_reduction_strategy(reduction: str) -> None:
     Raises:
         ValueError: if the provided reduction is not valid.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.functional import check_loss_reduction_strategy
+        >>> check_loss_reduction_strategy("mean")
 
-    ```pycon
-
-    >>> from sonnix.functional import check_loss_reduction_strategy
-    >>> check_loss_reduction_strategy("mean")
-
-    ```
+        ```
     """
     if reduction not in VALID_REDUCTIONS:
         msg = f"Incorrect reduction: {reduction}. The valid reductions are: {VALID_REDUCTIONS}"
@@ -60,22 +58,20 @@ def reduce_loss(tensor: Tensor, reduction: str) -> Tensor:
     Raises:
         ValueError: if the reduction is not valid.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import reduce_loss
+        >>> tensor = torch.tensor([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]])
+        >>> reduce_loss(tensor, "none")
+        tensor([[0., 1., 2.],
+                [3., 4., 5.]])
+        >>> reduce_loss(tensor, "sum")
+        tensor(15.)
+        >>> reduce_loss(tensor, "mean")
+        tensor(2.5000)
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import reduce_loss
-    >>> tensor = torch.tensor([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]])
-    >>> reduce_loss(tensor, "none")
-    tensor([[0., 1., 2.],
-            [3., 4., 5.]])
-    >>> reduce_loss(tensor, "sum")
-    tensor(15.)
-    >>> reduce_loss(tensor, "mean")
-    tensor(2.5000)
-
-    ```
+        ```
     """
     if reduction == "mean":
         return tensor.mean()

@@ -28,10 +28,8 @@ class PoissonRegressionLoss(nn.Module):
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the count is zero.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import PoissonRegressionLoss
     >>> criterion = PoissonRegressionLoss()

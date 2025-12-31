@@ -28,14 +28,12 @@ def is_objectory_available() -> bool:
     Returns:
         ``True`` if ``objectory`` is available otherwise ``False``.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.imports import is_objectory_available
+        >>> is_objectory_available()
 
-    ```pycon
-
-    >>> from sonnix.utils.imports import is_objectory_available
-    >>> is_objectory_available()
-
-    ```
+        ```
     """
     return package_available("objectory")
 
@@ -46,14 +44,12 @@ def check_objectory() -> None:
     Raises:
         RuntimeError: if the ``objectory`` package is not installed.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.imports import check_objectory
+        >>> check_objectory()
 
-    ```pycon
-
-    >>> from sonnix.utils.imports import check_objectory
-    >>> check_objectory()
-
-    ```
+        ```
     """
     if not is_objectory_available():
         raise_error_objectory_missing()
@@ -70,18 +66,16 @@ def objectory_available(fn: Callable[..., Any]) -> Callable[..., Any]:
         A wrapper around ``fn`` if ``objectory`` package is installed,
             otherwise ``None``.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> from sonnix.utils.imports import objectory_available
+        >>> @objectory_available
+        ... def my_function(n: int = 0) -> int:
+        ...     return 42 + n
+        ...
+        >>> my_function()
 
-    ```pycon
-
-    >>> from sonnix.utils.imports import objectory_available
-    >>> @objectory_available
-    ... def my_function(n: int = 0) -> int:
-    ...     return 42 + n
-    ...
-    >>> my_function()
-
-    ```
+        ```
     """
     return decorator_package_available(fn, is_objectory_available)
 

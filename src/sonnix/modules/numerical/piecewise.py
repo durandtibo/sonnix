@@ -38,10 +38,8 @@ class PiecewiseLinearNumericalEncoder(Module):
         - Output: ``(*, n_features, n_bins - 1)``,  where ``*`` has
             the same shape as the input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import PiecewiseLinearNumericalEncoder
     >>> # Example with 1 feature

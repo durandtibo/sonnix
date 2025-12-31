@@ -36,18 +36,16 @@ def poisson_regression_loss(
         The Poisson regression loss. The shape of the tensor depends
             on the reduction strategy.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import poisson_regression_loss
+        >>> loss = poisson_regression_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import poisson_regression_loss
-    >>> loss = poisson_regression_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
-
-    ```
+        ```
     """
     loss = prediction - target.mul(prediction.clamp(min=eps).log())
     return reduce_loss(loss, reduction)

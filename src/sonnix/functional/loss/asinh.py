@@ -37,18 +37,16 @@ def asinh_mse_loss(
             (asinh) transformed predictions and targets. The shape of
             the tensor depends on the reduction strategy.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import asinh_mse_loss
+        >>> loss = asinh_mse_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss
+        tensor(..., grad_fn=<MseLossBackward0>)
+        >>> loss.backward()
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import asinh_mse_loss
-    >>> loss = asinh_mse_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
-    >>> loss
-    tensor(..., grad_fn=<MseLossBackward0>)
-    >>> loss.backward()
-
-    ```
+        ```
     """
     return mse_loss(prediction.asinh(), target.asinh(), reduction=reduction)
 
@@ -79,17 +77,15 @@ def asinh_smooth_l1_loss(
             transformed predictions and targets. The shape of
             the tensor depends on the reduction strategy.
 
-    Example usage:
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import asinh_smooth_l1_loss
+        >>> loss = asinh_smooth_l1_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss
+        tensor(..., grad_fn=<SmoothL1LossBackward0>)
+        >>> loss.backward()
 
-    ```pycon
-
-    >>> import torch
-    >>> from sonnix.functional import asinh_smooth_l1_loss
-    >>> loss = asinh_smooth_l1_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
-    >>> loss
-    tensor(..., grad_fn=<SmoothL1LossBackward0>)
-    >>> loss.backward()
-
-    ```
+        ```
     """
     return smooth_l1_loss(prediction.asinh(), target.asinh(), reduction=reduction, beta=beta)

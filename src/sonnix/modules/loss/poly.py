@@ -39,10 +39,8 @@ class BinaryPoly1Loss(nn.Module):
         - Output: scalar. If ``reduction`` is ``'none'``, then ``(*)``,
             same shape as input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import BinaryPoly1Loss
     >>> criterion = BinaryPoly1Loss()
@@ -119,10 +117,8 @@ class BinaryPoly1LossWithLogits(nn.Module):
         - Output: scalar. If ``reduction`` is ``'none'``, then ``(*)``,
             same shape as input.
 
-    Example usage:
-
+    Example:
     ```pycon
-
     >>> import torch
     >>> from sonnix.modules import BinaryPoly1LossWithLogits
     >>> criterion = BinaryPoly1LossWithLogits()
