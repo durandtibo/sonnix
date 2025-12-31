@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         dist-type: [ "sdist", "wheel" ]
-        package-extra: [ "" ]
+        package-extra: [ "", "numpy", "objectory" ]
 
     steps:
       - name: Checkout
