@@ -1,24 +1,24 @@
 # Home
 
 <p align="center">
-    <a href="https://github.com/durandtibo/sonnix/actions">
-        <img alt="CI" src="https://github.com/durandtibo/sonnix/workflows/CI/badge.svg">
+    <a href="https://github.com/durandtibo/sonnix/actions/workflows/ci.yaml">
+        <img alt="CI" src="https://github.com/durandtibo/sonnix/actions/workflows/ci.yaml/badge.svg">
     </a>
-    <a href="https://github.com/durandtibo/sonnix/actions">
-        <img alt="Nightly Tests" src="https://github.com/durandtibo/sonnix/workflows/Nightly%20Tests/badge.svg">
+    <a href="https://github.com/durandtibo/sonnix/actions/workflows/nightly-tests.yaml">
+        <img alt="Nightly Tests" src="https://github.com/durandtibo/sonnix/actions/workflows/nightly-tests.yaml/badge.svg">
     </a>
-    <a href="https://github.com/durandtibo/sonnix/actions">
-        <img alt="Nightly Package Tests" src="https://github.com/durandtibo/sonnix/workflows/Nightly%20Package%20Tests/badge.svg">
+    <a href="https://github.com/durandtibo/sonnix/actions/workflows/nightly-package.yaml">
+        <img alt="Nightly Package Tests" src="https://github.com/durandtibo/sonnix/actions/workflows/nightly-package.yaml/badge.svg">
     </a>
     <a href="https://codecov.io/gh/durandtibo/sonnix">
         <img alt="Codecov" src="https://codecov.io/gh/durandtibo/sonnix/branch/main/graph/badge.svg">
     </a>
     <br/>
     <a href="https://durandtibo.github.io/sonnix/">
-        <img alt="Documentation" src="https://github.com/durandtibo/sonnix/workflows/Documentation%20(stable)/badge.svg">
+        <img alt="Documentation" src="https://github.com/durandtibo/sonnix/actions/workflows/docs.yaml/badge.svg">
     </a>
-    <a href="https://durandtibo.github.io/sonnix/">
-        <img alt="Documentation" src="https://github.com/durandtibo/sonnix/workflows/Documentation%20(unstable)/badge.svg">
+    <a href="https://durandtibo.github.io/sonnix/dev/">
+        <img alt="Documentation" src="https://github.com/durandtibo/sonnix/actions/workflows/docs-dev.yaml/badge.svg">
     </a>
     <br/>
     <a href="https://github.com/psf/black">
