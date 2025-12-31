@@ -21,25 +21,25 @@ class ResidualBlock(nn.Module):
             (dictionary). If ``None``, the ``Identity`` module is used.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from torch import nn
-    >>> from sonnix.modules import ResidualBlock
-    >>> m = ResidualBlock(residual=nn.Sequential(nn.Linear(4, 6), nn.ReLU(), nn.Linear(6, 4)))
-    >>> m
-    ResidualBlock(
-      (residual): Sequential(
-        (0): Linear(in_features=4, out_features=6, bias=True)
-        (1): ReLU()
-        (2): Linear(in_features=6, out_features=4, bias=True)
-      )
-      (skip): Identity()
-    )
-    >>> out = m(torch.rand(6, 4))
-    >>> out
-    tensor([[...]], grad_fn=<AddBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from torch import nn
+        >>> from sonnix.modules import ResidualBlock
+        >>> m = ResidualBlock(residual=nn.Sequential(nn.Linear(4, 6), nn.ReLU(), nn.Linear(6, 4)))
+        >>> m
+        ResidualBlock(
+          (residual): Sequential(
+            (0): Linear(in_features=4, out_features=6, bias=True)
+            (1): ReLU()
+            (2): Linear(in_features=6, out_features=4, bias=True)
+          )
+          (skip): Identity()
+        )
+        >>> out = m(torch.rand(6, 4))
+        >>> out
+        tensor([[...]], grad_fn=<AddBackward0>)
 
-    ```
+        ```
     """
 
     def __init__(

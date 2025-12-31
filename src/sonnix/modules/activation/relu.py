@@ -26,18 +26,18 @@ class ReLUn(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import ReLUn
-    >>> m = ReLUn(max=5)
-    >>> m
-    ReLUn(max=5.0)
-    >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
-    >>> out
-    tensor([[0., 1., 2., 3.],
-            [4., 5., 5., 5.]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import ReLUn
+        >>> m = ReLUn(max=5)
+        >>> m
+        ReLUn(max=5.0)
+        >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
+        >>> out
+        tensor([[0., 1., 2., 3.],
+                [4., 5., 5., 5.]])
 
-    ```
+        ```
     """
 
     def __init__(self, max: float = 1.0) -> None:  # noqa: A002
@@ -65,18 +65,18 @@ class SquaredReLU(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import SquaredReLU
-    >>> m = SquaredReLU()
-    >>> m
-    SquaredReLU()
-    >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
-    >>> out
-    tensor([[ 0.,  1.,  4.,  9.],
-            [16., 25., 36., 49.]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import SquaredReLU
+        >>> m = SquaredReLU()
+        >>> m
+        SquaredReLU()
+        >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
+        >>> out
+        tensor([[ 0.,  1.,  4.,  9.],
+                [16., 25., 36., 49.]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002

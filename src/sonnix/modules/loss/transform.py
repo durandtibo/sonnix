@@ -26,20 +26,20 @@ class TransformedLoss(nn.Module):
             is used.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import TransformedLoss, Asinh
-    >>> criterion = TransformedLoss(
-    ...     criterion=torch.nn.SmoothL1Loss(),
-    ...     prediction=Asinh(),
-    ...     target=Asinh(),
-    ... )
-    >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
-    >>> loss
-    tensor(..., grad_fn=<SmoothL1LossBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import TransformedLoss, Asinh
+        >>> criterion = TransformedLoss(
+        ...     criterion=torch.nn.SmoothL1Loss(),
+        ...     prediction=Asinh(),
+        ...     target=Asinh(),
+        ... )
+        >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss
+        tensor(..., grad_fn=<SmoothL1LossBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(

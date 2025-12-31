@@ -19,18 +19,18 @@ class Asinh(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Asinh
-    >>> m = Asinh()
-    >>> m
-    Asinh()
-    >>> out = m(torch.tensor([[-1.0, 0.0, 1.0], [-2.0, 2.0, 4.0]]))
-    >>> out
-    tensor([[-0.8814,  0.0000,  0.8814],
-            [-1.4436,  1.4436,  2.0947]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Asinh
+        >>> m = Asinh()
+        >>> m
+        Asinh()
+        >>> out = m(torch.tensor([[-1.0, 0.0, 1.0], [-2.0, 2.0, 4.0]]))
+        >>> out
+        tensor([[-0.8814,  0.0000,  0.8814],
+                [-1.4436,  1.4436,  2.0947]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
@@ -48,18 +48,18 @@ class Exp(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Exp
-    >>> m = Exp()
-    >>> m
-    Exp()
-    >>> out = m(torch.tensor([[-1.0, 0.0, 1.0], [-2.0, 2.0, 3.0]]))
-    >>> out
-    tensor([[ 0.3679,  1.0000,  2.7183],
-            [ 0.1353,  7.3891, 20.0855]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Exp
+        >>> m = Exp()
+        >>> m
+        Exp()
+        >>> out = m(torch.tensor([[-1.0, 0.0, 1.0], [-2.0, 2.0, 3.0]]))
+        >>> out
+        tensor([[ 0.3679,  1.0000,  2.7183],
+                [ 0.1353,  7.3891, 20.0855]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
@@ -77,18 +77,18 @@ class Expm1(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Expm1
-    >>> m = Expm1()
-    >>> m
-    Expm1()
-    >>> out = m(torch.tensor([[-1.0, 0.0, 1.0], [-2.0, 2.0, 4.0]]))
-    >>> out
-    tensor([[-0.6321,  0.0000,  1.7183],
-            [-0.8647,  6.3891, 53.5981]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Expm1
+        >>> m = Expm1()
+        >>> m
+        Expm1()
+        >>> out = m(torch.tensor([[-1.0, 0.0, 1.0], [-2.0, 2.0, 4.0]]))
+        >>> out
+        tensor([[-0.6321,  0.0000,  1.7183],
+                [-0.8647,  6.3891, 53.5981]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
@@ -106,18 +106,18 @@ class Log(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Log
-    >>> m = Log()
-    >>> m
-    Log()
-    >>> out = m(torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]))
-    >>> out
-    tensor([[0.0000, 0.6931, 1.0986],
-            [1.3863, 1.6094, 1.7918]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Log
+        >>> m = Log()
+        >>> m
+        Log()
+        >>> out = m(torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]))
+        >>> out
+        tensor([[0.0000, 0.6931, 1.0986],
+                [1.3863, 1.6094, 1.7918]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
@@ -135,18 +135,18 @@ class Log1p(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Log1p
-    >>> m = Log1p()
-    >>> m
-    Log1p()
-    >>> out = m(torch.tensor([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]]))
-    >>> out
-    tensor([[0.0000, 0.6931, 1.0986],
-            [1.3863, 1.6094, 1.7918]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Log1p
+        >>> m = Log1p()
+        >>> m
+        Log1p()
+        >>> out = m(torch.tensor([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]]))
+        >>> out
+        tensor([[0.0000, 0.6931, 1.0986],
+                [1.3863, 1.6094, 1.7918]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
@@ -164,18 +164,18 @@ class Pow(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Pow
-    >>> m = Pow(exponent=2)
-    >>> m
-    Pow(exponent=2.0)
-    >>> out = m(torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]))
-    >>> out
-    tensor([[ 1.,  4.,  9.],
-            [16., 25., 36.]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Pow
+        >>> m = Pow(exponent=2)
+        >>> m
+        Pow(exponent=2.0)
+        >>> out = m(torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]))
+        >>> out
+        tensor([[ 1.,  4.,  9.],
+                [16., 25., 36.]])
 
-    ```
+        ```
     """
 
     def __init__(self, exponent: float) -> None:
@@ -205,18 +205,18 @@ class SafeExp(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import SafeExp
-    >>> m = SafeExp()
-    >>> m
-    SafeExp(max=20.0)
-    >>> out = m(torch.tensor([[0.01, 0.1, 1.0], [10.0, 100.0, 1000.0]]))
-    >>> out
-    tensor([[1.0101e+00, 1.1052e+00, 2.7183e+00],
-            [2.2026e+04, 4.8517e+08, 4.8517e+08]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import SafeExp
+        >>> m = SafeExp()
+        >>> m
+        SafeExp(max=20.0)
+        >>> out = m(torch.tensor([[0.01, 0.1, 1.0], [10.0, 100.0, 1000.0]]))
+        >>> out
+        tensor([[1.0101e+00, 1.1052e+00, 2.7183e+00],
+                [2.2026e+04, 4.8517e+08, 4.8517e+08]])
 
-    ```
+        ```
     """
 
     def __init__(self, max: float = 20.0) -> None:  # noqa: A002
@@ -246,18 +246,18 @@ class SafeLog(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import SafeLog
-    >>> m = SafeLog()
-    >>> m
-    SafeLog(min=1e-08)
-    >>> out = m(torch.tensor([[1e-4, 1e-5, 1e-6], [1e-8, 1e-9, 1e-10]]))
-    >>> out
-    tensor([[ -9.2103, -11.5129, -13.8155],
-            [-18.4207, -18.4207, -18.4207]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import SafeLog
+        >>> m = SafeLog()
+        >>> m
+        SafeLog(min=1e-08)
+        >>> out = m(torch.tensor([[1e-4, 1e-5, 1e-6], [1e-8, 1e-9, 1e-10]]))
+        >>> out
+        tensor([[ -9.2103, -11.5129, -13.8155],
+                [-18.4207, -18.4207, -18.4207]])
 
-    ```
+        ```
     """
 
     def __init__(self, min: float = 1e-8) -> None:  # noqa: A002
@@ -279,18 +279,18 @@ class Sin(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Sin
-    >>> m = Sin()
-    >>> m
-    Sin()
-    >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
-    >>> out
-    tensor([[ 0.0000,  0.8415,  0.9093,  0.1411],
-            [-0.7568, -0.9589, -0.2794,  0.6570]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Sin
+        >>> m = Sin()
+        >>> m
+        Sin()
+        >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
+        >>> out
+        tensor([[ 0.0000,  0.8415,  0.9093,  0.1411],
+                [-0.7568, -0.9589, -0.2794,  0.6570]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
@@ -306,18 +306,18 @@ class Sinh(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Sinh
-    >>> m = Sinh()
-    >>> m
-    Sinh()
-    >>> out = m(torch.tensor([[-1.0, 0.0, 1.0], [-2.0, 2.0, 4.0]]))
-    >>> out
-    tensor([[-1.1752,  0.0000,  1.1752],
-            [-3.6269,  3.6269, 27.2899]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Sinh
+        >>> m = Sinh()
+        >>> m
+        Sinh()
+        >>> out = m(torch.tensor([[-1.0, 0.0, 1.0], [-2.0, 2.0, 4.0]]))
+        >>> out
+        tensor([[-1.1752,  0.0000,  1.1752],
+                [-3.6269,  3.6269, 27.2899]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
@@ -332,18 +332,18 @@ class Square(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Square
-    >>> m = Square()
-    >>> m
-    Square()
-    >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
-    >>> out
-    tensor([[ 0.,  1.,  4.,  9.],
-            [16., 25., 36., 49.]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Square
+        >>> m = Square()
+        >>> m
+        Square()
+        >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
+        >>> out
+        tensor([[ 0.,  1.,  4.,  9.],
+                [16., 25., 36., 49.]])
 
-    ```
+        ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002

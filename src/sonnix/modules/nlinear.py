@@ -34,21 +34,21 @@ class NLinear(Module):
             the same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import NLinear
-    >>> # Example with 1 feature
-    >>> m = NLinear(n=3, in_features=4, out_features=6)
-    >>> m
-    NLinear(n=3, in_features=4, out_features=6, bias=True)
-    >>> out = m(torch.randn(2, 3, 4))
-    >>> out.shape
-    torch.Size([2, 3, 6])
-    >>> out = m(torch.randn(2, 5, 3, 4))
-    >>> out.shape
-    torch.Size([2, 5, 3, 6])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import NLinear
+        >>> # Example with 1 feature
+        >>> m = NLinear(n=3, in_features=4, out_features=6)
+        >>> m
+        NLinear(n=3, in_features=4, out_features=6, bias=True)
+        >>> out = m(torch.randn(2, 3, 4))
+        >>> out.shape
+        torch.Size([2, 3, 6])
+        >>> out = m(torch.randn(2, 5, 3, 4))
+        >>> out.shape
+        torch.Size([2, 5, 3, 6])
 
-    ```
+        ```
     """
 
     def __init__(

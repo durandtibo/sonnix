@@ -22,17 +22,17 @@ class Clamp(torch.nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Clamp
-    >>> m = Clamp(min=-1, max=2)
-    >>> m
-    Clamp(min=-1, max=2)
-    >>> out = m(torch.tensor([[-2.0, -1.0, 0.0], [1.0, 2.0, 3.0]]))
-    >>> out
-    tensor([[-1., -1.,  0.], [ 1.,  2.,  2.]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Clamp
+        >>> m = Clamp(min=-1, max=2)
+        >>> m
+        Clamp(min=-1, max=2)
+        >>> out = m(torch.tensor([[-2.0, -1.0, 0.0], [1.0, 2.0, 3.0]]))
+        >>> out
+        tensor([[-1., -1.,  0.], [ 1.,  2.,  2.]])
 
-    ```
+        ```
     """
 
     def __init__(self, min: float | None = -1.0, max: float | None = 1.0) -> None:  # noqa: A002

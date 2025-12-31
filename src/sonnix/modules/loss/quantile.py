@@ -29,18 +29,18 @@ class QuantileRegressionLoss(nn.Module):
             Absolute Error (MAE).
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import QuantileRegressionLoss
-    >>> criterion = QuantileRegressionLoss()
-    >>> criterion
-    QuantileRegressionLoss(reduction=mean, q=0.5)
-    >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import QuantileRegressionLoss
+        >>> criterion = QuantileRegressionLoss()
+        >>> criterion
+        QuantileRegressionLoss(reduction=mean, q=0.5)
+        >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(self, reduction: str = "mean", q: float = 0.5) -> None:

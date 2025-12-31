@@ -35,23 +35,23 @@ class BaseRelativeIndicator(nn.Module):
     https://en.wikipedia.org/wiki/Relative_change#Indicators_of_relative_change.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules.loss import ClassicalRelativeIndicator
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> indicator = ClassicalRelativeIndicator()
-    >>> indicator
-    ClassicalRelativeIndicator()
-    >>> values = indicator(
-    ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
-    ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
-    ... )
-    >>> values
-    tensor([[2., 1., 0.],
-            [3., 5., 1.]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules.loss import ClassicalRelativeIndicator
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> indicator = ClassicalRelativeIndicator()
+        >>> indicator
+        ClassicalRelativeIndicator()
+        >>> values = indicator(
+        ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
+        ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
+        ... )
+        >>> values
+        tensor([[2., 1., 0.],
+                [3., 5., 1.]])
 
-    ```
+        ```
     """
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -70,23 +70,23 @@ class ArithmeticalMeanIndicator(BaseRelativeIndicator):
     r"""Implement the arithmetical mean change indicator function.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules.loss import ArithmeticalMeanIndicator
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> indicator = ArithmeticalMeanIndicator()
-    >>> indicator
-    ArithmeticalMeanIndicator()
-    >>> values = indicator(
-    ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
-    ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
-    ... )
-    >>> values
-    tensor([[1.0000, 1.0000, 0.5000],
-            [3.0000, 3.0000, 1.0000]], grad_fn=<MulBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules.loss import ArithmeticalMeanIndicator
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> indicator = ArithmeticalMeanIndicator()
+        >>> indicator
+        ArithmeticalMeanIndicator()
+        >>> values = indicator(
+        ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
+        ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
+        ... )
+        >>> values
+        tensor([[1.0000, 1.0000, 0.5000],
+                [3.0000, 3.0000, 1.0000]], grad_fn=<MulBackward0>)
 
-    ```
+        ```
     """
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -97,23 +97,23 @@ class ClassicalRelativeIndicator(BaseRelativeIndicator):
     r"""Implement the classical relative indicator function.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules.loss import ClassicalRelativeIndicator
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> indicator = ClassicalRelativeIndicator()
-    >>> indicator
-    ClassicalRelativeIndicator()
-    >>> values = indicator(
-    ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
-    ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
-    ... )
-    >>> values
-    tensor([[2., 1., 0.],
-            [3., 5., 1.]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules.loss import ClassicalRelativeIndicator
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> indicator = ClassicalRelativeIndicator()
+        >>> indicator
+        ClassicalRelativeIndicator()
+        >>> values = indicator(
+        ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
+        ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
+        ... )
+        >>> values
+        tensor([[2., 1., 0.],
+                [3., 5., 1.]])
 
-    ```
+        ```
     """
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -124,23 +124,23 @@ class GeometricMeanIndicator(BaseRelativeIndicator):
     r"""Implement the geometric mean indicator function.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules.loss import GeometricMeanIndicator
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> indicator = GeometricMeanIndicator()
-    >>> indicator
-    GeometricMeanIndicator()
-    >>> values = indicator(
-    ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
-    ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
-    ... )
-    >>> values
-    tensor([[0.0000, 1.0000, 0.0000],
-            [3.0000, 2.2361, 1.0000]], grad_fn=<SqrtBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules.loss import GeometricMeanIndicator
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> indicator = GeometricMeanIndicator()
+        >>> indicator
+        GeometricMeanIndicator()
+        >>> values = indicator(
+        ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
+        ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
+        ... )
+        >>> values
+        tensor([[0.0000, 1.0000, 0.0000],
+                [3.0000, 2.2361, 1.0000]], grad_fn=<SqrtBackward0>)
 
-    ```
+        ```
     """
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -151,23 +151,23 @@ class MaximumMeanIndicator(BaseRelativeIndicator):
     r"""Implement the maximum mean change indicator function.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules.loss import MaximumMeanIndicator
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> indicator = MaximumMeanIndicator()
-    >>> indicator
-    MaximumMeanIndicator()
-    >>> values = indicator(
-    ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
-    ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
-    ... )
-    >>> values
-    tensor([[2., 1., 1.],
-            [3., 5., 1.]], grad_fn=<MaximumBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules.loss import MaximumMeanIndicator
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> indicator = MaximumMeanIndicator()
+        >>> indicator
+        MaximumMeanIndicator()
+        >>> values = indicator(
+        ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
+        ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
+        ... )
+        >>> values
+        tensor([[2., 1., 1.],
+                [3., 5., 1.]], grad_fn=<MaximumBackward0>)
 
-    ```
+        ```
     """
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -178,23 +178,23 @@ class MinimumMeanIndicator(BaseRelativeIndicator):
     r"""Implement the minimum mean change indicator function.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules.loss import MinimumMeanIndicator
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> indicator = MinimumMeanIndicator()
-    >>> indicator
-    MinimumMeanIndicator()
-    >>> values = indicator(
-    ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
-    ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
-    ... )
-    >>> values
-    tensor([[0., 1., 0.],
-            [3., 1., 1.]], grad_fn=<MinimumBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules.loss import MinimumMeanIndicator
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> indicator = MinimumMeanIndicator()
+        >>> indicator
+        MinimumMeanIndicator()
+        >>> values = indicator(
+        ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
+        ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
+        ... )
+        >>> values
+        tensor([[0., 1., 0.],
+                [3., 1., 1.]], grad_fn=<MinimumBackward0>)
 
-    ```
+        ```
     """
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -205,23 +205,23 @@ class MomentMeanIndicator(BaseRelativeIndicator):
     r"""Implement the moment mean change of order k indicator function.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules.loss import MomentMeanIndicator
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> indicator = MomentMeanIndicator()
-    >>> indicator
-    MomentMeanIndicator(k=1)
-    >>> values = indicator(
-    ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
-    ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
-    ... )
-    >>> values
-    tensor([[1.0000, 1.0000, 0.5000],
-            [3.0000, 3.0000, 1.0000]], grad_fn=<PowBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules.loss import MomentMeanIndicator
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> indicator = MomentMeanIndicator()
+        >>> indicator
+        MomentMeanIndicator(k=1)
+        >>> values = indicator(
+        ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
+        ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
+        ... )
+        >>> values
+        tensor([[1.0000, 1.0000, 0.5000],
+                [3.0000, 3.0000, 1.0000]], grad_fn=<PowBackward0>)
 
-    ```
+        ```
     """
 
     def __init__(self, k: int = 1) -> None:
@@ -239,23 +239,23 @@ class ReversedRelativeIndicator(BaseRelativeIndicator):
     r"""Implement the reversed relative indicator function.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules.loss import ReversedRelativeIndicator
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> indicator = ReversedRelativeIndicator()
-    >>> indicator
-    ReversedRelativeIndicator()
-    >>> values = indicator(
-    ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
-    ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
-    ... )
-    >>> values
-    tensor([[0., 1., 1.],
-            [3., 1., 1.]], grad_fn=<AbsBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules.loss import ReversedRelativeIndicator
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> indicator = ReversedRelativeIndicator()
+        >>> indicator
+        ReversedRelativeIndicator()
+        >>> values = indicator(
+        ...     prediction=torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True),
+        ...     target=torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]]),
+        ... )
+        >>> values
+        tensor([[0., 1., 1.],
+                [3., 1., 1.]], grad_fn=<AbsBackward0>)
 
-    ```
+        ```
     """
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:

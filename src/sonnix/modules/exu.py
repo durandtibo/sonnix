@@ -37,17 +37,17 @@ class ExU(nn.Module):
             as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import ExU
-    >>> m = ExU(4, 6)
-    >>> m
-    ExU(in_features=4, out_features=6, bias=True)
-    >>> out = m(torch.rand(6, 4))
-    >>> out
-    tensor([[...]], grad_fn=<MmBackward0>)
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import ExU
+        >>> m = ExU(4, 6)
+        >>> m
+        ExU(in_features=4, out_features=6, bias=True)
+        >>> out = m(torch.rand(6, 4))
+        >>> out
+        tensor([[...]], grad_fn=<MmBackward0>)
 
-    ```
+        ```
     """
 
     def __init__(

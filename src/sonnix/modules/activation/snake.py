@@ -29,18 +29,18 @@ class Snake(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import Snake
-    >>> m = Snake()
-    >>> m
-    Snake(frequency=1.0)
-    >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
-    >>> out
-    tensor([[0.0000, 1.7081, 2.8268, 3.0199],
-            [4.5728, 5.9195, 6.0781, 7.4316]])
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import Snake
+        >>> m = Snake()
+        >>> m
+        Snake(frequency=1.0)
+        >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
+        >>> out
+        tensor([[0.0000, 1.7081, 2.8268, 3.0199],
+                [4.5728, 5.9195, 6.0781, 7.4316]])
 
-    ```
+        ```
     """
 
     def __init__(self, frequency: float = 1.0) -> None:

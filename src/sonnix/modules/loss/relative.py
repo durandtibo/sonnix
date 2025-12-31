@@ -37,28 +37,28 @@ class RelativeLoss(nn.Module):
             undefined results when the indicator is zero.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import RelativeLoss
-    >>> from sonnix.modules.loss import ClassicalRelativeIndicator
-    >>> criterion = RelativeLoss(
-    ...     criterion=torch.nn.MSELoss(reduction="none"),
-    ...     indicator=ClassicalRelativeIndicator(),
-    ... )
-    >>> criterion
-    RelativeLoss(
-      eps=1e-08, reduction=mean
-      (criterion): MSELoss()
-      (indicator): ClassicalRelativeIndicator()
-    )
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> loss = criterion(prediction, target)
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import RelativeLoss
+        >>> from sonnix.modules.loss import ClassicalRelativeIndicator
+        >>> criterion = RelativeLoss(
+        ...     criterion=torch.nn.MSELoss(reduction="none"),
+        ...     indicator=ClassicalRelativeIndicator(),
+        ... )
+        >>> criterion
+        RelativeLoss(
+          eps=1e-08, reduction=mean
+          (criterion): MSELoss()
+          (indicator): ClassicalRelativeIndicator()
+        )
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> loss = criterion(prediction, target)
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(
@@ -106,25 +106,25 @@ class RelativeMSELoss(RelativeLoss):
             undefined results when the indicator is zero.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import RelativeMSELoss
-    >>> from sonnix.modules.loss import ClassicalRelativeIndicator
-    >>> criterion = RelativeMSELoss(indicator=ClassicalRelativeIndicator())
-    >>> criterion
-    RelativeMSELoss(
-      eps=1e-08, reduction=mean
-      (criterion): MSELoss()
-      (indicator): ClassicalRelativeIndicator()
-    )
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> loss = criterion(prediction, target)
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import RelativeMSELoss
+        >>> from sonnix.modules.loss import ClassicalRelativeIndicator
+        >>> criterion = RelativeMSELoss(indicator=ClassicalRelativeIndicator())
+        >>> criterion
+        RelativeMSELoss(
+          eps=1e-08, reduction=mean
+          (criterion): MSELoss()
+          (indicator): ClassicalRelativeIndicator()
+        )
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> loss = criterion(prediction, target)
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(
@@ -157,25 +157,25 @@ class RelativeSmoothL1Loss(RelativeLoss):
             undefined results when the indicator is zero.
 
     Example:
-    ```pycon
-    >>> import torch
-    >>> from sonnix.modules import RelativeSmoothL1Loss
-    >>> from sonnix.modules.loss import ClassicalRelativeIndicator
-    >>> criterion = RelativeSmoothL1Loss(indicator=ClassicalRelativeIndicator())
-    >>> criterion
-    RelativeSmoothL1Loss(
-      eps=1e-08, reduction=mean
-      (criterion): SmoothL1Loss()
-      (indicator): ClassicalRelativeIndicator()
-    )
-    >>> prediction = torch.randn(3, 5, requires_grad=True)
-    >>> target = torch.randn(3, 5)
-    >>> loss = criterion(prediction, target)
-    >>> loss
-    tensor(..., grad_fn=<MeanBackward0>)
-    >>> loss.backward()
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import RelativeSmoothL1Loss
+        >>> from sonnix.modules.loss import ClassicalRelativeIndicator
+        >>> criterion = RelativeSmoothL1Loss(indicator=ClassicalRelativeIndicator())
+        >>> criterion
+        RelativeSmoothL1Loss(
+          eps=1e-08, reduction=mean
+          (criterion): SmoothL1Loss()
+          (indicator): ClassicalRelativeIndicator()
+        )
+        >>> prediction = torch.randn(3, 5, requires_grad=True)
+        >>> target = torch.randn(3, 5)
+        >>> loss = criterion(prediction, target)
+        >>> loss
+        tensor(..., grad_fn=<MeanBackward0>)
+        >>> loss.backward()
 
-    ```
+        ```
     """
 
     def __init__(
