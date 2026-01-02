@@ -34,7 +34,6 @@ def check_packages() -> None:
 
 def check_functional() -> None:
     logger.info("Checking 'functional' package...")
-
     assert objects_are_equal(
         absolute_error(torch.ones(2, 3), torch.ones(2, 3)),
         torch.zeros(2, 3),
@@ -43,14 +42,12 @@ def check_functional() -> None:
 
 def check_modules() -> None:
     logger.info("Checking 'modules' package...")
-
     module = Exp()
     assert objects_are_equal(module(torch.zeros(2, 3)), torch.ones(2, 3))
 
 
 def check_utils() -> None:
     logger.info("Checking 'utils' package...")
-
     assert has_parameters(torch.nn.Linear(4, 6))
 
 
