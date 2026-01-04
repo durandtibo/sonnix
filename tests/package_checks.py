@@ -24,7 +24,6 @@ def check_packages() -> None:
     packages_to_import = [
         "sonnix.functional",
         "sonnix.modules",
-        "sonnix.testing",
         "sonnix.utils",
     ]
     for package in packages_to_import:
