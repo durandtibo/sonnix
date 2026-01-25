@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 import torch
-from coola import objects_are_equal
+from coola.equality import objects_are_equal
 from torch import nn
 
 from sonnix.utils.state_dict import find_module_state_dict, load_state_dict_to_module
