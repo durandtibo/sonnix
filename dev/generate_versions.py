@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 
 from feu.utils.io import save_json
-from feu.version import fetch_latest_minor_versions, fetch_versions
+from feu.version import fetch_latest_minor_versions
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ def fetch_package_versions() -> dict[str, list[str]]:
         A dictionary with the versions for each package.
     """
     return {
-        "coola": list(fetch_versions("coola", lower="0.11.0")),
+        "coola": list(fetch_latest_minor_versions("coola", lower="1.0")),
         "numpy": list(fetch_latest_minor_versions("numpy", lower="1.22")),
         "objectory": list(fetch_latest_minor_versions("objectory", lower="0.3.0")),
         "torch": list(fetch_latest_minor_versions("torch", lower="2.4")),
