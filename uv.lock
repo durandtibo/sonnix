@@ -3796,7 +3796,7 @@ requires-dist = [
     { name = "coola", specifier = ">=1.1.5,<2.0" },
     { name = "numpy", marker = "extra == 'numpy'", specifier = ">=1.24,<3.0" },
     { name = "objectory", marker = "extra == 'objectory'", specifier = ">=0.3.0,<1.0" },
-    { name = "torch", specifier = ">=2.4,<3.0" },
+    { name = "torch", specifier = ">=2.12.1,<3.0" },
 ]
 provides-extras = ["numpy", "objectory"]
 
