@@ -73,7 +73,7 @@ docs = [
 ]
 
 notebook = [
-    "jupyterlab>=4.5.7,<5.0",
+    "jupyterlab>=4.6.2,<5.0",
     "matplotlib >=3.10,<4.0",
     "seaborn >=0.13,<1.0",
 ]
