@@ -634,11 +634,11 @@ wheels = [
 
 [[package]]
 name = "coola"
-version = "1.1.7"
+version = "1.1.10"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/2a/0d/96f96ea06662033d3a08843a1006c319a4cdce42149bac5a79f611bcb287/coola-1.1.7.tar.gz", hash = "sha256:14dac0a1202191ac4ca904999e6b6bea8046fed091aa09c2f147657e77bdcf1c", size = 93587, upload-time = "2026-05-23T03:06:15.564Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/8e/a8b37723740b7139d26d74370d8b3a04128af7a433427ca2d7510a56270e/coola-1.1.10.tar.gz", hash = "sha256:53fca8e18387962f3bdb67ab36acae7b3cbee0bcf545a18d688e34e4e33a4a06", size = 119312, upload-time = "2026-07-30T06:34:30.661Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fa/88/6954eb9747f03b38f2806d0dfd3ecd35b11fca90d819473a55d36b04e358/coola-1.1.7-py3-none-any.whl", hash = "sha256:d5829a905f77ad378e90e506a2179d7603871e3401255864bce82d6727dd6b84", size = 168345, upload-time = "2026-05-23T03:06:16.863Z" },
+    { url = "https://files.pythonhosted.org/packages/78/11/04a9b801af715e5134ad9ee3e8ba1d05df7387724a6e8fcd412d0f107bba/coola-1.1.10-py3-none-any.whl", hash = "sha256:bf9391c1737e4961310ccacbdb4330d447953ceae66958bbcc82697b3f0679ce", size = 209702, upload-time = "2026-07-30T06:34:29.193Z" },
 ]
 
 [[package]]
@@ -3793,7 +3793,7 @@ notebook = [
 
 [package.metadata]
 requires-dist = [
-    { name = "coola", specifier = ">=1.1.5,<2.0" },
+    { name = "coola", specifier = ">=1.1.10,<2.0" },
     { name = "numpy", marker = "extra == 'numpy'", specifier = ">=1.24,<3.0" },
     { name = "objectory", marker = "extra == 'objectory'", specifier = ">=0.3.0,<1.0" },
     { name = "torch", specifier = ">=2.4,<3.0" },
