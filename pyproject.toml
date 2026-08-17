@@ -51,7 +51,7 @@ objectory = [ "objectory >=0.3.0,<1.0" ]
 [dependency-groups]
 dev = [
     "black>=26.5.1",
-    "coverage[toml]>=7.15.2,<8.0",
+    "coverage[toml]>=7.15.4,<8.0",
     "docformatter[tomli] >=1.7,<2.0 ; python_version < '3.14'",
     "feu[all]>=0.7.1,<1.0",
     "invoke>=2.2.0,<4.0",
