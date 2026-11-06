@@ -22,12 +22,18 @@ def poisson_regression_loss(
     https://arxiv.org/pdf/2307.02694
 
     Note:
-        The predictions are clamped to ``eps``, so the gradient is zero
+        This loss is similar to
+        ``torch.nn.functional.poisson_nll_loss(log_input=False, full=False)``
+        with two differences: the predictions are clamped to ``eps``
+        (``poisson_nll_loss`` adds ``eps`` instead), and there is no
+        Stirling term. The predictions are clamped to ``eps``, so the gradient is zero
         for the predictions lower than ``eps``.
 
     Args:
-        prediction: The count predictions. The values must be positive.
-        target: The count target values. The values must be positive.
+        prediction: The count predictions. The values must be
+            positive: the loss is not meaningful for negative values.
+        target: The count target values. The values must be positive
+            (zero is allowed).
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -47,7 +53,9 @@ def poisson_regression_loss(
         ```pycon
         >>> import torch
         >>> from sonnix.functional import poisson_regression_loss
-        >>> loss = poisson_regression_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss = poisson_regression_loss(
+        ...     torch.rand(2, 4, requires_grad=True), torch.randint(0, 5, (2, 4)).float()
+        ... )
         >>> loss
         tensor(..., grad_fn=<MeanBackward0>)
         >>> loss.backward()
