@@ -38,7 +38,7 @@ class PoissonRegressionLoss(nn.Module):
         >>> criterion = PoissonRegressionLoss()
         >>> criterion
         PoissonRegressionLoss(reduction=mean, eps=1e-08)
-        >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
+        >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randint(0, 5, (2, 4)).float())
         >>> loss
         tensor(..., grad_fn=<MeanBackward0>)
         >>> loss.backward()
