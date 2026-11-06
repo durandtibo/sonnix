@@ -22,36 +22,66 @@ def test_scale_and_shift_str() -> None:
 
 
 @pytest.mark.parametrize(("shape_input", "expected"), [(5, (5,)), ([3], (3,)), ((4, 2), (4, 2))])
-def test_scale_and_shift_normalized_shape(
+def test_scale_and_shift_normalized_shape_normalized_shape(
     shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
 ) -> None:
     module = ScaleAndShift(shape_input)
     assert module.normalized_shape == expected
+
+
+@pytest.mark.parametrize(("shape_input", "expected"), [(5, (5,)), ([3], (3,)), ((4, 2), (4, 2))])
+def test_scale_and_shift_normalized_shape_weight_shape(
+    shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
+) -> None:
+    module = ScaleAndShift(shape_input)
     assert module.weight.shape == expected
+
+
+@pytest.mark.parametrize(("shape_input", "expected"), [(5, (5,)), ([3], (3,)), ((4, 2), (4, 2))])
+def test_scale_and_shift_normalized_shape_bias_shape(
+    shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
+) -> None:
+    module = ScaleAndShift(shape_input)
     assert module.bias.shape == expected
 
 
-def test_scale_and_shift_normalized_shape_int() -> None:
+def test_scale_and_shift_normalized_shape_int_weight() -> None:
     module = ScaleAndShift(normalized_shape=5)
     assert module.weight.equal(torch.ones(5))
+
+
+def test_scale_and_shift_normalized_shape_int_bias() -> None:
+    module = ScaleAndShift(normalized_shape=5)
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_scale_and_shift_normalized_shape_list() -> None:
+def test_scale_and_shift_normalized_shape_list_weight() -> None:
     module = ScaleAndShift(normalized_shape=[5])
     assert module.weight.equal(torch.ones(5))
+
+
+def test_scale_and_shift_normalized_shape_list_bias() -> None:
+    module = ScaleAndShift(normalized_shape=[5])
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_scale_and_shift_normalized_shape_tuple_1() -> None:
+def test_scale_and_shift_normalized_shape_tuple_1_weight() -> None:
     module = ScaleAndShift(normalized_shape=(5,))
     assert module.weight.equal(torch.ones(5))
+
+
+def test_scale_and_shift_normalized_shape_tuple_1_bias() -> None:
+    module = ScaleAndShift(normalized_shape=(5,))
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_scale_and_shift_normalized_shape_tuple_2() -> None:
+def test_scale_and_shift_normalized_shape_tuple_2_weight() -> None:
     module = ScaleAndShift(normalized_shape=(4, 5))
     assert module.weight.equal(torch.ones(4, 5))
+
+
+def test_scale_and_shift_normalized_shape_tuple_2_bias() -> None:
+    module = ScaleAndShift(normalized_shape=(4, 5))
     assert module.bias.equal(torch.zeros(4, 5))
 
 
@@ -59,13 +89,41 @@ def test_scale_and_shift_normalized_shape_tuple_2() -> None:
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("dim", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_scale_and_shift_forward_2d(device: str, batch_size: int, dim: int, mode: bool) -> None:
+def test_scale_and_shift_forward_2d_shape(
+    device: str, batch_size: int, dim: int, mode: bool
+) -> None:
     device = torch.device(device)
     module = ScaleAndShift(normalized_shape=dim).to(device=device)
     module.train(mode)
     out = module(torch.rand(batch_size, dim, device=device))
     assert out.shape == (batch_size, dim)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("dim", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_scale_and_shift_forward_2d_device(
+    device: str, batch_size: int, dim: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = ScaleAndShift(normalized_shape=dim).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, dim, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("dim", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_scale_and_shift_forward_2d_dtype(
+    device: str, batch_size: int, dim: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = ScaleAndShift(normalized_shape=dim).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, dim, device=device))
     assert out.dtype == torch.float
 
 
@@ -73,7 +131,7 @@ def test_scale_and_shift_forward_2d(device: str, batch_size: int, dim: int, mode
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("dims", [(5,), (2, 3), (3, 3), (2, 3, 4)])
 @pytest.mark.parametrize("mode", [True, False])
-def test_scale_and_shift_forward_2d_plus(
+def test_scale_and_shift_forward_2d_plus_shape(
     device: str, batch_size: int, dims: tuple[int, ...], mode: bool
 ) -> None:
     device = torch.device(device)
@@ -81,7 +139,33 @@ def test_scale_and_shift_forward_2d_plus(
     module.train(mode)
     out = module(torch.rand(batch_size, *dims, device=device))
     assert out.shape == (batch_size, *dims)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("dims", [(5,), (2, 3), (3, 3), (2, 3, 4)])
+@pytest.mark.parametrize("mode", [True, False])
+def test_scale_and_shift_forward_2d_plus_device(
+    device: str, batch_size: int, dims: tuple[int, ...], mode: bool
+) -> None:
+    device = torch.device(device)
+    module = ScaleAndShift(normalized_shape=dims).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, *dims, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("dims", [(5,), (2, 3), (3, 3), (2, 3, 4)])
+@pytest.mark.parametrize("mode", [True, False])
+def test_scale_and_shift_forward_2d_plus_dtype(
+    device: str, batch_size: int, dims: tuple[int, ...], mode: bool
+) -> None:
+    device = torch.device(device)
+    module = ScaleAndShift(normalized_shape=dims).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, *dims, device=device))
     assert out.dtype == torch.float
 
 
@@ -90,7 +174,7 @@ def test_scale_and_shift_forward_2d_plus(
 @pytest.mark.parametrize("seq_len", SIZES)
 @pytest.mark.parametrize("dim", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_scale_and_shift_forward_3d_seq(
+def test_scale_and_shift_forward_3d_seq_shape(
     device: str, batch_size: int, seq_len: int, dim: int, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -98,7 +182,35 @@ def test_scale_and_shift_forward_3d_seq(
     module.train(mode)
     out = module(torch.rand(batch_size, seq_len, dim, device=device))
     assert out.shape == (batch_size, seq_len, dim)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("seq_len", SIZES)
+@pytest.mark.parametrize("dim", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_scale_and_shift_forward_3d_seq_device(
+    device: str, batch_size: int, seq_len: int, dim: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = ScaleAndShift(normalized_shape=dim).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, seq_len, dim, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("seq_len", SIZES)
+@pytest.mark.parametrize("dim", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_scale_and_shift_forward_3d_seq_dtype(
+    device: str, batch_size: int, seq_len: int, dim: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = ScaleAndShift(normalized_shape=dim).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, seq_len, dim, device=device))
     assert out.dtype == torch.float
 
 
@@ -121,20 +233,33 @@ def test_scale_and_shift_forward_2d_custom_weights() -> None:
     )
 
 
-def test_scale_and_shift_reset_parameters() -> None:
+def test_scale_and_shift_reset_parameters_weight() -> None:
     module = ScaleAndShift(normalized_shape=5)
     with torch.no_grad():
         module.weight.data += 1.0
         module.bias.data += 1.0
     module.reset_parameters()
     assert module.weight.equal(torch.ones(5))
+
+
+def test_scale_and_shift_reset_parameters_bias() -> None:
+    module = ScaleAndShift(normalized_shape=5)
+    with torch.no_grad():
+        module.weight.data += 1.0
+        module.bias.data += 1.0
+    module.reset_parameters()
     assert module.bias.equal(torch.zeros(5))
 
 
 @pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
-def test_scale_and_shift_dtype(dtype: torch.dtype) -> None:
+def test_scale_and_shift_dtype_weight_dtype(dtype: torch.dtype) -> None:
     module = ScaleAndShift(4, dtype=dtype)
     assert module.weight.dtype == dtype
+
+
+@pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
+def test_scale_and_shift_dtype_bias_dtype(dtype: torch.dtype) -> None:
+    module = ScaleAndShift(4, dtype=dtype)
     assert module.bias.dtype == dtype
 
 
