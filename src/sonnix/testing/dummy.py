@@ -11,7 +11,7 @@ from __future__ import annotations
 __all__ = ["DummyDataset"]
 
 import torch
-from coola.random import get_torch_generator
+from coola.random import make_torch_generator
 from torch.utils.data import Dataset
 
 
@@ -41,7 +41,7 @@ class DummyDataset(Dataset[dict[str, torch.Tensor]]):
         self._rng_seed = rng_seed
 
         self._features = torch.randn(
-            self._num_examples, self._feature_size, generator=get_torch_generator(rng_seed)
+            self._num_examples, self._feature_size, generator=make_torch_generator(rng_seed)
         )
         self._target = 0.6 * self._features[:, :1] + 0.4 * self._features[:, -1:]
 

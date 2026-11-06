@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 import torch
 from coola.equality import objects_are_allclose
-from coola.random import get_torch_generator
+from coola.random import make_torch_generator
 from coola.utils.tensor import get_available_devices
 
 from sonnix.modules import AsinhCosSinNumericalEncoder, CosSinNumericalEncoder
@@ -788,14 +788,14 @@ def test_cos_sin_numerical_encoder_create_rand_different_seeds() -> None:
 
 def test_cos_sin_numerical_encoder_create_rand_generator_object() -> None:
     module1 = CosSinNumericalEncoder.create(
-        "rand", 5, frequency_range=(0.2, 1), generator=get_torch_generator(7)
+        "rand", 5, frequency_range=(0.2, 1), generator=make_torch_generator(7)
     )
     module2 = CosSinNumericalEncoder.create("rand", 5, frequency_range=(0.2, 1), generator=7)
     assert module1.frequency.equal(module2.frequency)
 
 
 def test_cos_sin_numerical_encoder_create_rand_generator_state_advances() -> None:
-    generator = get_torch_generator(7)
+    generator = make_torch_generator(7)
     module1 = CosSinNumericalEncoder.create(
         "rand", 5, frequency_range=(0.2, 1), generator=generator
     )
