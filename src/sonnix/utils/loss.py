@@ -8,7 +8,7 @@ __all__ = ["is_loss_decreasing", "is_loss_decreasing_with_adam", "is_loss_decrea
 import logging
 from typing import TYPE_CHECKING
 
-from coola.random import torch_seed
+from coola.random import random_seed as torch_seed
 from torch.nn.utils import clip_grad_norm_
 from torch.optim import SGD, Adam, Optimizer
 
@@ -30,7 +30,7 @@ def is_loss_decreasing(
     feature: Tensor,
     target: Tensor,
     num_iterations: int = 1,
-    random_seed: int = 10772155803920552556,
+    random_seed: int = 1548783767065776748,
 ) -> bool:
     r"""Check if the loss decreased after some iterations.
 
@@ -94,7 +94,7 @@ def is_loss_decreasing_with_adam(
     target: Tensor,
     lr: float = 0.0003,
     num_iterations: int = 1,
-    random_seed: int = 10772155803920552556,
+    random_seed: int = 1548783767065776748,
 ) -> bool:
     r"""Check if the loss decreased after some iterations.
 
@@ -149,7 +149,7 @@ def is_loss_decreasing_with_sgd(
     target: Tensor,
     lr: float = 0.01,
     num_iterations: int = 1,
-    random_seed: int = 10772155803920552556,
+    random_seed: int = 1548783767065776748,
 ) -> bool:
     r"""Check if the loss decreased after some iterations.
 
