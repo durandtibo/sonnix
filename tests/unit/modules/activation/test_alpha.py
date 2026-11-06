@@ -18,13 +18,33 @@ SHAPES = [(2,), (2, 3), (2, 3, 4), (2, 3, 4, 5)]
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
-def test_exp_sin_forward(device: str, batch_size: int, feature_size: int) -> None:
+def test_exp_sin_forward_shape_2(device: str, batch_size: int, feature_size: int) -> None:
     device = torch.device(device)
     module = ExpSin(num_parameters=feature_size).to(device=device)
     out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == (batch_size, feature_size)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+def test_exp_sin_forward_dtype(device: str, batch_size: int, feature_size: int) -> None:
+    device = torch.device(device)
+    module = ExpSin(num_parameters=feature_size).to(device=device)
+    out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+def test_exp_sin_forward_device(device: str, batch_size: int, feature_size: int) -> None:
+    device = torch.device(device)
+    module = ExpSin(num_parameters=feature_size).to(device=device)
+    out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
 
 
@@ -112,13 +132,33 @@ def test_gaussian_learnable_false() -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
-def test_gaussian_forward(device: str, batch_size: int, feature_size: int) -> None:
+def test_gaussian_forward_shape_2(device: str, batch_size: int, feature_size: int) -> None:
     device = torch.device(device)
     module = Gaussian(num_parameters=feature_size).to(device=device)
     out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == (batch_size, feature_size)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+def test_gaussian_forward_dtype(device: str, batch_size: int, feature_size: int) -> None:
+    device = torch.device(device)
+    module = Gaussian(num_parameters=feature_size).to(device=device)
+    out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+def test_gaussian_forward_device(device: str, batch_size: int, feature_size: int) -> None:
+    device = torch.device(device)
+    module = Gaussian(num_parameters=feature_size).to(device=device)
+    out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
 
 
@@ -180,13 +220,33 @@ def test_gaussian_forward_init_2(device: str) -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
-def test_laplacian_forward(device: str, batch_size: int, feature_size: int) -> None:
+def test_laplacian_forward_shape_2(device: str, batch_size: int, feature_size: int) -> None:
     device = torch.device(device)
     module = Laplacian(num_parameters=feature_size).to(device=device)
     out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == (batch_size, feature_size)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+def test_laplacian_forward_dtype(device: str, batch_size: int, feature_size: int) -> None:
+    device = torch.device(device)
+    module = Laplacian(num_parameters=feature_size).to(device=device)
+    out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+def test_laplacian_forward_device(device: str, batch_size: int, feature_size: int) -> None:
+    device = torch.device(device)
+    module = Laplacian(num_parameters=feature_size).to(device=device)
+    out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
 
 
@@ -248,13 +308,33 @@ def test_laplacian_forward_init_2(device: str) -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
-def test_multi_quadratic_forward(device: str, batch_size: int, feature_size: int) -> None:
+def test_multi_quadratic_forward_shape_2(device: str, batch_size: int, feature_size: int) -> None:
     device = torch.device(device)
     module = MultiQuadratic(num_parameters=feature_size).to(device=device)
     out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == (batch_size, feature_size)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+def test_multi_quadratic_forward_dtype(device: str, batch_size: int, feature_size: int) -> None:
+    device = torch.device(device)
+    module = MultiQuadratic(num_parameters=feature_size).to(device=device)
+    out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+def test_multi_quadratic_forward_device(device: str, batch_size: int, feature_size: int) -> None:
+    device = torch.device(device)
+    module = MultiQuadratic(num_parameters=feature_size).to(device=device)
+    out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
 
 
@@ -316,13 +396,33 @@ def test_multi_quadratic_forward_init_2(device: str) -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
-def test_quadratic_forward(device: str, batch_size: int, feature_size: int) -> None:
+def test_quadratic_forward_shape_2(device: str, batch_size: int, feature_size: int) -> None:
     device = torch.device(device)
     module = Quadratic(num_parameters=feature_size).to(device=device)
     out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == (batch_size, feature_size)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+def test_quadratic_forward_dtype(device: str, batch_size: int, feature_size: int) -> None:
+    device = torch.device(device)
+    module = Quadratic(num_parameters=feature_size).to(device=device)
+    out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+def test_quadratic_forward_device(device: str, batch_size: int, feature_size: int) -> None:
+    device = torch.device(device)
+    module = Quadratic(num_parameters=feature_size).to(device=device)
+    out = module(torch.randn(batch_size, feature_size, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
 
 
@@ -372,23 +472,40 @@ def test_quadratic_forward_init_2(device: str) -> None:
     )
 
 
-def test_gaussian_frozen_alpha_is_buffer() -> None:
+def test_gaussian_frozen_alpha_is_buffer_learnable() -> None:
     module = Gaussian(learnable=False)
     assert not module.learnable
+
+
+def test_gaussian_frozen_alpha_is_buffer_check2() -> None:
+    module = Gaussian(learnable=False)
     assert len(list(module.parameters())) == 0
+
+
+def test_gaussian_frozen_alpha_is_buffer_check3() -> None:
+    module = Gaussian(learnable=False)
     assert "alpha" in module.state_dict()
 
 
-def test_gaussian_learnable_alpha_is_parameter() -> None:
+def test_gaussian_learnable_alpha_is_parameter_learnable() -> None:
     module = Gaussian()
     assert module.learnable
+
+
+def test_gaussian_learnable_alpha_is_parameter_check2() -> None:
+    module = Gaussian()
     assert [n for n, _ in module.named_parameters()] == ["alpha"]
 
 
 @pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
-def test_gaussian_dtype(dtype: torch.dtype) -> None:
+def test_gaussian_dtype_alpha_dtype(dtype: torch.dtype) -> None:
     module = Gaussian(dtype=dtype)
     assert module.alpha.dtype == dtype
+
+
+@pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
+def test_gaussian_dtype_value(dtype: torch.dtype) -> None:
+    module = Gaussian(dtype=dtype)
     assert module(torch.ones(2, 3, dtype=dtype)).dtype == dtype
 
 
