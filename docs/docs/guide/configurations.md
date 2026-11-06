@@ -19,9 +19,7 @@ model = create_sequential(
     ]
 )
 
-block = ResidualBlock(
-    residual={"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 4}
-)
+block = ResidualBlock(residual={"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 4})
 ```
 
 `is_module_config` checks that a dictionary describes a module without calling the target.
