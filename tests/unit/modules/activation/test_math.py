@@ -406,17 +406,25 @@ def test_square_forward_shape(device: str, shape: tuple[int, ...]) -> None:
     assert out.device == device
 
 
-def test_safe_exp_module_preserve_gradient() -> None:
+def test_safe_exp_module_preserve_gradient_check1() -> None:
     module = SafeExp(max_val=20.0, preserve_gradient=True)
     assert repr(module) == "SafeExp(max_val=20.0, preserve_gradient=True)"
+
+
+def test_safe_exp_module_preserve_gradient_grad() -> None:
+    module = SafeExp(max_val=20.0, preserve_gradient=True)
     x = torch.tensor([100.0], requires_grad=True)
     module(x).backward()
     assert x.grad.item() > 0
 
 
-def test_safe_log_module_preserve_gradient() -> None:
+def test_safe_log_module_preserve_gradient_check1() -> None:
     module = SafeLog(min_val=1e-8, preserve_gradient=True)
     assert repr(module) == "SafeLog(min_val=1e-08, preserve_gradient=True)"
+
+
+def test_safe_log_module_preserve_gradient_grad() -> None:
+    module = SafeLog(min_val=1e-8, preserve_gradient=True)
     x = torch.tensor([1e-10], requires_grad=True)
     module(x).backward()
     assert x.grad.item() > 0
