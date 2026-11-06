@@ -370,6 +370,10 @@ def test_sin_forward_shape(device: str, shape: tuple[int, ...]) -> None:
     assert out.device == device
 
 
+def test_pow_repr() -> None:
+    assert repr(Pow(exponent=3)) == "Pow(exponent=3.0)"
+
+
 ############################
 #     Tests for Square     #
 ############################
