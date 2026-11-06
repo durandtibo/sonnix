@@ -372,16 +372,28 @@ def test_quadratic_forward_init_2(device: str) -> None:
     )
 
 
-def test_gaussian_frozen_alpha_is_buffer() -> None:
+def test_gaussian_frozen_alpha_is_buffer_learnable() -> None:
     module = Gaussian(learnable=False)
     assert not module.learnable
+
+
+def test_gaussian_frozen_alpha_is_buffer_check2() -> None:
+    module = Gaussian(learnable=False)
     assert len(list(module.parameters())) == 0
+
+
+def test_gaussian_frozen_alpha_is_buffer_check3() -> None:
+    module = Gaussian(learnable=False)
     assert "alpha" in module.state_dict()
 
 
-def test_gaussian_learnable_alpha_is_parameter() -> None:
+def test_gaussian_learnable_alpha_is_parameter_learnable() -> None:
     module = Gaussian()
     assert module.learnable
+
+
+def test_gaussian_learnable_alpha_is_parameter_check2() -> None:
+    module = Gaussian()
     assert [n for n, _ in module.named_parameters()] == ["alpha"]
 
 
