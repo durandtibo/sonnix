@@ -9,11 +9,14 @@ import warnings
 from typing import TYPE_CHECKING
 
 import torch
+from coola.validation import validate_ge
 from torch import nn
 
 from sonnix.modules.numerical._utils import prepare_tensor_param
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from torch import Tensor
 
 
@@ -100,6 +103,50 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         width[width == 0] = 1.0
         self.register_buffer("is_step", is_duplicate, persistent=False)
         self.register_buffer("width", width)
+
+    @classmethod
+    def from_quantiles(cls, x: Tensor, n_bins: int) -> Self:
+        r"""Create an encoder where the bins are the quantiles of the
+        data.
+
+        This is the main use case of the paper: the edges of the bins
+        of each feature are the empirical quantiles of the feature
+        computed on the training data.
+
+        Args:
+            x: The data used to compute the quantiles. This input
+                should be a floating point tensor of shape
+                ``(n_samples, n_features)`` or ``(n_samples,)``.
+            n_bins: The number of bins, which has to be greater than
+                or equal to 2. The edges are the quantiles
+                ``0, 1 / (n_bins - 1), ..., 1`` of each feature.
+
+        Returns:
+            An instantiated encoder with ``n_bins - 1`` segments per
+                feature.
+
+        Raises:
+            ValueError: if ``n_bins`` is lower than 2 or if ``x`` is
+                not a 1d or 2d tensor.
+
+        Example:
+            ```pycon
+            >>> import torch
+            >>> from sonnix.modules import PiecewiseLinearNumericalEncoder
+            >>> m = PiecewiseLinearNumericalEncoder.from_quantiles(
+            ...     torch.arange(11, dtype=torch.float).view(11, 1), n_bins=3
+            ... )
+            >>> m
+            PiecewiseLinearNumericalEncoder(n_features=1, feature_size=2)
+            >>> m.edges
+            tensor([[0., 5.]])
+
+            ```
+        """
+        validate_ge(n_bins, 2, name="n_bins")
+        x = prepare_tensor_param(x.view(-1, 1) if x.ndim == 1 else x, name="x")
+        probabilities = torch.linspace(0.0, 1.0, n_bins, dtype=x.dtype, device=x.device)
+        return cls(torch.quantile(x, probabilities, dim=0).t())
 
     @property
     def n_features(self) -> int:
