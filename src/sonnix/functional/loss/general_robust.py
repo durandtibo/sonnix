@@ -3,8 +3,6 @@ loss."""
 
 from __future__ import annotations
 
-from coola.validation import validate_gt
-
 __all__ = ["general_robust_regression_loss"]
 
 from typing import TYPE_CHECKING
@@ -12,6 +10,7 @@ from typing import TYPE_CHECKING
 import torch
 
 from sonnix.functional.reduction import reduce_loss
+from sonnix.validation import validate_general_robust_params
 
 # ``alpha`` values closer than ``ALPHA_EPS`` to 0 or 2 use the limit formulas.
 ALPHA_EPS = 1e-5
@@ -51,14 +50,16 @@ def general_robust_regression_loss(
         prediction: The predictions.
         target: The target values.
         alpha: The shape parameter that controls the robustness of the
-            loss. It is a Python float, not a tensor. ``-inf`` is supported (Welsch loss). The limit
+            loss. It is a Python float, not a tensor. ``-inf`` is supported (Welsch loss),
+            ``NaN`` and ``+inf`` are not. The limit
             cases ``alpha=2``
             (``x^2``), ``alpha=0`` (``log(0.5 * x^2 + 1)``) are
             used when ``alpha`` is within ``1e-5`` of 0 or 2.
         scale: The scale parameter that controls the size of the loss's
             quadratic bowl near 0.
         max_val: The max value to clip the loss before to compute the
-            reduction. ``None`` means no clipping is used.
+            reduction. It has to be strictly positive.
+            ``None`` means no clipping is used.
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
@@ -68,7 +69,8 @@ def general_robust_regression_loss(
 
     Raises:
         ValueError: if the reduction is not valid.
-        ValueError: if ``scale`` is not strictly positive.
+        ValueError: if ``alpha`` is ``NaN`` or ``+inf``, or if ``scale`` or
+            ``max_val`` is not strictly positive.
 
     Example:
         ```pycon
@@ -83,7 +85,7 @@ def general_robust_regression_loss(
 
         ```
     """
-    validate_gt(scale, 0, name="scale")
+    validate_general_robust_params(alpha, scale, max_val)
     squared_error = prediction.sub(target).div(scale).pow(2)
     if abs(alpha - 2) < ALPHA_EPS:
         loss = squared_error

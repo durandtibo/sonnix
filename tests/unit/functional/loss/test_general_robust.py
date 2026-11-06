@@ -220,3 +220,15 @@ def test_general_robust_regression_loss_alpha_neg_inf() -> None:
 def test_general_robust_regression_loss_invalid_scale(scale: float) -> None:
     with pytest.raises(ValueError, match=r"scale must be greater than 0"):
         general_robust_regression_loss(torch.ones(2, 3), torch.ones(2, 3), scale=scale)
+
+
+@pytest.mark.parametrize("alpha", [float("nan"), float("inf")])
+def test_general_robust_regression_loss_invalid_alpha(alpha: float) -> None:
+    with pytest.raises(ValueError, match=r"alpha cannot be NaN or \+inf"):
+        general_robust_regression_loss(torch.ones(2, 3), torch.ones(2, 3), alpha=alpha)
+
+
+@pytest.mark.parametrize("max_val", [0.0, -1.0])
+def test_general_robust_regression_loss_invalid_max_val(max_val: float) -> None:
+    with pytest.raises(ValueError, match=r"max_val must be greater than 0"):
+        general_robust_regression_loss(torch.ones(2, 3), torch.ones(2, 3), max_val=max_val)
