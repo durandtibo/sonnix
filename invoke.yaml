@@ -2,8 +2,6 @@ tasklib:
   package:
     name: sonnix
     python_version: "3.14"
-  types:
-    checker: pyright
   groups:
     install: dev,docs
     update: dev,docs,property,notebook
