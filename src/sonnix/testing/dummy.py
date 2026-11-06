@@ -21,6 +21,7 @@ class DummyDataset(Dataset[dict[str, torch.Tensor]]):
     Args:
         feature_size: The feature size.
         num_examples: The number of examples.
+        rng_seed: The random seed used to generate the features.
 
     Example:
         ```pycon
@@ -40,7 +41,7 @@ class DummyDataset(Dataset[dict[str, torch.Tensor]]):
         self._rng_seed = rng_seed
 
         self._features = torch.randn(
-            num_examples, feature_size, generator=get_torch_generator(rng_seed)
+            self._num_examples, self._feature_size, generator=get_torch_generator(rng_seed)
         )
         self._target = 0.6 * self._features[:, :1] + 0.4 * self._features[:, -1:]
 
