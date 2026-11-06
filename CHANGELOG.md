@@ -133,3 +133,5 @@ All notable changes to this project are documented in this file. The package is 
 - Every base class is part of the API and is exported from `sonnix.modules`: `BaseLoss`,
   `BaseBinaryFocalLoss`, `BaseBinaryPoly1Loss`, `BaseFusion` and `BaseDynamicNorm` (which is also in
   `sonnix.modules.activation.__all__`), next to `BaseAlphaActivation` and `BaseRelativeIndicator`.
+- The loss modules import their functions from `sonnix.functional` (`asinh`, `indicators`,
+  `poisson` and `quantile` used the file path or `sonnix.functional.loss`). No change for callers.
