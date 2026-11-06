@@ -8,10 +8,6 @@
 
 ## Loss functions
 
-### ::: sonnix.functional.asinh_mse_loss
-
-### ::: sonnix.functional.asinh_smooth_l1_loss
-
 ### ::: sonnix.functional.binary_focal_loss
 
 ### ::: sonnix.functional.binary_focal_loss_with_logits
@@ -23,8 +19,6 @@
 ### ::: sonnix.functional.general_robust_regression_loss
 
 ### ::: sonnix.functional.log_cosh_loss
-
-### ::: sonnix.functional.msle_loss
 
 ### ::: sonnix.functional.poisson_regression_loss
 

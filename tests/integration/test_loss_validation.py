@@ -16,13 +16,6 @@ if TYPE_CHECKING:
 # (id, function, module class, invalid keyword arguments, error message)
 CASES = [
     (
-        "asinh_smooth_l1_beta",
-        sf.asinh_smooth_l1_loss,
-        sm.AsinhSmoothL1Loss,
-        {"beta": -1.0},
-        r"beta must be greater than or equal to 0",
-    ),
-    (
         "focal_alpha",
         sf.binary_focal_loss,
         sm.BinaryFocalLoss,
@@ -103,13 +96,6 @@ CASES = [
         "log_cosh_reduction",
         sf.log_cosh_loss,
         sm.LogCoshLoss,
-        {"reduction": "bad"},
-        r"reduction must be one of",
-    ),
-    (
-        "msle_reduction",
-        sf.msle_loss,
-        sm.MSLELoss,
         {"reduction": "bad"},
         r"reduction must be one of",
     ),

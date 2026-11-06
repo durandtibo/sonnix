@@ -6,15 +6,12 @@ from typing import TYPE_CHECKING
 import pytest
 
 from sonnix.functional import (
-    asinh_mse_loss,
-    asinh_smooth_l1_loss,
     binary_focal_loss,
     binary_focal_loss_with_logits,
     binary_poly1_loss,
     binary_poly1_loss_with_logits,
     general_robust_regression_loss,
     log_cosh_loss,
-    msle_loss,
     poisson_regression_loss,
     quantile_regression_loss,
     relative_loss,
@@ -28,15 +25,12 @@ if TYPE_CHECKING:
 #################################################
 
 LOSSES = [
-    asinh_mse_loss,
-    asinh_smooth_l1_loss,
     binary_focal_loss,
     binary_focal_loss_with_logits,
     binary_poly1_loss,
     binary_poly1_loss_with_logits,
     general_robust_regression_loss,
     log_cosh_loss,
-    msle_loss,
     poisson_regression_loss,
     quantile_regression_loss,
     relative_loss,
