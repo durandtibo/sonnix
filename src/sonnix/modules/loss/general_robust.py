@@ -31,12 +31,15 @@ class GeneralRobustRegressionLoss(BaseLoss):
         CVPR 2019 (https://arxiv.org/abs/1701.03077)
 
     Note:
-        The "adaptative" part of the loss is not implemented in this
-            function.
+        The "adaptive" part of the loss is not implemented in this
+        module.
 
     Args:
         alpha: The shape parameter that controls the robustness of the
-            loss.
+            loss. It is a Python float, not a tensor. ``-inf`` is
+            supported (Welsch loss). The limit cases ``alpha=2``
+            (``x^2``) and ``alpha=0`` (``log(0.5 * x^2 + 1)``) are used
+            when ``alpha`` is within ``1e-5`` of 2 or 0.
         scale: The scale parameter that controls the size of the loss's
             quadratic bowl near 0.
         max_val: The max value to clip the loss before to compute the

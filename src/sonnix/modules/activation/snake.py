@@ -25,12 +25,12 @@ class Snake(BaseAlphaActivation):
 
     Args:
         num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, there is only two values are
+            it takes an integer as input, only two values are
             legitimate: ``1``, or the number of channels at input.
         init: The initial value of the parameter(s) ``alpha``, which
             is the frequency of the periodic component. It has to be
             different from 0.
-        learnable: If ``True``, the parameters are learnt during the
+        learnable: If ``True``, the parameters are learned during the
             training, otherwise they are fixed.
         channel_dim: The dimension of the input that ``alpha`` is
             broadcast over when ``num_parameters`` is greater than 1.
