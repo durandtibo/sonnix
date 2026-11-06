@@ -25,15 +25,17 @@ nav:
   - Home: index.md
   - get_started.md
   - conventions.md
-  #  - User Guide:
-  #      - quickstart.md
-  #      - types.md
-  #      - customization.md
   - Reference:
       - sonnix: refs/root.md
       - sonnix.factory: refs/factory.md
       - sonnix.functional: refs/functional.md
-      - sonnix.modules: refs/modules.md
+      - sonnix.modules:
+          - refs/modules/index.md
+          - Activations: refs/modules/activation.md
+          - Fusion: refs/modules/fusion.md
+          - Layers: refs/modules/layers.md
+          - Losses: refs/modules/loss.md
+          - Numerical encoders: refs/modules/numerical.md
       - sonnix.testing: refs/testing.md
       - sonnix.utils: refs/utils.md
       - sonnix.validation: refs/validation.md

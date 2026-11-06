@@ -101,6 +101,10 @@ torch.Size([4, 1, 10])
 
 ```
 
+The notebook
+[`notebooks/activations.ipynb`](https://github.com/durandtibo/sonnix/blob/main/notebooks/activations.ipynb)
+plots the activations.
+
 ## Motivation
 
 `torch.nn` covers the standard layers. Research code keeps re-implementing the same extras (a
