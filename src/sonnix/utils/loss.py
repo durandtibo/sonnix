@@ -31,6 +31,8 @@ def is_loss_decreasing(
     target: Tensor,
     num_iterations: int = 1,
     random_seed: int = 1548783767065776748,
+    *,
+    max_norm: float | None = 1.0,
 ) -> bool:
     r"""Check if the loss decreased after some iterations.
 
@@ -44,6 +46,8 @@ def is_loss_decreasing(
         num_iterations: The number of optimization steps.
         random_seed: The random seed to make the function
             deterministic if the module contains randomness.
+        max_norm: The maximum norm used to clip the gradients before
+            each optimization step. ``None`` disables the clipping.
 
     Returns:
         ``True`` if the loss decreased after some iterations,
@@ -78,7 +82,8 @@ def is_loss_decreasing(
             optimizer.zero_grad()
             loss = criterion(module(feature), target)
             loss.backward()
-            clip_grad_norm_(module.parameters(), max_norm=1, norm_type=2)
+            if max_norm is not None:
+                clip_grad_norm_(module.parameters(), max_norm=max_norm, norm_type=2)
             optimizer.step()
 
         module.eval()
@@ -96,6 +101,8 @@ def is_loss_decreasing_with_adam(
     lr: float = 0.0003,
     num_iterations: int = 1,
     random_seed: int = 1548783767065776748,
+    *,
+    max_norm: float | None = 1.0,
 ) -> bool:
     r"""Check if the loss decreased after some iterations.
 
@@ -111,6 +118,8 @@ def is_loss_decreasing_with_adam(
         num_iterations: The number of optimization steps.
         random_seed: The random seed to make the function
             deterministic if the module contains randomness.
+        max_norm: The maximum norm used to clip the gradients before
+            each optimization step. ``None`` disables the clipping.
 
     Returns:
         ``True`` if the loss decreased after some iterations,
@@ -140,6 +149,7 @@ def is_loss_decreasing_with_adam(
         target=target,
         num_iterations=num_iterations,
         random_seed=random_seed,
+        max_norm=max_norm,
     )
 
 
@@ -151,6 +161,8 @@ def is_loss_decreasing_with_sgd(
     lr: float = 0.01,
     num_iterations: int = 1,
     random_seed: int = 1548783767065776748,
+    *,
+    max_norm: float | None = 1.0,
 ) -> bool:
     r"""Check if the loss decreased after some iterations.
 
@@ -166,6 +178,8 @@ def is_loss_decreasing_with_sgd(
         lr: The learning rate.
         random_seed: The random seed to make the function
             deterministic if the module contains randomness.
+        max_norm: The maximum norm used to clip the gradients before
+            each optimization step. ``None`` disables the clipping.
 
     Returns:
         ``True`` if the loss decreased after some iterations,
@@ -195,4 +209,5 @@ def is_loss_decreasing_with_sgd(
         target=target,
         num_iterations=num_iterations,
         random_seed=random_seed,
+        max_norm=max_norm,
     )
