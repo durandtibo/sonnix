@@ -6,7 +6,7 @@ from coola.utils.tensor import get_available_devices
 from torch import nn
 from torch.optim import SGD
 
-from sonnix.utils.loss import (
+from sonnix.testing.loss import (
     is_loss_decreasing,
     is_loss_decreasing_with_adam,
     is_loss_decreasing_with_sgd,

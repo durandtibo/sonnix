@@ -4,9 +4,10 @@ from typing import get_args
 
 import pytest
 
-from sonnix.functional import Reduction
+from sonnix.functional import Reduction as FunctionalReduction
 from sonnix.validation.loss import (
     VALID_REDUCTIONS,
+    Reduction,
     validate_focal_params,
     validate_general_robust_params,
     validate_loss_reduction_strategy,
@@ -30,6 +31,10 @@ def test_validate_loss_reduction_strategy_incorrect() -> None:
 
 def test_valid_reductions_match_reduction_type() -> None:
     assert get_args(Reduction) == VALID_REDUCTIONS
+
+
+def test_functional_reduction_is_the_validation_reduction() -> None:
+    assert FunctionalReduction is Reduction
 
 
 ###########################################
@@ -80,9 +85,9 @@ def test_validate_focal_params_negative_gamma() -> None:
         validate_focal_params(alpha=0.25, gamma=-1.0)
 
 
-################################################
+####################################################
 #     Tests for validate_general_robust_params     #
-################################################
+####################################################
 
 
 @pytest.mark.parametrize("alpha", [float("-inf"), -2.0, 0.0, 1.0, 2.0, 100.0])

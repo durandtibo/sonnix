@@ -4,7 +4,7 @@ import torch
 from torch import nn
 
 from sonnix.functional import binary_poly1_loss, binary_poly1_loss_with_logits
-from sonnix.utils.loss import is_loss_decreasing_with_adam
+from sonnix.testing.loss import is_loss_decreasing_with_adam
 
 #######################################
 #     Tests for binary_poly1_loss     #

@@ -4,7 +4,7 @@ import torch
 from torch.nn import MSELoss
 
 from sonnix.modules import DynamicAsinh, DynamicTanh
-from sonnix.utils.loss import is_loss_decreasing_with_adam
+from sonnix.testing.loss import is_loss_decreasing_with_adam
 
 
 def test_dynamic_asinh_loss() -> None:

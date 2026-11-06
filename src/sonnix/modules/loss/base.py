@@ -30,7 +30,7 @@ class BaseLoss(nn.Module):
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.modules.loss import BaseLoss
+        >>> from sonnix.modules import BaseLoss
         >>> class MyLoss(BaseLoss):
         ...     def forward(self, prediction, target):
         ...         return prediction.sub(target).abs().mean()

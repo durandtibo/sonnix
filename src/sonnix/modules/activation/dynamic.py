@@ -47,7 +47,7 @@ class BaseDynamicNorm(nn.Module, ABC):
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.modules.activation.dynamic import BaseDynamicNorm
+        >>> from sonnix.modules import BaseDynamicNorm
         >>> class MyDynamicNorm(BaseDynamicNorm):
         ...     def _activation(self, input: torch.Tensor) -> torch.Tensor:
         ...         return input.tanh()
