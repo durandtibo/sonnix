@@ -5,6 +5,7 @@ import torch
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import binary_poly1_loss, binary_poly1_loss_with_logits
+from tests.helpers import make_generator
 
 SHAPES = [(2,), (2, 3), (2, 3, 4)]
 
@@ -208,7 +209,7 @@ def test_binary_poly1_loss_with_logits_matches_probability_version() -> None:
 
 
 def test_binary_poly1_loss_with_logits_matches_probability_version_soft_target() -> None:
-    generator = torch.Generator().manual_seed(1)
+    generator = make_generator(1)
     logits = torch.randn(6, 5, generator=generator, dtype=torch.float64)
     target = torch.rand(6, 5, generator=generator, dtype=torch.float64)
     assert binary_poly1_loss_with_logits(logits, target).allclose(
@@ -217,7 +218,7 @@ def test_binary_poly1_loss_with_logits_matches_probability_version_soft_target()
 
 
 def test_binary_poly1_loss_with_logits_soft_target_reduction_none() -> None:
-    generator = torch.Generator().manual_seed(2)
+    generator = make_generator(2)
     logits = torch.randn(6, 5, generator=generator, dtype=torch.float64)
     target = torch.rand(6, 5, generator=generator, dtype=torch.float64)
     assert binary_poly1_loss_with_logits(logits, target, reduction="none").allclose(

@@ -5,6 +5,7 @@ import torch
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import quantile_regression_loss
+from tests.helpers import make_generator
 
 SHAPES = [(2,), (2, 3), (2, 3, 4)]
 
@@ -98,7 +99,7 @@ def test_quantile_regression_loss_incorrect_q(q: float) -> None:
 
 
 def test_quantile_regression_loss_median_is_half_of_l1_loss() -> None:
-    generator = torch.Generator().manual_seed(1)
+    generator = make_generator(1)
     prediction = torch.randn(6, 5, generator=generator)
     target = torch.randn(6, 5, generator=generator)
     assert quantile_regression_loss(prediction, target, q=0.5).allclose(

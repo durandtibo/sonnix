@@ -7,6 +7,7 @@ from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import log_cosh_loss, msle_loss
 from sonnix.modules import LogCoshLoss, MSLELoss
+from tests.helpers import make_generator
 
 #################################
 #     Tests for LogCoshLoss     #
@@ -54,7 +55,7 @@ def test_log_cosh_loss_reduction_none(device: str) -> None:
 
 
 def test_log_cosh_loss_same_as_function() -> None:
-    generator = torch.Generator().manual_seed(1)
+    generator = make_generator(1)
     prediction = torch.randn(4, 5, generator=generator)
     target = torch.randn(4, 5, generator=generator)
     assert LogCoshLoss(scale=0.5)(prediction, target).equal(
@@ -113,7 +114,7 @@ def test_msle_loss_reduction_none(device: str) -> None:
 
 
 def test_msle_loss_same_as_function() -> None:
-    generator = torch.Generator().manual_seed(1)
+    generator = make_generator(1)
     prediction = torch.rand(4, 5, generator=generator)
     target = torch.rand(4, 5, generator=generator)
     assert MSLELoss()(prediction, target).equal(msle_loss(prediction, target))

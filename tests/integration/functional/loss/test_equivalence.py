@@ -13,24 +13,19 @@ from sonnix.functional import (
     poisson_regression_loss,
     quantile_regression_loss,
 )
+from tests.helpers import make_generator, normal_pair
 
 REDUCTIONS = ("none", "mean", "sum", "batchmean")
 
 
 def _logits_and_soft_targets() -> tuple[torch.Tensor, torch.Tensor]:
-    generator = torch.Generator().manual_seed(42)
+    generator = make_generator(42)
     logits = 3 * torch.randn(4, 5, generator=generator, dtype=torch.float64)
     return logits, torch.rand(4, 5, generator=generator, dtype=torch.float64)
 
 
 def _normal_pair() -> tuple[torch.Tensor, torch.Tensor]:
-    generator = torch.Generator().manual_seed(42)
-    return torch.randn(4, 5, generator=generator), torch.randn(4, 5, generator=generator)
-
-
-#################################################################
-#     Tests for with_logits vs probabilities (soft targets)     #
-#################################################################
+    return normal_pair(4, 5)
 
 
 @pytest.mark.parametrize("reduction", REDUCTIONS)
@@ -83,7 +78,7 @@ def test_general_robust_regression_loss_alpha_2_equals_mse_loss(reduction: str) 
 
 @pytest.mark.parametrize("reduction", REDUCTIONS[:3])
 def test_poisson_regression_loss_equals_poisson_nll_loss(reduction: str) -> None:
-    generator = torch.Generator().manual_seed(42)
+    generator = make_generator(42)
     prediction = torch.rand(4, 5, generator=generator) + 0.1
     target = torch.randint(0, 5, (4, 5), generator=generator).float()
     # ``poisson_nll_loss`` adds ``eps`` and the loss clamps to ``eps``: the two are

@@ -7,29 +7,18 @@ import pytest
 import torch
 
 from sonnix import functional as F  # noqa: N812
+from tests.helpers import normal_pair, positive_pair, probability_pair
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-def _generator() -> torch.Generator:
-    return torch.Generator().manual_seed(42)
-
-
 def _normal() -> tuple[torch.Tensor, torch.Tensor]:
-    generator = _generator()
-    return (
-        torch.randn(3, 4, generator=generator, dtype=torch.float64),
-        torch.randn(3, 4, generator=generator, dtype=torch.float64),
-    )
+    return normal_pair(3, 4, dtype=torch.float64)
 
 
 def _positive() -> tuple[torch.Tensor, torch.Tensor]:
-    generator = _generator()
-    return (
-        torch.rand(3, 4, generator=generator, dtype=torch.float64) + 0.5,
-        torch.rand(3, 4, generator=generator, dtype=torch.float64) + 0.5,
-    )
+    return positive_pair(3, 4, dtype=torch.float64)
 
 
 def _normal_target() -> tuple[torch.Tensor, torch.Tensor]:
@@ -38,11 +27,7 @@ def _normal_target() -> tuple[torch.Tensor, torch.Tensor]:
 
 
 def _probability() -> tuple[torch.Tensor, torch.Tensor]:
-    generator = _generator()
-    return (
-        torch.rand(3, 4, generator=generator, dtype=torch.float64) * 0.8 + 0.1,
-        torch.rand(3, 4, generator=generator, dtype=torch.float64),
-    )
+    return probability_pair(3, 4, dtype=torch.float64)
 
 
 # (function, factory of the inputs). The gradient is checked with respect to
