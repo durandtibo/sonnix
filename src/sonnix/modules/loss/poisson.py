@@ -3,6 +3,8 @@ function."""
 
 from __future__ import annotations
 
+from coola.validation import validate_gt
+
 __all__ = ["PoissonRegressionLoss"]
 
 from typing import TYPE_CHECKING
@@ -35,6 +37,9 @@ class PoissonRegressionLoss(BaseLoss):
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
 
+    Raises:
+        ValueError: if ``eps`` is not strictly positive.
+
     Example:
         ```pycon
         >>> import torch
@@ -52,6 +57,7 @@ class PoissonRegressionLoss(BaseLoss):
 
     def __init__(self, eps: float = 1e-8, *, reduction: Reduction = "mean") -> None:
         super().__init__(reduction=reduction)
+        validate_gt(eps, 0, name="eps")
         self._eps = float(eps)
 
     def extra_repr(self) -> str:

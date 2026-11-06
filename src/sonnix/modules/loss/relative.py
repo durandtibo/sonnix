@@ -7,6 +7,7 @@ __all__ = ["RelativeLoss", "RelativeMSELoss", "RelativeSmoothL1Loss"]
 from typing import TYPE_CHECKING, Any
 
 import torch
+from coola.validation import validate_ge, validate_gt
 from torch import nn
 
 from sonnix.functional import relative_loss
@@ -44,6 +45,9 @@ class RelativeLoss(BaseLoss):
             input, ``'sum'``: the output will be summed,
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
+
+    Raises:
+        ValueError: if ``eps`` is not strictly positive.
 
     Example:
         ```pycon
@@ -85,7 +89,8 @@ class RelativeLoss(BaseLoss):
             ClassicalRelativeIndicator() if indicator is None else indicator
         )
 
-        self._eps = eps
+        validate_gt(eps, 0, name="eps")
+        self._eps = float(eps)
         self._detach_indicator = bool(detach_indicator)
 
     def extra_repr(self) -> str:
@@ -125,6 +130,9 @@ class RelativeMSELoss(RelativeLoss):
             input, ``'sum'``: the output will be summed,
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
+
+    Raises:
+        ValueError: if ``eps`` is not strictly positive.
 
     Example:
         ```pycon
@@ -189,6 +197,10 @@ class RelativeSmoothL1Loss(RelativeLoss):
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
 
+    Raises:
+        ValueError: if ``eps`` is not strictly positive or ``beta`` is
+            negative.
+
     Example:
         ```pycon
         >>> import torch
@@ -220,6 +232,7 @@ class RelativeSmoothL1Loss(RelativeLoss):
         detach_indicator: bool = False,
         beta: float = 1.0,
     ) -> None:
+        validate_ge(beta, 0, name="beta")
         super().__init__(
             criterion=nn.SmoothL1Loss(reduction="none", beta=beta),
             indicator=indicator,

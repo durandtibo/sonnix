@@ -214,3 +214,9 @@ def test_general_robust_regression_loss_alpha_neg_inf() -> None:
     loss = general_robust_regression_loss(prediction, target, alpha=float("-inf"))
     expected = 1 - torch.exp(-0.5 * (prediction - target) ** 2)
     assert loss.allclose(expected.mean())
+
+
+@pytest.mark.parametrize("scale", [0.0, -1.0])
+def test_general_robust_regression_loss_invalid_scale(scale: float) -> None:
+    with pytest.raises(ValueError, match=r"scale must be greater than 0"):
+        general_robust_regression_loss(torch.ones(2, 3), torch.ones(2, 3), scale=scale)

@@ -73,3 +73,8 @@ def test_squared_relu_forward_shape(device: str, shape: tuple[int, ...]) -> None
     assert out.shape == shape
     assert out.dtype == torch.float
     assert out.device == device
+
+
+def test_relun_invalid_max_val() -> None:
+    with pytest.raises(ValueError, match=r"max_val must be greater than or equal to 0"):
+        ReLUn(max_val=-1.0)

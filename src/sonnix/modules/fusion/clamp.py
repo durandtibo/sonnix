@@ -17,6 +17,9 @@ class Clamp(torch.nn.Module):
         max_val: The upper-bound of the range to be clamped to.
             ``None`` means there is no maximum value.
 
+    Raises:
+        ValueError: if ``min_val`` is greater than ``max_val``.
+
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
@@ -37,6 +40,9 @@ class Clamp(torch.nn.Module):
 
     def __init__(self, min_val: float | None = -1.0, max_val: float | None = 1.0) -> None:
         super().__init__()
+        if min_val is not None and max_val is not None and min_val > max_val:
+            msg = f"min_val ({min_val}) must be lower than or equal to max_val ({max_val})"
+            raise ValueError(msg)
         self._min = min_val
         self._max = max_val
 
