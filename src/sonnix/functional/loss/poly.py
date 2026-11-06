@@ -29,8 +29,9 @@ def binary_poly1_loss(
         target: A float tensor with the same shape as inputs. It stores
             the binary classification label for each element in inputs
             (0 for the negative class and 1 for the positive class).
-        alpha: The weighting factor, which must be in the range
-            ``[0, 1]``. This parameter is ignored if negative.
+        alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
+            probability of the target class. The loss is
+            ``cross_entropy + alpha * (1 - p_t)``.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``,  and ``'sum'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
@@ -79,8 +80,9 @@ def binary_poly1_loss_with_logits(
         target: A float tensor with the same shape as inputs. It stores
             the binary classification label for each element in inputs
             (0 for the negative class and 1 for the positive class).
-        alpha: The weighting factor, which must be in the range
-            ``[0, 1]``. This parameter is ignored if negative.
+        alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
+            probability of the target class. The loss is
+            ``cross_entropy + alpha * (1 - p_t)``.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``,  and ``'sum'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
