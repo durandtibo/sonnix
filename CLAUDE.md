@@ -6,10 +6,17 @@
   There is no `python` on the `PATH`.
 - Lint and format before committing: `.venv/bin/ruff check src tests` and `.venv/bin/ruff format src tests`.
   Fix the issues raised by ruff. Ignoring an issue (`noqa`, a changed rule set) is not fixing it.
-- Type check with `.venv/bin/ty check`. Fix the issues raised by ty. Ignoring an issue
-  (`type: ignore`, `ty: ignore`, a cast that hides the problem) is not fixing it.
-- Run the unit tests of the packages you changed (for example `.venv/bin/pytest tests/unit/hashing -q`).
-  Some tests fail on `main`; check with `git stash` before blaming your change.
+- Type check with `.venv/bin/pyright src` and `.venv/bin/ty check`. Fix the issues raised.
+  Ignoring an issue (`type: ignore`, `ty: ignore`, a cast that hides the problem) is not fixing it.
+- Run the unit tests of the modules you changed (for example
+  `.venv/bin/pytest tests/unit/modules/test_nlinear.py -q --no-cov`), then the whole suite
+  (`.venv/bin/pytest tests -q --no-cov`) before opening a PR. Some checks may fail on `main`
+  (for example pyright, import-linter); check with `git stash` before blaming your change.
+- Run the doctests with `.venv/bin/python -m xdoctest src/sonnix all`. They are not run by
+  plain `pytest --doctest-modules`.
+- The project is `sonnix`, a library of PyTorch modules, losses and functional ops
+  (`src/sonnix/{functional,modules,utils,testing}`). Dependencies are managed with `uv`.
+- `review/suggestions.md` is the codebase review that lists known issues and priorities.
 
 ## Workflow
 
@@ -40,14 +47,22 @@
 - Follow the current style of the repository in everything you add (source, tests, docs, commit
   messages, PR descriptions). Look at a few neighbouring files first, and do not introduce a new
   convention or reformat code you do not otherwise change.
-- Shared helpers belong in `coola.utils` as public functions (no leading underscore) with their
-  own tests, not as private functions imported across modules.
-- Validate an argument with `coola.validation`; do not write `raise ValueError` for a type, range
-  or membership check, and do not add a validator that is one `isinstance` or one comparison.
-- Prefer `LazySingleton` for lazily built process-wide objects, not `functools.cache`.
-- Keep new options keyword-only (`*`), as `hash_object` does.
-- Optional libraries (numpy, torch, pandas, polars, ...) are imported lazily; do not import them
-  at module level in `src`.
+- Shared helpers belong in `sonnix.utils` (or the relevant package) as public functions (no
+  leading underscore) with their own tests, not as private functions imported across modules.
+- Validate an argument with `coola.validation` (`validate_ge`, `validate_range`, `validate_in`,
+  `validate_isinstance`, ...) when it covers the check; do not write `raise ValueError` by hand for
+  a type, range or membership check, and do not add a validator that is one `isinstance` or one
+  comparison. Only write a custom check (`ValueError` for a bad value, `TypeError` for a bad type,
+  with a message naming the argument and the received value) when `coola.validation` cannot
+  express it. Use `RuntimeError` only for state errors.
+- Losses accept `reduction` in `none`/`mean`/`sum`/`batchmean` and go through
+  `sonnix.functional.reduction.reduce_loss` / `check_loss_reduction_strategy`.
+- Modules that create their own tensors accept `device` and `dtype`; frozen tensors are buffers
+  (`register_buffer`), not `nn.Parameter(requires_grad=False)`.
+- Use `x is None` (not `x or default`) for optional modules and configs.
+- Keep new options keyword-only (`*`).
+- `torch` is a hard dependency; other libraries (`objectory`, ...) are optional and must be
+  imported through the `sonnix.utils.imports` helpers, not at module level in `src`.
 - Every function, public or private (leading underscore), needs a docstring and its own unit
   tests. Private functions are not exempt. An override that adds nothing to the docstring of the
   method it overrides (same behaviour, arguments and exceptions) has no docstring: it inherits the
@@ -62,20 +77,20 @@
 
 - Always write tests for the code in `src/`, including every private function. Unit tests must be fast and efficient; move big or
   slow tests to `tests/integration/` if needed.
-- Unit tests mirror the source tree (`tests/unit/<package>/test_<module>.py`). Cross-thread
-  behaviour goes in `tests/integration/`, using `run_threads` from `tests/integration/helpers.py`,
-  a lock around the shared list, and a docstring starting with "Test that ...".
-- Do not use local imports inside tests (for example `import polars as pl` in a test body). Import
-  at the top of the module; use the `*_available` fixtures from `coola.testing.marks` for
-  optional libraries.
+- Unit tests mirror the source tree (`tests/unit/<package>/test_<module>.py`). Tests that
+  combine several modules (for example training or composition) go in `tests/integration/`.
+- Do not use local imports inside tests. Import at the top of the module; use the markers and
+  fixtures from `sonnix.testing` for optional libraries and devices.
+- Parametrize over devices with `get_available_devices()` (from `coola.utils.tensor`) when the
+  result depends on the device, and compare tensors with `objects_are_equal` /
+  `objects_are_allclose` from `coola.equality` or `Tensor.allclose`.
 - One behaviour per test: a test has one `assert` or one `pytest.raises`. Split a test that checks
-  several things (equal, different, negative, ...) into several tests. Thread-safety tests may
-  assert the count and the uniqueness together, as the existing ones do.
+  several things (equal, different, negative, ...) into several tests.
 - Keep the unit tests simple and fast: no sleeps, no large data, no real network or heavy I/O,
-  and no logic (loops, branches) in the test body. Anything slow or concurrent belongs in
+  and no logic (loops, branches) in the test body. Anything slow belongs in
   `tests/integration/`.
 - Add the missing tests to get 100% coverage of the code you add or change
-  (`.venv/bin/pytest <tests> --cov=coola --cov-report=term-missing`). Do not use
+  (`.venv/bin/pytest <tests> --cov=sonnix --cov-report=term-missing`). Do not use
   `# pragma: no cover` to skip a line that can be tested.
 - Use `pytest.mark.parametrize` for the same check on several values.
 - Every `pytest.raises` (and `pytest.warns`) must define `match` with a regular expression for the
@@ -84,6 +99,8 @@
   reason (`side_effect=KeyboardInterrupt("interrupted")`, not `side_effect=KeyboardInterrupt`).
 - Add a regression test for every bug fixed, and check that it fails without the fix (revert the
   `src` change with `git stash push src` and run it).
+- Numerical code gets numerical checks: compare with a reference (`torch.nn` equivalent or a
+  naive formula), check large and small inputs for overflow, and check that gradients are finite.
 - Do not add tests for the exports of `__all__` or other trivial structure.
 - Section headers in the tests have three lines. The second line is `#`, 5 spaces, the name,
   5 spaces and `#`. The first and third lines repeat `#` to match the length of the second line:
@@ -94,7 +111,7 @@
   ###########################
   ```
 
-- Seed random data (`default_rng(0)`); no unseeded randomness in tests.
+- Seed random data ; no unseeded randomness in tests.
 - Patching (`monkeypatch`, `unittest.mock.patch`) is fine in unit tests: it keeps them fast and
   simple and isolates the logic under test. But a patched test only proves the logic works against
   the patched stand-in, which may not match the real collaborator (signature, return type,
