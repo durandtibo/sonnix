@@ -133,7 +133,7 @@ def test_relative_loss_indicator_reversed_relative(device: str) -> None:
 def test_relative_loss_incorrect_shapes() -> None:
     prediction = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]], requires_grad=True)
     target = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]])
-    with pytest.raises(ValueError, match=r"loss .* and indicator .* shapes do not match"):
+    with pytest.raises(ValueError, match=r"loss and indicator must have the same shape"):
         relative_loss(
             loss=torch.nn.functional.mse_loss(prediction, target),
             indicator=classical_relative_indicator(prediction, target),

@@ -17,6 +17,8 @@ from typing import TYPE_CHECKING
 import torch
 from torch import nn
 
+from sonnix.validation import validate_same_shape
+
 if TYPE_CHECKING:
     from torch import Tensor
 
@@ -88,12 +90,9 @@ class CosSinNumericalEncoder(nn.Module):
 
         phase_shift = prepare_tensor_param(phase_shift, name="phase_shift")
         self._register_tensor("phase_shift", phase_shift, learnable)
-        if self.frequency.shape != self.phase_shift.shape:
-            msg = (
-                f"'frequency' and 'phase_shift' shapes do not match: {self.frequency.shape} "
-                f"vs {self.phase_shift.shape}"
-            )
-            raise ValueError(msg)
+        validate_same_shape(
+            self.frequency, self.phase_shift, name1="'frequency'", name2="'phase_shift'"
+        )
 
     @property
     def learnable(self) -> bool:

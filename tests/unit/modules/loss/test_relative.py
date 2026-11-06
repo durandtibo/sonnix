@@ -121,7 +121,7 @@ def test_relative_loss_incorrect_shapes() -> None:
     prediction = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]], requires_grad=True)
     target = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]])
     criterion = RelativeLoss(criterion=nn.MSELoss())
-    with pytest.raises(ValueError, match=r"loss .* and indicator .* shapes do not match"):
+    with pytest.raises(ValueError, match=r"loss and indicator must have the same shape"):
         criterion(prediction=prediction, target=target)
 
 
