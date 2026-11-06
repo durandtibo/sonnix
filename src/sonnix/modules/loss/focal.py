@@ -12,7 +12,7 @@ from sonnix.functional import (
     binary_focal_loss_with_logits,
     check_loss_reduction_strategy,
 )
-from sonnix.functional.loss.focal import check_focal_params
+from sonnix.functional.loss.focal import validate_focal_params
 
 
 class BinaryFocalLoss(nn.Module):
@@ -58,7 +58,7 @@ class BinaryFocalLoss(nn.Module):
 
     def __init__(self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean") -> None:
         super().__init__()
-        check_focal_params(alpha=alpha, gamma=gamma)
+        validate_focal_params(alpha=alpha, gamma=gamma)
         self._alpha = float(alpha)
         self._gamma = float(gamma)
 
@@ -138,7 +138,7 @@ class BinaryFocalLossWithLogits(nn.Module):
 
     def __init__(self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean") -> None:
         super().__init__()
-        check_focal_params(alpha=alpha, gamma=gamma)
+        validate_focal_params(alpha=alpha, gamma=gamma)
         self._alpha = float(alpha)
         self._gamma = float(gamma)
 
