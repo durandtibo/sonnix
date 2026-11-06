@@ -90,8 +90,9 @@ def binary_poly1_loss_with_logits(
     (https://arxiv.org/pdf/2204.12511)
 
     Note:
-        Targets are expected to be binary (0 or 1). This variant is safe to
-        use with ``torch.autocast``.
+        This variant is safe to use with ``torch.autocast``. Soft targets
+        in ``[0, 1]`` are supported and give the same value as the
+        probability variant applied to ``sigmoid(prediction)``.
 
     Args:
         prediction: The float tensor with predictions as unnormalized
@@ -130,7 +131,9 @@ def binary_poly1_loss_with_logits(
         ```
     """
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
-    # For binary targets, ``exp(-ce) = p_t``: no need to compute the sigmoid.
-    p_t = ce_loss.neg().exp()
+    # ``exp(-ce) = p_t`` only holds for binary targets, so ``p_t`` is computed
+    # from the probabilities to support soft targets (label smoothing, mixup).
+    probs = prediction.sigmoid()
+    p_t = probs * target + (1 - probs) * (1 - target)
     loss = ce_loss + alpha * (1 - p_t)
     return reduce_loss(loss, reduction)
