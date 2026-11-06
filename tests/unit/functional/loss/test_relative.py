@@ -6,7 +6,6 @@ from coola.equality import objects_are_allclose, objects_are_equal
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import relative_loss
-from sonnix.functional.loss import moment_mean_indicator
 from sonnix.functional.loss.relative import (
     arithmetical_mean_indicator,
     classical_relative_indicator,
