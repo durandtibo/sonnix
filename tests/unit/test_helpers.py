@@ -33,9 +33,13 @@ def test_make_generator_default_seed() -> None:
 ##############################
 
 
-def test_normal_pair_shape_and_dtype() -> None:
+def test_normal_pair_shape_and_dtype_shape() -> None:
     first, second = normal_pair(2, 3, dtype=torch.float64)
     assert first.shape == second.shape == (2, 3)
+
+
+def test_normal_pair_shape_and_dtype_value() -> None:
+    first, second = normal_pair(2, 3, dtype=torch.float64)
     assert first.dtype == second.dtype == torch.float64
 
 
@@ -48,9 +52,13 @@ def test_normal_pair_deterministic() -> None:
     assert objects_are_equal(normal_pair(2, 3), normal_pair(2, 3))
 
 
-def test_positive_pair_range() -> None:
+def test_positive_pair_range_cat() -> None:
     first, second = positive_pair(50)
     assert torch.cat([first, second]).min() >= 0.5
+
+
+def test_positive_pair_range_cat_2() -> None:
+    first, second = positive_pair(50)
     assert torch.cat([first, second]).max() < 1.5
 
 
@@ -58,13 +66,21 @@ def test_positive_pair_deterministic() -> None:
     assert objects_are_equal(positive_pair(2, 3), positive_pair(2, 3))
 
 
-def test_probability_pair_prediction_range() -> None:
+def test_probability_pair_prediction_range_check1() -> None:
     prediction, _ = probability_pair(50)
     assert prediction.min() >= 0.1
+
+
+def test_probability_pair_prediction_range_check2() -> None:
+    prediction, _ = probability_pair(50)
     assert prediction.max() < 0.9
 
 
-def test_probability_pair_target_range() -> None:
+def test_probability_pair_target_range_check1() -> None:
     _, target = probability_pair(50)
     assert target.min() >= 0.0
+
+
+def test_probability_pair_target_range_check2() -> None:
+    _, target = probability_pair(50)
     assert target.max() < 1.0
