@@ -19,4 +19,4 @@ lint: lint-yaml lint-makefile lint-shell lint-markdown ## Lint all files
 
 .PHONY: clean
 clean: ## Remove the generated coverage reports and caches
-	rm -rf coverage.xml .coverage htmlcov .pytest_cache .ruff_cache .hypothesis
+	rm -rf coverage.xml .coverage htmlcov .benchmarks .pytest_cache .ruff_cache .hypothesis
