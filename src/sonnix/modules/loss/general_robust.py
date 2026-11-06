@@ -44,14 +44,8 @@ class GeneralRobustRegressionLoss(BaseLoss):
             quadratic bowl near 0.
         max_val: The max value to clip the loss before to compute the
             reduction. ``None`` means no clipping is used.
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
