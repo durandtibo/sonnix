@@ -139,7 +139,7 @@ def test_asinh_numerical_encoder_forward_scale_2_features() -> None:
 
 
 def test_asinh_numerical_encoder_forward_scale_2_features_same_scale() -> None:
-    module = AsinhNumericalEncoder(scale=torch.tensor([[1.0, 2.0, 3.0]]))
+    module = AsinhNumericalEncoder(scale=torch.tensor([[1.0, 2.0, 3.0], [1.0, 2.0, 3.0]]))
     assert module(torch.tensor([[-1.0, 0.0], [0.0, 1.0], [1.0, -1.0]])).allclose(
         torch.tensor(
             [

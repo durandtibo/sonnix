@@ -13,8 +13,13 @@ from typing import TYPE_CHECKING, Literal
 import torch
 from torch import nn
 
-from sonnix.modules.numerical._utils import create_spaced_values, prepare_tensor_param
-from sonnix.validation import validate_abs_range, validate_frequency, validate_same_shape
+from sonnix.modules.numerical._utils import (
+    NumericalEncoder,
+    create_spaced_values,
+    prepare_tensor_param,
+    resolve_range,
+)
+from sonnix.validation import validate_frequency, validate_same_shape
 
 if TYPE_CHECKING:
     from typing import Self
@@ -22,7 +27,7 @@ if TYPE_CHECKING:
     from torch import Tensor
 
 
-class CosSinNumericalEncoder(nn.Module):
+class CosSinNumericalEncoder(NumericalEncoder):
     r"""Implement a frequency/phase-shift numerical encoder where the
     periodic functions are cosine and sine.
 
@@ -109,7 +114,6 @@ class CosSinNumericalEncoder(nn.Module):
 
     @property
     def n_features(self) -> int:
-        r"""Return the input feature size."""
         return self.frequency.shape[0]
 
     @property
@@ -124,7 +128,7 @@ class CosSinNumericalEncoder(nn.Module):
             f"learnable={self.learnable}"
         )
 
-    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
+    def _encode(self, input: Tensor) -> Tensor:  # noqa: A002
         features = input.unsqueeze(dim=-1).mul(self.frequency).add(self.phase_shift)
         return torch.cat((features.sin(), features.cos()), dim=-1)
 
@@ -208,16 +212,7 @@ class CosSinNumericalEncoder(nn.Module):
 
             ```
         """
-        msg = "Exactly one of 'frequency_range' and 'value_range' has to be provided"
-        if frequency_range is not None and value_range is not None:
-            raise ValueError(msg)
-        if frequency_range is not None:
-            min_frequency, max_frequency = frequency_range
-        elif value_range is not None:
-            validate_abs_range(min_abs_value=value_range[0], max_abs_value=value_range[1])
-            min_frequency, max_frequency = 1 / value_range[1], 1 / value_range[0]
-        else:
-            raise ValueError(msg)
+        min_frequency, max_frequency = resolve_range("frequency", frequency_range, value_range)
         validate_frequency(
             num_frequencies=num_frequencies,
             min_frequency=min_frequency,
@@ -303,8 +298,8 @@ class AsinhCosSinNumericalEncoder(CosSinNumericalEncoder):
         r"""Return the output feature size."""
         return super().feature_size + 1
 
-    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
-        features = super().forward(input)
+    def _encode(self, input: Tensor) -> Tensor:  # noqa: A002
+        features = super()._encode(input)
         return torch.cat(
             (features, input.unsqueeze(dim=-1).asinh()),
             dim=-1,

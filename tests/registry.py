@@ -161,7 +161,7 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
     _case(sm.MultiplicationFusion, _triple_normal),
     _case(sm.SumFusion, _triple_normal),
     # numerical encoders
-    _case(sm.AsinhNumericalEncoder, _normal(4, 3), torch.ones(3)),
+    _case(sm.AsinhNumericalEncoder, _normal(4, 3), torch.ones(3, 2)),
     _case(
         sm.CosSinNumericalEncoder,
         _normal(4, 3),
