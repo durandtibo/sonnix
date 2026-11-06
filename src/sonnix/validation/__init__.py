@@ -11,12 +11,17 @@ from __future__ import annotations
 
 __all__ = [
     "validate_abs_range",
+    "validate_focal_params",
     "validate_frequency",
     "validate_loss_reduction_strategy",
     "validate_moment_order",
     "validate_same_shape",
 ]
 
-from sonnix.validation.loss import validate_loss_reduction_strategy, validate_moment_order
+from sonnix.validation.loss import (
+    validate_focal_params,
+    validate_loss_reduction_strategy,
+    validate_moment_order,
+)
 from sonnix.validation.numerical import validate_abs_range, validate_frequency
 from sonnix.validation.tensor import validate_same_shape
