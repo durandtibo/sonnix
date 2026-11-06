@@ -9,9 +9,10 @@ __all__ = [
 ]
 
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import torch
+from coola.validation import validate_in
 from torch import nn
 
 from sonnix.modules.numerical._utils import (
@@ -22,7 +23,11 @@ from sonnix.modules.numerical._utils import (
 from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from torch import Tensor
+
+SPACINGS = ("rand", "linspace", "logspace")
 
 
 class CosSinNumericalEncoder(nn.Module):
@@ -132,278 +137,96 @@ class CosSinNumericalEncoder(nn.Module):
         return torch.cat((features.sin(), features.cos()), dim=-1)
 
     @classmethod
-    def create_rand_frequency(
+    def create(
         cls,
+        spacing: Literal["rand", "linspace", "logspace"],
         num_frequencies: int,
-        min_frequency: float,
-        max_frequency: float,
         *,
+        frequency_range: tuple[float, float] | None = None,
+        value_range: tuple[float, float] | None = None,
         learnable: bool = False,
-    ) -> CosSinNumericalEncoder:
-        r"""Create a ``CosSinNumericalEncoder`` where the frequencies are
-        uniformly initialized in a frequency range.
+    ) -> Self:
+        r"""Create an encoder for one feature where the frequencies are
+        initialized in a range and the phase-shifts are zero.
+
+        The range is given either as a frequency range
+        (``frequency_range``) or as the range of the absolute values
+        to encode (``value_range``). The latter is converted to the
+        frequency range ``(1 / max_abs_value, 1 / min_abs_value)``.
 
         Args:
+            spacing: The way the frequencies are spread in the range.
+                ``"rand"``: uniformly sampled, ``"linspace"``: evenly
+                spaced, ``"logspace"``: evenly spaced in the log space.
             num_frequencies: The number of frequencies.
-            min_frequency: The minimum frequency.
-            max_frequency: The maximum frequency.
+            frequency_range: The ``(min_frequency, max_frequency)``
+                range. The minimum has to be strictly positive and the
+                maximum has to be greater than or equal to the minimum.
+            value_range: The ``(min_abs_value, max_abs_value)`` range
+                of the absolute values to encode. The minimum has to be
+                strictly positive and the maximum has to be greater
+                than or equal to the minimum.
             learnable: If ``True`` the parameters are learnable,
                 otherwise they are frozen.
 
         Returns:
-            An instantiated ``CosSinNumericalEncoder`` where the
-                frequencies are uniformly initialized in a frequency
-                range.
+            An instantiated encoder with ``n_features=1``.
+
+        Raises:
+            ValueError: if ``spacing`` is not valid, if both or none of
+                ``frequency_range`` and ``value_range`` are given, or if
+                the range or ``num_frequencies`` are invalid.
 
         Example:
             ```pycon
             >>> import torch
             >>> from sonnix.modules import CosSinNumericalEncoder
-            >>> m = CosSinNumericalEncoder.create_rand_frequency(
-            ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
+            >>> m = CosSinNumericalEncoder.create(
+            ...     "linspace", num_frequencies=5, frequency_range=(0.1, 1.0)
+            ... )
+            >>> m
+            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
+            >>> m = CosSinNumericalEncoder.create(
+            ...     "logspace", num_frequencies=5, value_range=(0.1, 10.0)
             ... )
             >>> m
             CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
 
             ```
         """
+        validate_in(spacing, SPACINGS, name="spacing")
+        msg = "Exactly one of 'frequency_range' and 'value_range' has to be provided"
+        if frequency_range is not None and value_range is not None:
+            raise ValueError(msg)
+        if frequency_range is not None:
+            min_frequency, max_frequency = frequency_range
+        elif value_range is not None:
+            check_abs_range(min_abs_value=value_range[0], max_abs_value=value_range[1])
+            min_frequency, max_frequency = 1 / value_range[1], 1 / value_range[0]
+        else:
+            raise ValueError(msg)
         check_frequency(
             num_frequencies=num_frequencies,
             min_frequency=min_frequency,
             max_frequency=max_frequency,
         )
-        return cls(
-            frequency=torch.rand(1, num_frequencies)
-            .mul(max_frequency - min_frequency)
-            .add(min_frequency),
-            phase_shift=torch.zeros(1, num_frequencies),
-            learnable=learnable,
-        )
-
-    @classmethod
-    def create_rand_value_range(
-        cls,
-        num_frequencies: int,
-        min_abs_value: float,
-        max_abs_value: float,
-        *,
-        learnable: bool = False,
-    ) -> CosSinNumericalEncoder:
-        r"""Create a ``CosSinNumericalEncoder`` where the frequencies are
-        uniformly initialized for a given value range.
-
-        Args:
-            num_frequencies: The number of frequencies.
-            min_abs_value: The minimum absolute value to encode.
-            max_abs_value: The maximum absolute value to encode.
-            learnable: If ``True`` the parameters are learnable,
-                otherwise they are frozen.
-
-        Returns:
-            An instantiated ``CosSinNumericalEncoder`` where the
-                frequencies are uniformly initialized for a given
-                value range.
-
-        Example:
-            ```pycon
-            >>> import torch
-            >>> from sonnix.modules import CosSinNumericalEncoder
-            >>> m = CosSinNumericalEncoder.create_rand_value_range(
-            ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
-            ... )
-            >>> m
-            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
-
-            ```
-        """
-        check_abs_range(min_abs_value=min_abs_value, max_abs_value=max_abs_value)
-        return cls.create_rand_frequency(
-            num_frequencies=num_frequencies,
-            min_frequency=1 / max_abs_value,
-            max_frequency=1 / min_abs_value,
-            learnable=learnable,
-        )
-
-    @classmethod
-    def create_linspace_frequency(
-        cls,
-        num_frequencies: int,
-        min_frequency: float,
-        max_frequency: float,
-        *,
-        learnable: bool = False,
-    ) -> CosSinNumericalEncoder:
-        r"""Create a `CosSinNumericalEncoder`` where the frequencies are
-        evenly spaced in a frequency range.
-
-        Args:
-            num_frequencies: The number of frequencies.
-            min_frequency: The minimum frequency.
-            max_frequency: The maximum frequency.
-            learnable: If ``True`` the parameters are learnable,
-                otherwise they are frozen.
-
-        Returns:
-            An instantiated ``CosSinNumericalEncoder`` where the
-                frequencies are evenly spaced in a frequency range.
-
-        Example:
-            ```pycon
-            >>> import torch
-            >>> from sonnix.modules import CosSinNumericalEncoder
-            >>> m = CosSinNumericalEncoder.create_linspace_frequency(
-            ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
-            ... )
-            >>> m
-            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
-
-            ```
-        """
-        check_frequency(
-            num_frequencies=num_frequencies,
-            min_frequency=min_frequency,
-            max_frequency=max_frequency,
-        )
-        return cls(
-            frequency=torch.linspace(start=min_frequency, end=max_frequency, steps=num_frequencies),
-            phase_shift=torch.zeros(num_frequencies),
-            learnable=learnable,
-        )
-
-    @classmethod
-    def create_linspace_value_range(
-        cls,
-        num_frequencies: int,
-        min_abs_value: float,
-        max_abs_value: float,
-        *,
-        learnable: bool = False,
-    ) -> CosSinNumericalEncoder:
-        r"""Create a ``CosSinNumericalEncoder`` where the frequencies are
-        evenly spaced given a value range.
-
-        Args:
-            num_frequencies: The number of frequencies.
-            min_abs_value: The minimum absolute value to encode.
-            max_abs_value: The maximum absolute value to encoder.
-            learnable: If ``True`` the parameters are learnable,
-                otherwise they are frozen.
-
-        Returns:
-            An instantiated ``CosSinNumericalEncoder`` where the
-                frequencies are evenly spaced.
-
-        Example:
-            ```pycon
-            >>> import torch
-            >>> from sonnix.modules import CosSinNumericalEncoder
-            >>> m = CosSinNumericalEncoder.create_linspace_value_range(
-            ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
-            ... )
-            >>> m
-            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
-
-            ```
-        """
-        check_abs_range(min_abs_value=min_abs_value, max_abs_value=max_abs_value)
-        return cls.create_linspace_frequency(
-            num_frequencies=num_frequencies,
-            min_frequency=1 / max_abs_value,
-            max_frequency=1 / min_abs_value,
-            learnable=learnable,
-        )
-
-    @classmethod
-    def create_logspace_frequency(
-        cls,
-        num_frequencies: int,
-        min_frequency: float,
-        max_frequency: float,
-        *,
-        learnable: bool = False,
-    ) -> CosSinNumericalEncoder:
-        r"""Create a ``CosSinNumericalEncoder`` where the frequencies are
-        evenly spaced in the log space in a frequency range.
-
-        Args:
-            num_frequencies: The number of frequencies.
-            min_frequency: The minimum frequency.
-            max_frequency: The maximum frequency.
-            learnable: If ``True`` the parameters are learnable,
-                otherwise they are frozen.
-
-        Returns:
-            An instantiated ``CosSinNumericalEncoder`` where the
-                frequencies are evenly spaced in the log space in a
-                frequency range.
-
-        Example:
-            ```pycon
-            >>> import torch
-            >>> from sonnix.modules import CosSinNumericalEncoder
-            >>> m = CosSinNumericalEncoder.create_logspace_frequency(
-            ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
-            ... )
-            >>> m
-            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
-
-            ```
-        """
-        check_frequency(
-            num_frequencies=num_frequencies,
-            min_frequency=min_frequency,
-            max_frequency=max_frequency,
-        )
-        return cls(
-            frequency=torch.logspace(
+        if spacing == "rand":
+            frequency = (
+                torch.rand(1, num_frequencies).mul(max_frequency - min_frequency).add(min_frequency)
+            )
+        elif spacing == "linspace":
+            frequency = torch.linspace(
+                start=min_frequency, end=max_frequency, steps=num_frequencies
+            )
+        else:
+            frequency = torch.logspace(
                 start=math.log10(min_frequency),
                 end=math.log10(max_frequency),
                 steps=num_frequencies,
-            ),
-            phase_shift=torch.zeros(num_frequencies),
-            learnable=learnable,
-        )
-
-    @classmethod
-    def create_logspace_value_range(
-        cls,
-        num_frequencies: int,
-        min_abs_value: float,
-        max_abs_value: float,
-        *,
-        learnable: bool = False,
-    ) -> CosSinNumericalEncoder:
-        r"""Create a ``CosSinNumericalEncoder`` where the frequencies are
-        evenly spaced in the log space given a value range.
-
-        Args:
-            num_frequencies: The number of frequencies.
-            min_abs_value: The minimum absolute value to encode.
-            max_abs_value: The maximum absolute value to encoder.
-            learnable: If ``True`` the parameters are learnable,
-                otherwise they are frozen.
-
-        Returns:
-            An instantiated ``CosSinNumericalEncoder`` where the
-                frequencies are evenly spaced in the log space.
-
-        Example:
-            ```pycon
-            >>> import torch
-            >>> from sonnix.modules import CosSinNumericalEncoder
-            >>> m = CosSinNumericalEncoder.create_logspace_value_range(
-            ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
-            ... )
-            >>> m
-            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
-
-            ```
-        """
-        check_abs_range(min_abs_value=min_abs_value, max_abs_value=max_abs_value)
-        return cls.create_logspace_frequency(
-            num_frequencies=num_frequencies,
-            min_frequency=1 / max_abs_value,
-            max_frequency=1 / min_abs_value,
+            )
+        return cls(
+            frequency=frequency,
+            phase_shift=torch.zeros_like(frequency),
             learnable=learnable,
         )
 

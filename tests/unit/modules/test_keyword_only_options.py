@@ -28,12 +28,6 @@ if TYPE_CHECKING:
 #     Tests for the signature of the options     #
 ##################################################
 
-CREATE_METHODS = [
-    f"create_{spacing}_{kind}"
-    for spacing in ("rand", "linspace", "logspace")
-    for kind in ("frequency", "value_range")
-]
-
 
 @pytest.mark.parametrize(
     ("callable_", "name"),
@@ -58,8 +52,9 @@ CREATE_METHODS = [
         (AsinhNumericalEncoder, "learnable"),
         (CosSinNumericalEncoder, "learnable"),
         (AsinhCosSinNumericalEncoder, "learnable"),
-        *[(getattr(CosSinNumericalEncoder, name), "learnable") for name in CREATE_METHODS],
-        *[(getattr(AsinhCosSinNumericalEncoder, name), "learnable") for name in CREATE_METHODS],
+        (CosSinNumericalEncoder.create, "frequency_range"),
+        (CosSinNumericalEncoder.create, "value_range"),
+        (CosSinNumericalEncoder.create, "learnable"),
     ],
 )
 def test_option_is_keyword_only(callable_: Callable, name: str) -> None:

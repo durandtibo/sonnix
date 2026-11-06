@@ -97,3 +97,10 @@ All notable changes to this project are documented in this file. The package is 
   no longer in the `__all__` of `sine`. `check_frequency` and `check_abs_range` use
   `coola.validation`, so the message of the errors for `num_frequencies`, `min_frequency` and
   `min_abs_value` changes (for example `min_frequency must be greater than 0`).
+
+- The six class methods `CosSinNumericalEncoder.create_{rand,linspace,logspace}_{frequency,value_range}`
+  are replaced by `CosSinNumericalEncoder.create(spacing, num_frequencies, *, frequency_range=None,
+  value_range=None, learnable=False)`. For example
+  `create_logspace_value_range(5, 0.1, 10.0)` is
+  `create("logspace", 5, value_range=(0.1, 10.0))`. It also works for
+  `AsinhCosSinNumericalEncoder` and returns the subclass.
