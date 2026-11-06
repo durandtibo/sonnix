@@ -60,7 +60,7 @@ def test_quantile_regression_loss_reduction_none(device: str) -> None:
 
 
 def test_quantile_regression_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         quantile_regression_loss(torch.ones(2, 2), torch.eye(2), reduction="incorrect")
 
 
@@ -93,5 +93,5 @@ def test_quantile_regression_loss_q_overestimate(device: str, q: float, loss: fl
 
 @pytest.mark.parametrize("q", [-0.1, 1.1])
 def test_quantile_regression_loss_incorrect_q(q: float) -> None:
-    with pytest.raises(ValueError, match="Incorrect parameter q"):
+    with pytest.raises(ValueError, match="q must be in the range"):
         quantile_regression_loss(torch.randn(2, 3), torch.randn(2, 3), q=q)

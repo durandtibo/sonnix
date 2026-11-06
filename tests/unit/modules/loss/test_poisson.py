@@ -59,7 +59,7 @@ def test_poisson_regression_loss_reduction_none(device: str) -> None:
 
 
 def test_poisson_regression_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         PoissonRegressionLoss(reduction="incorrect")
 
 

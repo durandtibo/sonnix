@@ -7,6 +7,7 @@ __all__ = ["GeneralRobustRegressionLoss"]
 
 
 import torch
+from coola.validation import validate_gt
 from torch import nn
 
 from sonnix.functional import (
@@ -77,9 +78,7 @@ class GeneralRobustRegressionLoss(nn.Module):
     ) -> None:
         super().__init__()
         self._alpha = float(alpha)
-        if scale <= 0:
-            msg = f"scale has to be greater than 0 but received {scale}"
-            raise ValueError(msg)
+        validate_gt(scale, 0, name="scale")
         self._scale = float(scale)
         self._max = max
 

@@ -15,6 +15,7 @@ __all__ = [
 
 
 import torch
+from coola.validation import validate_ge
 
 from sonnix.functional.reduction import reduce_loss
 
@@ -221,9 +222,7 @@ def check_moment_order(k: int) -> None:
     Raises:
         ValueError: if the order is not a positive integer.
     """
-    if k < 1:
-        msg = f"Incorrect parameter k ({k}). k has to be greater or equal to 1."
-        raise ValueError(msg)
+    validate_ge(k, 1, name="k")
 
 
 def moment_mean_indicator(

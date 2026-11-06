@@ -6,6 +6,7 @@ from __future__ import annotations
 __all__ = ["QuantileRegressionLoss"]
 
 import torch
+from coola.validation import validate_range
 from torch import nn
 
 from sonnix.functional.loss import quantile_regression_loss
@@ -50,9 +51,7 @@ class QuantileRegressionLoss(nn.Module):
         super().__init__()
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction
-        if not 0.0 <= q <= 1.0:
-            msg = f"Incorrect parameter q ({q}). q has to be in the range [0, 1]."
-            raise ValueError(msg)
+        validate_range(q, 0.0, 1.0, name="q")
         self._q = float(q)
 
     def extra_repr(self) -> str:

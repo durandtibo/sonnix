@@ -7,6 +7,8 @@ __all__ = ["quantile_regression_loss"]
 
 from typing import TYPE_CHECKING
 
+from coola.validation import validate_range
+
 from sonnix.functional.reduction import reduce_loss
 
 if TYPE_CHECKING:
@@ -52,9 +54,7 @@ def quantile_regression_loss(
 
         ```
     """
-    if not 0.0 <= q <= 1.0:
-        msg = f"Incorrect parameter q ({q}). q has to be in the range [0, 1]."
-        raise ValueError(msg)
+    validate_range(q, 0.0, 1.0, name="q")
     diff = target - prediction
     loss = q * diff.clamp_min(0.0) + (1.0 - q) * (diff.neg().clamp_min(0.0))
     return reduce_loss(loss, reduction)

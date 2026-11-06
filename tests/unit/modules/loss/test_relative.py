@@ -60,7 +60,7 @@ def test_relative_loss_reduction_none(device: str) -> None:
 
 
 def test_relative_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction:"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         RelativeLoss(criterion=nn.MSELoss(reduction="none"), reduction="incorrect")
 
 
@@ -172,7 +172,7 @@ def test_relative_mse_loss_reduction_none(device: str) -> None:
 
 
 def test_relative_mse_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction:"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         RelativeMSELoss(reduction="incorrect")
 
 
@@ -262,7 +262,7 @@ def test_relative_smooth_l1_loss_reduction_none(device: str) -> None:
 
 
 def test_relative_smooth_l1_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction:"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         RelativeSmoothL1Loss(reduction="incorrect")
 
 

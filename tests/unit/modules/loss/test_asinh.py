@@ -59,7 +59,7 @@ def test_asinh_mse_loss_reduction_none(device: str) -> None:
 
 
 def test_asinh_mse_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         AsinhMSELoss(reduction="incorrect")
 
 
@@ -124,7 +124,7 @@ def test_asinh_smooth_l1_loss_reduction_none(device: str) -> None:
 
 
 def test_asinh_smooth_l1_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         AsinhSmoothL1Loss(reduction="incorrect")
 
 

@@ -202,5 +202,5 @@ def test_reversed_relative_indicator_forward(device: str) -> None:
 
 
 def test_moment_mean_indicator_incorrect_k() -> None:
-    with pytest.raises(ValueError, match="Incorrect parameter k"):
+    with pytest.raises(ValueError, match="k must be greater than or equal to 1"):
         MomentMeanIndicator(k=0)

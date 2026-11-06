@@ -72,7 +72,7 @@ def test_relative_loss_reduction_none(device: str) -> None:
 def test_relative_loss_reduction_incorrect() -> None:
     prediction = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]], requires_grad=True)
     target = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]])
-    with pytest.raises(ValueError, match=r"Incorrect reduction:"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         relative_loss(
             loss=torch.nn.functional.mse_loss(prediction, target, reduction="none"),
             indicator=classical_relative_indicator(prediction, target),
@@ -294,5 +294,5 @@ def test_reversed_relative_indicator(device: str) -> None:
 
 @pytest.mark.parametrize("k", [0, -1])
 def test_moment_mean_indicator_incorrect_k(k: int) -> None:
-    with pytest.raises(ValueError, match="Incorrect parameter k"):
+    with pytest.raises(ValueError, match="k must be greater than or equal to 1"):
         moment_mean_indicator(torch.randn(2, 3), torch.randn(2, 3), k=k)

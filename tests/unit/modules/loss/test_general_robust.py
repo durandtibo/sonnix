@@ -41,7 +41,7 @@ def test_general_robust_regression_loss_scale_default() -> None:
 
 
 def test_general_robust_regression_loss_incorrect_scale() -> None:
-    with pytest.raises(ValueError, match=r"scale has to be greater than 0 but received"):
+    with pytest.raises(ValueError, match=r"scale must be greater than 0"):
         GeneralRobustRegressionLoss(scale=0)
 
 
@@ -55,7 +55,7 @@ def test_general_robust_regression_loss_reduction_default() -> None:
 
 
 def test_general_robust_regression_loss_incorrect_reduction() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         GeneralRobustRegressionLoss(reduction="incorrect")
 
 

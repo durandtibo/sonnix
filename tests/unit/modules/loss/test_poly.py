@@ -90,7 +90,7 @@ def test_binary_focal_loss_forward_reduction_none(device: str) -> None:
 
 
 def test_binary_focal_loss_forward_incorrect_reduction() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect reduction."):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         BinaryPoly1Loss(reduction="incorrect reduction")
 
 
@@ -204,7 +204,7 @@ def test_binary_focal_loss_with_logits_forward_reduction_none(device: str) -> No
 
 
 def test_binary_focal_loss_with_logits_forward_incorrect_reduction() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect reduction."):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         BinaryPoly1LossWithLogits(reduction="incorrect reduction")
 
 

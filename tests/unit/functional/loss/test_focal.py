@@ -75,7 +75,7 @@ def test_binary_focal_loss_reduction_none(device: str) -> None:
 
 
 def test_binary_focal_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         binary_focal_loss(torch.ones(2, 3), torch.ones(2, 3), reduction="incorrect")
 
 
@@ -190,7 +190,7 @@ def test_binary_focal_loss_with_logits_reduction_none(device: str) -> None:
 
 
 def test_binary_focal_loss_with_logits_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         binary_focal_loss_with_logits(torch.ones(2, 3), torch.ones(2, 3), reduction="incorrect")
 
 
@@ -246,13 +246,13 @@ def test_binary_focal_loss_with_logits_loss_backward(device: str) -> None:
 
 @pytest.mark.parametrize("loss", [binary_focal_loss, binary_focal_loss_with_logits])
 def test_binary_focal_loss_incorrect_alpha(loss: Callable) -> None:
-    with pytest.raises(ValueError, match="Incorrect parameter alpha"):
+    with pytest.raises(ValueError, match="alpha must be less than or equal to 1"):
         loss(torch.rand(2, 3), torch.ones(2, 3), alpha=5.0)
 
 
 @pytest.mark.parametrize("loss", [binary_focal_loss, binary_focal_loss_with_logits])
 def test_binary_focal_loss_incorrect_gamma(loss: Callable) -> None:
-    with pytest.raises(ValueError, match="Incorrect parameter gamma"):
+    with pytest.raises(ValueError, match="gamma must be greater than or equal to 0"):
         loss(torch.rand(2, 3), torch.ones(2, 3), gamma=-1.0)
 
 

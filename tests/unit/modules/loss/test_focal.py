@@ -33,7 +33,7 @@ def test_binary_focal_loss_valid_gamma(gamma: float) -> None:
 
 @pytest.mark.parametrize("gamma", [-1, -0.5])
 def test_binary_focal_loss_invalid_gamma(gamma: float) -> None:
-    with pytest.raises(ValueError, match=r"Incorrect parameter gamma"):
+    with pytest.raises(ValueError, match=r"gamma must be greater than or equal to 0"):
         BinaryFocalLoss(gamma=gamma)
 
 
@@ -101,7 +101,7 @@ def test_binary_focal_loss_forward_reduction_none(device: str) -> None:
 
 
 def test_binary_focal_loss_forward_incorrect_reduction() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect reduction."):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         BinaryFocalLoss(reduction="incorrect reduction")
 
 
@@ -180,7 +180,7 @@ def test_binary_focal_loss_with_logits_valid_gamma(gamma: float) -> None:
 
 @pytest.mark.parametrize("gamma", [-1, -0.5])
 def test_binary_focal_loss_with_logits_invalid_gamma(gamma: float) -> None:
-    with pytest.raises(ValueError, match=r"Incorrect parameter gamma"):
+    with pytest.raises(ValueError, match=r"gamma must be greater than or equal to 0"):
         BinaryFocalLossWithLogits(gamma=gamma)
 
 
@@ -248,7 +248,7 @@ def test_binary_focal_loss_with_logits_forward_reduction_none(device: str) -> No
 
 
 def test_binary_focal_loss_with_logits_forward_incorrect_reduction() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect reduction."):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         BinaryFocalLossWithLogits(reduction="incorrect reduction")
 
 
@@ -308,5 +308,5 @@ def test_binary_focal_loss_with_logits_backward(device: str) -> None:
 
 @pytest.mark.parametrize("loss", [BinaryFocalLoss, BinaryFocalLossWithLogits])
 def test_binary_focal_loss_module_incorrect_alpha(loss: type) -> None:
-    with pytest.raises(ValueError, match="Incorrect parameter alpha"):
+    with pytest.raises(ValueError, match="alpha must be less than or equal to 1"):
         loss(alpha=5.0)

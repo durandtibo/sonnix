@@ -84,7 +84,7 @@ def test_log_cosh_loss_reduction_none(device: str) -> None:
 
 
 def test_log_cosh_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect."):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         log_cosh_loss(torch.ones(2, 2), torch.ones(2, 2), reduction="incorrect")
 
 
@@ -158,7 +158,7 @@ def test_msle_loss_reduction_none(device: str) -> None:
 
 
 def test_msle_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         msle_loss(torch.ones(2, 2), torch.eye(2), reduction="incorrect")
 
 

@@ -70,7 +70,7 @@ def test_binary_poly1_loss_reduction_none(device: str) -> None:
 
 
 def test_binary_poly1_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         binary_poly1_loss(torch.ones(2, 3), torch.ones(2, 3), reduction="incorrect")
 
 
@@ -165,7 +165,7 @@ def test_binary_poly1_loss_with_logits_loss_reduction_none(device: str) -> None:
 
 
 def test_binary_poly1_loss_with_logits_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
+    with pytest.raises(ValueError, match=r"reduction must be one of"):
         binary_poly1_loss_with_logits(torch.ones(2, 3), torch.ones(2, 3), reduction="incorrect")
 
 
