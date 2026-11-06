@@ -19,6 +19,7 @@ from torch import nn
 
 from sonnix.functional.loss.relative import (
     arithmetical_mean_indicator,
+    check_moment_order,
     classical_relative_indicator,
     geometric_mean_indicator,
     maximum_mean_indicator,
@@ -227,6 +228,7 @@ class MomentMeanIndicator(BaseRelativeIndicator):
 
     def __init__(self, k: int = 1) -> None:
         super().__init__()
+        check_moment_order(k)
         self._k = k
 
     def extra_repr(self) -> str:

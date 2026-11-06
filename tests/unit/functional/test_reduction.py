@@ -114,3 +114,8 @@ def test_reduce_loss_none_shape(device: str, shape: tuple[int, ...]) -> None:
 def test_reduce_loss_reduction_incorrect() -> None:
     with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect."):
         reduce_loss(torch.ones(2, 2), reduction="incorrect")
+
+
+def test_reduce_loss_batchmean_0d() -> None:
+    with pytest.raises(ValueError, match="'batchmean' reduction requires"):
+        reduce_loss(torch.tensor(1.0), "batchmean")

@@ -47,6 +47,9 @@ class QuantileRegressionLoss(nn.Module):
         super().__init__()
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction
+        if not 0.0 <= q <= 1.0:
+            msg = f"Incorrect parameter q ({q}). q has to be in the range [0, 1]."
+            raise ValueError(msg)
         self._q = float(q)
 
     def extra_repr(self) -> str:

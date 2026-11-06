@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 import torch
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import binary_focal_loss, binary_focal_loss_with_logits
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 SHAPES = [(2,), (2, 3), (2, 3, 4)]
 
@@ -237,3 +242,15 @@ def test_binary_focal_loss_with_logits_loss_backward(device: str) -> None:
     )
     loss.backward()
     assert loss.allclose(torch.tensor(0.20943205058574677, device=device))
+
+
+@pytest.mark.parametrize("loss", [binary_focal_loss, binary_focal_loss_with_logits])
+def test_binary_focal_loss_incorrect_alpha(loss: Callable) -> None:
+    with pytest.raises(ValueError, match="Incorrect parameter alpha"):
+        loss(torch.rand(2, 3), torch.ones(2, 3), alpha=5.0)
+
+
+@pytest.mark.parametrize("loss", [binary_focal_loss, binary_focal_loss_with_logits])
+def test_binary_focal_loss_incorrect_gamma(loss: Callable) -> None:
+    with pytest.raises(ValueError, match="Incorrect parameter gamma"):
+        loss(torch.rand(2, 3), torch.ones(2, 3), gamma=-1.0)

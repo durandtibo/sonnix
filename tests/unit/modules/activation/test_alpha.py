@@ -57,7 +57,7 @@ def test_exp_sin_forward_init_1(device: str) -> None:
     assert objects_are_allclose(
         module(torch.tensor([-2.0, -1.0, 0.0, 1.0, 2.0], dtype=torch.float, device=device)),
         torch.tensor(
-            [0.40280712612352804, 0.43107595064559234, 1.0, 2.319776824715853, 2.4825777280150008],
+            [2.4825777280150008, 2.319776824715853, 1.0, 0.43107595064559234, 0.40280712612352804],
             dtype=torch.float,
             device=device,
         ),
@@ -71,7 +71,7 @@ def test_exp_sin_forward_init_2(device: str) -> None:
     assert objects_are_allclose(
         module(torch.tensor([-2.0, -1.0, 0.0, 1.0, 2.0], dtype=torch.float, device=device)),
         torch.tensor(
-            [2.1314499915144016, 0.40280712612352804, 1.0, 2.4825777280150008, 0.46916418587400077],
+            [0.46916418587400077, 2.4825777280150008, 1.0, 0.40280712612352804, 2.1314499915144016],
             dtype=torch.float,
             device=device,
         ),
@@ -383,3 +383,10 @@ def test_gaussian_learnable_alpha_is_parameter() -> None:
     module = Gaussian()
     assert module.learnable
     assert [n for n, _ in module.named_parameters()] == ["alpha"]
+
+
+@pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
+def test_gaussian_dtype(dtype: torch.dtype) -> None:
+    module = Gaussian(dtype=dtype)
+    assert module.alpha.dtype == dtype
+    assert module(torch.ones(2, 3, dtype=dtype)).dtype == dtype

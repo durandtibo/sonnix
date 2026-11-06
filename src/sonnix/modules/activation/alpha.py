@@ -36,6 +36,9 @@ class BaseAlphaActivation(nn.Module):
         init: The initial value of the learnable parameter(s).
         learnable: If ``True``, the parameters are learnt during the
             training, otherwise they are fixed.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -56,10 +59,22 @@ class BaseAlphaActivation(nn.Module):
         ```
     """
 
-    def __init__(self, num_parameters: int = 1, init: float = 1.0, learnable: bool = True) -> None:
+    def __init__(
+        self,
+        num_parameters: int = 1,
+        init: float = 1.0,
+        learnable: bool = True,
+        device: torch.device | None = None,
+        dtype: torch.dtype | None = None,
+    ) -> None:
         super().__init__()
         self.alpha: Tensor
-        alpha = torch.full((num_parameters,), init, dtype=torch.float)
+        alpha = torch.full(
+            (num_parameters,),
+            init,
+            device=device,
+            dtype=dtype if dtype is not None else torch.get_default_dtype(),
+        )
         if learnable:
             self.alpha = nn.Parameter(alpha)
         else:
@@ -108,20 +123,23 @@ class ExpSin(BaseAlphaActivation):
         ExpSin(num_parameters=1, learnable=True)
         >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
         >>> out
-        tensor([[1.0000, 2.3198, 2.4826, 1.1516],
-                [0.4692, 0.3833, 0.7562, 1.9290]], grad_fn=<ExpBackward0>)
+        tensor([[1.0000, 0.4311, 0.4028, 0.8684],
+                [2.1314, 2.6089, 1.3224, 0.5184]], grad_fn=<ExpBackward0>)
 
         ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.mul(self.alpha).sin().exp()
+        return input.mul(self.alpha).sin().neg().exp()
 
 
 class Gaussian(BaseAlphaActivation):
     r"""Implement the Gaussian activation layer.
 
     Formula: ``exp(-0.5 * x^2 / alpha^2)``
+
+    Note: the output is ``nan`` or ``inf`` if ``alpha`` reaches ``0``,
+    which can happen during training when ``alpha`` is learnable.
 
     This activation layer was proposed in the following paper:
 
@@ -164,6 +182,9 @@ class Laplacian(BaseAlphaActivation):
     r"""Implement the Laplacian activation layer.
 
     Formula: ``exp(-|x| / alpha)``
+
+    Note: the output is ``nan`` or ``inf`` if ``alpha`` reaches ``0``,
+    which can happen during training when ``alpha`` is learnable.
 
     This activation layer was proposed in the following paper:
 
