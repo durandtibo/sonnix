@@ -21,32 +21,56 @@ def test_exu_str() -> None:
 
 @pytest.mark.parametrize("in_features", SIZES)
 @pytest.mark.parametrize("out_features", SIZES)
-def test_exu_in_out_features(in_features: int, out_features: int) -> None:
+def test_exu_in_out_features_in_features(in_features: int, out_features: int) -> None:
     module = ExU(in_features=in_features, out_features=out_features)
     assert module.in_features == in_features
+
+
+@pytest.mark.parametrize("in_features", SIZES)
+@pytest.mark.parametrize("out_features", SIZES)
+def test_exu_in_out_features_value(in_features: int, out_features: int) -> None:
+    module = ExU(in_features=in_features, out_features=out_features)
     assert module.out_features == out_features
+
+
+@pytest.mark.parametrize("in_features", SIZES)
+@pytest.mark.parametrize("out_features", SIZES)
+def test_exu_in_out_features_shape(in_features: int, out_features: int) -> None:
+    module = ExU(in_features=in_features, out_features=out_features)
     assert module.weight.shape == (out_features, in_features)
     assert module.bias.shape == (in_features,)
 
 
 @pytest.mark.parametrize("device", get_available_devices())
-def test_exu_parameters_device_with_bias(device: str) -> None:
+def test_exu_parameters_device_with_bias_shape_dtype_device(device: str) -> None:
     device = torch.device(device)
     module = ExU(in_features=4, out_features=6, device=device).to(device=device)
     assert module.weight.shape == (6, 4)
     assert module.weight.dtype == torch.float
     assert module.weight.device == device
 
+
+@pytest.mark.parametrize("device", get_available_devices())
+def test_exu_parameters_device_with_bias_data(device: str) -> None:
+    device = torch.device(device)
+    module = ExU(in_features=4, out_features=6, device=device).to(device=device)
+
     assert objects_are_equal(module.bias.data, torch.zeros(4, device=device))
 
 
 @pytest.mark.parametrize("device", get_available_devices())
-def test_exu_parameters_device_without_bias(device: str) -> None:
+def test_exu_parameters_device_without_bias_shape_dtype_device(device: str) -> None:
     device = torch.device(device)
     module = ExU(in_features=4, out_features=6, bias=False, device=device).to(device=device)
     assert module.weight.shape == (6, 4)
     assert module.weight.dtype == torch.float
     assert module.weight.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+def test_exu_parameters_device_without_bias_value(device: str) -> None:
+    device = torch.device(device)
+    module = ExU(in_features=4, out_features=6, bias=False, device=device).to(device=device)
 
     assert module.bias is None
 
