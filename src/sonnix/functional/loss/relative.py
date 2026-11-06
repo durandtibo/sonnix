@@ -48,14 +48,8 @@ def relative_loss(
         indicator: The indicator values.
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Returns:
         The computed relative loss.

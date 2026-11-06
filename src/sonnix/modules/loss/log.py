@@ -28,14 +28,8 @@ class LogCoshLoss(BaseLoss):
     Args:
         scale: The scale factor. The value must be greater than 0.
             See ``sonnix.functional.log_cosh_loss``.
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Raises:
         ValueError: if ``scale`` is not greater than 0 or if the
@@ -77,14 +71,8 @@ class MSLELoss(BaseLoss):
     ``sonnix.functional.msle_loss``.
 
     Args:
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Raises:
         ValueError: if the reduction is not valid.

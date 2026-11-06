@@ -32,14 +32,8 @@ def asinh_mse_loss(
     Args:
         prediction: The predictions.
         target: The target values.
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Returns:
         The mean squared error (MSE) on the inverse hyperbolic sine
@@ -79,14 +73,8 @@ def asinh_smooth_l1_loss(
         target: The target values.
         beta: The threshold at which to change between L1 and L2 loss.
             The value must be non-negative.
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Returns:
         The smooth L1 loss on the inverse hyperbolic sine (asinh)

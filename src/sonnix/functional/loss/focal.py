@@ -48,14 +48,8 @@ def binary_focal_loss(
             ``[0, 1]``. ``None`` disables the weighting.
         gamma: The focusing parameter, which must be positive
             (``>=0``).
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Returns:
         The computed binary focal loss. The shape of the tensor depends
@@ -116,14 +110,8 @@ def binary_focal_loss_with_logits(
             ``[0, 1]``. ``None`` disables the weighting.
         gamma: The focusing parameter, which must be positive
             (``>=0``).
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Returns:
         The computed binary focal loss. The shape of the tensor depends

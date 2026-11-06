@@ -43,14 +43,8 @@ def binary_poly1_loss(
         alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
             probability of the target class. The loss is
             ``cross_entropy + alpha * (1 - p_t)``.
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Returns:
         The computed Poly-1 loss value. The shape of the tensor depends
@@ -103,14 +97,8 @@ def binary_poly1_loss_with_logits(
         alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
             probability of the target class. The loss is
             ``cross_entropy + alpha * (1 - p_t)``.
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Returns:
         The computed Poly-1 loss value. The shape of the tensor depends

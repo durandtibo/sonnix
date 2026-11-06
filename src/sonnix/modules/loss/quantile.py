@@ -29,14 +29,8 @@ class QuantileRegressionLoss(BaseLoss):
         q: The quantile value. ``q=0.5`` gives half of the Mean
             Absolute Error (MAE), because the loss is
             ``max(q * d, (q - 1) * d)`` with ``d = target - prediction``.
-        reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``, ``'sum'``,
-            and ``'batchmean'``.
-            ``'none'``: no reduction will be applied, ``'mean'``: the
-            sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Example:
         ```pycon
