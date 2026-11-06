@@ -58,7 +58,8 @@
   with a message naming the argument and the received value) when `coola.validation` cannot
   express it. Use `RuntimeError` only for state errors.
 - Losses accept `reduction` in `none`/`mean`/`sum`/`batchmean` and go through
-  `sonnix.functional.reduction.reduce_loss` / `check_loss_reduction_strategy`.
+  `sonnix.functional.reduce_loss` (which validates the reduction) or, to validate only,
+  `sonnix.validation.validate_loss_reduction_strategy`.
 - Modules that create their own tensors accept `device` and `dtype`; frozen tensors are buffers
   (`register_buffer`), not `nn.Parameter(requires_grad=False)`.
 - Use `x is None` (not `x or default`) for optional modules and configs.
