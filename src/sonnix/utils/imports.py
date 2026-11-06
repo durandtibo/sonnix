@@ -9,7 +9,7 @@ __all__ = [
     "raise_error_objectory_missing",
 ]
 
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import TYPE_CHECKING, Any, Never
 
 from coola.utils.imports import decorator_package_available, package_available
 
@@ -80,7 +80,7 @@ def objectory_available(fn: Callable[..., Any]) -> Callable[..., Any]:
     return decorator_package_available(fn, is_objectory_available)
 
 
-def raise_error_objectory_missing() -> NoReturn:
+def raise_error_objectory_missing() -> Never:
     r"""Raise a RuntimeError to indicate the ``objectory`` package is
     missing."""
     msg = (

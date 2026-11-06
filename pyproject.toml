@@ -30,7 +30,6 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -43,7 +42,7 @@ classifiers = [
 
 dynamic = ["maintainers"]
 
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 dependencies = [
     "coola>=1.1.10,<2.0",
@@ -209,7 +208,7 @@ lint.ignore = [
 lint.extend-select = ["D400", "D401", "D404"]
 
 line-length = 100
-target-version = "py310"
+target-version = "py311"
 src = ["src"]
 
 [tool.ruff.lint.per-file-ignores]
