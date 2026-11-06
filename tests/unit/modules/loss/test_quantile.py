@@ -6,6 +6,7 @@ from coola.equality import objects_are_allclose, objects_are_equal
 from coola.utils.tensor import get_available_devices
 
 from sonnix.modules import QuantileRegressionLoss
+from tests.helpers import make_generator
 
 ############################################
 #     Tests for QuantileRegressionLoss     #
@@ -78,7 +79,7 @@ def test_quantile_regression_loss_module_incorrect_q(q: float) -> None:
 
 
 def test_quantile_regression_loss_median_is_half_of_l1_loss() -> None:
-    generator = torch.Generator().manual_seed(1)
+    generator = make_generator(1)
     prediction = torch.randn(6, 5, generator=generator)
     target = torch.randn(6, 5, generator=generator)
     assert QuantileRegressionLoss(q=0.5)(prediction, target).allclose(

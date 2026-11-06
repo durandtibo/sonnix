@@ -7,6 +7,7 @@ from torch.nn import MSELoss
 
 from sonnix.modules import NLinear
 from sonnix.utils.loss import is_loss_decreasing_with_adam
+from tests.helpers import make_generator
 
 
 def test_nlinear_loss() -> None:
@@ -36,21 +37,21 @@ def _nlinear_and_linears(bias: bool) -> tuple[NLinear, nn.ModuleList]:
 @pytest.mark.parametrize("bias", [True, False])
 def test_nlinear_equals_n_linear_modules(bias: bool) -> None:
     module, linears = _nlinear_and_linears(bias)
-    x = torch.randn(6, 3, 4, generator=torch.Generator().manual_seed(1))
+    x = torch.randn(6, 3, 4, generator=make_generator(1))
     expected = torch.stack([linear(x[:, i]) for i, linear in enumerate(linears)], dim=1)
     assert module(x).allclose(expected, atol=1e-6)
 
 
 def test_nlinear_equals_n_linear_modules_extra_dimensions() -> None:
     module, linears = _nlinear_and_linears(bias=True)
-    x = torch.randn(2, 6, 3, 4, generator=torch.Generator().manual_seed(1))
+    x = torch.randn(2, 6, 3, 4, generator=make_generator(1))
     expected = torch.stack([linear(x[..., i, :]) for i, linear in enumerate(linears)], dim=-2)
     assert module(x).allclose(expected, atol=1e-6)
 
 
 def test_nlinear_gradient_equals_n_linear_modules() -> None:
     module, linears = _nlinear_and_linears(bias=True)
-    x = torch.randn(6, 3, 4, generator=torch.Generator().manual_seed(1))
+    x = torch.randn(6, 3, 4, generator=make_generator(1))
     module(x).sum().backward()
     torch.stack([linear(x[:, i]) for i, linear in enumerate(linears)], dim=1).sum().backward()
     expected = torch.stack([linear.weight.grad.t() for linear in linears])

@@ -16,6 +16,7 @@ import torch
 from torch import nn
 
 from sonnix import modules as sm
+from tests.helpers import make_generator, normal_pair, positive_pair
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -44,39 +45,30 @@ class ModuleCase:
         return self.name
 
 
-def _generator() -> torch.Generator:
-    return torch.Generator().manual_seed(42)
-
-
 def _positive(*shape: int) -> Callable[[], tuple[torch.Tensor, ...]]:
     def make() -> tuple[torch.Tensor, ...]:
-        return (torch.rand(*shape, generator=_generator()) + 0.5,)
+        return (torch.rand(*shape, generator=make_generator()) + 0.5,)
 
     return make
 
 
 def _normal(*shape: int) -> Callable[[], tuple[torch.Tensor, ...]]:
     def make() -> tuple[torch.Tensor, ...]:
-        return (torch.randn(*shape, generator=_generator()),)
+        return (torch.randn(*shape, generator=make_generator()),)
 
     return make
 
 
 def _pair_positive() -> tuple[torch.Tensor, ...]:
-    generator = _generator()
-    return (
-        torch.rand(4, 3, generator=generator) + 0.5,
-        torch.rand(4, 3, generator=generator) + 0.5,
-    )
+    return positive_pair(4, 3)
 
 
 def _pair_normal() -> tuple[torch.Tensor, ...]:
-    generator = _generator()
-    return torch.randn(4, 3, generator=generator), torch.randn(4, 3, generator=generator)
+    return normal_pair(4, 3)
 
 
 def _pair_probability() -> tuple[torch.Tensor, ...]:
-    generator = _generator()
+    generator = make_generator()
     return (
         torch.rand(4, 3, generator=generator) * 0.8 + 0.1,
         torch.randint(0, 2, (4, 3), generator=generator).float(),
@@ -84,7 +76,7 @@ def _pair_probability() -> tuple[torch.Tensor, ...]:
 
 
 def _pair_logits() -> tuple[torch.Tensor, ...]:
-    generator = _generator()
+    generator = make_generator()
     return (
         torch.randn(4, 3, generator=generator),
         torch.randint(0, 2, (4, 3), generator=generator).float(),
@@ -92,7 +84,7 @@ def _pair_logits() -> tuple[torch.Tensor, ...]:
 
 
 def _triple_normal() -> tuple[torch.Tensor, ...]:
-    generator = _generator()
+    generator = make_generator()
     return tuple(torch.randn(4, 3, generator=generator) for _ in range(2))
 
 

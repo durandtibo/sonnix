@@ -7,6 +7,7 @@ import torch
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import binary_focal_loss, binary_focal_loss_with_logits
+from tests.helpers import make_generator
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -289,7 +290,7 @@ def test_binary_focal_loss_with_logits_gamma_zero_is_cross_entropy() -> None:
 
 
 def test_binary_focal_loss_with_logits_matches_probability_version_soft_target() -> None:
-    generator = torch.Generator().manual_seed(1)
+    generator = make_generator(1)
     logits = torch.randn(6, 5, generator=generator, dtype=torch.float64)
     target = torch.rand(6, 5, generator=generator, dtype=torch.float64)
     assert binary_focal_loss_with_logits(logits, target).allclose(
@@ -298,7 +299,7 @@ def test_binary_focal_loss_with_logits_matches_probability_version_soft_target()
 
 
 def test_binary_focal_loss_with_logits_soft_target_reduction_none() -> None:
-    generator = torch.Generator().manual_seed(2)
+    generator = make_generator(2)
     logits = torch.randn(6, 5, generator=generator, dtype=torch.float64)
     target = torch.rand(6, 5, generator=generator, dtype=torch.float64)
     assert binary_focal_loss_with_logits(logits, target, reduction="none").allclose(
