@@ -23,6 +23,14 @@ def test_flatten_multiclass_forward_args() -> None:
     assert objects_are_equal(module.call_args.args, (torch.ones(12, 4), torch.zeros(12)))
 
 
+def test_flatten_multiclass_forward_non_contiguous_prediction() -> None:
+    module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
+    net = MulticlassFlatten(module)
+    prediction = torch.arange(48, dtype=torch.float).view(4, 6, 2).transpose(0, 1)
+    net(prediction, torch.zeros(6, 4))
+    assert objects_are_equal(module.call_args.args[0], prediction.reshape(24, 2))
+
+
 def test_flatten_multiclass_forward_kwargs() -> None:
     module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
     net = MulticlassFlatten(module)
