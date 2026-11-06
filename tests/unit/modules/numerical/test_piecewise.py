@@ -443,3 +443,46 @@ def test_piecewise_linear_numerical_encoder_from_quantiles_does_not_modify_the_i
     x = torch.tensor([[3.0], [1.0], [2.0]])
     PiecewiseLinearNumericalEncoder.from_quantiles(x, n_bins=3)
     assert objects_are_equal(x, torch.tensor([[3.0], [1.0], [2.0]]))
+
+
+@pytest.mark.parametrize(
+    ("bins", "lower", "upper"),
+    [
+        ([[1.0]], [-torch.inf], [torch.inf]),
+        ([[1.0, 2.0]], [-torch.inf], [torch.inf]),
+        ([[1.0, 2.0, 4.0]], [-torch.inf, 0.0], [1.0, torch.inf]),
+        ([[1.0, 2.0, 4.0, 8.0]], [-torch.inf, 0.0, 0.0], [1.0, 1.0, torch.inf]),
+    ],
+)
+def test_piecewise_linear_numerical_encoder_clamp_bounds(
+    bins: list[list[float]], lower: list[float], upper: list[float]
+) -> None:
+    module = PiecewiseLinearNumericalEncoder(torch.tensor(bins))
+    assert objects_are_equal(
+        (module.lower, module.upper), (torch.tensor(lower), torch.tensor(upper))
+    )
+
+
+def test_piecewise_linear_numerical_encoder_clamp_bounds_not_in_state_dict() -> None:
+    module = PiecewiseLinearNumericalEncoder(torch.tensor([[1.0, 2.0, 4.0]]))
+    assert sorted(module.state_dict()) == ["edges", "width"]
+
+
+def test_piecewise_linear_numerical_encoder_clamp_bounds_follow_dtype() -> None:
+    module = PiecewiseLinearNumericalEncoder(torch.tensor([[1.0, 2.0, 4.0]])).to(torch.float64)
+    assert module.lower.dtype == torch.float64
+
+
+def test_piecewise_linear_numerical_encoder_forward_matches_reference() -> None:
+    bins = torch.tensor([[1.0, 2.0, 4.0, 8.0], [0.0, 2.0, 4.0, 6.0]])
+    x = torch.tensor([[-5.0, 100.0], [1.5, 3.0], [2.0, 4.0], [9.0, -1.0]])
+    expected = (x[..., None] - bins[:, :-1]) / bins.diff()
+    expected = torch.cat(
+        [
+            expected[..., :1].clamp_max(1.0),
+            expected[..., 1:-1].clamp(0.0, 1.0),
+            expected[..., -1:].clamp_min(0.0),
+        ],
+        dim=-1,
+    )
+    assert PiecewiseLinearNumericalEncoder(bins)(x).allclose(expected)
