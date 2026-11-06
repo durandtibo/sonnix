@@ -18,7 +18,7 @@ All notable changes to this project are documented in this file. The package is 
 ### Fixed
 
 - `log_cosh_loss` validates `scale` like `LogCoshLoss` does: `scale <= 0` raises a `ValueError` instead
-  of returning `nan` or a negative loss (review 2.3, #PR).
+  of returning `nan` or a negative loss (review 2.3, #358).
 - `general_robust_regression_loss` and `GeneralRobustRegressionLoss` reject `alpha` equal to `NaN` or
   `+inf` and a non-positive `max_val` (review 2.2, #357).
 - `geometric_mean_indicator` and `moment_mean_indicator` no longer overflow in half precision, for
