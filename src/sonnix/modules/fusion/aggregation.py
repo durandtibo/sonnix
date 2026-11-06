@@ -4,11 +4,15 @@ from __future__ import annotations
 
 __all__ = ["AverageFusion", "MultiplicationFusion", "SumFusion"]
 
-import torch
-from torch import nn
+from typing import TYPE_CHECKING
+
+from sonnix.modules.fusion.base import BaseFusion
+
+if TYPE_CHECKING:
+    import torch
 
 
-class MultiplicationFusion(nn.Module):
+class MultiplicationFusion(BaseFusion):
     r"""Implement a fusion layer that multiplies the inputs.
 
     Example:
@@ -29,21 +33,15 @@ class MultiplicationFusion(nn.Module):
         ```
     """
 
-    def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
-        if not inputs:
-            msg = f"{self.__class__.__qualname__} needs at least one tensor as input"
-            raise ValueError(msg)
+    def fuse(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
         output = inputs[0]
         for xi in inputs[1:]:
             output = output.mul(xi)
         return output
 
 
-class SumFusion(nn.Module):
+class SumFusion(BaseFusion):
     r"""Implement a layer to sum the inputs.
-
-    Args:
-        normalized: The output is normalized by the number of inputs.
 
     Example:
         ```pycon
@@ -51,7 +49,7 @@ class SumFusion(nn.Module):
         >>> from sonnix.modules import SumFusion
         >>> module = SumFusion()
         >>> module
-        SumFusion(normalized=False)
+        SumFusion()
         >>> x1 = torch.tensor([[2.0, 3.0, 4.0], [5.0, 6.0, 7.0]], requires_grad=True)
         >>> x2 = torch.tensor([[12.0, 13.0, 14.0], [15.0, 16.0, 17.0]], requires_grad=True)
         >>> out = module(x1, x2)
@@ -63,28 +61,14 @@ class SumFusion(nn.Module):
         ```
     """
 
-    def __init__(self, normalized: bool = False) -> None:
-        super().__init__()
-        self.normalized = bool(normalized)
-
-    def extra_repr(self) -> str:
-        return f"normalized={self.normalized}"
-
-    def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
-        if not inputs:
-            msg = f"{self.__class__.__qualname__} needs at least one tensor as input"
-            raise ValueError(msg)
-
+    def fuse(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
         output = inputs[0]
         for x in inputs[1:]:
             output = output.add(x)
-
-        if self.normalized:
-            output = output.div(len(inputs))
         return output
 
 
-class AverageFusion(SumFusion):
+class AverageFusion(BaseFusion):
     r"""Implement a layer to average the inputs.
 
     Example:
@@ -93,7 +77,7 @@ class AverageFusion(SumFusion):
         >>> from sonnix.modules import AverageFusion
         >>> module = AverageFusion()
         >>> module
-        AverageFusion(normalized=True)
+        AverageFusion()
         >>> x1 = torch.tensor([[2.0, 3.0, 4.0], [5.0, 6.0, 7.0]], requires_grad=True)
         >>> x2 = torch.tensor([[12.0, 13.0, 14.0], [15.0, 16.0, 17.0]], requires_grad=True)
         >>> out = module(x1, x2)
@@ -105,5 +89,8 @@ class AverageFusion(SumFusion):
         ```
     """
 
-    def __init__(self) -> None:
-        super().__init__(normalized=True)
+    def fuse(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
+        output = inputs[0]
+        for x in inputs[1:]:
+            output = output.add(x)
+        return output.div(len(inputs))

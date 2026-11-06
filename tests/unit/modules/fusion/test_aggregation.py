@@ -202,3 +202,29 @@ def test_sum_fusion_backward(device: str) -> None:
     )
     out.mean().backward()
     assert objects_are_equal(out, torch.ones(2, 4, device=device).mul(3))
+
+
+def test_sum_fusion_repr() -> None:
+    assert repr(SumFusion()) == "SumFusion()"
+
+
+def test_sum_fusion_no_normalized_argument() -> None:
+    with pytest.raises(TypeError, match=r"normalized"):
+        SumFusion(normalized=True)
+
+
+def test_average_fusion_repr() -> None:
+    assert repr(AverageFusion()) == "AverageFusion()"
+
+
+def test_average_fusion_is_not_sum_fusion() -> None:
+    assert not isinstance(AverageFusion(), SumFusion)
+
+
+def test_average_fusion_forward_values() -> None:
+    assert objects_are_equal(
+        AverageFusion()(
+            torch.tensor([1.0, 2.0]), torch.tensor([3.0, 6.0]), torch.tensor([5.0, 1.0])
+        ),
+        torch.tensor([3.0, 3.0]),
+    )

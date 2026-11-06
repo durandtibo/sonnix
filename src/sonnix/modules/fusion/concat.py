@@ -5,10 +5,11 @@ from __future__ import annotations
 __all__ = ["ConcatFusion"]
 
 import torch
-from torch import nn
+
+from sonnix.modules.fusion.base import BaseFusion
 
 
-class ConcatFusion(nn.Module):
+class ConcatFusion(BaseFusion):
     r"""Implement a module to concatenate inputs.
 
     Args:
@@ -39,8 +40,5 @@ class ConcatFusion(nn.Module):
     def extra_repr(self) -> str:
         return f"dim={self.dim}"
 
-    def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
-        if not inputs:
-            msg = f"{self.__class__.__qualname__} needs at least one tensor as input"
-            raise ValueError(msg)
+    def fuse(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
         return torch.cat(inputs, dim=self.dim)
