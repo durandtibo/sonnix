@@ -27,7 +27,6 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Changed
 
-- The `coola` dependency is capped (`<2.1`) because pre-releases can rename public functions.
 - `BaseLoss.extra_repr` returns `reduction=...` and the losses extend it, so the representation of
   every loss starts with `reduction=...` followed by its hyperparameters.
 
