@@ -60,7 +60,7 @@ def test_poisson_regression_loss_zero(device: str) -> None:
     device = torch.device(device)
     criterion = PoissonRegressionLoss().to(device=device)
     loss = criterion(torch.zeros(2, 2, device=device), torch.zeros(2, 2, device=device))
-    assert loss.equal(torch.tensor(0.0, device=device))
+    assert loss.allclose(torch.tensor(1e-8, device=device))
 
 
 @pytest.mark.parametrize("device", get_available_devices())
@@ -86,4 +86,23 @@ def test_poisson_regression_loss_invalid_eps(eps: float) -> None:
 
 
 def test_poisson_regression_loss_extra_repr() -> None:
-    assert PoissonRegressionLoss(eps=0.001).extra_repr() == "reduction=mean, eps=0.001"
+    assert PoissonRegressionLoss(eps=0.001).extra_repr() == (
+        "reduction=mean, eps=0.001, log_input=False"
+    )
+
+
+def test_poisson_regression_loss_extra_repr_log_input() -> None:
+    assert PoissonRegressionLoss(log_input=True).extra_repr() == (
+        "reduction=mean, eps=1e-08, log_input=True"
+    )
+
+
+def test_poisson_regression_loss_log_input_default() -> None:
+    assert not PoissonRegressionLoss().log_input
+
+
+def test_poisson_regression_loss_log_input_forward() -> None:
+    criterion = PoissonRegressionLoss(log_input=True)
+    assert criterion(torch.tensor([0.5]), torch.tensor([2.0])).allclose(
+        torch.tensor(0.6487212707001282)
+    )
