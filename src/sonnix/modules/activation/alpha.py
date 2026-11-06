@@ -117,7 +117,7 @@ class BaseAlphaActivation(nn.Module):
         r"""Indicate if ``alpha`` is learnable."""
         return isinstance(self.alpha, nn.Parameter)
 
-    def broadcast_alpha(self, input: torch.Tensor) -> Tensor:  # noqa: A002
+    def _broadcast_alpha(self, input: torch.Tensor) -> Tensor:  # noqa: A002
         r"""Return ``alpha`` reshaped to broadcast with the input.
 
         Args:
@@ -187,7 +187,7 @@ class ExpSin(BaseAlphaActivation):
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.mul(self.broadcast_alpha(input)).sin().neg().exp()
+        return input.mul(self._broadcast_alpha(input)).sin().neg().exp()
 
 
 class Gaussian(BaseAlphaActivation):
@@ -245,7 +245,7 @@ class Gaussian(BaseAlphaActivation):
     allow_zero_init = False
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.pow(2).mul(-0.5).div(self.broadcast_alpha(input).pow(2)).exp()
+        return input.pow(2).mul(-0.5).div(self._broadcast_alpha(input).pow(2)).exp()
 
 
 class Laplacian(BaseAlphaActivation):
@@ -304,7 +304,7 @@ class Laplacian(BaseAlphaActivation):
     allow_negative_init = False
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.abs().mul(-1).div(self.broadcast_alpha(input)).exp()
+        return input.abs().mul(-1).div(self._broadcast_alpha(input)).exp()
 
 
 class MultiQuadratic(BaseAlphaActivation):
@@ -353,7 +353,7 @@ class MultiQuadratic(BaseAlphaActivation):
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return 1.0 / input.mul(self.broadcast_alpha(input)).pow(2).add(1).sqrt()
+        return 1.0 / input.mul(self._broadcast_alpha(input)).pow(2).add(1).sqrt()
 
 
 class Quadratic(BaseAlphaActivation):
@@ -402,4 +402,4 @@ class Quadratic(BaseAlphaActivation):
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return 1.0 / input.mul(self.broadcast_alpha(input)).pow(2).add(1)
+        return 1.0 / input.mul(self._broadcast_alpha(input)).pow(2).add(1)

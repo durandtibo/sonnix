@@ -35,6 +35,7 @@ __all__ = [
     "reversed_relative_indicator",
     "safe_exp",
     "safe_log",
+    "safe_pow",
     "symmetric_absolute_relative_error",
 ]
 
@@ -64,4 +65,5 @@ from sonnix.functional.loss.relative import (
     relative_loss,
     reversed_relative_indicator,
 )
+from sonnix.functional.power import safe_pow
 from sonnix.functional.reduction import Reduction, reduce_loss

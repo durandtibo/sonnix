@@ -12,8 +12,8 @@ import torch
 from sonnix.functional.reduction import reduce_loss
 from sonnix.validation import validate_general_robust_params
 
-# ``alpha`` values closer than ``ALPHA_EPS`` to 0 or 2 use the limit formulas.
-ALPHA_EPS = 1e-5
+# ``alpha`` values closer than ``_ALPHA_EPS`` to 0 or 2 use the limit formulas.
+_ALPHA_EPS = 1e-5
 
 
 if TYPE_CHECKING:
@@ -87,9 +87,9 @@ def general_robust_regression_loss(
     """
     validate_general_robust_params(alpha, scale, max_val)
     squared_error = prediction.sub(target).div(scale).pow(2)
-    if abs(alpha - 2) < ALPHA_EPS:
+    if abs(alpha - 2) < _ALPHA_EPS:
         loss = squared_error
-    elif abs(alpha) < ALPHA_EPS:
+    elif abs(alpha) < _ALPHA_EPS:
         loss = squared_error.mul(0.5).log1p()
     elif alpha == float("-inf"):
         loss = -torch.expm1(squared_error.mul(-0.5))

@@ -27,6 +27,19 @@ def safe_pow(x: torch.Tensor, exponent: float) -> torch.Tensor:
 
     Raises:
         ValueError: if the exponent is negative.
+
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional import safe_pow
+        >>> x = torch.tensor([0.0, 4.0], requires_grad=True)
+        >>> safe_pow(x, 0.5)
+        tensor([0., 2.], grad_fn=<WhereBackward0>)
+        >>> safe_pow(x, 0.5).sum().backward()
+        >>> x.grad
+        tensor([0.0000, 0.2500])
+
+        ```
     """
     validate_ge(exponent, 0, name="exponent")
     if exponent == 0:

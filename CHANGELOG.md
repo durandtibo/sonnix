@@ -7,6 +7,9 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- `safe_pow` is exported from `sonnix.functional`. The implementation details `ALPHA_EPS`, `SPACINGS` and
+  `BaseAlphaActivation.broadcast_alpha` are private (`_ALPHA_EPS`, `_SPACINGS`, `_broadcast_alpha`)
+  (review 3.3, #366).
 - `Square` is an independent module instead of a subclass of `Pow`: it has no `exponent` attribute anymore.
   `DynamicTanh`, `DynamicAsinh` and the user subclasses of `BaseDynamicNorm` apply the affine transformation
   with the new `ScaleAndShift._affine` method instead of `ScaleAndShift.forward(self, ...)` (review 3.2, #365).
