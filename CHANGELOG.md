@@ -33,7 +33,6 @@ All notable changes to this project are documented in this file. The package is 
 
 - `PoissonRegressionLoss` and `poisson_regression_loss` have a keyword-only `log_input` option, and the
   representation of the module shows `log_input` (review 2.4, #359).
-- The `coola` dependency is capped (`<2.1`) because pre-releases can rename public functions.
 - `BaseLoss.extra_repr` returns `reduction=...` and the losses extend it, so the representation of
   every loss starts with `reduction=...` followed by its hyperparameters.
 
