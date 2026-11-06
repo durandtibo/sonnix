@@ -54,3 +54,10 @@ def test_transformed_loss_shape(device: str, shape: tuple[int, ...]) -> None:
     criterion = TransformedLoss(criterion=nn.MSELoss(), prediction=Asinh(), target=Asinh())
     loss = criterion(torch.ones(*shape, device=device), torch.ones(*shape, device=device))
     assert objects_are_equal(loss, torch.tensor(0.0, device=device))
+
+
+def test_transformed_loss_empty_sequential_is_kept() -> None:
+    prediction, target = nn.Sequential(), nn.Sequential()
+    module = TransformedLoss(criterion=nn.MSELoss(), prediction=prediction, target=target)
+    assert module.prediction is prediction
+    assert module.target is target

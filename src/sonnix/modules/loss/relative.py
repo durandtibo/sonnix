@@ -70,7 +70,9 @@ class RelativeLoss(nn.Module):
     ) -> None:
         super().__init__()
         self.criterion: nn.Module = setup_module(criterion)
-        self.indicator: nn.Module = setup_module(indicator or ClassicalRelativeIndicator())
+        self.indicator: nn.Module = setup_module(
+            ClassicalRelativeIndicator() if indicator is None else indicator
+        )
 
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction

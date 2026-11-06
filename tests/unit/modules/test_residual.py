@@ -53,3 +53,9 @@ def test_residual_block_forward_skip(device: str, batch_size: int, mode: bool) -
     assert out.shape == (batch_size, 4)
     assert out.device == device
     assert out.dtype == torch.float
+
+
+def test_residual_block_empty_sequential_skip_is_kept() -> None:
+    skip = nn.Sequential()
+    module = ResidualBlock(residual=nn.Linear(4, 4), skip=skip)
+    assert module.skip is skip
