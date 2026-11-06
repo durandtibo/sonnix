@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
     from torch import Tensor
 
-SPACINGS = ("rand", "linspace", "logspace")
+_SPACINGS = ("rand", "linspace", "logspace")
 
 
 class CosSinNumericalEncoder(nn.Module):
@@ -209,7 +209,7 @@ class CosSinNumericalEncoder(nn.Module):
 
             ```
         """
-        validate_in(spacing, SPACINGS, name="spacing")
+        validate_in(spacing, _SPACINGS, name="spacing")
         msg = "Exactly one of 'frequency_range' and 'value_range' has to be provided"
         if frequency_range is not None and value_range is not None:
             raise ValueError(msg)

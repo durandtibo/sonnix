@@ -60,7 +60,7 @@
 
 ## Utility
 
-### ::: sonnix.functional.power.safe_pow
+### ::: sonnix.functional.safe_pow
 
 ## All
 

@@ -65,5 +65,5 @@ class Snake(BaseAlphaActivation):
     allow_zero_init = False
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        alpha = self.broadcast_alpha(input)
+        alpha = self._broadcast_alpha(input)
         return input + input.mul(alpha).sin().square().div(alpha)

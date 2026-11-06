@@ -469,22 +469,22 @@ def test_alpha_activation_extra_repr_single_parameter() -> None:
 
 def test_alpha_activation_broadcast_alpha_single_parameter() -> None:
     module = Gaussian(init=2.0)
-    assert module.broadcast_alpha(torch.ones(2, 3, 4)).equal(module.alpha)
+    assert module._broadcast_alpha(torch.ones(2, 3, 4)).equal(module.alpha)
 
 
 def test_alpha_activation_broadcast_alpha_channel_dim_1() -> None:
     module = Gaussian(num_parameters=3, channel_dim=1)
-    assert module.broadcast_alpha(torch.ones(2, 3, 4)).shape == (1, 3, 1)
+    assert module._broadcast_alpha(torch.ones(2, 3, 4)).shape == (1, 3, 1)
 
 
 def test_alpha_activation_broadcast_alpha_channel_dim_last() -> None:
     module = Gaussian(num_parameters=4)
-    assert module.broadcast_alpha(torch.ones(2, 3, 4)).shape == (1, 1, 4)
+    assert module._broadcast_alpha(torch.ones(2, 3, 4)).shape == (1, 1, 4)
 
 
 def test_alpha_activation_broadcast_alpha_1d_input() -> None:
     module = Gaussian(num_parameters=4)
-    assert module.broadcast_alpha(torch.ones(4)).shape == (4,)
+    assert module._broadcast_alpha(torch.ones(4)).shape == (4,)
 
 
 ##############################################
