@@ -97,7 +97,8 @@ class CosSinNumericalEncoder(nn.Module):
 
     @property
     def learnable(self) -> bool:
-        r"""Indicate if the frequencies and phase-shifts are learnable."""
+        r"""Indicate if the frequencies and phase-shifts are
+        learnable."""
         return isinstance(self.frequency, nn.Parameter)
 
     def _register_tensor(self, name: str, value: Tensor, learnable: bool) -> None:
