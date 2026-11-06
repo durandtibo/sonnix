@@ -9,7 +9,7 @@ from typing import Any
 
 from coola.utils.tensor import get_available_devices
 
-DEVICES_WITHOUT_MPS = (d for d in get_available_devices() if not d.startswith("mps:"))
+DEVICES_WITHOUT_MPS = tuple(d for d in get_available_devices() if not d.startswith("mps:"))
 
 
 @dataclass

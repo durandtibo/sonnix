@@ -62,12 +62,13 @@ class NLinear(nn.Module):
         dtype: torch.dtype | None = None,
     ) -> None:
         super().__init__()
-        factory_kwargs = {"device": device, "dtype": dtype}
         self.weight: nn.Parameter = nn.Parameter(
-            torch.empty((n, in_features, out_features), **factory_kwargs)
+            torch.empty((n, in_features, out_features), device=device, dtype=dtype)
         )
         if bias:
-            self.bias: nn.Parameter = nn.Parameter(torch.empty(n, out_features, **factory_kwargs))
+            self.bias: nn.Parameter = nn.Parameter(
+                torch.empty(n, out_features, device=device, dtype=dtype)
+            )
         else:
             self.register_parameter("bias", None)
         self.reset_parameters()
