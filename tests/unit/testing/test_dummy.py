@@ -14,9 +14,13 @@ def test_dummy_dataset_len() -> None:
     assert len(DummyDataset(feature_size=3, num_examples=5)) == 5
 
 
-def test_dummy_dataset_getitem_shapes() -> None:
+def test_dummy_dataset_getitem_shapes_shape() -> None:
     example = DummyDataset(feature_size=3, num_examples=5)[0]
     assert example["feature"].shape == (3,)
+
+
+def test_dummy_dataset_getitem_shapes_shape_2() -> None:
+    example = DummyDataset(feature_size=3, num_examples=5)[0]
     assert example["target"].shape == (1,)
 
 
