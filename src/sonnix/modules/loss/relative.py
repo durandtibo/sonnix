@@ -16,7 +16,7 @@ from sonnix.utils.factory import resolve_module
 
 if TYPE_CHECKING:
     from sonnix.functional.reduction import Reduction
-    from sonnix.modules.loss import BaseRelativeIndicator
+    from sonnix.modules.loss.indicators import BaseRelativeIndicator
 
 
 class RelativeLoss(BaseLoss):

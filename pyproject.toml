@@ -50,7 +50,7 @@ dev = [
   "coverage[toml]>=7.17.0,<8.0",
   "docformatter>=1.7.8,<2.0",
   "feu[all]>=0.8.4,<1.0",
-  "import-linter>=2.0,<3.0; python_full_version >= '3.14'",
+  "import-linter>=2.0,<3.0",
   "invoke-tasklib>=0.1.0a0,<1.0",
   "invoke>=3.0,<4.0",
   "pre-commit>=4.6,<5.0",
@@ -135,6 +135,20 @@ recursive = true
 wrap-summaries = 72
 wrap-descriptions = 72
 syntax = "google"
+
+[tool.importlinter]
+root_package = "sonnix"
+
+[[tool.importlinter.contracts]]
+name = "Layers"
+type = "layers"
+layers = ["sonnix.modules", "sonnix.functional", "sonnix.utils"]
+
+[[tool.importlinter.contracts]]
+name = "Testing is independent"
+type = "forbidden"
+source_modules = ["sonnix.modules", "sonnix.functional", "sonnix.utils"]
+forbidden_modules = ["sonnix.testing"]
 
 [tool.ruff]
 # List of rules: https://docs.astral.sh/ruff/rules/
