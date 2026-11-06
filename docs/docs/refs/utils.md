@@ -2,7 +2,7 @@
 
 ### ::: sonnix.utils.device
 
-### ::: sonnix.utils.imports
+### ::: sonnix.utils.factory
 
 ### ::: sonnix.utils.iterator
 
