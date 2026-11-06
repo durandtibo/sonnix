@@ -21,9 +21,9 @@ if TYPE_CHECKING:
 def binary_focal_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
+    *,
     alpha: float | None = 0.25,
     gamma: float = 2.0,
-    *,
     reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the binary focal loss.
@@ -87,9 +87,9 @@ def binary_focal_loss(
 def binary_focal_loss_with_logits(
     prediction: torch.Tensor,
     target: torch.Tensor,
+    *,
     alpha: float | None = 0.25,
     gamma: float = 2.0,
-    *,
     reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the binary focal loss.

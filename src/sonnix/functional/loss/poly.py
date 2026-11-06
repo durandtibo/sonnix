@@ -21,8 +21,8 @@ if TYPE_CHECKING:
 def binary_poly1_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
-    alpha: float = 1.0,
     *,
+    alpha: float = 1.0,
     reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the Poly-1 loss for binary targets.
@@ -81,8 +81,8 @@ def binary_poly1_loss(
 def binary_poly1_loss_with_logits(
     prediction: torch.Tensor,
     target: torch.Tensor,
-    alpha: float = 1.0,
     *,
+    alpha: float = 1.0,
     reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the Poly-1 loss.

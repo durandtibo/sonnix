@@ -260,7 +260,7 @@ class SafeExp(nn.Module):
         return f"max_val={self.max_val}{extra}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return safe_exp(input, self.max_val, preserve_gradient=self.preserve_gradient)
+        return safe_exp(input, max_val=self.max_val, preserve_gradient=self.preserve_gradient)
 
 
 class SafeLog(nn.Module):
@@ -316,7 +316,7 @@ class SafeLog(nn.Module):
         return f"min_val={self.min_val}{extra}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return safe_log(input, self.min_val, preserve_gradient=self.preserve_gradient)
+        return safe_log(input, min_val=self.min_val, preserve_gradient=self.preserve_gradient)
 
 
 class Sin(nn.Module):

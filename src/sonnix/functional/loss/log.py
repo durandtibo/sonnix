@@ -23,8 +23,8 @@ if TYPE_CHECKING:
 def log_cosh_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
-    scale: float = 1.0,
     *,
+    scale: float = 1.0,
     reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the logarithm of the hyperbolic cosine of the prediction
