@@ -28,43 +28,25 @@ def test_exu_in_out_features_in_features(in_features: int, out_features: int) ->
 
 @pytest.mark.parametrize("in_features", SIZES)
 @pytest.mark.parametrize("out_features", SIZES)
-def test_exu_in_out_features_out_features(in_features: int, out_features: int) -> None:
+def test_exu_in_out_features_value(in_features: int, out_features: int) -> None:
     module = ExU(in_features=in_features, out_features=out_features)
     assert module.out_features == out_features
 
 
 @pytest.mark.parametrize("in_features", SIZES)
 @pytest.mark.parametrize("out_features", SIZES)
-def test_exu_in_out_features_weight_shape(in_features: int, out_features: int) -> None:
+def test_exu_in_out_features_shape(in_features: int, out_features: int) -> None:
     module = ExU(in_features=in_features, out_features=out_features)
     assert module.weight.shape == (out_features, in_features)
-
-
-@pytest.mark.parametrize("in_features", SIZES)
-@pytest.mark.parametrize("out_features", SIZES)
-def test_exu_in_out_features_bias_shape(in_features: int, out_features: int) -> None:
-    module = ExU(in_features=in_features, out_features=out_features)
     assert module.bias.shape == (in_features,)
 
 
 @pytest.mark.parametrize("device", get_available_devices())
-def test_exu_parameters_device_with_bias_weight_shape(device: str) -> None:
+def test_exu_parameters_device_with_bias_shape_dtype_device(device: str) -> None:
     device = torch.device(device)
     module = ExU(in_features=4, out_features=6, device=device).to(device=device)
     assert module.weight.shape == (6, 4)
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-def test_exu_parameters_device_with_bias_weight_dtype(device: str) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, device=device).to(device=device)
     assert module.weight.dtype == torch.float
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-def test_exu_parameters_device_with_bias_weight_device(device: str) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, device=device).to(device=device)
     assert module.weight.device == device
 
 
@@ -77,23 +59,11 @@ def test_exu_parameters_device_with_bias_data(device: str) -> None:
 
 
 @pytest.mark.parametrize("device", get_available_devices())
-def test_exu_parameters_device_without_bias_weight_shape(device: str) -> None:
+def test_exu_parameters_device_without_bias_shape_dtype_device(device: str) -> None:
     device = torch.device(device)
     module = ExU(in_features=4, out_features=6, bias=False, device=device).to(device=device)
     assert module.weight.shape == (6, 4)
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-def test_exu_parameters_device_without_bias_weight_dtype(device: str) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, bias=False, device=device).to(device=device)
     assert module.weight.dtype == torch.float
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-def test_exu_parameters_device_without_bias_weight_device(device: str) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, bias=False, device=device).to(device=device)
     assert module.weight.device == device
 
 
@@ -107,118 +77,48 @@ def test_exu_parameters_device_without_bias_value(device: str) -> None:
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_1d_shape(device: str, bias: bool) -> None:
+def test_exu_forward_1d(device: str, bias: bool) -> None:
     device = torch.device(device)
     module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
     output = module(torch.randn(4, device=device))
     assert output.shape == (6,)
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_1d_dtype(device: str, bias: bool) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
-    output = module(torch.randn(4, device=device))
     assert output.dtype == torch.float
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_1d_device(device: str, bias: bool) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
-    output = module(torch.randn(4, device=device))
     assert output.device == device
 
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_2d_shape(device: str, batch_size: int, bias: bool) -> None:
+def test_exu_forward_2d(device: str, batch_size: int, bias: bool) -> None:
     device = torch.device(device)
     module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
     output = module(torch.randn(batch_size, 4, device=device))
     assert output.shape == (batch_size, 6)
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_2d_dtype(device: str, batch_size: int, bias: bool) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
-    output = module(torch.randn(batch_size, 4, device=device))
     assert output.dtype == torch.float
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_2d_device(device: str, batch_size: int, bias: bool) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
-    output = module(torch.randn(batch_size, 4, device=device))
     assert output.device == device
 
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_3d_shape(device: str, batch_size: int, bias: bool) -> None:
+def test_exu_forward_3d(device: str, batch_size: int, bias: bool) -> None:
     device = torch.device(device)
     module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
     output = module(torch.randn(batch_size, 3, 4, device=device))
     assert output.shape == (batch_size, 3, 6)
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_3d_dtype(device: str, batch_size: int, bias: bool) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
-    output = module(torch.randn(batch_size, 3, 4, device=device))
     assert output.dtype == torch.float
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_3d_device(device: str, batch_size: int, bias: bool) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
-    output = module(torch.randn(batch_size, 3, 4, device=device))
     assert output.device == device
 
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_4d_shape(device: str, batch_size: int, bias: bool) -> None:
+def test_exu_forward_4d(device: str, batch_size: int, bias: bool) -> None:
     device = torch.device(device)
     module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
     output = module(torch.randn(batch_size, 3, 4, 4, device=device))
     assert output.shape == (batch_size, 3, 4, 6)
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_4d_dtype(device: str, batch_size: int, bias: bool) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
-    output = module(torch.randn(batch_size, 3, 4, 4, device=device))
     assert output.dtype == torch.float
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("bias", [True, False])
-def test_exu_forward_4d_device(device: str, batch_size: int, bias: bool) -> None:
-    device = torch.device(device)
-    module = ExU(in_features=4, out_features=6, bias=bias).to(device=device)
-    output = module(torch.randn(batch_size, 3, 4, 4, device=device))
     assert output.device == device
 
 
