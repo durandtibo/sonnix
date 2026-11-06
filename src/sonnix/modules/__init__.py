@@ -78,6 +78,7 @@ __all__ = [
 from sonnix.modules.activation import (
     Asinh,
     BaseAlphaActivation,
+    Clamp,
     DynamicAsinh,
     DynamicTanh,
     Exp,
@@ -109,7 +110,6 @@ from sonnix.modules.fusion import (
     MultiplicationFusion,
     SumFusion,
 )
-from sonnix.modules.fusion.clamp import Clamp
 from sonnix.modules.loss import (
     ArithmeticalMeanIndicator,
     AsinhMSELoss,
