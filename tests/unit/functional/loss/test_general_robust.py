@@ -190,15 +190,23 @@ def test_general_robust_regression_loss_max() -> None:
     ).equal(torch.tensor([[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]))
 
 
-def test_general_robust_regression_loss_alpha_near_0_is_stable() -> None:
+@pytest.mark.parametrize("alpha", [1e-3, -1e-3, 1e-7])
+def test_general_robust_regression_loss_alpha_near_0_is_stable(alpha: float) -> None:
+    torch.manual_seed(0)
+    prediction, target = torch.randn(8, 4, dtype=torch.float64), torch.randn(8, 4).double()
+    expected = general_robust_regression_loss(prediction, target, alpha=0.0)
+    assert general_robust_regression_loss(prediction, target, alpha=alpha).allclose(
+        expected, atol=1e-2
+    )
+
+
+def test_general_robust_regression_loss_alpha_near_0_float32_is_stable() -> None:
+    torch.manual_seed(0)
     prediction, target = torch.randn(8, 4, dtype=torch.float64), torch.randn(8, 4)
     expected = general_robust_regression_loss(prediction, target.double(), alpha=0.0)
-    for alpha in (1e-3, -1e-3, 1e-7):
-        loss = general_robust_regression_loss(prediction, target.double(), alpha=alpha)
-        assert loss.allclose(expected, atol=1e-2)
-    # float32 near 0 must stay close to the limit
-    loss32 = general_robust_regression_loss(prediction.float(), target, alpha=1e-3)
-    assert loss32.allclose(expected.float(), atol=1e-2)
+    assert general_robust_regression_loss(prediction.float(), target, alpha=1e-3).allclose(
+        expected.float(), atol=1e-2
+    )
 
 
 def test_general_robust_regression_loss_alpha_neg_inf() -> None:
