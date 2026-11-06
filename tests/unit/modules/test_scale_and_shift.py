@@ -16,7 +16,9 @@ SIZES = (1, 2, 3)
 
 
 def test_scale_and_shift_str() -> None:
-    assert str(ScaleAndShift(normalized_shape=5)) == "ScaleAndShift(normalized_shape=(5,))"
+    assert (
+        str(ScaleAndShift(normalized_shape=5)) == "ScaleAndShift(normalized_shape=(5,), bias=True)"
+    )
 
 
 @pytest.mark.parametrize(("shape_input", "expected"), [(5, (5,)), ([3], (3,)), ((4, 2), (4, 2))])
@@ -134,3 +136,43 @@ def test_scale_and_shift_dtype(dtype: torch.dtype) -> None:
     module = ScaleAndShift(4, dtype=dtype)
     assert module.weight.dtype == dtype
     assert module.bias.dtype == dtype
+
+
+def test_scale_and_shift_bias_false_has_no_bias() -> None:
+    assert ScaleAndShift(normalized_shape=3, bias=False).bias is None
+
+
+def test_scale_and_shift_bias_false_parameters() -> None:
+    module = ScaleAndShift(normalized_shape=3, bias=False)
+    assert [name for name, _ in module.named_parameters()] == ["weight"]
+
+
+def test_scale_and_shift_bias_false_forward() -> None:
+    module = ScaleAndShift(normalized_shape=3, bias=False)
+    with torch.no_grad():
+        module.weight.copy_(torch.tensor([1.0, 2.0, 3.0]))
+    assert module(torch.ones(2, 3)).equal(torch.tensor([[1.0, 2.0, 3.0], [1.0, 2.0, 3.0]]))
+
+
+def test_scale_and_shift_bias_false_extra_repr() -> None:
+    assert (
+        ScaleAndShift(normalized_shape=3, bias=False).extra_repr()
+        == "normalized_shape=(3,), bias=False"
+    )
+
+
+def test_scale_and_shift_bias_false_reset_parameters() -> None:
+    module = ScaleAndShift(normalized_shape=3, bias=False)
+    with torch.no_grad():
+        module.weight.fill_(5.0)
+    module.reset_parameters()
+    assert module.weight.equal(torch.ones(3))
+
+
+def test_scale_and_shift_reset_parameters_with_bias() -> None:
+    module = ScaleAndShift(normalized_shape=3)
+    with torch.no_grad():
+        module.weight.fill_(5.0)
+        module.bias.fill_(2.0)
+    module.reset_parameters()
+    assert module.bias.equal(torch.zeros(3))
