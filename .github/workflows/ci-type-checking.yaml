@@ -1,5 +1,5 @@
 # Type checking workflow.
-# Validates type annotations: pyright is blocking, ty is advisory.
+# Validates type annotations using ty and pyright to ensure type safety.
 # Helps catch type-related bugs before runtime.
 
 name: Type Checking
@@ -21,15 +21,9 @@ jobs:
       - name: Setup python environment
         uses: durandtibo/setup-venv-uv-action@269cae0b38051f39b2cfb10230687ba2b8093424 # ratchet:durandtibo/setup-venv-uv-action@v0.2.0
         with:
-          install-args: "--groups dev,docs"
+          install-args: "--groups dev,docs,property"
 
-      # pyright is the gate: it is stable, so a new release does not turn CI red by itself.
-      - name: Check types with pyright
+      # Type-check the source code and the tests with ty and pyright
+      - name: Check types
         run: |
-          inv types.check
-
-      # ty is pre-1.0, so it is advisory: a failure is reported but does not fail the workflow.
-      - name: Check types with ty (advisory)
-        continue-on-error: true
-        run: |
-          uv run ty check
+          inv types.check --complete
