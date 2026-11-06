@@ -79,8 +79,8 @@
   slow tests to `tests/integration/` if needed.
 - Unit tests mirror the source tree (`tests/unit/<package>/test_<module>.py`). Tests that
   combine several modules (for example training or composition) go in `tests/integration/`.
-- Do not use local imports inside tests. Import at the top of the module; use the markers and
-  fixtures from `sonnix.testing` for optional libraries and devices.
+- Do not use local imports inside tests. Import at the top of the module; use the markers from `coola.testing.marks` (for example `torch_cuda_available`)
+  for optional libraries and devices.
 - Parametrize over devices with `get_available_devices()` (from `coola.utils.tensor`) when the
   result depends on the device, and compare tensors with `objects_are_equal` /
   `objects_are_allclose` from `coola.equality` or `Tensor.allclose`.

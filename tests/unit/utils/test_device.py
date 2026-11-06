@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import torch
+from coola.testing.marks import torch_cuda_available
 from torch import nn
 
-from sonnix.testing import cuda_available
 from sonnix.utils.device import (
     get_module_device,
     get_module_devices,
@@ -19,7 +19,7 @@ def test_get_module_device_cpu() -> None:
     assert get_module_device(nn.Linear(4, 5)) == torch.device("cpu")
 
 
-@cuda_available
+@torch_cuda_available
 def test_get_module_device_cuda() -> None:
     assert get_module_device(nn.Linear(4, 5).to(device=torch.device("cuda:0"))) == torch.device(
         "cuda:0"
@@ -39,14 +39,14 @@ def test_get_module_devices_cpu() -> None:
     assert get_module_devices(nn.Linear(4, 5)) == [torch.device("cpu")]
 
 
-@cuda_available
+@torch_cuda_available
 def test_get_module_devices_cuda() -> None:
     assert get_module_devices(nn.Linear(4, 5).to(device=torch.device("cuda:0"))) == [
         torch.device("cuda:0")
     ]
 
 
-@cuda_available
+@torch_cuda_available
 def test_get_module_devices_cpu_cuda() -> None:
     net = nn.Sequential(nn.Linear(4, 5), nn.Linear(4, 5).to(device=torch.device("cuda:0")))
     assert set(get_module_devices(net)) == {torch.device("cpu"), torch.device("cuda:0")}

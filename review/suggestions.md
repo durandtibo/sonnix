@@ -354,7 +354,7 @@ The tests are plentiful, but several kinds are missing:
 - **No `torch.compile` / TorchScript / `torch.export` smoke tests.** Several modules use in-place ops
   (`NLinear`), Python control flow on shape (`Piecewise`), or `float()` conversions.
 - **No state-dict round-trip tests** for the modules with buffers/parameters (confirms 1.7).
-- **No CUDA/MPS runs in CI**: `cuda_available` tests are skipped on every runner. Fine for GitHub
+- **No CUDA/MPS runs in CI**: `torch_cuda_available` tests are skipped on every runner. Fine for GitHub
   runners, but say so in CONTRIBUTING.
 - **Test layout mirrors `src/` but duplicates `functional` and `modules` cases.** Parametrize
   one reduction test over all losses (a registry of `(functional, module, kwargs)`) instead of ~15
