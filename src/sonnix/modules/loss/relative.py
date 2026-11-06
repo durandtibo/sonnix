@@ -56,7 +56,7 @@ class RelativeLoss(BaseLoss):
         ... )
         >>> criterion
         RelativeLoss(
-          eps=1e-08, reduction=mean
+          eps=1e-08, reduction=mean, detach_indicator=False
           (criterion): MSELoss()
           (indicator): ClassicalRelativeIndicator()
         )
@@ -134,7 +134,7 @@ class RelativeMSELoss(RelativeLoss):
         >>> criterion = RelativeMSELoss(indicator=ClassicalRelativeIndicator())
         >>> criterion
         RelativeMSELoss(
-          eps=1e-08, reduction=mean
+          eps=1e-08, reduction=mean, detach_indicator=False
           (criterion): MSELoss()
           (indicator): ClassicalRelativeIndicator()
         )
@@ -197,7 +197,7 @@ class RelativeSmoothL1Loss(RelativeLoss):
         >>> criterion = RelativeSmoothL1Loss(indicator=ClassicalRelativeIndicator())
         >>> criterion
         RelativeSmoothL1Loss(
-          eps=1e-08, reduction=mean
+          eps=1e-08, reduction=mean, detach_indicator=False
           (criterion): SmoothL1Loss()
           (indicator): ClassicalRelativeIndicator()
         )
