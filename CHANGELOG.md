@@ -19,7 +19,7 @@ All notable changes to this project are documented in this file. The package is 
 
 - `NLinear`, `ExU`, `ScaleAndShift` (and its subclasses), the alpha activations and `MomentMeanIndicator` validate
   their arguments with `coola.validation` (sizes >= 1, integer types, finite `init`, `Laplacian` needs
-  `init > 0`), and `NLinear.forward` names `n` when the input shape does not match (review 2.6, #PR).
+  `init > 0`), and `NLinear.forward` names `n` when the input shape does not match (review 2.6, #361).
 - `PiecewiseLinearNumericalEncoder` accepts integer bins (converted to the default float dtype) and raises
   a `ValueError` for empty bins and for non-finite bins (review 2.5, #360).
 - `poisson_regression_loss` clamps the prediction in the linear term too, so the loss is bounded below for
