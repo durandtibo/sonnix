@@ -74,3 +74,8 @@ All notable changes to this project are documented in this file. The package is 
 - `absolute_error`, `absolute_relative_error` and `symmetric_absolute_relative_error` raise a
   `ValueError` when `prediction` and `target` do not have the same shape, as their documentation
   says, instead of broadcasting. This is the same policy as `relative_loss`.
+
+### Shape modules
+
+- `View` uses `reshape`, so it works with non-contiguous inputs (it was `Tensor.view`, which raised).
+- `Squeeze` accepts a tuple of dimensions as `torch.Tensor.squeeze` does.
