@@ -16,49 +16,35 @@ pip install sonnix
 
 ## Installing from source
 
-To install `sonnix` from source, you can follow the steps below. First, you will need to
-install [`poetry`](https://python-poetry.org/docs/master/). `poetry` is used to manage and install
-the dependencies.
-If `poetry` is already installed on your machine, you can skip this step. There are several ways to
-install `poetry` so you can use the one that you prefer. You can check the `poetry` installation by
-running the following command:
+`sonnix` requires Python 3.11 or later. [`uv`](https://docs.astral.sh/uv/) is used to manage the
+virtual environment and the dependencies. If `uv` is not installed on your machine, follow
+the [installation guide](https://docs.astral.sh/uv/getting-started/installation/).
 
-```shell
-poetry --version
-```
-
-Then, you can clone the git repository:
+First, clone the git repository:
 
 ```shell
 git clone git@github.com:durandtibo/sonnix.git
+cd sonnix
 ```
 
-It is recommended to create a Python 3.8+ virtual environment. This step is optional so you
-can skip it. To create a virtual environment, you can use the following command:
+Then, create a virtual environment in `.venv` and install the package (editable) with the
+development dependencies:
 
 ```shell
-make conda
+uv sync --group dev --group docs
 ```
 
-It automatically creates a conda virtual environment. When the virtual environment is created, you
-can activate it with the following command:
+Activate the environment, or prefix the commands with `uv run`:
 
 ```shell
-conda activate sonnix
+source .venv/bin/activate
 ```
 
-This example uses `conda` to create a virtual environment, but you can use other tools or
-configurations. Then, you should install the required package to use `sonnix` with the following
-command:
+The tasks of the project are run with [`invoke`](https://www.pyinvoke.org/). `inv --list` lists
+them. You can test the installation with the following commands:
 
 ```shell
-make install
-```
-
-This command will install all the required packages. You can also use this command to update the
-required packages. This command will check if there is a more recent package available and will
-install it. Finally, you can test the installation with the following command:
-
-```shell
-make unit-test-cov
+inv test.unit
+inv test.integration
+inv test.doctest
 ```

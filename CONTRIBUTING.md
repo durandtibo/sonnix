@@ -21,8 +21,12 @@ We actively welcome your pull requests.
 3. If you've changed APIs, update the documentation.
 4. Ensure the test suite passes. You can use the following command to run the tests:
    ```shell
-   make unit-test-cov
+   inv test.unit
+   inv test.integration
+   inv test.doctest
    ```
+
+   `inv test.all` runs all the tests, and `inv --list` lists the available tasks.
 5. Make sure your code lints. The following commands can help you to format the code:
    ```shell
    inv format.fix-python

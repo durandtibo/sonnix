@@ -1,3 +1,0 @@
-# sonnix.modules
-
-### ::: sonnix.modules
