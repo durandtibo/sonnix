@@ -141,7 +141,7 @@ class GeometricMeanIndicator(BaseRelativeIndicator):
         ... )
         >>> values
         tensor([[0.0000, 1.0000, 0.0000],
-                [3.0000, 2.2361, 1.0000]], grad_fn=<WhereBackward0>)
+                [3.0000, 2.2361, 1.0000]], grad_fn=<MulBackward0>)
 
         ```
     """
@@ -222,7 +222,7 @@ class MomentMeanIndicator(BaseRelativeIndicator):
         ... )
         >>> values
         tensor([[1.0000, 1.0000, 0.5000],
-                [3.0000, 3.0000, 1.0000]], grad_fn=<WhereBackward0>)
+                [3.0000, 3.0000, 1.0000]], grad_fn=<MulBackward0>)
 
         ```
     """
