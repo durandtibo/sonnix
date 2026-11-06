@@ -18,7 +18,7 @@ All notable changes to this project are documented in this file. The package is 
 ### Fixed
 
 - `geometric_mean_indicator` and `moment_mean_indicator` no longer overflow in half precision, for
-  large values or for a large order `k` (review 2.1, #PR).
+  large values or for a large order `k` (review 2.1, #356).
 - `sonnix.modules` can be imported again with `coola` 2.0.0a2: `get_torch_generator` is replaced by
   `make_torch_generator` (review 1.1, #354).
 - `RelativeSmoothL1Loss` stores `beta` and shows it in its representation.
