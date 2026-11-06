@@ -171,3 +171,11 @@ def test_asinh_numerical_encoder_learnable_scale_is_parameter() -> None:
     module = AsinhNumericalEncoder(scale=torch.ones(2, 3), learnable=True)
     assert module.learnable
     assert [n for n, _ in module.named_parameters()] == ["scale"]
+
+
+@pytest.mark.parametrize("learnable", [True, False])
+def test_asinh_numerical_encoder_scale_is_a_copy(learnable: bool) -> None:
+    scale = torch.tensor([[1.0, 2.0, 4.0]])
+    module = AsinhNumericalEncoder(scale, learnable=learnable)
+    scale.add_(1.0)
+    assert module.scale.equal(torch.tensor([[1.0, 2.0, 4.0]]))

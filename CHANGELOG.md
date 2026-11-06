@@ -87,3 +87,13 @@ All notable changes to this project are documented in this file. The package is 
 - `module_mode` restores the mode by module and not by name: a module added, replaced or shared
   under several names in the context no longer breaks the restoration (it raised a `KeyError` for an
   added module).
+
+### Numerical encoders
+
+- `AsinhNumericalEncoder(scale, learnable=True)` copies `scale` (the parameter aliased the tensor of
+  the caller, so an in-place change leaked into the module). `CosSinNumericalEncoder` already did.
+- `prepare_tensor_param`, `check_frequency` and `check_abs_range` move from
+  `sonnix.modules.numerical.sine` to the private module `sonnix.modules.numerical._utils`. They are
+  no longer in the `__all__` of `sine`. `check_frequency` and `check_abs_range` use
+  `coola.validation`, so the message of the errors for `num_frequencies`, `min_frequency` and
+  `min_abs_value` changes (for example `min_frequency must be greater than 0`).

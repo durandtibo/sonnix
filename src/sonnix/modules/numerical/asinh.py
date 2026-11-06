@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 from torch import nn
 
-from sonnix.modules.numerical.sine import prepare_tensor_param
+from sonnix.modules.numerical._utils import prepare_tensor_param
 
 if TYPE_CHECKING:
     from torch import Tensor
@@ -65,7 +65,7 @@ class AsinhNumericalEncoder(nn.Module):
         scale = prepare_tensor_param(scale, name="scale")
         self.scale: Tensor
         if learnable:
-            self.scale = nn.Parameter(scale)
+            self.scale = nn.Parameter(scale.detach().clone())
         else:
             # Frozen values are buffers: they are saved in the state dict and moved with
             # the module, but they are not returned by ``parameters()``.

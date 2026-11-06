@@ -6,9 +6,6 @@ from __future__ import annotations
 __all__ = [
     "AsinhCosSinNumericalEncoder",
     "CosSinNumericalEncoder",
-    "check_abs_range",
-    "check_frequency",
-    "prepare_tensor_param",
 ]
 
 import math
@@ -17,6 +14,11 @@ from typing import TYPE_CHECKING
 import torch
 from torch import nn
 
+from sonnix.modules.numerical._utils import (
+    check_abs_range,
+    check_frequency,
+    prepare_tensor_param,
+)
 from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:
@@ -475,74 +477,3 @@ class AsinhCosSinNumericalEncoder(CosSinNumericalEncoder):
             (features, scalar.unsqueeze(dim=-1).asinh()),
             dim=-1,
         )
-
-
-def prepare_tensor_param(tensor: Tensor, name: str) -> Tensor:
-    r"""Prepare a tensor parameter to be a 2d tensor.
-
-    Args:
-        tensor: The tensor to prepare.
-        name: The name associated to the tensor.
-
-    Returns:
-        The prepared tensor.
-
-    Raises:
-        ValueError: if the input tensor is not a 1d or 2d tensor.
-    """
-    if tensor.ndim == 1:
-        tensor = tensor.view(1, -1)
-    if tensor.ndim != 2:
-        msg = f"Incorrect shape for '{name}': {tensor.shape}"
-        raise ValueError(msg)
-    return tensor
-
-
-def check_abs_range(min_abs_value: float, max_abs_value: float) -> None:
-    r"""Check the frequency parameters.
-
-    Args:
-        min_abs_value: The minimum absolute value to encode.
-        max_abs_value: The maximum absolute value to encode.
-
-    Raises:
-        ValueError: if one of the parameters is invalid.
-    """
-    if min_abs_value <= 0:
-        msg = f"'min_abs_value' has to be greater than 0 (received: {min_abs_value})"
-        raise ValueError(msg)
-    if max_abs_value < min_abs_value:
-        msg = (
-            f"'max_abs_value' (received: {max_abs_value}) has to be greater than "
-            f"'min_abs_value' (received: {min_abs_value})"
-        )
-        raise ValueError(msg)
-
-
-def check_frequency(
-    num_frequencies: int,
-    min_frequency: float,
-    max_frequency: float,
-) -> None:
-    r"""Check the frequency parameters.
-
-    Args:
-        num_frequencies: The number of frequencies.
-        min_frequency: The minimum frequency.
-        max_frequency: The maximum frequency.
-
-    Raises:
-        ValueError: if one of the parameters is invalid.
-    """
-    if num_frequencies < 1:
-        msg = f"'num_frequencies' has to be greater or equal to 1 (received: {num_frequencies})"
-        raise ValueError(msg)
-    if min_frequency <= 0:
-        msg = f"'min_frequency' has to be greater than 0 (received: {min_frequency})"
-        raise ValueError(msg)
-    if max_frequency < min_frequency:
-        msg = (
-            f"'max_frequency' (received: {max_frequency}) has to be greater than "
-            f"'min_frequency' (received: {min_frequency})"
-        )
-        raise ValueError(msg)
