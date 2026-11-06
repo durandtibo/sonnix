@@ -17,6 +17,8 @@ __all__ = [
     "ClassicalRelativeIndicator",
     "GeneralRobustRegressionLoss",
     "GeometricMeanIndicator",
+    "LogCoshLoss",
+    "MSLELoss",
     "MaximumMeanIndicator",
     "MinimumMeanIndicator",
     "MomentMeanIndicator",
@@ -47,6 +49,7 @@ from sonnix.modules.loss.indicators import (
     MomentMeanIndicator,
     ReversedRelativeIndicator,
 )
+from sonnix.modules.loss.log import LogCoshLoss, MSLELoss
 from sonnix.modules.loss.poisson import PoissonRegressionLoss
 from sonnix.modules.loss.poly import (
     BaseBinaryPoly1Loss,
