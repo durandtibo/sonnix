@@ -102,19 +102,19 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         self.register_buffer("width", width)
 
     @property
-    def input_size(self) -> int:
+    def n_features(self) -> int:
         r"""Return the input feature size i.e. the number of scalar
         values."""
         return self.edges.shape[0]
 
     @property
-    def output_size(self) -> int:
+    def feature_size(self) -> int:
         r"""Return the output feature size i.e. the number of bins minus
         one."""
         return self.edges.shape[1]
 
     def extra_repr(self) -> str:
-        return f"n_features={self.input_size}, feature_size={self.output_size}"
+        return f"n_features={self.n_features}, feature_size={self.feature_size}"
 
     def forward(self, scalar: Tensor) -> Tensor:
         delta = scalar[..., None] - self.edges

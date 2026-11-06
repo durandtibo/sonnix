@@ -64,7 +64,7 @@ def test_piecewise_linear_numerical_encoder_input_size() -> None:
     assert (
         PiecewiseLinearNumericalEncoder(
             bins=torch.tensor([[0.0, 1.0, 2.0, 4.0], [2.0, 4.0, 6.0, 8.0]])
-        ).input_size
+        ).n_features
         == 2
     )
 
@@ -73,7 +73,7 @@ def test_piecewise_linear_numerical_encoder_output_size() -> None:
     assert (
         PiecewiseLinearNumericalEncoder(
             bins=torch.tensor([[0.0, 1.0, 2.0, 4.0], [2.0, 4.0, 6.0, 8.0]])
-        ).output_size
+        ).feature_size
         == 3
     )
 

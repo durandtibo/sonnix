@@ -36,11 +36,11 @@ def test_asinh_numerical_encoder_scale_incorrect_shape() -> None:
 
 
 def test_asinh_numerical_encoder_input_size() -> None:
-    assert AsinhNumericalEncoder(torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]])).input_size == 2
+    assert AsinhNumericalEncoder(torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]])).n_features == 2
 
 
 def test_asinh_numerical_encoder_output_size() -> None:
-    assert AsinhNumericalEncoder(torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]])).output_size == 3
+    assert AsinhNumericalEncoder(torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]])).feature_size == 3
 
 
 @pytest.mark.parametrize("device", get_available_devices())

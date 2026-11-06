@@ -20,10 +20,10 @@ class TransformedLoss(nn.Module):
     Args:
         criterion: The criterion or its configuration. The loss has
             two inputs: predictions and targets.
-        prediction: The transformation for the predictions or its
-            configuration. If ``None``, the identity transformation
+        prediction_transform: The transformation for the predictions or
+            its configuration. If ``None``, the identity transformation
             is used.
-        target: The transformation for the targets or its
+        target_transform: The transformation for the targets or its
             configuration. If ``None``, the identity transformation
             is used.
 
@@ -33,8 +33,8 @@ class TransformedLoss(nn.Module):
         >>> from sonnix.modules import TransformedLoss, Asinh
         >>> criterion = TransformedLoss(
         ...     criterion=torch.nn.SmoothL1Loss(),
-        ...     prediction=Asinh(),
-        ...     target=Asinh(),
+        ...     prediction_transform=Asinh(),
+        ...     target_transform=Asinh(),
         ... )
         >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
         >>> loss
@@ -47,17 +47,19 @@ class TransformedLoss(nn.Module):
     def __init__(
         self,
         criterion: nn.Module | dict[Any, Any],
-        prediction: nn.Module | dict[Any, Any] | None = None,
-        target: nn.Module | dict[Any, Any] | None = None,
+        prediction_transform: nn.Module | dict[Any, Any] | None = None,
+        target_transform: nn.Module | dict[Any, Any] | None = None,
     ) -> None:
         super().__init__()
         self.criterion: nn.Module = resolve_module(criterion)
-        self.prediction: nn.Module = resolve_module(
-            nn.Identity() if prediction is None else prediction
+        self.prediction_transform: nn.Module = resolve_module(
+            nn.Identity() if prediction_transform is None else prediction_transform
         )
-        self.target: nn.Module = resolve_module(nn.Identity() if target is None else target)
+        self.target_transform: nn.Module = resolve_module(
+            nn.Identity() if target_transform is None else target_transform
+        )
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        prediction = self.prediction(prediction)
-        target = self.target(target)
+        prediction = self.prediction_transform(prediction)
+        target = self.target_transform(target)
         return self.criterion(prediction, target)
