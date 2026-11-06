@@ -599,4 +599,4 @@ Estimated from the current file sizes; docstrings and examples included.
 | 7    | #420         | open, stacked on #419. `resolve_range` does not check `0 < min <= max` (the callers do)                       |
 | 8    | #422         | open, stacked on #420. Sub-package `__init__.py` files are docstring-only (ruff F401 without `__all__`)        |
 | 9    | #423         | open, stacked on #422. Helpers named `probability_of_target` / `class_weight` (public names). F19 not done     |
-| 10   | this PR      | migration table in `CHANGELOG.md`, conventions updated                                                        |
+| 10   | #424         | migration table in `CHANGELOG.md`, conventions updated                                                        |
