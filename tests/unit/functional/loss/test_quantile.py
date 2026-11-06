@@ -95,3 +95,12 @@ def test_quantile_regression_loss_q_overestimate(device: str, q: float, loss: fl
 def test_quantile_regression_loss_incorrect_q(q: float) -> None:
     with pytest.raises(ValueError, match="q must be in the range"):
         quantile_regression_loss(torch.randn(2, 3), torch.randn(2, 3), q=q)
+
+
+def test_quantile_regression_loss_median_is_half_of_l1_loss() -> None:
+    generator = torch.Generator().manual_seed(1)
+    prediction = torch.randn(6, 5, generator=generator)
+    target = torch.randn(6, 5, generator=generator)
+    assert quantile_regression_loss(prediction, target, q=0.5).allclose(
+        0.5 * torch.nn.functional.l1_loss(prediction, target)
+    )
