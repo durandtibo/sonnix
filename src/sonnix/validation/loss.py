@@ -4,6 +4,7 @@ from __future__ import annotations
 
 __all__ = [
     "VALID_REDUCTIONS",
+    "Reduction",
     "validate_focal_params",
     "validate_general_robust_params",
     "validate_loss_reduction_strategy",
@@ -11,11 +12,15 @@ __all__ = [
 ]
 
 import math
+from typing import Literal, get_args
 
 from coola.validation import validate_ge, validate_gt, validate_in, validate_int, validate_range
 
-VALID_REDUCTIONS: tuple[str, ...] = ("none", "mean", "sum", "batchmean")
+Reduction = Literal["none", "mean", "sum", "batchmean"]
 r"""The valid loss reduction strategies."""
+
+VALID_REDUCTIONS: tuple[str, ...] = get_args(Reduction)
+r"""The valid loss reduction strategies, as a tuple."""
 
 
 def validate_focal_params(alpha: float | None, gamma: float) -> None:

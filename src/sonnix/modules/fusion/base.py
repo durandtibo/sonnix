@@ -23,7 +23,7 @@ class BaseFusion(nn.Module, ABC):
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.modules.fusion import BaseFusion
+        >>> from sonnix.modules import BaseFusion
         >>> class MaxFusion(BaseFusion):
         ...     def fuse(self, inputs):
         ...         return torch.stack(inputs).amax(dim=0)

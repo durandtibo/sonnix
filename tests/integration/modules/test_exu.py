@@ -5,7 +5,7 @@ from torch import nn
 from torch.nn import MSELoss
 
 from sonnix.modules import ExU
-from sonnix.utils.loss import is_loss_decreasing_with_adam
+from sonnix.testing.loss import is_loss_decreasing_with_adam
 
 
 def test_nlinear_loss() -> None:

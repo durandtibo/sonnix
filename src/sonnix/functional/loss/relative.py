@@ -63,7 +63,7 @@ def relative_loss(
         ```pycon
         >>> import torch
         >>> from sonnix.functional import relative_loss
-        >>> from sonnix.functional.loss import classical_relative_indicator
+        >>> from sonnix.functional import classical_relative_indicator
         >>> prediction = torch.randn(3, 5, requires_grad=True)
         >>> target = torch.randn(3, 5)
         >>> loss = relative_loss(
@@ -97,7 +97,7 @@ def arithmetical_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) 
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.functional.loss import arithmetical_mean_indicator
+        >>> from sonnix.functional import arithmetical_mean_indicator
         >>> prediction = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True)
         >>> target = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]])
         >>> indicator = arithmetical_mean_indicator(prediction, target)
@@ -130,7 +130,7 @@ def classical_relative_indicator(
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.functional.loss import classical_relative_indicator
+        >>> from sonnix.functional import classical_relative_indicator
         >>> prediction = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True)
         >>> target = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]])
         >>> indicator = classical_relative_indicator(prediction, target)
@@ -161,7 +161,7 @@ def geometric_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> 
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.functional.loss import geometric_mean_indicator
+        >>> from sonnix.functional import geometric_mean_indicator
         >>> prediction = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True)
         >>> target = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]])
         >>> indicator = geometric_mean_indicator(prediction, target)
@@ -193,7 +193,7 @@ def maximum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.functional.loss import maximum_mean_indicator
+        >>> from sonnix.functional import maximum_mean_indicator
         >>> prediction = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True)
         >>> target = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]])
         >>> indicator = maximum_mean_indicator(prediction, target)
@@ -223,7 +223,7 @@ def minimum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.functional.loss import minimum_mean_indicator
+        >>> from sonnix.functional import minimum_mean_indicator
         >>> prediction = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True)
         >>> target = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]])
         >>> indicator = minimum_mean_indicator(prediction, target)
@@ -259,7 +259,7 @@ def moment_mean_indicator(
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.functional.loss import moment_mean_indicator
+        >>> from sonnix.functional import moment_mean_indicator
         >>> prediction = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True)
         >>> target = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]])
         >>> indicator = moment_mean_indicator(prediction, target)
@@ -298,7 +298,7 @@ def reversed_relative_indicator(
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.functional.loss import reversed_relative_indicator
+        >>> from sonnix.functional import reversed_relative_indicator
         >>> prediction = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], requires_grad=True)
         >>> target = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]])
         >>> indicator = reversed_relative_indicator(prediction, target)

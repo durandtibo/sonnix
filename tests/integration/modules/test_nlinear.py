@@ -6,7 +6,7 @@ from torch import nn
 from torch.nn import MSELoss
 
 from sonnix.modules import NLinear
-from sonnix.utils.loss import is_loss_decreasing_with_adam
+from sonnix.testing.loss import is_loss_decreasing_with_adam
 from tests.helpers import make_generator
 
 
