@@ -5,6 +5,7 @@ import torch
 from coola.utils.tensor import get_available_devices
 
 from sonnix.modules import BinaryPoly1Loss, BinaryPoly1LossWithLogits
+from sonnix.modules.loss import BaseBinaryPoly1Loss
 
 SIZES = (1, 2)
 TOLERANCE = 1e-6
@@ -238,3 +239,21 @@ def test_binary_focal_loss_with_logits_backward(device: str) -> None:
     )
     loss.backward()
     assert loss.allclose(torch.tensor(0.5822031346214558, device=device))
+
+
+#########################################
+#     Tests for BaseBinaryPoly1Loss     #
+#########################################
+
+
+def test_basebinarypoly1loss_repr() -> None:
+    assert repr(BaseBinaryPoly1Loss()) == "BaseBinaryPoly1Loss(alpha=1.0, reduction=mean)"
+
+
+@pytest.mark.parametrize("loss", [BinaryPoly1Loss, BinaryPoly1LossWithLogits])
+def test_basebinarypoly1loss_subclass(loss: type) -> None:
+    assert issubclass(loss, BaseBinaryPoly1Loss)
+
+
+def test_basebinarypoly1loss_pair_are_independent() -> None:
+    assert not issubclass(BinaryPoly1Loss, BinaryPoly1LossWithLogits)

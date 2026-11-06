@@ -2,7 +2,7 @@ r"""Contain the focal loss implementation."""
 
 from __future__ import annotations
 
-__all__ = ["BinaryFocalLoss", "BinaryFocalLossWithLogits"]
+__all__ = ["BaseBinaryFocalLoss", "BinaryFocalLoss", "BinaryFocalLossWithLogits"]
 
 from typing import TYPE_CHECKING
 
@@ -19,7 +19,34 @@ if TYPE_CHECKING:
     from sonnix.functional.reduction import Reduction
 
 
-class BinaryFocalLoss(BaseLoss):
+class BaseBinaryFocalLoss(BaseLoss):
+    r"""Define the base class of the binary focal losses.
+
+    It validates and stores the hyperparameters shared by
+    ``BinaryFocalLoss`` and ``BinaryFocalLossWithLogits``.
+
+    Args:
+        alpha: The weighting factor, which must be in the range
+            ``[0, 1]``. ``None`` disables the weighting.
+        gamma: The focusing parameter, which must be positive
+            (``>=0``).
+        reduction: The reduction strategy. The valid values are
+            ``'mean'``, ``'none'``, ``'sum'``, and ``'batchmean'``.
+    """
+
+    def __init__(
+        self, alpha: float | None = 0.25, gamma: float = 2.0, *, reduction: Reduction = "mean"
+    ) -> None:
+        super().__init__(reduction=reduction)
+        validate_focal_params(alpha=alpha, gamma=gamma)
+        self._alpha = None if alpha is None else float(alpha)
+        self._gamma = float(gamma)
+
+    def extra_repr(self) -> str:
+        return f"alpha={self._alpha}, gamma={self._gamma}, reduction={self.reduction}"
+
+
+class BinaryFocalLoss(BaseBinaryFocalLoss):
     r"""Implementation of the binary focal loss.
 
     Based on "focal loss for Dense Object Detection"
@@ -60,17 +87,6 @@ class BinaryFocalLoss(BaseLoss):
         ```
     """
 
-    def __init__(
-        self, alpha: float | None = 0.25, gamma: float = 2.0, *, reduction: Reduction = "mean"
-    ) -> None:
-        super().__init__(reduction=reduction)
-        validate_focal_params(alpha=alpha, gamma=gamma)
-        self._alpha = None if alpha is None else float(alpha)
-        self._gamma = float(gamma)
-
-    def extra_repr(self) -> str:
-        return f"alpha={self._alpha}, gamma={self._gamma}, reduction={self.reduction}"
-
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         r"""Compute the binary focal loss.
 
@@ -98,7 +114,7 @@ class BinaryFocalLoss(BaseLoss):
         )
 
 
-class BinaryFocalLossWithLogits(BaseLoss):
+class BinaryFocalLossWithLogits(BaseBinaryFocalLoss):
     r"""Implementation of the binary focal loss.
 
     Based on "focal loss for Dense Object Detection"
@@ -138,17 +154,6 @@ class BinaryFocalLossWithLogits(BaseLoss):
 
         ```
     """
-
-    def __init__(
-        self, alpha: float | None = 0.25, gamma: float = 2.0, *, reduction: Reduction = "mean"
-    ) -> None:
-        super().__init__(reduction=reduction)
-        validate_focal_params(alpha=alpha, gamma=gamma)
-        self._alpha = None if alpha is None else float(alpha)
-        self._gamma = float(gamma)
-
-    def extra_repr(self) -> str:
-        return f"alpha={self._alpha}, gamma={self._gamma}, reduction={self.reduction}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         r"""Compute the binary focal loss.

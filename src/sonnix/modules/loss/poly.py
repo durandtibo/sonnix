@@ -2,7 +2,7 @@ r"""Contain the Poly1Loss implementation."""
 
 from __future__ import annotations
 
-__all__ = ["BinaryPoly1Loss", "BinaryPoly1LossWithLogits"]
+__all__ = ["BaseBinaryPoly1Loss", "BinaryPoly1Loss", "BinaryPoly1LossWithLogits"]
 
 from typing import TYPE_CHECKING
 
@@ -18,7 +18,28 @@ if TYPE_CHECKING:
     from sonnix.functional.reduction import Reduction
 
 
-class BinaryPoly1Loss(BaseLoss):
+class BaseBinaryPoly1Loss(BaseLoss):
+    r"""Define the base class of the binary Poly-1 losses.
+
+    It stores the hyperparameters shared by ``BinaryPoly1Loss`` and
+    ``BinaryPoly1LossWithLogits``.
+
+    Args:
+        alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
+            probability of the target class.
+        reduction: The reduction strategy. The valid values are
+            ``'mean'``, ``'none'``, ``'sum'``, and ``'batchmean'``.
+    """
+
+    def __init__(self, alpha: float = 1.0, *, reduction: Reduction = "mean") -> None:
+        super().__init__(reduction=reduction)
+        self._alpha = float(alpha)
+
+    def extra_repr(self) -> str:
+        return f"alpha={self._alpha}, reduction={self.reduction}"
+
+
+class BinaryPoly1Loss(BaseBinaryPoly1Loss):
     r"""Implementation of the binary Poly-1 loss for binary targets.
 
     Based on "PolyLoss: A Polynomial Expansion Perspective of
@@ -59,13 +80,6 @@ class BinaryPoly1Loss(BaseLoss):
         ```
     """
 
-    def __init__(self, alpha: float = 1.0, *, reduction: Reduction = "mean") -> None:
-        super().__init__(reduction=reduction)
-        self._alpha = float(alpha)
-
-    def extra_repr(self) -> str:
-        return f"alpha={self._alpha}, reduction={self.reduction}"
-
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         r"""Compute the binary Poly-1 loss for binary targets.
 
@@ -92,7 +106,7 @@ class BinaryPoly1Loss(BaseLoss):
         )
 
 
-class BinaryPoly1LossWithLogits(BaseLoss):
+class BinaryPoly1LossWithLogits(BaseBinaryPoly1Loss):
     r"""Implementation of the binary Poly-1 loss for binary targets.
 
     Based on "PolyLoss: A Polynomial Expansion Perspective of
@@ -132,13 +146,6 @@ class BinaryPoly1LossWithLogits(BaseLoss):
 
         ```
     """
-
-    def __init__(self, alpha: float = 1.0, *, reduction: Reduction = "mean") -> None:
-        super().__init__(reduction=reduction)
-        self._alpha = float(alpha)
-
-    def extra_repr(self) -> str:
-        return f"alpha={self._alpha}, reduction={self.reduction}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         r"""Compute the binary Poly-1 loss for binary targets.
