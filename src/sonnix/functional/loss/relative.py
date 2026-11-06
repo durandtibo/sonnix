@@ -54,7 +54,7 @@ def relative_loss(
         The computed relative loss.
 
     Raises:
-        RuntimeError: if the loss and indicator shapes do not match.
+        ValueError: if the loss and indicator shapes do not match.
         ValueError: if the reduction is not valid.
 
     Example:
@@ -76,7 +76,7 @@ def relative_loss(
     """
     if loss.shape != indicator.shape:
         msg = f"loss {loss.shape} and indicator {indicator.shape} shapes do not match"
-        raise RuntimeError(msg)
+        raise ValueError(msg)
     return reduce_loss(loss.div(indicator.clamp(min=eps)), reduction)
 
 

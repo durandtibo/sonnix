@@ -32,7 +32,7 @@ class MultiplicationFusion(nn.Module):
     def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
         if not inputs:
             msg = f"{self.__class__.__qualname__} needs at least one tensor as input"
-            raise RuntimeError(msg)
+            raise ValueError(msg)
         output = inputs[0]
         for xi in inputs[1:]:
             output = output.mul(xi)
@@ -73,7 +73,7 @@ class SumFusion(nn.Module):
     def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
         if not inputs:
             msg = f"{self.__class__.__qualname__} needs at least one tensor as input"
-            raise RuntimeError(msg)
+            raise ValueError(msg)
 
         output = inputs[0]
         for x in inputs[1:]:

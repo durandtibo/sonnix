@@ -31,7 +31,7 @@ def test_asinh_numerical_encoder_scale_2_features() -> None:
 
 
 def test_asinh_numerical_encoder_scale_incorrect_shape() -> None:
-    with pytest.raises(RuntimeError, match=r"Incorrect shape for 'scale':"):
+    with pytest.raises(ValueError, match=r"Incorrect shape for 'scale':"):
         AsinhNumericalEncoder(torch.ones(2, 3, 4))
 
 

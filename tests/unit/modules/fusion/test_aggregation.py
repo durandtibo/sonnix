@@ -76,7 +76,7 @@ def test_average_fusion_backward(device: str) -> None:
 def test_multiplication_fusion_forward_0_input() -> None:
     module = MultiplicationFusion()
     with pytest.raises(
-        RuntimeError, match=r"MultiplicationFusion needs at least one tensor as input"
+        ValueError, match=r"MultiplicationFusion needs at least one tensor as input"
     ):
         module()
 
@@ -148,7 +148,7 @@ def test_sum_fusion_str() -> None:
 
 def test_sum_fusion_forward_0_input() -> None:
     module = SumFusion()
-    with pytest.raises(RuntimeError, match=r"SumFusion needs at least one tensor as input"):
+    with pytest.raises(ValueError, match=r"SumFusion needs at least one tensor as input"):
         module()
 
 
