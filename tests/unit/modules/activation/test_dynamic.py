@@ -21,36 +21,59 @@ def test_dynamic_asinh_str() -> None:
 
 
 @pytest.mark.parametrize(("shape_input", "expected"), [(5, (5,)), ([3], (3,)), ((4, 2), (4, 2))])
-def test_dynamic_asinh_normalized_shape(
+def test_dynamic_asinh_normalized_shape_value(
     shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
 ) -> None:
     module = DynamicAsinh(shape_input)
     assert module.normalized_shape == expected
+
+
+@pytest.mark.parametrize(("shape_input", "expected"), [(5, (5,)), ([3], (3,)), ((4, 2), (4, 2))])
+def test_dynamic_asinh_normalized_shape_shape(
+    shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
+) -> None:
+    module = DynamicAsinh(shape_input)
     assert module.weight.shape == expected
     assert module.bias.shape == expected
 
 
-def test_dynamic_asinh_normalized_shape_int() -> None:
+def test_dynamic_asinh_normalized_shape_int_weight() -> None:
     module = DynamicAsinh(normalized_shape=5)
     assert module.weight.equal(torch.ones(5))
+
+
+def test_dynamic_asinh_normalized_shape_int_bias() -> None:
+    module = DynamicAsinh(normalized_shape=5)
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_dynamic_asinh_normalized_shape_list() -> None:
+def test_dynamic_asinh_normalized_shape_list_weight() -> None:
     module = DynamicAsinh(normalized_shape=[5])
     assert module.weight.equal(torch.ones(5))
+
+
+def test_dynamic_asinh_normalized_shape_list_bias() -> None:
+    module = DynamicAsinh(normalized_shape=[5])
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_dynamic_asinh_normalized_shape_tuple_1() -> None:
+def test_dynamic_asinh_normalized_shape_tuple_1_weight() -> None:
     module = DynamicAsinh(normalized_shape=(5,))
     assert module.weight.equal(torch.ones(5))
+
+
+def test_dynamic_asinh_normalized_shape_tuple_1_bias() -> None:
+    module = DynamicAsinh(normalized_shape=(5,))
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_dynamic_asinh_normalized_shape_tuple_2() -> None:
+def test_dynamic_asinh_normalized_shape_tuple_2_weight() -> None:
     module = DynamicAsinh(normalized_shape=(4, 5))
     assert module.weight.equal(torch.ones(4, 5))
+
+
+def test_dynamic_asinh_normalized_shape_tuple_2_bias() -> None:
+    module = DynamicAsinh(normalized_shape=(4, 5))
     assert module.bias.equal(torch.zeros(4, 5))
 
 
@@ -164,7 +187,7 @@ def test_dynamic_asinh_forward_2d_custom_weights() -> None:
     )
 
 
-def test_dynamic_asinh_reset_parameters() -> None:
+def test_dynamic_asinh_reset_parameters_alpha() -> None:
     module = DynamicAsinh(normalized_shape=5)
     with torch.no_grad():
         module.alpha.data += 1.0
@@ -172,7 +195,25 @@ def test_dynamic_asinh_reset_parameters() -> None:
         module.bias.data += 1.0
     module.reset_parameters()
     assert module.alpha.equal(torch.tensor([0.5]))
+
+
+def test_dynamic_asinh_reset_parameters_weight() -> None:
+    module = DynamicAsinh(normalized_shape=5)
+    with torch.no_grad():
+        module.alpha.data += 1.0
+        module.weight.data += 1.0
+        module.bias.data += 1.0
+    module.reset_parameters()
     assert module.weight.equal(torch.ones(5))
+
+
+def test_dynamic_asinh_reset_parameters_bias() -> None:
+    module = DynamicAsinh(normalized_shape=5)
+    with torch.no_grad():
+        module.alpha.data += 1.0
+        module.weight.data += 1.0
+        module.bias.data += 1.0
+    module.reset_parameters()
     assert module.bias.equal(torch.zeros(5))
 
 
@@ -186,36 +227,59 @@ def test_dynamic_tanh_str() -> None:
 
 
 @pytest.mark.parametrize(("shape_input", "expected"), [(5, (5,)), ([3], (3,)), ((4, 2), (4, 2))])
-def test_dynamic_tanh_normalized_shape(
+def test_dynamic_tanh_normalized_shape_value(
     shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
 ) -> None:
     module = DynamicTanh(shape_input)
     assert module.normalized_shape == expected
+
+
+@pytest.mark.parametrize(("shape_input", "expected"), [(5, (5,)), ([3], (3,)), ((4, 2), (4, 2))])
+def test_dynamic_tanh_normalized_shape_shape(
+    shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
+) -> None:
+    module = DynamicTanh(shape_input)
     assert module.weight.shape == expected
     assert module.bias.shape == expected
 
 
-def test_dynamic_tanh_normalized_shape_int() -> None:
+def test_dynamic_tanh_normalized_shape_int_weight() -> None:
     module = DynamicTanh(normalized_shape=5)
     assert module.weight.equal(torch.ones(5))
+
+
+def test_dynamic_tanh_normalized_shape_int_bias() -> None:
+    module = DynamicTanh(normalized_shape=5)
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_dynamic_tanh_normalized_shape_list() -> None:
+def test_dynamic_tanh_normalized_shape_list_weight() -> None:
     module = DynamicTanh(normalized_shape=[5])
     assert module.weight.equal(torch.ones(5))
+
+
+def test_dynamic_tanh_normalized_shape_list_bias() -> None:
+    module = DynamicTanh(normalized_shape=[5])
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_dynamic_tanh_normalized_shape_tuple_1() -> None:
+def test_dynamic_tanh_normalized_shape_tuple_1_weight() -> None:
     module = DynamicTanh(normalized_shape=(5,))
     assert module.weight.equal(torch.ones(5))
+
+
+def test_dynamic_tanh_normalized_shape_tuple_1_bias() -> None:
+    module = DynamicTanh(normalized_shape=(5,))
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_dynamic_tanh_normalized_shape_tuple_2() -> None:
+def test_dynamic_tanh_normalized_shape_tuple_2_weight() -> None:
     module = DynamicTanh(normalized_shape=(4, 5))
     assert module.weight.equal(torch.ones(4, 5))
+
+
+def test_dynamic_tanh_normalized_shape_tuple_2_bias() -> None:
+    module = DynamicTanh(normalized_shape=(4, 5))
     assert module.bias.equal(torch.zeros(4, 5))
 
 
@@ -329,7 +393,7 @@ def test_dynamic_tanh_forward_2d_custom_weights() -> None:
     )
 
 
-def test_dynamic_tanh_reset_parameters() -> None:
+def test_dynamic_tanh_reset_parameters_alpha() -> None:
     module = DynamicTanh(normalized_shape=5)
     with torch.no_grad():
         module.alpha.data += 1.0
@@ -337,7 +401,25 @@ def test_dynamic_tanh_reset_parameters() -> None:
         module.bias.data += 1.0
     module.reset_parameters()
     assert module.alpha.equal(torch.tensor([0.5]))
+
+
+def test_dynamic_tanh_reset_parameters_weight() -> None:
+    module = DynamicTanh(normalized_shape=5)
+    with torch.no_grad():
+        module.alpha.data += 1.0
+        module.weight.data += 1.0
+        module.bias.data += 1.0
+    module.reset_parameters()
     assert module.weight.equal(torch.ones(5))
+
+
+def test_dynamic_tanh_reset_parameters_bias() -> None:
+    module = DynamicTanh(normalized_shape=5)
+    with torch.no_grad():
+        module.alpha.data += 1.0
+        module.weight.data += 1.0
+        module.bias.data += 1.0
+    module.reset_parameters()
     assert module.bias.equal(torch.zeros(5))
 
 
@@ -368,14 +450,22 @@ def test_base_dynamic_norm_abstract() -> None:
         BaseDynamicNorm(normalized_shape=3)
 
 
-def test_base_dynamic_norm_initial_parameters() -> None:
+def test_base_dynamic_norm_initial_parameters_alpha() -> None:
     module = MyDynamicNorm(normalized_shape=3, alpha_init_value=0.2)
     assert module.alpha.equal(torch.tensor([0.2]))
+
+
+def test_base_dynamic_norm_initial_parameters_weight() -> None:
+    module = MyDynamicNorm(normalized_shape=3, alpha_init_value=0.2)
     assert module.weight.equal(torch.ones(3))
+
+
+def test_base_dynamic_norm_initial_parameters_bias() -> None:
+    module = MyDynamicNorm(normalized_shape=3, alpha_init_value=0.2)
     assert module.bias.equal(torch.zeros(3))
 
 
-def test_base_dynamic_norm_reset_parameters() -> None:
+def test_base_dynamic_norm_reset_parameters_alpha() -> None:
     module = MyDynamicNorm(normalized_shape=3, alpha_init_value=0.2)
     with torch.no_grad():
         module.alpha.fill_(3.0)
@@ -383,7 +473,25 @@ def test_base_dynamic_norm_reset_parameters() -> None:
         module.bias.fill_(2.0)
     module.reset_parameters()
     assert module.alpha.equal(torch.tensor([0.2]))
+
+
+def test_base_dynamic_norm_reset_parameters_weight() -> None:
+    module = MyDynamicNorm(normalized_shape=3, alpha_init_value=0.2)
+    with torch.no_grad():
+        module.alpha.fill_(3.0)
+        module.weight.fill_(5.0)
+        module.bias.fill_(2.0)
+    module.reset_parameters()
     assert module.weight.equal(torch.ones(3))
+
+
+def test_base_dynamic_norm_reset_parameters_bias() -> None:
+    module = MyDynamicNorm(normalized_shape=3, alpha_init_value=0.2)
+    with torch.no_grad():
+        module.alpha.fill_(3.0)
+        module.weight.fill_(5.0)
+        module.bias.fill_(2.0)
+    module.reset_parameters()
     assert module.bias.equal(torch.zeros(3))
 
 
