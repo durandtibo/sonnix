@@ -51,7 +51,7 @@ class CosSinNumericalEncoder(nn.Module):
         ...     phase_shift=torch.zeros(1, 3),
         ... )
         >>> m
-        CosSinNumericalEncoder(frequency=(1, 6), phase_shift=(1, 6), learnable=False)
+        CosSinNumericalEncoder(frequency=(1, 3), phase_shift=(1, 3), learnable=False)
         >>> out = m(torch.tensor([[0.0], [1.0], [2.0], [3.0]]))
         >>> out
         tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000]],
@@ -64,7 +64,7 @@ class CosSinNumericalEncoder(nn.Module):
         ...     phase_shift=torch.zeros(2, 3),
         ... )
         >>> m
-        CosSinNumericalEncoder(frequency=(2, 6), phase_shift=(2, 6), learnable=False)
+        CosSinNumericalEncoder(frequency=(2, 3), phase_shift=(2, 3), learnable=False)
         >>> out = m(torch.tensor([[0.0, 3.0], [1.0, 2.0], [2.0, 1.0], [3.0, 0.0]]))
         >>> out
         tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000],
@@ -82,20 +82,16 @@ class CosSinNumericalEncoder(nn.Module):
     def __init__(self, frequency: Tensor, phase_shift: Tensor, learnable: bool = False) -> None:
         super().__init__()
         frequency = prepare_tensor_param(frequency, name="frequency")
-        self.frequency: nn.Parameter = nn.Parameter(frequency.repeat(1, 2), requires_grad=learnable)
+        self.frequency: nn.Parameter = nn.Parameter(frequency.clone(), requires_grad=learnable)
 
         phase_shift = prepare_tensor_param(phase_shift, name="phase_shift")
-        self.phase_shift: nn.Parameter = nn.Parameter(
-            phase_shift.repeat(1, 2), requires_grad=learnable
-        )
+        self.phase_shift: nn.Parameter = nn.Parameter(phase_shift.clone(), requires_grad=learnable)
         if self.frequency.shape != self.phase_shift.shape:
             msg = (
                 f"'frequency' and 'phase_shift' shapes do not match: {self.frequency.shape} "
                 f"vs {self.phase_shift.shape}"
             )
             raise RuntimeError(msg)
-
-        self._half_size = int(frequency.shape[1])
 
     @property
     def input_size(self) -> int:
@@ -105,7 +101,7 @@ class CosSinNumericalEncoder(nn.Module):
     @property
     def output_size(self) -> int:
         r"""Return the output feature size."""
-        return self.frequency.shape[1]
+        return 2 * self.frequency.shape[1]
 
     def extra_repr(self) -> str:
         return (
@@ -116,10 +112,7 @@ class CosSinNumericalEncoder(nn.Module):
 
     def forward(self, scalar: Tensor) -> Tensor:
         features = scalar.unsqueeze(dim=-1).mul(self.frequency).add(self.phase_shift)
-        return torch.cat(
-            (features[..., : self._half_size].sin(), features[..., self._half_size :].cos()),
-            dim=-1,
-        )
+        return torch.cat((features.sin(), features.cos()), dim=-1)
 
     @classmethod
     def create_rand_frequency(
@@ -152,7 +145,7 @@ class CosSinNumericalEncoder(nn.Module):
             ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
             ... )
             >>> m
-            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
+            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
 
             ```
         """
@@ -200,7 +193,7 @@ class CosSinNumericalEncoder(nn.Module):
             ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
             ... )
             >>> m
-            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
+            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
 
             ```
         """
@@ -242,7 +235,7 @@ class CosSinNumericalEncoder(nn.Module):
             ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
             ... )
             >>> m
-            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
+            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
 
             ```
         """
@@ -287,7 +280,7 @@ class CosSinNumericalEncoder(nn.Module):
             ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
             ... )
             >>> m
-            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
+            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
 
             ```
         """
@@ -330,7 +323,7 @@ class CosSinNumericalEncoder(nn.Module):
             ...     num_frequencies=5, min_frequency=0.1, max_frequency=1.0
             ... )
             >>> m
-            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
+            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
 
             ```
         """
@@ -379,7 +372,7 @@ class CosSinNumericalEncoder(nn.Module):
             ...     num_frequencies=5, min_abs_value=0.1, max_abs_value=1.0
             ... )
             >>> m
-            CosSinNumericalEncoder(frequency=(1, 10), phase_shift=(1, 10), learnable=False)
+            CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
 
             ```
         """
@@ -422,7 +415,7 @@ class AsinhCosSinNumericalEncoder(CosSinNumericalEncoder):
         ...     phase_shift=torch.zeros(1, 3),
         ... )
         >>> m
-        AsinhCosSinNumericalEncoder(frequency=(1, 6), phase_shift=(1, 6), learnable=False)
+        AsinhCosSinNumericalEncoder(frequency=(1, 3), phase_shift=(1, 3), learnable=False)
         >>> out = m(torch.tensor([[0.0], [1.0], [2.0], [3.0]]))
         >>> out
         tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000,  0.0000]],
@@ -435,7 +428,7 @@ class AsinhCosSinNumericalEncoder(CosSinNumericalEncoder):
         ...     phase_shift=torch.zeros(2, 3),
         ... )
         >>> m
-        AsinhCosSinNumericalEncoder(frequency=(2, 6), phase_shift=(2, 6), learnable=False)
+        AsinhCosSinNumericalEncoder(frequency=(2, 3), phase_shift=(2, 3), learnable=False)
         >>> out = m(torch.tensor([[0.0, 3.0], [1.0, 2.0], [2.0, 1.0], [3.0, 0.0]]))
         >>> out
         tensor([[[ 0.0000,  0.0000,  0.0000,  1.0000,  1.0000,  1.0000,  0.0000],
@@ -453,7 +446,7 @@ class AsinhCosSinNumericalEncoder(CosSinNumericalEncoder):
     @property
     def output_size(self) -> int:
         r"""Return the output feature size."""
-        return self.frequency.shape[1] + 1
+        return super().output_size + 1
 
     def forward(self, scalar: Tensor) -> Tensor:
         features = super().forward(scalar)
