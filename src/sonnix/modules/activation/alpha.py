@@ -2,7 +2,7 @@ r"""Contain activation modules with a learnable parameter ``alpha``."""
 
 from __future__ import annotations
 
-from coola.validation import validate_ge
+from coola.validation import validate_ge, validate_int
 
 __all__ = [
     "BaseAlphaActivation",
@@ -38,6 +38,10 @@ class BaseAlphaActivation(nn.Module):
         init: The initial value of the learnable parameter(s).
         learnable: If ``True``, the parameters are learnt during the
             training, otherwise they are fixed.
+        channel_dim: The dimension of the input that ``alpha`` is
+            broadcast over when ``num_parameters`` is greater than 1.
+            The default ``-1`` is the last dimension. Use ``1`` for
+            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
         device: The device of the parameters.
         dtype: The data type of the parameters. ``None`` uses the
             default floating point type.
@@ -47,7 +51,8 @@ class BaseAlphaActivation(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Raises:
-        ValueError: if ``num_parameters`` is lower than 1.
+        ValueError: if ``num_parameters`` is lower than 1, or if
+            ``init`` is 0 for a module that does not allow it.
 
     Example:
         ```pycon
@@ -64,17 +69,25 @@ class BaseAlphaActivation(nn.Module):
         ```
     """
 
+    allow_zero_init: bool = True
+
     def __init__(
         self,
         num_parameters: int = 1,
         init: float = 1.0,
         *,
         learnable: bool = True,
+        channel_dim: int = -1,
         device: torch.device | None = None,
         dtype: torch.dtype | None = None,
     ) -> None:
         super().__init__()
         validate_ge(num_parameters, 1, name="num_parameters")
+        validate_int(channel_dim, name="channel_dim")
+        if init == 0 and not self.allow_zero_init:
+            msg = f"'init' has to be different from 0 (received {init})"
+            raise ValueError(msg)
+        self.channel_dim = channel_dim
         self.alpha: Tensor
         alpha = torch.full(
             (num_parameters,),
@@ -94,8 +107,28 @@ class BaseAlphaActivation(nn.Module):
         r"""Indicate if ``alpha`` is learnable."""
         return isinstance(self.alpha, nn.Parameter)
 
+    def broadcast_alpha(self, input: torch.Tensor) -> Tensor:  # noqa: A002
+        r"""Return ``alpha`` reshaped to broadcast with the input.
+
+        Args:
+            input: The input tensor. If ``alpha`` has several values,
+                the dimension ``channel_dim`` of the input must have
+                the same size.
+
+        Returns:
+            ``alpha`` unchanged if it has one value, otherwise a view
+                of ``alpha`` with size 1 in all the dimensions of the
+                input except ``channel_dim``.
+        """
+        if self.alpha.numel() == 1:
+            return self.alpha
+        shape = [1] * input.ndim
+        shape[self.channel_dim] = -1
+        return self.alpha.view(shape)
+
     def extra_repr(self) -> str:
-        return f"num_parameters={self.alpha.numel()}, learnable={self.learnable}"
+        extra = f", channel_dim={self.channel_dim}" if self.alpha.numel() > 1 else ""
+        return f"num_parameters={self.alpha.numel()}, learnable={self.learnable}{extra}"
 
 
 class ExpSin(BaseAlphaActivation):
@@ -116,6 +149,13 @@ class ExpSin(BaseAlphaActivation):
         init: The initial value of the learnable parameter(s).
         learnable: If ``True``, the parameters are learnt during the
             training, otherwise they are fixed.
+        channel_dim: The dimension of the input that ``alpha`` is
+            broadcast over when ``num_parameters`` is greater than 1.
+            The default ``-1`` is the last dimension. Use ``1`` for
+            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -137,7 +177,7 @@ class ExpSin(BaseAlphaActivation):
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.mul(self.alpha).sin().neg().exp()
+        return input.mul(self.broadcast_alpha(input)).sin().neg().exp()
 
 
 class Gaussian(BaseAlphaActivation):
@@ -161,10 +201,21 @@ class Gaussian(BaseAlphaActivation):
         init: The initial value of the learnable parameter(s).
         learnable: If ``True``, the parameters are learnt during the
             training, otherwise they are fixed.
+        channel_dim: The dimension of the input that ``alpha`` is
+            broadcast over when ``num_parameters`` is greater than 1.
+            The default ``-1`` is the last dimension. Use ``1`` for
+            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
+
+    Raises:
+        ValueError: if ``num_parameters`` is lower than 1 or ``init``
+            is 0.
 
     Example:
         ```pycon
@@ -181,8 +232,10 @@ class Gaussian(BaseAlphaActivation):
         ```
     """
 
+    allow_zero_init = False
+
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.pow(2).mul(-0.5).div(self.alpha.pow(2)).exp()
+        return input.pow(2).mul(-0.5).div(self.broadcast_alpha(input).pow(2)).exp()
 
 
 class Laplacian(BaseAlphaActivation):
@@ -206,10 +259,21 @@ class Laplacian(BaseAlphaActivation):
         init: The initial value of the learnable parameter(s).
         learnable: If ``True``, the parameters are learnt during the
             training, otherwise they are fixed.
+        channel_dim: The dimension of the input that ``alpha`` is
+            broadcast over when ``num_parameters`` is greater than 1.
+            The default ``-1`` is the last dimension. Use ``1`` for
+            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
+
+    Raises:
+        ValueError: if ``num_parameters`` is lower than 1 or ``init``
+            is 0.
 
     Example:
         ```pycon
@@ -226,8 +290,10 @@ class Laplacian(BaseAlphaActivation):
         ```
     """
 
+    allow_zero_init = False
+
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.abs().mul(-1).div(self.alpha).exp()
+        return input.abs().mul(-1).div(self.broadcast_alpha(input)).exp()
 
 
 class MultiQuadratic(BaseAlphaActivation):
@@ -248,6 +314,13 @@ class MultiQuadratic(BaseAlphaActivation):
         init: The initial value of the learnable parameter(s).
         learnable: If ``True``, the parameters are learnt during the
             training, otherwise they are fixed.
+        channel_dim: The dimension of the input that ``alpha`` is
+            broadcast over when ``num_parameters`` is greater than 1.
+            The default ``-1`` is the last dimension. Use ``1`` for
+            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -269,7 +342,7 @@ class MultiQuadratic(BaseAlphaActivation):
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return 1.0 / input.mul(self.alpha).pow(2).add(1).sqrt()
+        return 1.0 / input.mul(self.broadcast_alpha(input)).pow(2).add(1).sqrt()
 
 
 class Quadratic(BaseAlphaActivation):
@@ -290,6 +363,13 @@ class Quadratic(BaseAlphaActivation):
         init: The initial value of the learnable parameter(s).
         learnable: If ``True``, the parameters are learnt during the
             training, otherwise they are fixed.
+        channel_dim: The dimension of the input that ``alpha`` is
+            broadcast over when ``num_parameters`` is greater than 1.
+            The default ``-1`` is the last dimension. Use ``1`` for
+            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -311,4 +391,4 @@ class Quadratic(BaseAlphaActivation):
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return 1.0 / input.mul(self.alpha).pow(2).add(1)
+        return 1.0 / input.mul(self.broadcast_alpha(input)).pow(2).add(1)
