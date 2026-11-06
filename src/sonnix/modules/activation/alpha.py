@@ -93,14 +93,14 @@ class ExpSin(BaseAlphaActivation):
         ExpSin(num_parameters=1, learnable=True)
         >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
         >>> out
-        tensor([[1.0000, 2.3198, 2.4826, 1.1516],
-                [0.4692, 0.3833, 0.7562, 1.9290]], grad_fn=<ExpBackward0>)
+        tensor([[1.0000, 0.4311, 0.4028, 0.8684],
+                [2.1314, 2.6089, 1.3224, 0.5184]], grad_fn=<ExpBackward0>)
 
         ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.mul(self.alpha).sin().exp()
+        return input.mul(self.alpha).sin().neg().exp()
 
 
 class Gaussian(BaseAlphaActivation):
