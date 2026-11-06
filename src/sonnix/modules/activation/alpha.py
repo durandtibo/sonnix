@@ -108,6 +108,9 @@ class Gaussian(BaseAlphaActivation):
 
     Formula: ``exp(-0.5 * x^2 / alpha^2)``
 
+    Note: the output is ``nan`` or ``inf`` if ``alpha`` reaches ``0``,
+    which can happen during training when ``alpha`` is learnable.
+
     This activation layer was proposed in the following paper:
 
         Beyond Periodicity: Towards a Unifying Framework for Activations in Coordinate-MLPs.
@@ -149,6 +152,9 @@ class Laplacian(BaseAlphaActivation):
     r"""Implement the Laplacian activation layer.
 
     Formula: ``exp(-|x| / alpha)``
+
+    Note: the output is ``nan`` or ``inf`` if ``alpha`` reaches ``0``,
+    which can happen during training when ``alpha`` is learnable.
 
     This activation layer was proposed in the following paper:
 

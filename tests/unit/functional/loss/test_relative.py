@@ -6,6 +6,7 @@ from coola.equality import objects_are_allclose, objects_are_equal
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import relative_loss
+from sonnix.functional.loss import moment_mean_indicator
 from sonnix.functional.loss.relative import (
     arithmetical_mean_indicator,
     classical_relative_indicator,
@@ -290,3 +291,9 @@ def test_reversed_relative_indicator(device: str) -> None:
         ),
         torch.tensor([[2.0, 1.0, 0.0], [3.0, 5.0, 1.0]], device=device),
     )
+
+
+@pytest.mark.parametrize("k", [0, -1])
+def test_moment_mean_indicator_incorrect_k(k: int) -> None:
+    with pytest.raises(ValueError, match="Incorrect parameter k"):
+        moment_mean_indicator(torch.randn(2, 3), torch.randn(2, 3), k=k)

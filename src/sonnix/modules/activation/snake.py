@@ -45,6 +45,9 @@ class Snake(nn.Module):
 
     def __init__(self, frequency: float = 1.0) -> None:
         super().__init__()
+        if frequency == 0:
+            msg = "'frequency' has to be different from 0"
+            raise ValueError(msg)
         self._frequency = float(frequency)
 
     def extra_repr(self) -> str:
