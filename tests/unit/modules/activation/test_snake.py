@@ -48,12 +48,28 @@ def test_snake_forward_frequency_2() -> None:
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("shape", SHAPES)
-def test_snake_forward_shape(shape: tuple[int, ...], device: str) -> None:
+def test_snake_forward_shape_value(shape: tuple[int, ...], device: str) -> None:
     device = torch.device(device)
     module = Snake().to(device=device)
     out = module(torch.randn(*shape, device=device))
     assert out.shape == shape
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_snake_forward_shape_dtype(shape: tuple[int, ...], device: str) -> None:
+    device = torch.device(device)
+    module = Snake().to(device=device)
+    out = module(torch.randn(*shape, device=device))
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_snake_forward_shape_device(shape: tuple[int, ...], device: str) -> None:
+    device = torch.device(device)
+    module = Snake().to(device=device)
+    out = module(torch.randn(*shape, device=device))
     assert out.device == device
 
 
