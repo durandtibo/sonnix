@@ -53,6 +53,10 @@ jobs:
     uses: ./.github/workflows/ci-doctest.yaml
     secrets: inherit
 
+  # Execute the notebooks
+  notebooks:
+    uses: ./.github/workflows/ci-notebooks.yaml
+
   # Verify code formatting and linting
   format:
     uses: ./.github/workflows/ci-format.yaml
