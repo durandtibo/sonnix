@@ -75,7 +75,7 @@ def is_loss_decreasing(
         module.eval()
         with torch_seed(random_seed):
             initial_loss = criterion(module(feature), target).item()
-        logger.debug(f"Initial loss value: {initial_loss}")
+        logger.debug("Initial loss value: %s", initial_loss)
 
         module.train()
         for _ in range(num_iterations):
@@ -89,7 +89,7 @@ def is_loss_decreasing(
         module.eval()
         with torch_seed(random_seed):
             final_loss = criterion(module(feature), target).item()
-        logger.debug(f"Final loss value: {final_loss}")
+        logger.debug("Final loss value: %s", final_loss)
     return final_loss < initial_loss
 
 
