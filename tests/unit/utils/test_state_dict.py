@@ -5,7 +5,7 @@ import torch
 from coola.equality import objects_are_equal
 from torch import nn
 
-from sonnix.utils.state_dict import find_module_state_dict, load_state_dict_to_module
+from sonnix.utils.state_dict import _find_module_state_dict, load_state_dict_to_module
 
 LINEAR_STATE_DICT = {"weight": torch.ones(5, 4), "bias": 2 * torch.ones(5)}
 
@@ -21,25 +21,25 @@ STATE_DICTS = [
 ]
 
 
-############################################
-#     Tests for find_module_state_dict     #
-############################################
+#############################################
+#     Tests for _find_module_state_dict     #
+#############################################
 
 
 def test_find_module_state_dict() -> None:
     state_dict = {"weight": torch.ones(5, 4), "bias": 2 * torch.ones(5)}
-    assert objects_are_equal(state_dict, find_module_state_dict(state_dict, {"weight", "bias"}))
+    assert objects_are_equal(state_dict, _find_module_state_dict(state_dict, {"weight", "bias"}))
 
 
 @pytest.mark.parametrize("state_dict", STATE_DICTS)
 def test_find_module_state_dict_nested(state_dict: dict) -> None:
     assert objects_are_equal(
-        LINEAR_STATE_DICT, find_module_state_dict(state_dict, {"bias", "weight"})
+        LINEAR_STATE_DICT, _find_module_state_dict(state_dict, {"bias", "weight"})
     )
 
 
 def test_find_module_state_dict_missing_key() -> None:
-    assert find_module_state_dict({"weight": torch.ones(5, 4)}, {"bias", "weight"}) == {}
+    assert _find_module_state_dict({"weight": torch.ones(5, 4)}, {"bias", "weight"}) == {}
 
 
 ###############################################
@@ -139,48 +139,48 @@ PREFIXED_STATE_DICTS = [
 @pytest.mark.parametrize("state_dict", PREFIXED_STATE_DICTS)
 def test_find_module_state_dict_strips_prefix(state_dict: dict) -> None:
     assert objects_are_equal(
-        find_module_state_dict(state_dict, {"weight", "bias"}), LINEAR_STATE_DICT
+        _find_module_state_dict(state_dict, {"weight", "bias"}), LINEAR_STATE_DICT
     )
 
 
 def test_find_module_state_dict_strips_prefix_nested() -> None:
     state_dict = {"model": PREFIXED_STATE_DICTS[0]}
     assert objects_are_equal(
-        find_module_state_dict(state_dict, {"weight", "bias"}), LINEAR_STATE_DICT
+        _find_module_state_dict(state_dict, {"weight", "bias"}), LINEAR_STATE_DICT
     )
 
 
 def test_find_module_state_dict_prefix_must_be_shared_by_all_keys() -> None:
     state_dict = {"module.weight": torch.ones(5, 4), "bias": 2 * torch.ones(5)}
-    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+    assert _find_module_state_dict(state_dict, {"weight", "bias"}) == {}
 
 
 def test_find_module_state_dict_prefix_must_end_with_a_dot() -> None:
     state_dict = {"xweight": torch.ones(5, 4), "xbias": 2 * torch.ones(5)}
-    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+    assert _find_module_state_dict(state_dict, {"weight", "bias"}) == {}
 
 
 def test_find_module_state_dict_prefix_with_different_keys() -> None:
     state_dict = {"module.weight": torch.ones(5, 4), "module.other": 2 * torch.ones(5)}
-    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+    assert _find_module_state_dict(state_dict, {"weight", "bias"}) == {}
 
 
 def test_find_module_state_dict_prefix_differs_between_keys() -> None:
     state_dict = {"a.weight": torch.ones(5, 4), "b.bias": 2 * torch.ones(5)}
-    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+    assert _find_module_state_dict(state_dict, {"weight", "bias"}) == {}
 
 
 def test_find_module_state_dict_prefix_with_extra_key() -> None:
     state_dict = {"module.bias": 2 * torch.ones(5), "module.other": 1}
-    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+    assert _find_module_state_dict(state_dict, {"weight", "bias"}) == {}
 
 
 def test_find_module_state_dict_prefix_empty_module_keys() -> None:
-    assert find_module_state_dict({"module.weight": 1}, set()) == {}
+    assert _find_module_state_dict({"module.weight": 1}, set()) == {}
 
 
 def test_find_module_state_dict_prefix_non_string_keys() -> None:
-    assert find_module_state_dict({1: 1, 2: 2}, {"weight"}) == {}
+    assert _find_module_state_dict({1: 1, 2: 2}, {"weight"}) == {}
 
 
 @pytest.mark.parametrize("state_dict", PREFIXED_STATE_DICTS)

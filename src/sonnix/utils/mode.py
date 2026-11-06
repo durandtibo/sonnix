@@ -3,7 +3,7 @@ r"""Contain utility functions to manage the mode of a
 
 from __future__ import annotations
 
-__all__ = ["module_mode", "top_module_mode"]
+__all__ = ["module_mode"]
 
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
@@ -54,38 +54,3 @@ def module_mode(module: nn.Module) -> Generator[None]:
     finally:
         for submodule, mode in modes:
             submodule.train(mode)
-
-
-@contextmanager
-def top_module_mode(module: nn.Module) -> Generator[None]:
-    r"""Implement a context manager that restores the mode (train or
-    eval) of a given module.
-
-    This context manager only restores the mode at the top-level.
-
-    Args:
-        module: The module to restore the mode.
-
-    Example:
-        ```pycon
-        >>> import torch
-        >>> from sonnix.utils.mode import top_module_mode
-        >>> module = torch.nn.Linear(4, 6)
-        >>> print(module.training)
-        True
-        >>> with top_module_mode(module):
-        ...     module.eval()
-        ...     print(module.training)
-        ...
-        Linear(in_features=4, out_features=6, bias=True)
-        False
-        >>> print(module.training)
-        True
-
-        ```
-    """
-    mode = module.training
-    try:
-        yield
-    finally:
-        module.train(mode)

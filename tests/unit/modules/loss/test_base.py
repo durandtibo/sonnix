@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 import torch
 
-from sonnix.modules.loss import BaseLoss
+from sonnix.modules import BaseLoss
 from sonnix.validation.loss import VALID_REDUCTIONS
 
 

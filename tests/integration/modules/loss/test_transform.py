@@ -5,7 +5,7 @@ import torch
 from torch import nn
 
 from sonnix.modules import Asinh, Clamp, Sinh, TransformedLoss
-from sonnix.utils.loss import is_loss_decreasing_with_sgd
+from sonnix.testing.loss import is_loss_decreasing_with_sgd
 
 CRITERIA = [nn.MSELoss(), nn.SmoothL1Loss(), nn.L1Loss()]
 TRANSFORMS = [Asinh(), Sinh(), Clamp()]

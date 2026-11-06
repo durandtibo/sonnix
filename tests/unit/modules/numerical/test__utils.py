@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 import torch
 from coola.equality import objects_are_equal
+from coola.random import make_torch_generator
 
 from sonnix.modules import (
     AsinhCosSinNumericalEncoder,
@@ -12,10 +13,27 @@ from sonnix.modules import (
 )
 from sonnix.modules.numerical._utils import (
     NumericalEncoder,
+    _resolve_torch_generator,
     create_spaced_values,
     prepare_tensor_param,
     resolve_range,
 )
+
+#############################################
+#     Tests for _resolve_torch_generator    #
+#############################################
+
+
+def test_resolve_torch_generator() -> None:
+    generator = make_torch_generator(1)
+    assert _resolve_torch_generator(generator) is generator
+
+
+def test_resolve_torch_generator_seed() -> None:
+    assert objects_are_equal(
+        _resolve_torch_generator(1).get_state(), make_torch_generator(1).get_state()
+    )
+
 
 ##########################################
 #     Tests for prepare_tensor_param     #

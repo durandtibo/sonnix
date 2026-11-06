@@ -69,65 +69,68 @@ __all__ = [
     "View",
 ]
 
-from sonnix.modules.activation import (
-    Asinh,
+from sonnix.modules.activation.alpha import (
     BaseAlphaActivation,
-    BaseDynamicNorm,
-    Clamp,
-    DynamicAsinh,
-    DynamicTanh,
-    Exp,
-    Expm1,
     ExpSin,
     Gaussian,
     Laplacian,
+    MultiQuadratic,
+    Quadratic,
+)
+from sonnix.modules.activation.clamp import Clamp
+from sonnix.modules.activation.dynamic import BaseDynamicNorm, DynamicAsinh, DynamicTanh
+from sonnix.modules.activation.hyperbolic import RectifierAsinhUnit
+from sonnix.modules.activation.math import (
+    Asinh,
+    Exp,
+    Expm1,
     Log,
     Log1p,
-    MultiQuadratic,
     Pow,
-    Quadratic,
-    RectifierAsinhUnit,
-    ReLUn,
     SafeExp,
     SafeLog,
     Sin,
     Sinh,
-    Snake,
     Square,
-    SquaredReLU,
 )
+from sonnix.modules.activation.relu import ReLUn, SquaredReLU
+from sonnix.modules.activation.snake import Snake
 from sonnix.modules.classification import ToBinaryLabel, ToCategoricalLabel
 from sonnix.modules.dtype import ToDtype, ToFloat, ToLong
 from sonnix.modules.exu import ExU
-from sonnix.modules.fusion import (
+from sonnix.modules.fusion.aggregation import (
     AverageFusion,
-    BaseFusion,
-    ConcatFusion,
     MultiplicationFusion,
     SumFusion,
 )
-from sonnix.modules.loss import (
+from sonnix.modules.fusion.base import BaseFusion
+from sonnix.modules.fusion.concat import ConcatFusion
+from sonnix.modules.loss.base import BaseLoss
+from sonnix.modules.loss.focal import (
     BaseBinaryFocalLoss,
-    BaseBinaryPoly1Loss,
-    BaseLoss,
     BinaryFocalLoss,
     BinaryFocalLossWithLogits,
+)
+from sonnix.modules.loss.general_robust import GeneralRobustRegressionLoss
+from sonnix.modules.loss.log import LogCoshLoss
+from sonnix.modules.loss.multiclass import MulticlassFlatten
+from sonnix.modules.loss.poisson import PoissonRegressionLoss
+from sonnix.modules.loss.poly import (
+    BaseBinaryPoly1Loss,
     BinaryPoly1Loss,
     BinaryPoly1LossWithLogits,
-    GeneralRobustRegressionLoss,
-    LogCoshLoss,
-    MulticlassFlatten,
-    PoissonRegressionLoss,
-    QuantileRegressionLoss,
-    RelativeLoss,
-    TransformedLoss,
 )
+from sonnix.modules.loss.quantile import QuantileRegressionLoss
+from sonnix.modules.loss.relative import (
+    RelativeLoss,
+)
+from sonnix.modules.loss.transform import TransformedLoss
 from sonnix.modules.nlinear import NLinear
-from sonnix.modules.numerical import (
+from sonnix.modules.numerical.asinh import AsinhNumericalEncoder
+from sonnix.modules.numerical.piecewise import PiecewiseLinearNumericalEncoder
+from sonnix.modules.numerical.sine import (
     AsinhCosSinNumericalEncoder,
-    AsinhNumericalEncoder,
     CosSinNumericalEncoder,
-    PiecewiseLinearNumericalEncoder,
 )
 from sonnix.modules.residual import ResidualBlock
 from sonnix.modules.scale_and_shift import ScaleAndShift

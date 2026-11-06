@@ -7,6 +7,15 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- Reorganize the packages (target state step 8, #422):
+  `sonnix.utils.loss` (`is_loss_decreasing*`) moves to `sonnix.testing.loss`; `sonnix.factory.dataset` and
+  `sonnix.factory.optimizer` (`resolve_dataset`, `is_dataset_config`, `resolve_optimizer`, `is_optimizer_config`)
+  are removed (use `coola.factory.resolve_object`); `sonnix.utils.iterator` (`get_named_modules`),
+  `top_module_mode` and `sonnix.utils.random` (`resolve_torch_generator`, use `coola.random.make_torch_generator`)
+  are removed; `find_module_state_dict` is private. `Reduction` and `VALID_REDUCTIONS` are defined once in
+  `sonnix.validation` (`sonnix.functional.Reduction` is the same object). The sub-packages
+  `sonnix.modules.{activation,fusion,loss,numerical}` no longer export the classes: import them from
+  `sonnix.modules`.
 - The numerical encoders (`AsinhNumericalEncoder`, `CosSinNumericalEncoder`, `AsinhCosSinNumericalEncoder`,
   `PiecewiseLinearNumericalEncoder`) check that the last dimension of the input is `n_features` and raise a
   `ValueError` naming it, instead of a torch broadcast `RuntimeError`. An encoder with `n_features == 1` does not

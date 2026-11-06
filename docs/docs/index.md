@@ -56,11 +56,10 @@ helpers for training and testing, listed at the end. It contains:
   `AsinhNumericalEncoder` and `PiecewiseLinearNumericalEncoder` to embed numerical features.
 - **Layers**: `NLinear`, `ExU`, `ResidualBlock`, `ScaleAndShift`, `DynamicTanh`, `DynamicAsinh`,
   the fusion modules and the shape and dtype helpers.
-- **Training and testing helpers** (not used by the modules and the functions above): `sonnix.factory`
-  builds modules, datasets and optimizers from a configuration (`ResidualBlock` and `TransformedLoss`
-  use its `resolve_module`), `sonnix.utils` inspects, freezes and checks modules (`num_parameters`,
-  `freeze_module`, `is_loss_decreasing`, `load_state_dict_to_module`), and `sonnix.testing` provides
-  `DummyDataset`.
+- **Helpers**: `sonnix.factory` builds modules from a configuration (`ResidualBlock` and
+  `TransformedLoss` use its `resolve_module`), `sonnix.utils` inspects, freezes and loads modules
+  (`num_parameters`, `freeze_module`, `load_state_dict_to_module`), and `sonnix.testing` provides
+  `DummyDataset` and `is_loss_decreasing` to test your own modules.
 
 ## Installation
 

@@ -9,16 +9,40 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Literal
 
 import torch
+from coola.random import make_torch_generator
 from coola.validation import validate_ge, validate_in, validate_int
 from torch import nn
 
-from sonnix.utils.random import resolve_torch_generator
 from sonnix.validation import validate_abs_range
 
 if TYPE_CHECKING:
     from torch import Tensor
 
 SPACINGS = ("rand", "linspace", "logspace")
+
+
+def _resolve_torch_generator(generator_or_seed: int | torch.Generator) -> torch.Generator:
+    r"""Resolve a ``torch.Generator`` object.
+
+    Args:
+        generator_or_seed: A ``torch.Generator`` object or a random
+            seed.
+
+    Returns:
+        A ``torch.Generator`` object.
+
+    Example:
+        ```pycon
+        >>> from sonnix.modules.numerical._utils import _resolve_torch_generator
+        >>> generator = _resolve_torch_generator(42)
+        >>> generator
+        <torch._C.Generator object at 0x...>
+
+        ```
+    """
+    if isinstance(generator_or_seed, torch.Generator):
+        return generator_or_seed
+    return make_torch_generator(generator_or_seed)
 
 
 def prepare_tensor_param(tensor: Tensor, name: str) -> Tensor:
@@ -108,7 +132,7 @@ def create_spaced_values(
             torch.rand(
                 n_features,
                 num_values,
-                generator=None if generator is None else resolve_torch_generator(generator),
+                generator=None if generator is None else _resolve_torch_generator(generator),
                 device=device,
                 dtype=dtype,
             )

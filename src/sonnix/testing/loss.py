@@ -1,4 +1,4 @@
-r"""Contain utility functions to check if the loss is decreasing."""
+r"""Contain functions to check if the loss is decreasing."""
 
 from __future__ import annotations
 
@@ -60,7 +60,7 @@ def is_loss_decreasing(
         >>> import torch
         >>> from torch import nn
         >>> from torch.optim import SGD
-        >>> from sonnix.utils.loss import is_loss_decreasing
+        >>> from sonnix.testing.loss import is_loss_decreasing
         >>> module = nn.Linear(4, 2)
         >>> is_loss_decreasing(
         ...     module=module,
@@ -134,7 +134,7 @@ def is_loss_decreasing_with_adam(
         ```pycon
         >>> import torch
         >>> from torch import nn
-        >>> from sonnix.utils.loss import is_loss_decreasing_with_adam
+        >>> from sonnix.testing.loss import is_loss_decreasing_with_adam
         >>> is_loss_decreasing_with_adam(
         ...     module=nn.Linear(4, 2),
         ...     criterion=nn.MSELoss(),
@@ -196,7 +196,7 @@ def is_loss_decreasing_with_sgd(
         ```pycon
         >>> import torch
         >>> from torch import nn
-        >>> from sonnix.utils.loss import is_loss_decreasing_with_sgd
+        >>> from sonnix.testing.loss import is_loss_decreasing_with_sgd
         >>> is_loss_decreasing_with_sgd(
         ...     module=nn.Linear(4, 2),
         ...     criterion=nn.MSELoss(),

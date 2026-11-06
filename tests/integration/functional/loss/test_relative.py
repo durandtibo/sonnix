@@ -18,7 +18,7 @@ from sonnix.functional.loss import (
     moment_mean_indicator,
     reversed_relative_indicator,
 )
-from sonnix.utils.loss import is_loss_decreasing_with_sgd
+from sonnix.testing.loss import is_loss_decreasing_with_sgd
 
 if TYPE_CHECKING:
     from collections.abc import Callable
