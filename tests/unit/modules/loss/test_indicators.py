@@ -7,6 +7,7 @@ from coola.utils.tensor import get_available_devices
 
 from sonnix.modules.loss import (
     ArithmeticalMeanIndicator,
+    BaseRelativeIndicator,
     ClassicalRelativeIndicator,
     GeometricMeanIndicator,
     MaximumMeanIndicator,
@@ -204,3 +205,13 @@ def test_reversed_relative_indicator_forward(device: str) -> None:
 def test_moment_mean_indicator_incorrect_k() -> None:
     with pytest.raises(ValueError, match="k must be greater than or equal to 1"):
         MomentMeanIndicator(k=0)
+
+
+###########################################
+#     Tests for BaseRelativeIndicator     #
+###########################################
+
+
+def test_base_relative_indicator_cannot_be_instantiated() -> None:
+    with pytest.raises(TypeError, match=r"abstract"):
+        BaseRelativeIndicator()

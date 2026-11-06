@@ -25,9 +25,8 @@ class RelativeLoss(nn.Module):
         criterion: The criterion or its configuration. This criterion
             should not have reduction to be compatible with the shapes
             of the prediction and targets.
-        indicator: The name of the indicator function to use or its
-            implementation. If ``None``, ``ClassicalRelativeIndicator``
-            is instantiated.
+        indicator: The indicator module or its configuration. If
+            ``None``, ``ClassicalRelativeIndicator`` is instantiated.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -38,6 +37,11 @@ class RelativeLoss(nn.Module):
             first dimension.
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
+        detach_indicator: If ``True``, the indicator is detached from
+            the graph so no gradient flows through the denominator.
+            By default (``False``) the gradients flow through the
+            indicator, which can reward shrinking it (e.g. with
+            ``ReversedRelativeIndicator``).
 
     Example:
         ```pycon
@@ -70,6 +74,8 @@ class RelativeLoss(nn.Module):
         indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
         reduction: str = "mean",
         eps: float = 1e-8,
+        *,
+        detach_indicator: bool = False,
     ) -> None:
         super().__init__()
         self.criterion: nn.Module = resolve_module(criterion)
@@ -80,13 +86,16 @@ class RelativeLoss(nn.Module):
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction
         self._eps = eps
+        self._detach_indicator = bool(detach_indicator)
 
     def extra_repr(self) -> str:
-        return f"eps={self._eps}, reduction={self.reduction}"
+        return f"eps={self._eps}, reduction={self.reduction}, detach_indicator={self._detach_indicator}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = self.criterion(prediction, target)
         indicator = self.indicator(prediction, target)
+        if self._detach_indicator:
+            indicator = indicator.detach()
         return relative_loss(
             loss=loss,
             indicator=indicator,
@@ -99,9 +108,8 @@ class RelativeMSELoss(RelativeLoss):
     r"""Implement the relative MSE loss.
 
     Args:
-        indicator: The name of the indicator function to use or its
-            implementation. If ``None``, ``ClassicalRelativeIndicator``
-            is instantiated.
+        indicator: The indicator module or its configuration. If
+            ``None``, ``ClassicalRelativeIndicator`` is instantiated.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -112,6 +120,11 @@ class RelativeMSELoss(RelativeLoss):
             first dimension.
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
+        detach_indicator: If ``True``, the indicator is detached from
+            the graph so no gradient flows through the denominator.
+            By default (``False``) the gradients flow through the
+            indicator, which can reward shrinking it (e.g. with
+            ``ReversedRelativeIndicator``).
 
     Example:
         ```pycon
@@ -140,12 +153,15 @@ class RelativeMSELoss(RelativeLoss):
         indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
         reduction: str = "mean",
         eps: float = 1e-8,
+        *,
+        detach_indicator: bool = False,
     ) -> None:
         super().__init__(
             criterion=nn.MSELoss(reduction="none"),
             indicator=indicator,
             reduction=reduction,
             eps=eps,
+            detach_indicator=detach_indicator,
         )
 
 
@@ -153,9 +169,8 @@ class RelativeSmoothL1Loss(RelativeLoss):
     r"""Implement the relative smooth L1 loss.
 
     Args:
-        indicator: The name of the indicator function to use or its
-            implementation. If ``None``, ``ClassicalRelativeIndicator``
-            is instantiated.
+        indicator: The indicator module or its configuration. If
+            ``None``, ``ClassicalRelativeIndicator`` is instantiated.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -166,6 +181,13 @@ class RelativeSmoothL1Loss(RelativeLoss):
             first dimension.
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
+        detach_indicator: If ``True``, the indicator is detached from
+            the graph so no gradient flows through the denominator.
+            By default (``False``) the gradients flow through the
+            indicator, which can reward shrinking it (e.g. with
+            ``ReversedRelativeIndicator``).
+        beta: The threshold at which to change between L1 and L2
+            loss. The value must be non-negative.
 
     Example:
         ```pycon
@@ -194,10 +216,14 @@ class RelativeSmoothL1Loss(RelativeLoss):
         indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
         reduction: str = "mean",
         eps: float = 1e-8,
+        *,
+        detach_indicator: bool = False,
+        beta: float = 1.0,
     ) -> None:
         super().__init__(
-            criterion=nn.SmoothL1Loss(reduction="none"),
+            criterion=nn.SmoothL1Loss(reduction="none", beta=beta),
             indicator=indicator,
             reduction=reduction,
             eps=eps,
+            detach_indicator=detach_indicator,
         )
