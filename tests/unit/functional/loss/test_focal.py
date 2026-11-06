@@ -264,3 +264,21 @@ def test_binary_focal_loss_with_logits_matches_probability_version() -> None:
         assert binary_focal_loss_with_logits(logits, target, alpha=alpha).allclose(
             binary_focal_loss(logits.sigmoid(), target, alpha=alpha)
         )
+
+
+def test_binary_focal_loss_with_logits_matches_probability_version_soft_target() -> None:
+    generator = torch.Generator().manual_seed(1)
+    logits = torch.randn(6, 5, generator=generator, dtype=torch.float64)
+    target = torch.rand(6, 5, generator=generator, dtype=torch.float64)
+    assert binary_focal_loss_with_logits(logits, target).allclose(
+        binary_focal_loss(logits.sigmoid(), target)
+    )
+
+
+def test_binary_focal_loss_with_logits_soft_target_reduction_none() -> None:
+    generator = torch.Generator().manual_seed(2)
+    logits = torch.randn(6, 5, generator=generator, dtype=torch.float64)
+    target = torch.rand(6, 5, generator=generator, dtype=torch.float64)
+    assert binary_focal_loss_with_logits(logits, target, reduction="none").allclose(
+        binary_focal_loss(logits.sigmoid(), target, reduction="none")
+    )
