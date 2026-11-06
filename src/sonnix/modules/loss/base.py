@@ -42,7 +42,7 @@ class BaseLoss(nn.Module):
         ```
     """
 
-    def __init__(self, reduction: Reduction = "mean") -> None:
+    def __init__(self, *, reduction: Reduction = "mean") -> None:
         super().__init__()
         validate_loss_reduction_strategy(reduction)
         self.reduction: Reduction = reduction

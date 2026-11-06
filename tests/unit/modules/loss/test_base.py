@@ -38,3 +38,8 @@ def test_base_loss_is_module() -> None:
 @pytest.mark.parametrize("reduction", VALID_REDUCTIONS)
 def test_base_loss_extra_repr(reduction: str) -> None:
     assert MyLoss(reduction=reduction).extra_repr() == f"reduction={reduction}"
+
+
+def test_base_loss_reduction_positional() -> None:
+    with pytest.raises(TypeError, match=r"takes 1 positional argument but 2 were given"):
+        BaseLoss("sum")

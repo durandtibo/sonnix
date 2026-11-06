@@ -13,12 +13,15 @@ from sonnix.modules import (
     BinaryPoly1Loss,
     BinaryPoly1LossWithLogits,
     GeneralRobustRegressionLoss,
+    LogCoshLoss,
+    MSLELoss,
     PoissonRegressionLoss,
     QuantileRegressionLoss,
     RelativeLoss,
     RelativeMSELoss,
     RelativeSmoothL1Loss,
 )
+from sonnix.modules.loss import BaseLoss
 
 if TYPE_CHECKING:
     from torch import nn
@@ -28,6 +31,9 @@ if TYPE_CHECKING:
 #################################################
 
 LOSSES = [
+    BaseLoss,
+    LogCoshLoss,
+    MSLELoss,
     AsinhMSELoss,
     AsinhSmoothL1Loss,
     BinaryFocalLoss,
