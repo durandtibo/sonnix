@@ -46,7 +46,9 @@ def get_module_devices(module: nn.Module) -> list[torch.device]:
         module: The module.
 
     Returns:
-        The list of ``torch.device``s used in the module.
+        The list of unique ``torch.device``s used in the module,
+            sorted by their string representation so the order is
+            deterministic.
 
     Example:
         ```pycon
@@ -57,7 +59,7 @@ def get_module_devices(module: nn.Module) -> list[torch.device]:
 
         ```
     """
-    return list({param.device for param in module.parameters()})
+    return sorted({param.device for param in module.parameters()}, key=str)
 
 
 def is_module_on_device(module: nn.Module, device: torch.device) -> bool:
