@@ -2,12 +2,11 @@ r"""Contain relu-like activation modules."""
 
 from __future__ import annotations
 
-from coola.validation import validate_ge
-
 __all__ = ["ReLUn", "SquaredReLU"]
 
 from typing import TYPE_CHECKING
 
+from coola.validation import validate_ge
 from torch import nn
 from torch.nn import functional
 

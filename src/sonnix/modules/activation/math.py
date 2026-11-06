@@ -2,8 +2,6 @@ r"""Contain activation modules using mathematical functions."""
 
 from __future__ import annotations
 
-from coola.validation import validate_gt
-
 __all__ = [
     "Asinh",
     "Exp",
@@ -19,6 +17,7 @@ __all__ = [
 ]
 
 import torch
+from coola.validation import validate_gt
 from torch import nn
 
 from sonnix.functional import safe_exp, safe_log

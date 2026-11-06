@@ -3,11 +3,11 @@ targets."""
 
 from __future__ import annotations
 
-from coola.validation import validate_gt
-
 __all__ = ["absolute_error", "absolute_relative_error", "symmetric_absolute_relative_error"]
 
 from typing import TYPE_CHECKING
+
+from coola.validation import validate_gt
 
 from sonnix.validation import validate_same_shape
 
