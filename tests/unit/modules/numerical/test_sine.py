@@ -830,3 +830,18 @@ def test_cos_sin_numerical_encoder_sin_cos_stay_consistent_after_update() -> Non
     optimizer.step()
     out = module(torch.tensor([[1.0]]))
     assert out[..., :2].pow(2).add(out[..., 2:].pow(2)).allclose(torch.ones(1, 1, 2))
+
+
+def test_cos_sin_numerical_encoder_frozen_is_buffer() -> None:
+    module = CosSinNumericalEncoder(frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3))
+    assert not module.learnable
+    assert len(list(module.parameters())) == 0
+    assert set(module.state_dict()) == {"frequency", "phase_shift"}
+
+
+def test_cos_sin_numerical_encoder_learnable_is_parameter() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3), learnable=True
+    )
+    assert module.learnable
+    assert {n for n, _ in module.named_parameters()} == {"frequency", "phase_shift"}

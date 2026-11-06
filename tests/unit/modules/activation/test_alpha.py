@@ -372,6 +372,19 @@ def test_quadratic_forward_init_2(device: str) -> None:
     )
 
 
+def test_gaussian_frozen_alpha_is_buffer() -> None:
+    module = Gaussian(learnable=False)
+    assert not module.learnable
+    assert len(list(module.parameters())) == 0
+    assert "alpha" in module.state_dict()
+
+
+def test_gaussian_learnable_alpha_is_parameter() -> None:
+    module = Gaussian()
+    assert module.learnable
+    assert [n for n, _ in module.named_parameters()] == ["alpha"]
+
+
 @pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
 def test_gaussian_dtype(dtype: torch.dtype) -> None:
     module = Gaussian(dtype=dtype)

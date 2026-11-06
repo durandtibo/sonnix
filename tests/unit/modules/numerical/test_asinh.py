@@ -158,3 +158,16 @@ def test_asinh_numerical_encoder_forward_scale_2_features_same_scale() -> None:
             ],
         ),
     )
+
+
+def test_asinh_numerical_encoder_frozen_scale_is_buffer() -> None:
+    module = AsinhNumericalEncoder(scale=torch.ones(2, 3))
+    assert not module.learnable
+    assert len(list(module.parameters())) == 0
+    assert "scale" in module.state_dict()
+
+
+def test_asinh_numerical_encoder_learnable_scale_is_parameter() -> None:
+    module = AsinhNumericalEncoder(scale=torch.ones(2, 3), learnable=True)
+    assert module.learnable
+    assert [n for n, _ in module.named_parameters()] == ["scale"]
