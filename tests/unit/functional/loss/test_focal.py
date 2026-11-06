@@ -266,6 +266,28 @@ def test_binary_focal_loss_with_logits_matches_probability_version() -> None:
         )
 
 
+@pytest.mark.parametrize("gamma", [0.0, 0.5, 1.0, 2.0])
+def test_binary_focal_loss_with_logits_gradient_finite_at_p_t_one(gamma: float) -> None:
+    prediction = torch.tensor([100.0, -100.0], requires_grad=True)
+    binary_focal_loss_with_logits(prediction, torch.tensor([1.0, 0.0]), gamma=gamma).backward()
+    assert prediction.grad.isfinite().all()
+
+
+@pytest.mark.parametrize("gamma", [0.0, 0.5, 1.0, 2.0])
+def test_binary_focal_loss_gradient_finite_at_p_t_one(gamma: float) -> None:
+    prediction = torch.tensor([1.0, 0.0], requires_grad=True)
+    binary_focal_loss(prediction, torch.tensor([1.0, 0.0]), gamma=gamma).backward()
+    assert prediction.grad.isfinite().all()
+
+
+def test_binary_focal_loss_with_logits_gamma_zero_is_cross_entropy() -> None:
+    prediction = torch.tensor([0.5, -1.0])
+    target = torch.tensor([1.0, 0.0])
+    assert binary_focal_loss_with_logits(prediction, target, alpha=None, gamma=0.0).allclose(
+        torch.nn.functional.binary_cross_entropy_with_logits(prediction, target)
+    )
+
+
 def test_binary_focal_loss_with_logits_matches_probability_version_soft_target() -> None:
     generator = torch.Generator().manual_seed(1)
     logits = torch.randn(6, 5, generator=generator, dtype=torch.float64)

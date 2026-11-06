@@ -298,6 +298,65 @@ def test_moment_mean_indicator_incorrect_k(k: int) -> None:
         moment_mean_indicator(torch.randn(2, 3), torch.randn(2, 3), k=k)
 
 
+#####################################################
+#     Tests for finite gradients of the indicators  #
+#####################################################
+
+
+def test_geometric_mean_indicator_gradient_zero_prediction() -> None:
+    prediction = torch.tensor([0.0, 2.0], requires_grad=True)
+    geometric_mean_indicator(prediction, torch.tensor([3.0, 2.0])).sum().backward()
+    assert objects_are_equal(prediction.grad, torch.tensor([0.0, 0.5]))
+
+
+def test_geometric_mean_indicator_gradient_zero_target() -> None:
+    prediction = torch.tensor([2.0, 1.0], requires_grad=True)
+    geometric_mean_indicator(prediction, torch.tensor([0.0, 1.0])).sum().backward()
+    assert objects_are_equal(prediction.grad, torch.tensor([0.0, 0.5]))
+
+
+def test_geometric_mean_indicator_gradient_zero_prediction_and_target() -> None:
+    prediction = torch.zeros(2, requires_grad=True)
+    geometric_mean_indicator(prediction, torch.zeros(2)).sum().backward()
+    assert objects_are_equal(prediction.grad, torch.zeros(2))
+
+
+def test_geometric_mean_indicator_value_zero() -> None:
+    assert objects_are_equal(
+        geometric_mean_indicator(torch.zeros(2), torch.tensor([1.0, 0.0])), torch.zeros(2)
+    )
+
+
+@pytest.mark.parametrize("k", [2, 3, 4])
+def test_moment_mean_indicator_gradient_zero_prediction_and_target(k: int) -> None:
+    prediction = torch.zeros(2, requires_grad=True)
+    moment_mean_indicator(prediction, torch.zeros(2), k=k).sum().backward()
+    assert objects_are_equal(prediction.grad, torch.zeros(2))
+
+
+@pytest.mark.parametrize("k", [2, 3, 4])
+def test_moment_mean_indicator_gradient_zero_prediction(k: int) -> None:
+    prediction = torch.zeros(2, requires_grad=True)
+    moment_mean_indicator(prediction, torch.ones(2), k=k).sum().backward()
+    assert prediction.grad.isfinite().all()
+
+
+@pytest.mark.parametrize("k", [2, 3])
+def test_moment_mean_indicator_value_zero(k: int) -> None:
+    assert objects_are_equal(
+        moment_mean_indicator(torch.zeros(2), torch.zeros(2), k=k), torch.zeros(2)
+    )
+
+
+def test_relative_loss_geometric_mean_indicator_gradient_zero_prediction() -> None:
+    prediction = torch.tensor([0.0, 1.0, 2.0], requires_grad=True)
+    target = torch.tensor([1.0, 2.0, 3.0])
+    relative_loss(
+        (prediction - target).abs(), geometric_mean_indicator(prediction, target)
+    ).backward()
+    assert prediction.grad.isfinite().all()
+
+
 @pytest.mark.parametrize("eps", [0.0, -1.0])
 def test_relative_loss_invalid_eps(eps: float) -> None:
     with pytest.raises(ValueError, match=r"eps must be greater than 0"):

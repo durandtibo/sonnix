@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from coola.validation import validate_ge, validate_range
 from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_logits
 
+from sonnix.functional.power import safe_pow
 from sonnix.functional.reduction import reduce_loss
 
 if TYPE_CHECKING:
@@ -93,7 +94,7 @@ def binary_focal_loss(
     validate_focal_params(alpha=alpha, gamma=gamma)
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
     p_t = prediction * target + (1 - prediction) * (1 - target)
-    loss = ce_loss * ((1 - p_t) ** gamma)
+    loss = ce_loss * safe_pow(1 - p_t, gamma)
 
     if alpha is not None:
         alpha_t = alpha * target + (1 - alpha) * (1 - target)
@@ -164,7 +165,7 @@ def binary_focal_loss_with_logits(
     # from the probabilities to support soft targets (label smoothing, mixup).
     probs = prediction.sigmoid()
     p_t = probs * target + (1 - probs) * (1 - target)
-    loss = ce_loss * ((1 - p_t) ** gamma)
+    loss = ce_loss * safe_pow(1 - p_t, gamma)
 
     if alpha is not None:
         alpha_t = alpha * target + (1 - alpha) * (1 - target)

@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 import torch
 from coola.validation import validate_ge, validate_gt
 
+from sonnix.functional.power import safe_pow
 from sonnix.functional.reduction import reduce_loss
 from sonnix.validation import validate_same_shape
 
@@ -149,7 +150,8 @@ def geometric_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> 
         target: The target values.
 
     Returns:
-        The indicator values.
+        The indicator values. The gradient is finite (zero) where the
+            prediction or the target is exactly zero.
 
     Example:
         ```pycon
@@ -160,11 +162,12 @@ def geometric_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> 
         >>> indicator = geometric_mean_indicator(prediction, target)
         >>> indicator
         tensor([[0.0000, 1.0000, 0.0000],
-                [3.0000, 2.2361, 1.0000]], grad_fn=<SqrtBackward0>)
+                [3.0000, 2.2361, 1.0000]], grad_fn=<WhereBackward0>)
 
         ```
     """
-    return target.abs().mul(prediction.abs()).sqrt()
+    product = target.abs().mul(prediction.abs())
+    return safe_pow(product, 0.5)
 
 
 def maximum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -253,12 +256,13 @@ def moment_mean_indicator(
         >>> indicator = moment_mean_indicator(prediction, target)
         >>> indicator
         tensor([[1.0000, 1.0000, 0.5000],
-                [3.0000, 3.0000, 1.0000]], grad_fn=<PowBackward0>)
+                [3.0000, 3.0000, 1.0000]], grad_fn=<WhereBackward0>)
 
         ```
     """
     check_moment_order(k)
-    return target.abs().pow(k).add(prediction.abs().pow(k)).mul(0.5).pow(1 / k)
+    mean = target.abs().pow(k).add(prediction.abs().pow(k)).mul(0.5)
+    return safe_pow(mean, 1 / k)
 
 
 def reversed_relative_indicator(
