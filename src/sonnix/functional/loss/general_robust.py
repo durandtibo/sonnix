@@ -5,19 +5,18 @@ from __future__ import annotations
 
 __all__ = ["general_robust_regression_loss"]
 
-import math
-from typing import TYPE_CHECKING
+import torch
 
 from sonnix.functional.reduction import reduce_loss
 
-if TYPE_CHECKING:
-    import torch
+# ``alpha`` values closer than ``ALPHA_EPS`` to 0 or 2 use the limit formulas.
+ALPHA_EPS = 1e-5
 
 
 def general_robust_regression_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
-    alpha: float = 2.0,
+    alpha: float | torch.Tensor = 2.0,
     scale: float = 1.0,
     max: float | None = None,  # noqa: A002
     reduction: str = "mean",
@@ -39,7 +38,11 @@ def general_robust_regression_loss(
         prediction: The predictions.
         target: The target values.
         alpha: The shape parameter that controls the robustness of the
-            loss.
+            loss. It can be a float or a tensor that is broadcastable
+            with the error (e.g. a learnable parameter). ``-inf`` is
+            supported (Welsch loss). The limit cases ``alpha=2``
+            (``x^2``), ``alpha=0`` (``log(0.5 * x^2 + 1)``) are
+            used when ``alpha`` is within ``1e-5`` of 0 or 2.
         scale: The scale parameter that controls the size of the loss's
             quadratic bowl near 0.
         max: The max value to clip the loss before to compute the
@@ -71,13 +74,22 @@ def general_robust_regression_loss(
         ```
     """
     squared_error = prediction.sub(target).div(scale).pow(2)
-    if alpha == 2:
-        loss = squared_error
-    elif alpha == 0:
-        loss = squared_error.mul(0.5).add(1).log()
-    else:
-        alpha2 = math.fabs(alpha - 2)
-        loss = squared_error.div(alpha2).add(1).pow(alpha / 2).sub(1).mul(alpha2 / alpha)
+    alpha_t = torch.as_tensor(alpha, dtype=squared_error.dtype, device=squared_error.device)
+    is_two = (alpha_t - 2).abs() < ALPHA_EPS
+    is_zero = alpha_t.abs() < ALPHA_EPS
+    is_neg_inf = torch.isneginf(alpha_t)
+    is_special = is_two | is_zero | is_neg_inf
+
+    # Generic case, computed with ``log1p``/``expm1`` for numerical stability near
+    # ``alpha=0`` and ``alpha=2``. The special cases are replaced by a dummy value
+    # (``alpha=1``) to avoid NaN values in the gradient of the unused branches.
+    safe_alpha = torch.where(is_special, torch.ones_like(alpha_t), alpha_t)
+    b = (safe_alpha - 2).abs()
+    generic = (safe_alpha / 2 * squared_error.div(b).log1p()).expm1().mul(b / safe_alpha)
+
+    loss = torch.where(is_two, squared_error, generic)
+    loss = torch.where(is_zero, squared_error.mul(0.5).log1p(), loss)
+    loss = torch.where(is_neg_inf, -torch.expm1(squared_error.mul(-0.5)), loss)
     if max is not None:
         loss = loss.clamp(max=max)
     return reduce_loss(loss, reduction)
