@@ -89,7 +89,7 @@ class RelativeLoss(nn.Module):
         self._detach_indicator = bool(detach_indicator)
 
     def extra_repr(self) -> str:
-        return f"eps={self._eps}, reduction={self.reduction}"
+        return f"eps={self._eps}, reduction={self.reduction}, detach_indicator={self._detach_indicator}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = self.criterion(prediction, target)
