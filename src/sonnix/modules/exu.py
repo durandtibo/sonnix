@@ -14,6 +14,9 @@ from torch.nn.init import trunc_normal_, zeros_
 class ExU(nn.Module):
     r"""Implementation of the exp-centered (ExU) layer.
 
+    It computes ``y = exp(W) (x - b)``, where ``b`` is the bias, as in
+    the paper (note that the bias is subtracted, not added).
+
     This layer was proposed in the following paper:
 
         Neural Additive Models: Interpretable Machine Learning with
@@ -73,10 +76,13 @@ class ExU(nn.Module):
         self.reset_parameters()
 
     def extra_repr(self) -> str:
-        return f"in_features={self.in_features}, out_features={self.out_features}, bias={self.bias is not None}"
+        return (
+            f"in_features={self.in_features}, out_features={self.out_features}, "
+            f"bias={self.bias is not None}"
+        )
 
     def forward(self, input: Tensor) -> Tensor:  # noqa: A002
-        x = input if self.bias is None else input.add(self.bias)
+        x = input if self.bias is None else input.sub(self.bias)
         return functional.linear(x, self.weight.exp())
 
     def reset_parameters(self) -> None:

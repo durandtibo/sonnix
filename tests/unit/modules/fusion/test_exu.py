@@ -96,3 +96,12 @@ def test_exu_forward_4d(device: str, batch_size: int, bias: bool) -> None:
     assert output.shape == (batch_size, 3, 4, 6)
     assert output.dtype == torch.float
     assert output.device == device
+
+
+def test_exu_bias_is_subtracted() -> None:
+    module = ExU(in_features=2, out_features=1)
+    with torch.no_grad():
+        module.weight.zero_()  # exp(0) = 1
+        module.bias.copy_(torch.tensor([1.0, 2.0]))
+    # y = exp(W) (x - b) = (3 - 1) + (5 - 2) = 5
+    assert module(torch.tensor([[3.0, 5.0]])).allclose(torch.tensor([[5.0]]))
