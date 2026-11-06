@@ -10,8 +10,12 @@ from typing import TYPE_CHECKING, Literal
 from coola.validation import validate_ge, validate_gt
 from torch import nn
 
-from sonnix.modules.numerical._utils import create_spaced_values, prepare_tensor_param
-from sonnix.validation import validate_abs_range
+from sonnix.modules.numerical._utils import (
+    NumericalEncoder,
+    create_spaced_values,
+    prepare_tensor_param,
+    resolve_range,
+)
 
 if TYPE_CHECKING:
     from typing import Self
@@ -20,7 +24,7 @@ if TYPE_CHECKING:
     from torch import Tensor
 
 
-class AsinhNumericalEncoder(nn.Module):
+class AsinhNumericalEncoder(NumericalEncoder):
     r"""Implement a numerical encoder using the inverse hyperbolic sine
     (asinh).
 
@@ -30,6 +34,10 @@ class AsinhNumericalEncoder(nn.Module):
             ``(feature_size,)``.
         learnable: If ``True`` the scales are learnable,
             otherwise they are frozen.
+
+    Raises:
+        ValueError: if the input does not have ``n_features`` as last
+            dimension (no broadcast, even if ``n_features`` is 1).
 
     Shape:
         - Input: ``(*, n_features)``, where ``*`` means any number of
@@ -150,16 +158,7 @@ class AsinhNumericalEncoder(nn.Module):
 
             ```
         """
-        msg = "Exactly one of 'scale_range' and 'value_range' has to be provided"
-        if scale_range is not None and value_range is not None:
-            raise ValueError(msg)
-        if scale_range is not None:
-            min_scale, max_scale = scale_range
-        elif value_range is not None:
-            validate_abs_range(min_abs_value=value_range[0], max_abs_value=value_range[1])
-            min_scale, max_scale = 1 / value_range[1], 1 / value_range[0]
-        else:
-            raise ValueError(msg)
+        min_scale, max_scale = resolve_range("scale", scale_range, value_range)
         validate_ge(feature_size, 1, name="feature_size")
         validate_gt(min_scale, 0, name="min_scale")
         if max_scale < min_scale:
@@ -187,7 +186,6 @@ class AsinhNumericalEncoder(nn.Module):
 
     @property
     def n_features(self) -> int:
-        r"""Return the input feature size."""
         return self.scale.shape[0]
 
     @property
@@ -198,5 +196,5 @@ class AsinhNumericalEncoder(nn.Module):
     def extra_repr(self) -> str:
         return f"scale={tuple(self.scale.shape)}, learnable={self.learnable}"
 
-    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
+    def _encode(self, input: Tensor) -> Tensor:  # noqa: A002
         return input.unsqueeze(dim=-1).mul(self.scale).asinh()
