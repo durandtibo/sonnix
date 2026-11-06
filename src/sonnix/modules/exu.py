@@ -65,6 +65,7 @@ class ExU(nn.Module):
         self,
         in_features: int,
         out_features: int,
+        *,
         bias: bool = True,
         device: torch.device | None = None,
         dtype: torch.dtype | None = None,

@@ -81,7 +81,7 @@ class CosSinNumericalEncoder(nn.Module):
         ```
     """
 
-    def __init__(self, frequency: Tensor, phase_shift: Tensor, learnable: bool = False) -> None:
+    def __init__(self, frequency: Tensor, phase_shift: Tensor, *, learnable: bool = False) -> None:
         super().__init__()
         frequency = prepare_tensor_param(frequency, name="frequency")
         self.frequency: Tensor
@@ -135,6 +135,7 @@ class CosSinNumericalEncoder(nn.Module):
         num_frequencies: int,
         min_frequency: float,
         max_frequency: float,
+        *,
         learnable: bool = False,
     ) -> CosSinNumericalEncoder:
         r"""Create a ``CosSinNumericalEncoder`` where the frequencies are
@@ -183,6 +184,7 @@ class CosSinNumericalEncoder(nn.Module):
         num_frequencies: int,
         min_abs_value: float,
         max_abs_value: float,
+        *,
         learnable: bool = False,
     ) -> CosSinNumericalEncoder:
         r"""Create a ``CosSinNumericalEncoder`` where the frequencies are
@@ -226,6 +228,7 @@ class CosSinNumericalEncoder(nn.Module):
         num_frequencies: int,
         min_frequency: float,
         max_frequency: float,
+        *,
         learnable: bool = False,
     ) -> CosSinNumericalEncoder:
         r"""Create a `CosSinNumericalEncoder`` where the frequencies are
@@ -271,6 +274,7 @@ class CosSinNumericalEncoder(nn.Module):
         num_frequencies: int,
         min_abs_value: float,
         max_abs_value: float,
+        *,
         learnable: bool = False,
     ) -> CosSinNumericalEncoder:
         r"""Create a ``CosSinNumericalEncoder`` where the frequencies are
@@ -313,6 +317,7 @@ class CosSinNumericalEncoder(nn.Module):
         num_frequencies: int,
         min_frequency: float,
         max_frequency: float,
+        *,
         learnable: bool = False,
     ) -> CosSinNumericalEncoder:
         r"""Create a ``CosSinNumericalEncoder`` where the frequencies are
@@ -363,6 +368,7 @@ class CosSinNumericalEncoder(nn.Module):
         num_frequencies: int,
         min_abs_value: float,
         max_abs_value: float,
+        *,
         learnable: bool = False,
     ) -> CosSinNumericalEncoder:
         r"""Create a ``CosSinNumericalEncoder`` where the frequencies are

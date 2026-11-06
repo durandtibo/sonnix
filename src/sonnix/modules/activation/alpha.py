@@ -68,6 +68,7 @@ class BaseAlphaActivation(nn.Module):
         self,
         num_parameters: int = 1,
         init: float = 1.0,
+        *,
         learnable: bool = True,
         device: torch.device | None = None,
         dtype: torch.dtype | None = None,

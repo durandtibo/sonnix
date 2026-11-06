@@ -49,6 +49,7 @@ class ScaleAndShift(nn.Module):
     def __init__(
         self,
         normalized_shape: int | list[int] | tuple[int, ...],
+        *,
         device: torch.device | None = None,
         dtype: torch.dtype | None = None,
     ) -> None:
