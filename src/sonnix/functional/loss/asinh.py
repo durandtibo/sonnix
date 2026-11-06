@@ -11,6 +11,7 @@ from coola.validation import validate_ge
 from torch.nn.functional import mse_loss, smooth_l1_loss
 
 from sonnix.functional.reduction import reduce_loss
+from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:
     import torch
@@ -39,6 +40,9 @@ def asinh_mse_loss(
             (asinh) transformed predictions and targets. The shape of
             the tensor depends on the reduction strategy.
 
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
+
     Example:
         ```pycon
         >>> import torch
@@ -50,6 +54,7 @@ def asinh_mse_loss(
 
         ```
     """
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return reduce_loss(mse_loss(prediction.asinh(), target.asinh(), reduction="none"), reduction)
 
 
@@ -82,6 +87,7 @@ def asinh_smooth_l1_loss(
 
     Raises:
         ValueError: if ``beta`` is negative.
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
     Example:
         ```pycon
@@ -95,6 +101,7 @@ def asinh_smooth_l1_loss(
         ```
     """
     validate_ge(beta, 0, name="beta")
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return reduce_loss(
         smooth_l1_loss(prediction.asinh(), target.asinh(), reduction="none", beta=beta),
         reduction,

@@ -17,7 +17,7 @@ __all__ = [
 ]
 
 import torch
-from coola.validation import validate_gt
+from coola.validation import validate_finite, validate_gt
 from torch import nn
 
 from sonnix.functional import safe_exp, safe_log
@@ -182,6 +182,9 @@ class Pow(nn.Module):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
+    Raises:
+        ValueError: If ``exponent`` is not finite.
+
     Example:
         ```pycon
         >>> import torch
@@ -199,6 +202,7 @@ class Pow(nn.Module):
 
     def __init__(self, exponent: float) -> None:
         super().__init__()
+        validate_finite(exponent, name="exponent")
         self.exponent = float(exponent)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
@@ -227,6 +231,9 @@ class SafeExp(nn.Module):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
+    Raises:
+        ValueError: If ``max_val`` is not finite.
+
     Example:
         ```pycon
         >>> import torch
@@ -244,6 +251,7 @@ class SafeExp(nn.Module):
 
     def __init__(self, max_val: float = 20.0, *, preserve_gradient: bool = False) -> None:
         super().__init__()
+        validate_finite(max_val, name="max_val")
         self.max_val = float(max_val)
         self.preserve_gradient = preserve_gradient
 

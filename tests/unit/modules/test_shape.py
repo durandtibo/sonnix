@@ -171,3 +171,9 @@ def test_view_forward_gradient() -> None:
     x = torch.ones(2, 3, requires_grad=True)
     View(shape=(6,))(x).sum().backward()
     assert objects_are_equal(x.grad, torch.ones(2, 3))
+
+
+@pytest.mark.parametrize("dim", [1.5, "a", (1, 1.5), [0, "a"]])
+def test_squeeze_invalid_dim(dim: object) -> None:
+    with pytest.raises(TypeError, match=r"dim must be an int"):
+        Squeeze(dim=dim)

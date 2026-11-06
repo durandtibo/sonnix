@@ -124,3 +124,9 @@ def test_to_categorical_label_forward_dim_1_3d() -> None:
 
 def test_to_categorical_label_extra_repr() -> None:
     assert ToCategoricalLabel(dim=1).extra_repr() == "dim=1"
+
+
+@pytest.mark.parametrize("threshold", [float("nan"), float("inf")])
+def test_to_binary_label_invalid_threshold(threshold: float) -> None:
+    with pytest.raises(ValueError, match=r"threshold must be finite"):
+        ToBinaryLabel(threshold=threshold)

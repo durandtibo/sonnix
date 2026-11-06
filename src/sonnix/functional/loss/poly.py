@@ -6,9 +6,11 @@ __all__ = ["binary_poly1_loss", "binary_poly1_loss_with_logits"]
 
 from typing import TYPE_CHECKING
 
+from coola.validation import validate_finite
 from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_logits
 
 from sonnix.functional.reduction import reduce_loss
+from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:
     import torch
@@ -50,6 +52,10 @@ def binary_poly1_loss(
         The computed Poly-1 loss value. The shape of the tensor depends
             on the reduction strategy.
 
+    Raises:
+        ValueError: If ``alpha`` is not finite.
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
+
     Example:
         ```pycon
         >>> import torch
@@ -64,6 +70,8 @@ def binary_poly1_loss(
 
         ```
     """
+    validate_finite(alpha, name="alpha")
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
     p_t = prediction * target + (1 - prediction) * (1 - target)
     loss = ce_loss + alpha * (1 - p_t)
@@ -104,6 +112,10 @@ def binary_poly1_loss_with_logits(
         The computed Poly-1 loss value. The shape of the tensor depends
             on the reduction strategy.
 
+    Raises:
+        ValueError: If ``alpha`` is not finite.
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
+
     Example:
         ```pycon
         >>> import torch
@@ -118,6 +130,8 @@ def binary_poly1_loss_with_logits(
 
         ```
     """
+    validate_finite(alpha, name="alpha")
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
     # ``exp(-ce) = p_t`` only holds for binary targets, so ``p_t`` is computed
     # from the probabilities to support soft targets (label smoothing, mixup).

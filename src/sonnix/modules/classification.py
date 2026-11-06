@@ -5,6 +5,7 @@ from __future__ import annotations
 __all__ = ["ToBinaryLabel", "ToCategoricalLabel"]
 
 import torch
+from coola.validation import validate_finite
 from torch import nn
 
 
@@ -18,6 +19,9 @@ class ToBinaryLabel(nn.Module):
     Args:
         threshold: The threshold value used to compute the binary
             labels.
+
+    Raises:
+        ValueError: If ``threshold`` is not finite.
 
     Example:
         ```pycon
@@ -35,6 +39,7 @@ class ToBinaryLabel(nn.Module):
 
     def __init__(self, threshold: float = 0.0) -> None:
         super().__init__()
+        validate_finite(threshold, name="threshold")
         self.threshold = float(threshold)
 
     def extra_repr(self) -> str:

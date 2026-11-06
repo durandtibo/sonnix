@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from coola.validation import validate_gt
 
 from sonnix.functional.reduction import reduce_loss
+from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:
     import torch
@@ -66,6 +67,7 @@ def poisson_regression_loss(
 
     Raises:
         ValueError: if ``eps`` is not strictly positive.
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
     Example:
         ```pycon
@@ -81,6 +83,7 @@ def poisson_regression_loss(
         ```
     """
     validate_gt(eps, 0, name="eps")
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     if log_input:
         loss = prediction.exp() - target.mul(prediction)
     else:

@@ -91,6 +91,9 @@ def arithmetical_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) 
     Returns:
         The indicator values.
 
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
+
     Example:
         ```pycon
         >>> import torch
@@ -104,11 +107,12 @@ def arithmetical_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) 
 
         ```
     """
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return target.abs().add(prediction.abs()).mul(0.5)
 
 
 def classical_relative_indicator(
-    prediction: torch.Tensor,  # noqa: ARG001
+    prediction: torch.Tensor,
     target: torch.Tensor,
 ) -> torch.Tensor:
     r"""Return the classical relative change.
@@ -119,6 +123,9 @@ def classical_relative_indicator(
 
     Returns:
         The indicator values.
+
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
     Example:
         ```pycon
@@ -133,6 +140,7 @@ def classical_relative_indicator(
 
         ```
     """
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return target.abs()
 
 
@@ -147,6 +155,9 @@ def geometric_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> 
         The indicator values. The gradient is finite (zero) where the
             prediction or the target is exactly zero.
 
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
+
     Example:
         ```pycon
         >>> import torch
@@ -160,6 +171,7 @@ def geometric_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> 
 
         ```
     """
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     # The product of the two square roots does not overflow when
     # ``|target| * |prediction|`` does.
     return safe_pow(target.abs(), 0.5).mul(safe_pow(prediction.abs(), 0.5))
@@ -175,6 +187,9 @@ def maximum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
     Returns:
         The indicator values.
 
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
+
     Example:
         ```pycon
         >>> import torch
@@ -188,6 +203,7 @@ def maximum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
 
         ```
     """
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return torch.maximum(target.abs(), prediction.abs())
 
 
@@ -200,6 +216,9 @@ def minimum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
 
     Returns:
         The indicator values.
+
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
     Example:
         ```pycon
@@ -214,6 +233,7 @@ def minimum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
 
         ```
     """
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return torch.minimum(target.abs(), prediction.abs())
 
 
@@ -234,6 +254,7 @@ def moment_mean_indicator(
     Raises:
         TypeError: if ``k`` is not an integer.
         ValueError: if ``k`` is lower than 1.
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
     Example:
         ```pycon
@@ -249,6 +270,7 @@ def moment_mean_indicator(
         ```
     """
     validate_moment_order(k)
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     # Scale by the largest magnitude so ``|x| ** k`` cannot overflow.
     target, prediction = target.abs(), prediction.abs()
     scale = torch.maximum(target, prediction)
@@ -259,7 +281,7 @@ def moment_mean_indicator(
 
 def reversed_relative_indicator(
     prediction: torch.Tensor,
-    target: torch.Tensor,  # noqa: ARG001
+    target: torch.Tensor,
 ) -> torch.Tensor:
     r"""Return the reversed relative change.
 
@@ -269,6 +291,9 @@ def reversed_relative_indicator(
 
     Returns:
         The indicator values.
+
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
     Example:
         ```pycon
@@ -283,4 +308,5 @@ def reversed_relative_indicator(
 
         ```
     """
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return prediction.abs()

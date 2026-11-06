@@ -12,6 +12,7 @@ from coola.validation import validate_gt
 from torch.nn.functional import mse_loss, softplus
 
 from sonnix.functional.reduction import reduce_loss
+from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:
     import torch
@@ -45,6 +46,7 @@ def log_cosh_loss(
     Raises:
         ValueError: if ``scale`` is not strictly positive or if the
             reduction is not valid.
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
     Example:
         ```pycon
@@ -58,6 +60,7 @@ def log_cosh_loss(
         ```
     """
     validate_gt(scale, 0, name="scale")
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     error = target.sub(prediction).div(scale).abs()
     # Numerically stable form of log(cosh(x)): it does not overflow for large |x|.
     loss = error + softplus(-2.0 * error) - math.log(2.0)
@@ -90,6 +93,9 @@ def msle_loss(
         The mean squared logarithmic error. The shape of
             the tensor depends on the reduction strategy.
 
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
+
     Example:
         ```pycon
         >>> import torch
@@ -101,4 +107,5 @@ def msle_loss(
 
         ```
     """
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return reduce_loss(mse_loss(prediction.log1p(), target.log1p(), reduction="none"), reduction)

@@ -79,6 +79,20 @@ CASES = [
         r"alpha cannot be NaN or \+inf",
     ),
     (
+        "poly1_alpha_nan",
+        sf.binary_poly1_loss,
+        sm.BinaryPoly1Loss,
+        {"alpha": float("nan")},
+        r"alpha must be finite",
+    ),
+    (
+        "poly1_logits_alpha_inf",
+        sf.binary_poly1_loss_with_logits,
+        sm.BinaryPoly1LossWithLogits,
+        {"alpha": float("inf")},
+        r"alpha must be finite",
+    ),
+    (
         "quantile_q",
         sf.quantile_regression_loss,
         sm.QuantileRegressionLoss,
