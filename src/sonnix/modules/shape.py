@@ -20,6 +20,12 @@ class MulticlassFlatten(nn.Module):
     and is reshaped to ``(d1 * d2 * ... * dn, C)``.
     The input target tensor shape is ``(d1, d2, ..., dn)``
     and is reshaped to ``(d1 * d2 * ... * dn,)``.
+    ``reshape`` is used, so non-contiguous inputs are supported.
+
+    Args:
+        module: The module (or its configuration) to wrap. It takes
+            the flattened prediction and target as inputs and returns
+            a tensor.
 
     Example:
         ```pycon
@@ -41,9 +47,9 @@ class MulticlassFlatten(nn.Module):
         super().__init__()
         self.module: nn.Module = resolve_module(module)
 
-    def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> Any:
+    def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         target = torch.flatten(target)
-        return self.module(prediction.view(target.numel(), prediction.shape[-1]), target)
+        return self.module(prediction.reshape(target.numel(), prediction.shape[-1]), target)
 
 
 class Squeeze(nn.Module):
