@@ -22,36 +22,59 @@ def test_scale_and_shift_str() -> None:
 
 
 @pytest.mark.parametrize(("shape_input", "expected"), [(5, (5,)), ([3], (3,)), ((4, 2), (4, 2))])
-def test_scale_and_shift_normalized_shape(
+def test_scale_and_shift_normalized_shape_value(
     shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
 ) -> None:
     module = ScaleAndShift(shape_input)
     assert module.normalized_shape == expected
+
+
+@pytest.mark.parametrize(("shape_input", "expected"), [(5, (5,)), ([3], (3,)), ((4, 2), (4, 2))])
+def test_scale_and_shift_normalized_shape_shape(
+    shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
+) -> None:
+    module = ScaleAndShift(shape_input)
     assert module.weight.shape == expected
     assert module.bias.shape == expected
 
 
-def test_scale_and_shift_normalized_shape_int() -> None:
+def test_scale_and_shift_normalized_shape_int_weight() -> None:
     module = ScaleAndShift(normalized_shape=5)
     assert module.weight.equal(torch.ones(5))
+
+
+def test_scale_and_shift_normalized_shape_int_bias() -> None:
+    module = ScaleAndShift(normalized_shape=5)
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_scale_and_shift_normalized_shape_list() -> None:
+def test_scale_and_shift_normalized_shape_list_weight() -> None:
     module = ScaleAndShift(normalized_shape=[5])
     assert module.weight.equal(torch.ones(5))
+
+
+def test_scale_and_shift_normalized_shape_list_bias() -> None:
+    module = ScaleAndShift(normalized_shape=[5])
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_scale_and_shift_normalized_shape_tuple_1() -> None:
+def test_scale_and_shift_normalized_shape_tuple_1_weight() -> None:
     module = ScaleAndShift(normalized_shape=(5,))
     assert module.weight.equal(torch.ones(5))
+
+
+def test_scale_and_shift_normalized_shape_tuple_1_bias() -> None:
+    module = ScaleAndShift(normalized_shape=(5,))
     assert module.bias.equal(torch.zeros(5))
 
 
-def test_scale_and_shift_normalized_shape_tuple_2() -> None:
+def test_scale_and_shift_normalized_shape_tuple_2_weight() -> None:
     module = ScaleAndShift(normalized_shape=(4, 5))
     assert module.weight.equal(torch.ones(4, 5))
+
+
+def test_scale_and_shift_normalized_shape_tuple_2_bias() -> None:
+    module = ScaleAndShift(normalized_shape=(4, 5))
     assert module.bias.equal(torch.zeros(4, 5))
 
 
@@ -121,13 +144,21 @@ def test_scale_and_shift_forward_2d_custom_weights() -> None:
     )
 
 
-def test_scale_and_shift_reset_parameters() -> None:
+def test_scale_and_shift_reset_parameters_weight() -> None:
     module = ScaleAndShift(normalized_shape=5)
     with torch.no_grad():
         module.weight.data += 1.0
         module.bias.data += 1.0
     module.reset_parameters()
     assert module.weight.equal(torch.ones(5))
+
+
+def test_scale_and_shift_reset_parameters_bias() -> None:
+    module = ScaleAndShift(normalized_shape=5)
+    with torch.no_grad():
+        module.weight.data += 1.0
+        module.bias.data += 1.0
+    module.reset_parameters()
     assert module.bias.equal(torch.zeros(5))
 
 
