@@ -106,7 +106,7 @@ All notable changes to this project are documented in this file. The package is 
 
 - The six class methods `CosSinNumericalEncoder.create_{rand,linspace,logspace}_{frequency,value_range}`
   are replaced by `CosSinNumericalEncoder.create(spacing, num_frequencies, *, frequency_range=None,
-  value_range=None, learnable=False)`. For example
+value_range=None, learnable=False)`. For example
   `create_logspace_value_range(5, 0.1, 10.0)` is
   `create("logspace", 5, value_range=(0.1, 10.0))`. It also works for
   `AsinhCosSinNumericalEncoder` and returns the subclass.

@@ -1,4 +1,5 @@
-r"""Contain functions to validate the arguments of the numerical encoders."""
+r"""Contain functions to validate the arguments of the numerical
+encoders."""
 
 from __future__ import annotations
 

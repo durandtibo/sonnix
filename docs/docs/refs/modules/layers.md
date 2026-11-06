@@ -2,20 +2,20 @@
 
 Linear layers, residual blocks, normalization-like layers and shape/dtype helpers. See also the [`sonnix.modules`](index.md) overview.
 
-| Name |
-| --- |
-| [`ExU`](#sonnix.modules.ExU) |
-| [`MulticlassFlatten`](#sonnix.modules.MulticlassFlatten) |
-| [`NLinear`](#sonnix.modules.NLinear) |
-| [`ResidualBlock`](#sonnix.modules.ResidualBlock) |
-| [`ScaleAndShift`](#sonnix.modules.ScaleAndShift) |
-| [`Squeeze`](#sonnix.modules.Squeeze) |
-| [`ToBinaryLabel`](#sonnix.modules.ToBinaryLabel) |
+| Name                                                       |
+| ---------------------------------------------------------- |
+| [`ExU`](#sonnix.modules.ExU)                               |
+| [`MulticlassFlatten`](#sonnix.modules.MulticlassFlatten)   |
+| [`NLinear`](#sonnix.modules.NLinear)                       |
+| [`ResidualBlock`](#sonnix.modules.ResidualBlock)           |
+| [`ScaleAndShift`](#sonnix.modules.ScaleAndShift)           |
+| [`Squeeze`](#sonnix.modules.Squeeze)                       |
+| [`ToBinaryLabel`](#sonnix.modules.ToBinaryLabel)           |
 | [`ToCategoricalLabel`](#sonnix.modules.ToCategoricalLabel) |
-| [`ToDtype`](#sonnix.modules.ToDtype) |
-| [`ToFloat`](#sonnix.modules.ToFloat) |
-| [`ToLong`](#sonnix.modules.ToLong) |
-| [`View`](#sonnix.modules.View) |
+| [`ToDtype`](#sonnix.modules.ToDtype)                       |
+| [`ToFloat`](#sonnix.modules.ToFloat)                       |
+| [`ToLong`](#sonnix.modules.ToLong)                         |
+| [`View`](#sonnix.modules.View)                             |
 
 ## ::: sonnix.modules.ExU
 

@@ -44,7 +44,8 @@ def make_generator(seed: int = 42) -> torch.Generator:
 def normal_pair(
     *shape: int, dtype: torch.dtype = torch.float32, seed: int = 42
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    r"""Create two seeded tensors sampled from a standard normal distribution."""
+    r"""Create two seeded tensors sampled from a standard normal
+    distribution."""
     generator = make_generator(seed)
     return (
         torch.randn(*shape, generator=generator, dtype=dtype),
@@ -66,7 +67,8 @@ def positive_pair(
 def probability_pair(
     *shape: int, dtype: torch.dtype = torch.float32, seed: int = 42
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    r"""Create a seeded probability in ``[0.1, 0.9)`` and a tensor in ``[0, 1)``."""
+    r"""Create a seeded probability in ``[0.1, 0.9)`` and a tensor in
+    ``[0, 1)``."""
     generator = make_generator(seed)
     return (
         torch.rand(*shape, generator=generator, dtype=dtype) * 0.8 + 0.1,

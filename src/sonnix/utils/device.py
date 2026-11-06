@@ -71,8 +71,8 @@ def get_module_devices(module: nn.Module) -> list[torch.device]:
 
 
 def is_module_on_device(module: nn.Module, device: torch.device) -> bool:
-    r"""Indicate if all the parameters and buffers of a module are on
-    the specified device.
+    r"""Indicate if all the parameters and buffers of a module are on the
+    specified device.
 
     Args:
         module: The module.
