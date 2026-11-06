@@ -5,13 +5,12 @@ from __future__ import annotations
 
 __all__ = ["general_robust_regression_loss"]
 
-import math
-from typing import TYPE_CHECKING
+import torch
 
 from sonnix.functional.reduction import reduce_loss
 
-if TYPE_CHECKING:
-    import torch
+# ``alpha`` values closer than ``ALPHA_EPS`` to 0 or 2 use the limit formulas.
+ALPHA_EPS = 1e-5
 
 
 def general_robust_regression_loss(
@@ -43,7 +42,10 @@ def general_robust_regression_loss(
         prediction: The predictions.
         target: The target values.
         alpha: The shape parameter that controls the robustness of the
-            loss.
+            loss. ``-inf`` is supported (Welsch loss). The limit
+            cases ``alpha=2``
+            (``x^2``), ``alpha=0`` (``log(0.5 * x^2 + 1)``) are
+            used when ``alpha`` is within ``1e-5`` of 0 or 2.
         scale: The scale parameter that controls the size of the loss's
             quadratic bowl near 0.
         max: The max value to clip the loss before to compute the
@@ -78,13 +80,16 @@ def general_robust_regression_loss(
         ```
     """
     squared_error = prediction.sub(target).div(scale).pow(2)
-    if alpha == 2:
+    if abs(alpha - 2) < ALPHA_EPS:
         loss = squared_error
-    elif alpha == 0:
-        loss = squared_error.mul(0.5).add(1).log()
+    elif abs(alpha) < ALPHA_EPS:
+        loss = squared_error.mul(0.5).log1p()
+    elif alpha == float("-inf"):
+        loss = -torch.expm1(squared_error.mul(-0.5))
     else:
-        alpha2 = math.fabs(alpha - 2)
-        loss = squared_error.div(alpha2).add(1).pow(alpha / 2).sub(1).mul(alpha2 / alpha)
+        # ``log1p``/``expm1`` keep the computation stable near ``alpha=0`` and ``alpha=2``.
+        b = abs(alpha - 2)
+        loss = (alpha / 2 * squared_error.div(b).log1p()).expm1().mul(b / alpha)
     if max is not None:
         loss = loss.clamp(max=max)
     return reduce_loss(loss, reduction)
