@@ -24,7 +24,7 @@ def test_dynamic_asinh_normalized_shape(
     shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
 ) -> None:
     module = DynamicAsinh(shape_input)
-    assert module._normalized_shape == expected
+    assert module.normalized_shape == expected
     assert module.weight.shape == expected
     assert module.bias.shape == expected
 
@@ -189,7 +189,7 @@ def test_dynamic_tanh_normalized_shape(
     shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
 ) -> None:
     module = DynamicTanh(shape_input)
-    assert module._normalized_shape == expected
+    assert module.normalized_shape == expected
     assert module.weight.shape == expected
     assert module.bias.shape == expected
 

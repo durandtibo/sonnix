@@ -24,12 +24,12 @@ def test_binary_focal_loss_str() -> None:
 
 @pytest.mark.parametrize("alpha", [None, 0.0, 0.5, 1])
 def test_binary_focal_loss_alpha(alpha: float) -> None:
-    assert BinaryFocalLoss(alpha=alpha)._alpha == alpha
+    assert BinaryFocalLoss(alpha=alpha).alpha == alpha
 
 
 @pytest.mark.parametrize("gamma", [0, 0.5, 1])
 def test_binary_focal_loss_valid_gamma(gamma: float) -> None:
-    assert BinaryFocalLoss(gamma=gamma)._gamma == gamma
+    assert BinaryFocalLoss(gamma=gamma).gamma == gamma
 
 
 @pytest.mark.parametrize("gamma", [-1, -0.5])
@@ -171,12 +171,12 @@ def test_binary_focal_loss_with_logits_str() -> None:
 
 @pytest.mark.parametrize("alpha", [None, 0.0, 0.5, 1])
 def test_binary_focal_loss_with_logits_alpha(alpha: float) -> None:
-    assert BinaryFocalLossWithLogits(alpha=alpha)._alpha == alpha
+    assert BinaryFocalLossWithLogits(alpha=alpha).alpha == alpha
 
 
 @pytest.mark.parametrize("gamma", [0, 0.5, 1])
 def test_binary_focal_loss_with_logits_valid_gamma(gamma: float) -> None:
-    assert BinaryFocalLossWithLogits(gamma=gamma)._gamma == gamma
+    assert BinaryFocalLossWithLogits(gamma=gamma).gamma == gamma
 
 
 @pytest.mark.parametrize("gamma", [-1, -0.5])

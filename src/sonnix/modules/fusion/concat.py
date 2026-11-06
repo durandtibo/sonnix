@@ -34,13 +34,13 @@ class ConcatFusion(nn.Module):
 
     def __init__(self, dim: int = -1) -> None:
         super().__init__()
-        self._dim = dim
+        self.dim = dim
 
     def extra_repr(self) -> str:
-        return f"dim={self._dim}"
+        return f"dim={self.dim}"
 
     def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
         if not inputs:
             msg = f"{self.__class__.__qualname__} needs at least one tensor as input"
             raise ValueError(msg)
-        return torch.cat(inputs, dim=self._dim)
+        return torch.cat(inputs, dim=self.dim)

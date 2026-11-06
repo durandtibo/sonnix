@@ -33,10 +33,10 @@ class BaseBinaryPoly1Loss(BaseLoss):
 
     def __init__(self, alpha: float = 1.0, *, reduction: Reduction = "mean") -> None:
         super().__init__(reduction=reduction)
-        self._alpha = float(alpha)
+        self.alpha = float(alpha)
 
     def extra_repr(self) -> str:
-        return f"alpha={self._alpha}, reduction={self.reduction}"
+        return f"alpha={self.alpha}, reduction={self.reduction}"
 
 
 class BinaryPoly1Loss(BaseBinaryPoly1Loss):
@@ -101,7 +101,7 @@ class BinaryPoly1Loss(BaseBinaryPoly1Loss):
         return binary_poly1_loss(
             prediction=prediction,
             target=target,
-            alpha=self._alpha,
+            alpha=self.alpha,
             reduction=self.reduction,
         )
 
@@ -169,6 +169,6 @@ class BinaryPoly1LossWithLogits(BaseBinaryPoly1Loss):
         return binary_poly1_loss_with_logits(
             prediction=prediction,
             target=target,
-            alpha=self._alpha,
+            alpha=self.alpha,
             reduction=self.reduction,
         )

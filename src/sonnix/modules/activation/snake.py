@@ -48,11 +48,11 @@ class Snake(nn.Module):
         if frequency == 0:
             msg = "'frequency' has to be different from 0"
             raise ValueError(msg)
-        self._frequency = float(frequency)
+        self.frequency = float(frequency)
 
     def extra_repr(self) -> str:
-        return f"frequency={self._frequency}"
+        return f"frequency={self.frequency}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        two_freq = 2 * self._frequency
+        two_freq = 2 * self.frequency
         return input - input.mul(two_freq).cos().div(two_freq) + 1 / two_freq

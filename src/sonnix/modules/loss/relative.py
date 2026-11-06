@@ -90,22 +90,24 @@ class RelativeLoss(BaseLoss):
         )
 
         validate_gt(eps, 0, name="eps")
-        self._eps = float(eps)
-        self._detach_indicator = bool(detach_indicator)
+        self.eps = float(eps)
+        self.detach_indicator = bool(detach_indicator)
 
     def extra_repr(self) -> str:
-        return f"eps={self._eps}, reduction={self.reduction}, detach_indicator={self._detach_indicator}"
+        return (
+            f"eps={self.eps}, reduction={self.reduction}, detach_indicator={self.detach_indicator}"
+        )
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = self.criterion(prediction, target)
         indicator = self.indicator(prediction, target)
-        if self._detach_indicator:
+        if self.detach_indicator:
             indicator = indicator.detach()
         return relative_loss(
             loss=loss,
             indicator=indicator,
             reduction=self.reduction,
-            eps=self._eps,
+            eps=self.eps,
         )
 
 

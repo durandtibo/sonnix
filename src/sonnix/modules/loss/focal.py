@@ -39,11 +39,11 @@ class BaseBinaryFocalLoss(BaseLoss):
     ) -> None:
         super().__init__(reduction=reduction)
         validate_focal_params(alpha=alpha, gamma=gamma)
-        self._alpha = None if alpha is None else float(alpha)
-        self._gamma = float(gamma)
+        self.alpha = None if alpha is None else float(alpha)
+        self.gamma = float(gamma)
 
     def extra_repr(self) -> str:
-        return f"alpha={self._alpha}, gamma={self._gamma}, reduction={self.reduction}"
+        return f"alpha={self.alpha}, gamma={self.gamma}, reduction={self.reduction}"
 
 
 class BinaryFocalLoss(BaseBinaryFocalLoss):
@@ -108,8 +108,8 @@ class BinaryFocalLoss(BaseBinaryFocalLoss):
         return binary_focal_loss(
             prediction=prediction,
             target=target,
-            alpha=self._alpha,
-            gamma=self._gamma,
+            alpha=self.alpha,
+            gamma=self.gamma,
             reduction=self.reduction,
         )
 
@@ -177,7 +177,7 @@ class BinaryFocalLossWithLogits(BaseBinaryFocalLoss):
         return binary_focal_loss_with_logits(
             prediction=prediction,
             target=target,
-            alpha=self._alpha,
-            gamma=self._gamma,
+            alpha=self.alpha,
+            gamma=self.gamma,
             reduction=self.reduction,
         )

@@ -24,7 +24,7 @@ def test_scale_and_shift_normalized_shape(
     shape_input: int | list[int] | tuple[int, ...], expected: tuple[int, ...]
 ) -> None:
     module = ScaleAndShift(shape_input)
-    assert module._normalized_shape == expected
+    assert module.normalized_shape == expected
     assert module.weight.shape == expected
     assert module.bias.shape == expected
 

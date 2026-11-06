@@ -48,13 +48,13 @@ class ReLUn(nn.Module):
     def __init__(self, max_val: float = 1.0) -> None:
         super().__init__()
         validate_ge(max_val, 0, name="max_val")
-        self._max = float(max_val)
+        self.max_val = float(max_val)
 
     def extra_repr(self) -> str:
-        return f"max_val={self._max}"
+        return f"max_val={self.max_val}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.clamp(min=0.0, max=self._max)
+        return input.clamp(min=0.0, max=self.max_val)
 
 
 class SquaredReLU(nn.Module):
