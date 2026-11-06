@@ -24,6 +24,7 @@ theme:
 nav:
   - Home: index.md
   - get_started.md
+  - conventions.md
   #  - User Guide:
   #      - quickstart.md
   #      - types.md

@@ -24,7 +24,9 @@ def test_transformed_loss_loss_decreasing(
 ) -> None:
     assert is_loss_decreasing_with_sgd(
         module=nn.Linear(8, 8),
-        criterion=TransformedLoss(criterion=criterion, prediction=prediction, target=target),
+        criterion=TransformedLoss(
+            criterion=criterion, prediction_transform=prediction, target_transform=target
+        ),
         feature=torch.randn(16, 8),
         target=torch.randn(16, 8),
     )

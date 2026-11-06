@@ -109,12 +109,12 @@ class CosSinNumericalEncoder(nn.Module):
             self.register_buffer(name, value.detach().clone())
 
     @property
-    def input_size(self) -> int:
+    def n_features(self) -> int:
         r"""Return the input feature size."""
         return self.frequency.shape[0]
 
     @property
-    def output_size(self) -> int:
+    def feature_size(self) -> int:
         r"""Return the output feature size."""
         return 2 * self.frequency.shape[1]
 
@@ -459,9 +459,9 @@ class AsinhCosSinNumericalEncoder(CosSinNumericalEncoder):
     """
 
     @property
-    def output_size(self) -> int:
+    def feature_size(self) -> int:
         r"""Return the output feature size."""
-        return super().output_size + 1
+        return super().feature_size + 1
 
     def forward(self, scalar: Tensor) -> Tensor:
         features = super().forward(scalar)

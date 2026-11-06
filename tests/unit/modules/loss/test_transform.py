@@ -22,27 +22,33 @@ def test_transformed_loss_str() -> None:
 
 def test_transformed_loss_default() -> None:
     criterion = TransformedLoss(criterion=nn.MSELoss())
-    assert isinstance(criterion.prediction, nn.Identity)
-    assert isinstance(criterion.target, nn.Identity)
+    assert isinstance(criterion.prediction_transform, nn.Identity)
+    assert isinstance(criterion.target_transform, nn.Identity)
 
 
 @pytest.mark.parametrize("device", get_available_devices())
 def test_transformed_loss_forward_correct(device: str) -> None:
-    criterion = TransformedLoss(criterion=nn.MSELoss(), prediction=Asinh(), target=Asinh())
+    criterion = TransformedLoss(
+        criterion=nn.MSELoss(), prediction_transform=Asinh(), target_transform=Asinh()
+    )
     loss = criterion(torch.ones(2, 3, device=device), torch.ones(2, 3, device=device))
     assert objects_are_equal(loss, torch.tensor(0.0, device=device))
 
 
 @pytest.mark.parametrize("device", get_available_devices())
 def test_transformed_loss_forward_incorrect(device: str) -> None:
-    criterion = TransformedLoss(criterion=nn.MSELoss(), prediction=Asinh(), target=Asinh())
+    criterion = TransformedLoss(
+        criterion=nn.MSELoss(), prediction_transform=Asinh(), target_transform=Asinh()
+    )
     loss = criterion(torch.ones(2, 3, device=device), -torch.ones(2, 3, device=device))
     assert objects_are_allclose(loss, torch.tensor(3.107277599582784, device=device))
 
 
 @pytest.mark.parametrize("device", get_available_devices())
 def test_transformed_loss_forward_partially_correct(device: str) -> None:
-    criterion = TransformedLoss(criterion=nn.MSELoss(), prediction=Asinh(), target=Asinh())
+    criterion = TransformedLoss(
+        criterion=nn.MSELoss(), prediction_transform=Asinh(), target_transform=Asinh()
+    )
     loss = criterion(torch.ones(2, 2, device=device), 2 * torch.eye(2, device=device) - 1)
     assert objects_are_allclose(loss, torch.tensor(1.553638799791392, device=device))
 
@@ -51,13 +57,17 @@ def test_transformed_loss_forward_partially_correct(device: str) -> None:
 @pytest.mark.parametrize("shape", SHAPES)
 def test_transformed_loss_shape(device: str, shape: tuple[int, ...]) -> None:
     device = torch.device(device)
-    criterion = TransformedLoss(criterion=nn.MSELoss(), prediction=Asinh(), target=Asinh())
+    criterion = TransformedLoss(
+        criterion=nn.MSELoss(), prediction_transform=Asinh(), target_transform=Asinh()
+    )
     loss = criterion(torch.ones(*shape, device=device), torch.ones(*shape, device=device))
     assert objects_are_equal(loss, torch.tensor(0.0, device=device))
 
 
 def test_transformed_loss_empty_sequential_is_kept() -> None:
     prediction, target = nn.Sequential(), nn.Sequential()
-    module = TransformedLoss(criterion=nn.MSELoss(), prediction=prediction, target=target)
-    assert module.prediction is prediction
-    assert module.target is target
+    module = TransformedLoss(
+        criterion=nn.MSELoss(), prediction_transform=prediction, target_transform=target
+    )
+    assert module.prediction_transform is prediction
+    assert module.target_transform is target

@@ -23,3 +23,10 @@ All notable changes to this project are documented in this file. The package is 
 
 - `BaseLoss.extra_repr` returns `reduction=...` and the losses extend it, so the representation of
   every loss starts with `reduction=...` followed by its hyperparameters.
+
+### Renamed
+
+- The `input_size` and `output_size` properties of the numerical encoders are now `n_features` and
+  `feature_size`, like their representation.
+- The `prediction` and `target` arguments (and attributes) of `TransformedLoss` are now
+  `prediction_transform` and `target_transform`.

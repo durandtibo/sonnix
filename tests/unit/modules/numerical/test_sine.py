@@ -78,7 +78,7 @@ def test_cos_sin_numerical_encoder_input_size() -> None:
         CosSinNumericalEncoder(
             frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]]),
             phase_shift=torch.zeros(2, 3),
-        ).input_size
+        ).n_features
         == 2
     )
 
@@ -88,7 +88,7 @@ def test_cos_sin_numerical_encoder_output_size() -> None:
         CosSinNumericalEncoder(
             frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]]),
             phase_shift=torch.zeros(2, 3),
-        ).output_size
+        ).feature_size
         == 6
     )
 
@@ -487,7 +487,7 @@ def test_asinh_cos_sin_numerical_encoder_input_size() -> None:
         AsinhCosSinNumericalEncoder(
             frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]]),
             phase_shift=torch.zeros(2, 3),
-        ).input_size
+        ).n_features
         == 2
     )
 
@@ -497,7 +497,7 @@ def test_asinh_cos_sin_numerical_encoder_output_size() -> None:
         AsinhCosSinNumericalEncoder(
             frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]]),
             phase_shift=torch.zeros(2, 3),
-        ).output_size
+        ).feature_size
         == 7
     )
 
@@ -817,7 +817,7 @@ def test_cos_sin_numerical_encoder_sin_cos_share_parameters() -> None:
     )
     assert module.frequency.shape == (1, 3)
     assert module.phase_shift.shape == (1, 3)
-    assert module.output_size == 6
+    assert module.feature_size == 6
     assert sum(p.numel() for p in module.parameters()) == 6
 
 

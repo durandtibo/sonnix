@@ -77,12 +77,12 @@ class AsinhNumericalEncoder(nn.Module):
         return isinstance(self.scale, nn.Parameter)
 
     @property
-    def input_size(self) -> int:
+    def n_features(self) -> int:
         r"""Return the input feature size."""
         return self.scale.shape[0]
 
     @property
-    def output_size(self) -> int:
+    def feature_size(self) -> int:
         r"""Return the output feature size."""
         return self.scale.shape[1]
 
