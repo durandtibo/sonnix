@@ -7,7 +7,7 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
-- Reorganize the packages (target state step 8, #421):
+- Reorganize the packages (target state step 8, #422):
   `sonnix.utils.loss` (`is_loss_decreasing*`) moves to `sonnix.testing.loss`; `sonnix.factory.dataset` and
   `sonnix.factory.optimizer` (`resolve_dataset`, `is_dataset_config`, `resolve_optimizer`, `is_optimizer_config`)
   are removed (use `coola.factory.resolve_object`); `sonnix.utils.iterator` (`get_named_modules`),
