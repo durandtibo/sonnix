@@ -29,9 +29,9 @@ def is_loss_decreasing(
     optimizer: Optimizer,
     feature: Tensor,
     target: Tensor,
+    *,
     num_iterations: int = 1,
     random_seed: int = 1548783767065776748,
-    *,
     max_norm: float | None = 1.0,
 ) -> bool:
     r"""Check if the loss decreased after some iterations.
@@ -45,7 +45,9 @@ def is_loss_decreasing(
         target: The target used to compute the loss.
         num_iterations: The number of optimization steps.
         random_seed: The random seed to make the function
-            deterministic if the module contains randomness.
+            deterministic if the module contains randomness. It is
+            applied to the two evaluations of the loss and to the
+            optimization steps.
         max_norm: The maximum norm used to clip the gradients before
             each optimization step. ``None`` disables the clipping.
 
@@ -78,13 +80,14 @@ def is_loss_decreasing(
         logger.debug("Initial loss value: %s", initial_loss)
 
         module.train()
-        for _ in range(num_iterations):
-            optimizer.zero_grad()
-            loss = criterion(module(feature), target)
-            loss.backward()
-            if max_norm is not None:
-                clip_grad_norm_(module.parameters(), max_norm=max_norm, norm_type=2)
-            optimizer.step()
+        with torch_seed(random_seed):
+            for _ in range(num_iterations):
+                optimizer.zero_grad()
+                loss = criterion(module(feature), target)
+                loss.backward()
+                if max_norm is not None:
+                    clip_grad_norm_(module.parameters(), max_norm=max_norm, norm_type=2)
+                optimizer.step()
 
         module.eval()
         with torch_seed(random_seed):
@@ -98,10 +101,10 @@ def is_loss_decreasing_with_adam(
     criterion: Module | Callable[[Tensor, Tensor], Tensor],
     feature: Tensor,
     target: Tensor,
+    *,
     lr: float = 0.0003,
     num_iterations: int = 1,
     random_seed: int = 1548783767065776748,
-    *,
     max_norm: float | None = 1.0,
 ) -> bool:
     r"""Check if the loss decreased after some iterations.
@@ -117,7 +120,9 @@ def is_loss_decreasing_with_adam(
         lr: The learning rate.
         num_iterations: The number of optimization steps.
         random_seed: The random seed to make the function
-            deterministic if the module contains randomness.
+            deterministic if the module contains randomness. It is
+            applied to the two evaluations of the loss and to the
+            optimization steps.
         max_norm: The maximum norm used to clip the gradients before
             each optimization step. ``None`` disables the clipping.
 
@@ -158,10 +163,10 @@ def is_loss_decreasing_with_sgd(
     criterion: Module | Callable[[Tensor, Tensor], Tensor],
     feature: Tensor,
     target: Tensor,
+    *,
     lr: float = 0.01,
     num_iterations: int = 1,
     random_seed: int = 1548783767065776748,
-    *,
     max_norm: float | None = 1.0,
 ) -> bool:
     r"""Check if the loss decreased after some iterations.
@@ -177,7 +182,9 @@ def is_loss_decreasing_with_sgd(
         num_iterations: The number of optimization steps.
         lr: The learning rate.
         random_seed: The random seed to make the function
-            deterministic if the module contains randomness.
+            deterministic if the module contains randomness. It is
+            applied to the two evaluations of the loss and to the
+            optimization steps.
         max_norm: The maximum norm used to clip the gradients before
             each optimization step. ``None`` disables the clipping.
 

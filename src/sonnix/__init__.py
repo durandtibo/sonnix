@@ -8,6 +8,10 @@ from __future__ import annotations
 
 __all__ = ["__version__"]
 
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 
-__version__ = version(__name__)
+try:
+    __version__ = version(__name__)
+except PackageNotFoundError:
+    # The source is used without being installed (vendored copy, ``PYTHONPATH``).
+    __version__ = "0.0.0+unknown"

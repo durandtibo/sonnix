@@ -171,3 +171,50 @@ def test_is_loss_decreasing_with_adam_max_norm_is_forwarded() -> None:
         target=torch.zeros(1, 1),
         max_norm=0.5,
     )
+
+
+#############################################
+#     Tests for the options and the seed    #
+#############################################
+
+
+def test_is_loss_decreasing_num_iterations_is_keyword_only() -> None:
+    module = nn.Linear(4, 6)
+    with pytest.raises(TypeError, match=r"positional argument"):
+        is_loss_decreasing(
+            module,
+            nn.MSELoss(),
+            SGD(module.parameters(), lr=0.01),
+            torch.rand(8, 4),
+            torch.rand(8, 6),
+            2,
+        )
+
+
+@pytest.mark.parametrize("function", [is_loss_decreasing_with_adam, is_loss_decreasing_with_sgd])
+def test_is_loss_decreasing_with_optimizer_lr_is_keyword_only(function: object) -> None:
+    with pytest.raises(TypeError, match=r"positional argument"):
+        function(nn.Linear(4, 6), nn.MSELoss(), torch.rand(8, 4), torch.rand(8, 6), 0.01)
+
+
+def _train_with_dropout(random_seed: int) -> torch.Tensor:
+    torch.manual_seed(0)
+    module = nn.Sequential(nn.Linear(4, 6), nn.Dropout(0.5))
+    is_loss_decreasing(
+        module=module,
+        criterion=nn.MSELoss(),
+        optimizer=SGD(module.parameters(), lr=0.1),
+        feature=torch.ones(8, 4),
+        target=torch.ones(8, 6),
+        num_iterations=3,
+        random_seed=random_seed,
+    )
+    return module[0].weight.detach().clone()
+
+
+def test_is_loss_decreasing_training_steps_are_deterministic() -> None:
+    torch.manual_seed(5)
+    first = _train_with_dropout(random_seed=1)
+    torch.manual_seed(99)
+    second = _train_with_dropout(random_seed=1)
+    assert first.equal(second)
