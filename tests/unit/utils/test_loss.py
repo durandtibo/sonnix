@@ -106,3 +106,68 @@ def test_is_loss_decreasing_with_sgd_true() -> None:
         feature=torch.rand(8, 4),
         target=torch.rand(8, 6),
     )
+
+
+#########################################
+#     Tests for the max_norm option     #
+#########################################
+
+
+def _scalar_linear() -> nn.Linear:
+    module = nn.Linear(1, 1, bias=False)
+    module.weight.data.fill_(1.0)
+    return module
+
+
+def test_is_loss_decreasing_max_norm_default_clips_gradient() -> None:
+    module = _scalar_linear()
+    assert is_loss_decreasing(
+        module=module,
+        criterion=nn.MSELoss(),
+        optimizer=SGD(module.parameters(), lr=0.1),
+        feature=torch.full((1, 1), 10.0),
+        target=torch.zeros(1, 1),
+    )
+
+
+def test_is_loss_decreasing_max_norm_none_does_not_clip_gradient() -> None:
+    module = _scalar_linear()
+    assert not is_loss_decreasing(
+        module=module,
+        criterion=nn.MSELoss(),
+        optimizer=SGD(module.parameters(), lr=0.1),
+        feature=torch.full((1, 1), 10.0),
+        target=torch.zeros(1, 1),
+        max_norm=None,
+    )
+
+
+def test_is_loss_decreasing_with_sgd_max_norm_none_does_not_clip_gradient() -> None:
+    assert not is_loss_decreasing_with_sgd(
+        module=_scalar_linear(),
+        criterion=nn.MSELoss(),
+        feature=torch.full((1, 1), 10.0),
+        target=torch.zeros(1, 1),
+        lr=0.1,
+        max_norm=None,
+    )
+
+
+def test_is_loss_decreasing_with_sgd_max_norm_default_clips_gradient() -> None:
+    assert is_loss_decreasing_with_sgd(
+        module=_scalar_linear(),
+        criterion=nn.MSELoss(),
+        feature=torch.full((1, 1), 10.0),
+        target=torch.zeros(1, 1),
+        lr=0.1,
+    )
+
+
+def test_is_loss_decreasing_with_adam_max_norm_is_forwarded() -> None:
+    assert is_loss_decreasing_with_adam(
+        module=_scalar_linear(),
+        criterion=nn.MSELoss(),
+        feature=torch.full((1, 1), 10.0),
+        target=torch.zeros(1, 1),
+        max_norm=0.5,
+    )
