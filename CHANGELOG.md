@@ -18,7 +18,7 @@ All notable changes to this project are documented in this file. The package is 
 ### Fixed
 
 - `sonnix.modules` can be imported again with `coola` 2.0.0a2: `get_torch_generator` is replaced by
-  `make_torch_generator` (review 1.1, #PR).
+  `make_torch_generator` (review 1.1, #354).
 - `RelativeSmoothL1Loss` stores `beta` and shows it in its representation.
 
 ### Changed
