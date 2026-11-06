@@ -286,3 +286,21 @@ def test_binary_focal_loss_with_logits_gamma_zero_is_cross_entropy() -> None:
     assert binary_focal_loss_with_logits(prediction, target, alpha=None, gamma=0.0).allclose(
         torch.nn.functional.binary_cross_entropy_with_logits(prediction, target)
     )
+
+
+def test_binary_focal_loss_with_logits_matches_probability_version_soft_target() -> None:
+    generator = torch.Generator().manual_seed(1)
+    logits = torch.randn(6, 5, generator=generator, dtype=torch.float64)
+    target = torch.rand(6, 5, generator=generator, dtype=torch.float64)
+    assert binary_focal_loss_with_logits(logits, target).allclose(
+        binary_focal_loss(logits.sigmoid(), target)
+    )
+
+
+def test_binary_focal_loss_with_logits_soft_target_reduction_none() -> None:
+    generator = torch.Generator().manual_seed(2)
+    logits = torch.randn(6, 5, generator=generator, dtype=torch.float64)
+    target = torch.rand(6, 5, generator=generator, dtype=torch.float64)
+    assert binary_focal_loss_with_logits(logits, target, reduction="none").allclose(
+        binary_focal_loss(logits.sigmoid(), target, reduction="none")
+    )

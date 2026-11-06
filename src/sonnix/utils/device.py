@@ -5,10 +5,14 @@ from __future__ import annotations
 
 __all__ = ["get_module_device", "get_module_devices", "is_module_on_device"]
 
+from itertools import chain
+from typing import TYPE_CHECKING
+
 import torch
 from torch import nn
 
-from sonnix.utils.params import has_parameters
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 def get_module_device(module: nn.Module) -> torch.device:
@@ -16,8 +20,9 @@ def get_module_device(module: nn.Module) -> torch.device:
 
     This function assumes the module uses a single device. If the
     module uses several devices, you should use
-    ``get_module_devices``. It returns ``torch.device('cpu')`` if
-    the model does not have parameters.
+    ``get_module_devices``. The parameters and the buffers are
+    taken into account. It returns ``torch.device('cpu')`` if the
+    module does not have parameters and buffers.
 
     Args:
         module: The module.
@@ -34,13 +39,16 @@ def get_module_device(module: nn.Module) -> torch.device:
 
         ```
     """
-    if not has_parameters(module):
+    tensor = next(_iter_tensors(module), None)
+    if tensor is None:
         return torch.device("cpu")
-    return next(module.parameters()).device
+    return tensor.device
 
 
 def get_module_devices(module: nn.Module) -> list[torch.device]:
     r"""Get the devices used in a module.
+
+    The parameters and the buffers are taken into account.
 
     Args:
         module: The module.
@@ -59,20 +67,20 @@ def get_module_devices(module: nn.Module) -> list[torch.device]:
 
         ```
     """
-    return sorted({param.device for param in module.parameters()}, key=str)
+    return sorted({tensor.device for tensor in _iter_tensors(module)}, key=str)
 
 
 def is_module_on_device(module: nn.Module, device: torch.device) -> bool:
-    r"""Indicate if all the parameters of a module are on the specified
-    device.
+    r"""Indicate if all the parameters and buffers of a module are on
+    the specified device.
 
     Args:
         module: The module.
         device: The device.
 
     Returns:
-        ``True`` if all the parameters of the module are on the
-            specified device, otherwise ``False``.
+        ``True`` if all the parameters and buffers of the module are
+            on the specified device, otherwise ``False``.
 
     Example:
         ```pycon
@@ -83,4 +91,16 @@ def is_module_on_device(module: nn.Module, device: torch.device) -> bool:
 
         ```
     """
-    return all(p.device == device for p in module.parameters())
+    return all(tensor.device == device for tensor in _iter_tensors(module))
+
+
+def _iter_tensors(module: nn.Module) -> Iterator[torch.Tensor]:
+    r"""Iterate over the parameters and the buffers of a module.
+
+    Args:
+        module: The module.
+
+    Returns:
+        An iterator over the parameters, followed by the buffers.
+    """
+    return chain(module.parameters(), module.buffers())

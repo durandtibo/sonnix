@@ -16,7 +16,7 @@ from sonnix.utils.factory import resolve_module
 
 if TYPE_CHECKING:
     from sonnix.functional.reduction import Reduction
-    from sonnix.modules.loss import BaseRelativeIndicator
+    from sonnix.modules.loss.indicators import BaseRelativeIndicator
 
 
 class RelativeLoss(BaseLoss):
@@ -56,7 +56,7 @@ class RelativeLoss(BaseLoss):
         ... )
         >>> criterion
         RelativeLoss(
-          eps=1e-08, reduction=mean
+          eps=1e-08, reduction=mean, detach_indicator=False
           (criterion): MSELoss()
           (indicator): ClassicalRelativeIndicator()
         )
@@ -134,7 +134,7 @@ class RelativeMSELoss(RelativeLoss):
         >>> criterion = RelativeMSELoss(indicator=ClassicalRelativeIndicator())
         >>> criterion
         RelativeMSELoss(
-          eps=1e-08, reduction=mean
+          eps=1e-08, reduction=mean, detach_indicator=False
           (criterion): MSELoss()
           (indicator): ClassicalRelativeIndicator()
         )
@@ -197,7 +197,7 @@ class RelativeSmoothL1Loss(RelativeLoss):
         >>> criterion = RelativeSmoothL1Loss(indicator=ClassicalRelativeIndicator())
         >>> criterion
         RelativeSmoothL1Loss(
-          eps=1e-08, reduction=mean
+          eps=1e-08, reduction=mean, detach_indicator=False
           (criterion): SmoothL1Loss()
           (indicator): ClassicalRelativeIndicator()
         )
