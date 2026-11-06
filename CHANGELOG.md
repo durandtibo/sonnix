@@ -52,3 +52,11 @@ All notable changes to this project are documented in this file. The package is 
 - `Square` is a `Pow(exponent=2)` subclass (it is no longer a separate implementation) and is listed
   in `sonnix.modules.activation.math.__all__` with `Pow`. Its output on integer tensors is now
   floating point, like `Pow`.
+
+### Normalization layers
+
+- `BaseDynamicNorm` extends `ScaleAndShift` and is abstract (`forward` is an abstract method).
+  The subclasses call `ScaleAndShift.forward` for the affine part. `alpha` is registered after
+  `weight` and `bias`, so the order of the keys of the state dict changes (the names do not).
+- `ScaleAndShift`, `DynamicTanh` and `DynamicAsinh` accept `bias=False` (no shift, `bias` is
+  `None`). `bias` is part of their representation.

@@ -18,11 +18,15 @@ class ScaleAndShift(nn.Module):
 
     y = gamma * x + beta
 
+    where ``beta`` is dropped if ``bias=False``.
+
     Args:
         normalized_shape: The input shape to normalize.
             If a single integer is used, it is treated as a singleton
             list, and this module will normalize over the last
             dimension which is expected to be of that specific size.
+        bias: If ``False``, the module has no learnable shift
+            ``beta``.
         device: The device of the parameters.
         dtype: The data type of the parameters. ``None`` uses the
             default floating point type.
@@ -37,7 +41,7 @@ class ScaleAndShift(nn.Module):
         >>> from sonnix.modules import ScaleAndShift
         >>> m = ScaleAndShift(normalized_shape=5)
         >>> m
-        ScaleAndShift(normalized_shape=(5,))
+        ScaleAndShift(normalized_shape=(5,), bias=True)
         >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
         >>> out
         tensor([[-2., -1.,  0.,  1.,  2.],
@@ -50,6 +54,7 @@ class ScaleAndShift(nn.Module):
         self,
         normalized_shape: int | list[int] | tuple[int, ...],
         *,
+        bias: bool = True,
         device: torch.device | None = None,
         dtype: torch.dtype | None = None,
     ) -> None:
@@ -61,17 +66,26 @@ class ScaleAndShift(nn.Module):
         self.weight: nn.Parameter = nn.Parameter(
             torch.empty(self.normalized_shape, device=device, dtype=dtype)
         )
-        self.bias: nn.Parameter = nn.Parameter(
-            torch.empty(self.normalized_shape, device=device, dtype=dtype)
-        )
-        self.reset_parameters()
+        self.bias: nn.Parameter | None
+        if bias:
+            self.bias = nn.Parameter(torch.empty(self.normalized_shape, device=device, dtype=dtype))
+        else:
+            self.register_parameter("bias", None)
+        # ``ScaleAndShift.reset_parameters`` is called explicitly because a subclass
+        # can override ``reset_parameters`` with parameters that are not created yet.
+        ScaleAndShift.reset_parameters(self)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return x * self.weight + self.bias
+        out = x * self.weight
+        if self.bias is not None:
+            out = out + self.bias
+        return out
 
     def extra_repr(self) -> str:
-        return f"normalized_shape={self.normalized_shape}"
+        return f"normalized_shape={self.normalized_shape}, bias={self.bias is not None}"
 
     def reset_parameters(self) -> None:
+        r"""Reset the parameters: ``gamma`` to 1 and ``beta`` to 0."""
         init.ones_(self.weight)
-        init.zeros_(self.bias)
+        if self.bias is not None:
+            init.zeros_(self.bias)

@@ -9,14 +9,22 @@ from __future__ import annotations
 
 __all__ = ["BaseDynamicNorm", "DynamicAsinh", "DynamicTanh"]
 
+from abc import ABC, abstractmethod
+
 import torch
 from torch import nn
 from torch.nn import init
 
+from sonnix.modules.scale_and_shift import ScaleAndShift
 
-class BaseDynamicNorm(nn.Module):
+
+class BaseDynamicNorm(ScaleAndShift, ABC):
     r"""Defines the base class to implement a dynamic normalization layer
     like Dynamic Tanh (DyT).
+
+    It is a ``ScaleAndShift`` layer with a learnable scalar ``alpha``
+    and a nonlinearity applied to ``alpha * x``. The subclasses
+    implement ``forward``.
 
     Args:
         normalized_shape: The input shape to normalize.
@@ -24,6 +32,8 @@ class BaseDynamicNorm(nn.Module):
             list, and this module will normalize over the last
             dimension which is expected to be of that specific size.
         alpha_init_value: The initial value for alpha.
+        bias: If ``False``, the module has no learnable shift
+            ``beta``.
         device: The device of the parameters.
         dtype: The data type of the parameters. ``None`` uses the
             default floating point type.
@@ -35,14 +45,15 @@ class BaseDynamicNorm(nn.Module):
     Example:
         ```pycon
         >>> import torch
+        >>> from sonnix.modules import ScaleAndShift
         >>> from sonnix.modules.activation.dynamic import BaseDynamicNorm
         >>> class MyDynamicNorm(BaseDynamicNorm):
         ...     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        ...         return x.mul(self.alpha).tanh().mul(self.weight).add(self.bias)
+        ...         return ScaleAndShift.forward(self, x.mul(self.alpha).tanh())
         ...
         >>> m = MyDynamicNorm(normalized_shape=5)
         >>> m
-        MyDynamicNorm(normalized_shape=(5,))
+        MyDynamicNorm(normalized_shape=(5,), bias=True)
 
         ```
     """
@@ -52,31 +63,31 @@ class BaseDynamicNorm(nn.Module):
         normalized_shape: int | list[int] | tuple[int, ...],
         alpha_init_value: float = 0.5,
         *,
+        bias: bool = True,
         device: torch.device | None = None,
         dtype: torch.dtype | None = None,
     ) -> None:
-        super().__init__()
-        if isinstance(normalized_shape, int):
-            normalized_shape = (normalized_shape,)
-        self.normalized_shape = tuple(normalized_shape)
+        super().__init__(normalized_shape, bias=bias, device=device, dtype=dtype)
         self.alpha_init_value = alpha_init_value
-
         self.alpha: nn.Parameter = nn.Parameter(torch.empty(1, device=device, dtype=dtype))
-        self.weight: nn.Parameter = nn.Parameter(
-            torch.empty(self.normalized_shape, device=device, dtype=dtype)
-        )
-        self.bias: nn.Parameter = nn.Parameter(
-            torch.empty(self.normalized_shape, device=device, dtype=dtype)
-        )
         self.reset_parameters()
 
-    def extra_repr(self) -> str:
-        return f"normalized_shape={self.normalized_shape}"
+    @abstractmethod
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        r"""Apply the dynamic normalization.
+
+        Args:
+            x: The input tensor.
+
+        Returns:
+            The output tensor, which has the same shape as the input.
+        """
 
     def reset_parameters(self) -> None:
+        r"""Reset the parameters: ``alpha`` to ``alpha_init_value``,
+        ``gamma`` to 1 and ``beta`` to 0."""
+        super().reset_parameters()
         init.constant_(self.alpha, self.alpha_init_value)
-        init.ones_(self.weight)
-        init.zeros_(self.bias)
 
 
 class DynamicAsinh(BaseDynamicNorm):
@@ -93,6 +104,11 @@ class DynamicAsinh(BaseDynamicNorm):
             list, and this module will normalize over the last
             dimension which is expected to be of that specific size.
         alpha_init_value: The initial value for alpha.
+        bias: If ``False``, the module has no learnable shift
+            ``beta``.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.
@@ -104,7 +120,7 @@ class DynamicAsinh(BaseDynamicNorm):
         >>> from sonnix.modules import DynamicAsinh
         >>> m = DynamicAsinh(normalized_shape=5)
         >>> m
-        DynamicAsinh(normalized_shape=(5,))
+        DynamicAsinh(normalized_shape=(5,), bias=True)
         >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
         >>> out
         tensor([[-0.8814, -0.4812,  0.0000,  0.4812,  0.8814],
@@ -114,7 +130,7 @@ class DynamicAsinh(BaseDynamicNorm):
     """
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return x.mul(self.alpha).asinh().mul(self.weight).add(self.bias)
+        return ScaleAndShift.forward(self, x.mul(self.alpha).asinh())
 
 
 class DynamicTanh(BaseDynamicNorm):
@@ -135,6 +151,11 @@ class DynamicTanh(BaseDynamicNorm):
             list, and this module will normalize over the last
             dimension which is expected to be of that specific size.
         alpha_init_value: The initial value for alpha.
+        bias: If ``False``, the module has no learnable shift
+            ``beta``.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.
@@ -146,7 +167,7 @@ class DynamicTanh(BaseDynamicNorm):
         >>> from sonnix.modules import DynamicTanh
         >>> m = DynamicTanh(normalized_shape=5)
         >>> m
-        DynamicTanh(normalized_shape=(5,))
+        DynamicTanh(normalized_shape=(5,), bias=True)
         >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
         >>> out
         tensor([[-0.7616, -0.4621,  0.0000,  0.4621,  0.7616],
@@ -156,4 +177,4 @@ class DynamicTanh(BaseDynamicNorm):
     """
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return x.mul(self.alpha).tanh().mul(self.weight).add(self.bias)
+        return ScaleAndShift.forward(self, x.mul(self.alpha).tanh())
