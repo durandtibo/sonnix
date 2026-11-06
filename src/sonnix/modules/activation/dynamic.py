@@ -24,6 +24,9 @@ class BaseDynamicNorm(nn.Module):
             list, and this module willcnormalize over the last
             dimension which is expected to be of that specific size.
         alpha_init_value: The initial value for alpha.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.
@@ -45,7 +48,11 @@ class BaseDynamicNorm(nn.Module):
     """
 
     def __init__(
-        self, normalized_shape: int | list[int] | tuple[int, ...], alpha_init_value: float = 0.5
+        self,
+        normalized_shape: int | list[int] | tuple[int, ...],
+        alpha_init_value: float = 0.5,
+        device: torch.device | None = None,
+        dtype: torch.dtype | None = None,
     ) -> None:
         super().__init__()
         if isinstance(normalized_shape, int):
@@ -53,9 +60,13 @@ class BaseDynamicNorm(nn.Module):
         self._normalized_shape = tuple(normalized_shape)
         self._alpha_init_value = alpha_init_value
 
-        self.alpha: nn.Parameter = nn.Parameter(torch.empty(1))
-        self.weight: nn.Parameter = nn.Parameter(torch.empty(self._normalized_shape))
-        self.bias: nn.Parameter = nn.Parameter(torch.empty(self._normalized_shape))
+        self.alpha: nn.Parameter = nn.Parameter(torch.empty(1, device=device, dtype=dtype))
+        self.weight: nn.Parameter = nn.Parameter(
+            torch.empty(self._normalized_shape, device=device, dtype=dtype)
+        )
+        self.bias: nn.Parameter = nn.Parameter(
+            torch.empty(self._normalized_shape, device=device, dtype=dtype)
+        )
         self.reset_parameters()
 
     def extra_repr(self) -> str:

@@ -370,3 +370,10 @@ def test_quadratic_forward_init_2(device: str) -> None:
             device=device,
         ),
     )
+
+
+@pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
+def test_gaussian_dtype(dtype: torch.dtype) -> None:
+    module = Gaussian(dtype=dtype)
+    assert module.alpha.dtype == dtype
+    assert module(torch.ones(2, 3, dtype=dtype)).dtype == dtype

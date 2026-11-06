@@ -31,6 +31,9 @@ class BaseAlphaActivation(nn.Module):
         init: The initial value of the learnable parameter(s).
         learnable: If ``True``, the parameters are learnt during the
             training, otherwise they are fixed.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -51,10 +54,23 @@ class BaseAlphaActivation(nn.Module):
         ```
     """
 
-    def __init__(self, num_parameters: int = 1, init: float = 1.0, learnable: bool = True) -> None:
+    def __init__(
+        self,
+        num_parameters: int = 1,
+        init: float = 1.0,
+        learnable: bool = True,
+        device: torch.device | None = None,
+        dtype: torch.dtype | None = None,
+    ) -> None:
         super().__init__()
         self.alpha: nn.Parameter = nn.Parameter(
-            torch.full((num_parameters,), init, dtype=torch.float), requires_grad=learnable
+            torch.full(
+                (num_parameters,),
+                init,
+                device=device,
+                dtype=dtype if dtype is not None else torch.get_default_dtype(),
+            ),
+            requires_grad=learnable,
         )
 
     def extra_repr(self) -> str:
