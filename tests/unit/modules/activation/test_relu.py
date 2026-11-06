@@ -40,12 +40,28 @@ def test_relun_forward_max_value_2(device: str) -> None:
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("shape", SHAPES)
-def test_relun_forward_shape(device: str, shape: tuple[int, ...]) -> None:
+def test_relun_forward_shape_value(device: str, shape: tuple[int, ...]) -> None:
     device = torch.device(device)
     module = ReLUn().to(device=device)
     out = module(torch.randn(*shape, device=device))
     assert out.shape == shape
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_relun_forward_shape_dtype(device: str, shape: tuple[int, ...]) -> None:
+    device = torch.device(device)
+    module = ReLUn().to(device=device)
+    out = module(torch.randn(*shape, device=device))
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_relun_forward_shape_device(device: str, shape: tuple[int, ...]) -> None:
+    device = torch.device(device)
+    module = ReLUn().to(device=device)
+    out = module(torch.randn(*shape, device=device))
     assert out.device == device
 
 
@@ -66,12 +82,28 @@ def test_squared_relu_forward(device: str) -> None:
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("shape", SHAPES)
-def test_squared_relu_forward_shape(device: str, shape: tuple[int, ...]) -> None:
+def test_squared_relu_forward_shape_value(device: str, shape: tuple[int, ...]) -> None:
     device = torch.device(device)
     module = SquaredReLU().to(device=device)
     out = module(torch.randn(*shape, device=device))
     assert out.shape == shape
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_squared_relu_forward_shape_dtype(device: str, shape: tuple[int, ...]) -> None:
+    device = torch.device(device)
+    module = SquaredReLU().to(device=device)
+    out = module(torch.randn(*shape, device=device))
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_squared_relu_forward_shape_device(device: str, shape: tuple[int, ...]) -> None:
+    device = torch.device(device)
+    module = SquaredReLU().to(device=device)
+    out = module(torch.randn(*shape, device=device))
     assert out.device == device
 
 
