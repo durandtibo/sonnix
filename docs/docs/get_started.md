@@ -12,20 +12,7 @@ The following command installs the latest version of the library:
 pip install sonnix
 ```
 
-To make the package as slim as possible, only the packages required to use `sonnix` are installed.
-It is possible to install all the optional dependencies by running the following command:
-
-```shell
-pip install 'sonnix[all]'
-```
-
-This command also installed NumPy and PyTorch.
-It is also possible to install the optional packages manually or to select the packages to install.
-In the following example, only NumPy is installed:
-
-```shell
-pip install sonnix numpy
-```
+`sonnix` has no optional dependency: `pip install sonnix` installs `coola` and PyTorch.
 
 ## Installing from source
 

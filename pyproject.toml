@@ -21,7 +21,7 @@ license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
   "Intended Audience :: Information Technology",
   "Intended Audience :: Science/Research",
@@ -43,9 +43,6 @@ dynamic = ["maintainers"]
 requires-python = ">=3.11"
 
 dependencies = ["coola>=2.0.0a1,<3.0", "torch>=2.4,<3.0"]
-
-[project.optional-dependencies]
-numpy = ["numpy >=1.24,<3.0"]
 
 [dependency-groups]
 dev = [
