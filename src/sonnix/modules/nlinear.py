@@ -74,6 +74,9 @@ class NLinear(nn.Module):
         for name, value in (("n", n), ("in_features", in_features), ("out_features", out_features)):
             validate_int(value, name=name)
             validate_ge(value, 1, name=name)
+        self.n = n
+        self.in_features = in_features
+        self.out_features = out_features
         self.weight: nn.Parameter = nn.Parameter(
             torch.empty((n, in_features, out_features), device=device, dtype=dtype)
         )
@@ -85,18 +88,6 @@ class NLinear(nn.Module):
             self.register_parameter("bias", None)
         self.reset_parameters()
 
-    @property
-    def n(self) -> int:
-        return self.weight.shape[0]
-
-    @property
-    def in_features(self) -> int:
-        return self.weight.shape[1]
-
-    @property
-    def out_features(self) -> int:
-        return self.weight.shape[2]
-
     def reset_parameters(self) -> None:
         # Same initialization as ``torch.nn.Linear``: uniform in
         # [-1/sqrt(in_features), 1/sqrt(in_features)] for both parameters.
@@ -106,6 +97,18 @@ class NLinear(nn.Module):
             init.uniform_(self.bias, -bound, bound)
 
     def forward(self, x: Tensor) -> Tensor:
+        r"""Apply the ``n`` linear layers.
+
+        Args:
+            x: The input tensor of shape ``(*, n, in_features)``.
+
+        Returns:
+            The output tensor of shape ``(*, n, out_features)``.
+
+        Raises:
+            ValueError: if the input has less than 2 dimensions or if
+                its second to last dimension is not ``n``.
+        """
         if x.ndim < 2 or x.shape[-2] != self.n:
             msg = (
                 f"Expected an input of shape (*, n={self.n}, in_features={self.in_features}) "

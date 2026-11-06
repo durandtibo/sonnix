@@ -35,15 +35,10 @@ class ToBinaryLabel(nn.Module):
 
     def __init__(self, threshold: float = 0.0) -> None:
         super().__init__()
-        self._threshold = float(threshold)
-
-    @property
-    def threshold(self) -> float:
-        r"""The threshold used to compute the binary label."""
-        return self._threshold
+        self.threshold = float(threshold)
 
     def extra_repr(self) -> str:
-        return f"threshold={self._threshold}"
+        return f"threshold={self.threshold}"
 
     def forward(self, scores: torch.Tensor) -> torch.Tensor:
         r"""Compute binary labels from scores.
@@ -69,7 +64,7 @@ class ToBinaryLabel(nn.Module):
 
             ```
         """
-        return (scores > self._threshold).long()
+        return (scores > self.threshold).long()
 
 
 class ToCategoricalLabel(nn.Module):
