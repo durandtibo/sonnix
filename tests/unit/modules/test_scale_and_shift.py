@@ -127,3 +127,10 @@ def test_scale_and_shift_reset_parameters() -> None:
     module.reset_parameters()
     assert module.weight.equal(torch.ones(5))
     assert module.bias.equal(torch.zeros(5))
+
+
+@pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
+def test_scale_and_shift_dtype(dtype: torch.dtype) -> None:
+    module = ScaleAndShift(4, dtype=dtype)
+    assert module.weight.dtype == dtype
+    assert module.bias.dtype == dtype

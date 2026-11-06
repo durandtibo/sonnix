@@ -310,3 +310,9 @@ def test_relative_smooth_l1_loss_indicator_reversed_relative(device: str) -> Non
     assert objects_are_equal(
         loss, torch.tensor([[0.75, 0.0, 50.0], [1.8333333333333333, 0.7, 0.0]], device=device)
     )
+
+
+def test_relative_loss_empty_sequential_indicator_is_kept() -> None:
+    indicator = nn.Sequential()
+    module = RelativeLoss(criterion=nn.MSELoss(), indicator=indicator)
+    assert module.indicator is indicator

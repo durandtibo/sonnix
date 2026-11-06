@@ -53,6 +53,7 @@ def is_loss_decreasing(
         ```pycon
         >>> import torch
         >>> from torch import nn
+        >>> from torch.optim import SGD
         >>> from sonnix.utils.loss import is_loss_decreasing
         >>> module = nn.Linear(4, 2)
         >>> is_loss_decreasing(
@@ -174,8 +175,8 @@ def is_loss_decreasing_with_sgd(
         ```pycon
         >>> import torch
         >>> from torch import nn
-        >>> from sonnix.utils.loss import is_loss_decreasing_with_adam
-        >>> is_loss_decreasing_with_adam(
+        >>> from sonnix.utils.loss import is_loss_decreasing_with_sgd
+        >>> is_loss_decreasing_with_sgd(
         ...     module=nn.Linear(4, 2),
         ...     criterion=nn.MSELoss(),
         ...     feature=torch.rand(4, 4),

@@ -50,7 +50,7 @@ class ResidualBlock(nn.Module):
     ) -> None:
         super().__init__()
         self.residual: nn.Module = setup_module(residual)
-        self.skip: nn.Module = setup_module(skip or nn.Identity())
+        self.skip: nn.Module = setup_module(nn.Identity() if skip is None else skip)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return self.skip(input) + self.residual(input)

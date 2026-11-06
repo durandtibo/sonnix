@@ -11,8 +11,13 @@ __all__ = [
     "Quadratic",
 ]
 
+from typing import TYPE_CHECKING
+
 import torch
 from torch import nn
+
+if TYPE_CHECKING:
+    from torch import Tensor
 
 
 class BaseAlphaActivation(nn.Module):
@@ -31,6 +36,9 @@ class BaseAlphaActivation(nn.Module):
         init: The initial value of the learnable parameter(s).
         learnable: If ``True``, the parameters are learnt during the
             training, otherwise they are fixed.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -51,14 +59,36 @@ class BaseAlphaActivation(nn.Module):
         ```
     """
 
-    def __init__(self, num_parameters: int = 1, init: float = 1.0, learnable: bool = True) -> None:
+    def __init__(
+        self,
+        num_parameters: int = 1,
+        init: float = 1.0,
+        learnable: bool = True,
+        device: torch.device | None = None,
+        dtype: torch.dtype | None = None,
+    ) -> None:
         super().__init__()
-        self.alpha: nn.Parameter = nn.Parameter(
-            torch.full((num_parameters,), init, dtype=torch.float), requires_grad=learnable
+        self.alpha: Tensor
+        alpha = torch.full(
+            (num_parameters,),
+            init,
+            device=device,
+            dtype=dtype if dtype is not None else torch.get_default_dtype(),
         )
+        if learnable:
+            self.alpha = nn.Parameter(alpha)
+        else:
+            # Frozen values are buffers: they are saved in the state dict and moved with
+            # the module, but they are not returned by ``parameters()``.
+            self.register_buffer("alpha", alpha)
+
+    @property
+    def learnable(self) -> bool:
+        r"""Indicate if ``alpha`` is learnable."""
+        return isinstance(self.alpha, nn.Parameter)
 
     def extra_repr(self) -> str:
-        return f"num_parameters={self.alpha.numel()}, learnable={self.alpha.requires_grad}"
+        return f"num_parameters={self.alpha.numel()}, learnable={self.learnable}"
 
 
 class ExpSin(BaseAlphaActivation):
@@ -93,14 +123,14 @@ class ExpSin(BaseAlphaActivation):
         ExpSin(num_parameters=1, learnable=True)
         >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
         >>> out
-        tensor([[1.0000, 2.3198, 2.4826, 1.1516],
-                [0.4692, 0.3833, 0.7562, 1.9290]], grad_fn=<ExpBackward0>)
+        tensor([[1.0000, 0.4311, 0.4028, 0.8684],
+                [2.1314, 2.6089, 1.3224, 0.5184]], grad_fn=<ExpBackward0>)
 
         ```
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.mul(self.alpha).sin().exp()
+        return input.mul(self.alpha).sin().neg().exp()
 
 
 class Gaussian(BaseAlphaActivation):

@@ -27,6 +27,8 @@ class NLinear(nn.Module):
         out_features: The size of each output sample.
         bias: If set to ``False``, the layer will not learn an
             additive bias.
+        device: The device of the parameters.
+        dtype: The data type of the parameters.
 
     Shape:
         - Input: ``(*, n, in_features)``, where ``*`` means any number of
@@ -38,7 +40,6 @@ class NLinear(nn.Module):
         ```pycon
         >>> import torch
         >>> from sonnix.modules import NLinear
-        >>> # Example with 1 feature
         >>> m = NLinear(n=3, in_features=4, out_features=6)
         >>> m
         NLinear(n=3, in_features=4, out_features=6, bias=True)
@@ -86,23 +87,20 @@ class NLinear(nn.Module):
         return self.weight.shape[2]
 
     def reset_parameters(self) -> None:
-        # Setting a=sqrt(5) in kaiming_uniform is the same as initializing with
-        # uniform(-1/sqrt(in_features), 1/sqrt(in_features)). For details, see
-        # https://github.com/pytorch/pytorch/issues/57109
-        init.kaiming_uniform_(self.weight, a=math.sqrt(5))
+        # Same initialization as ``torch.nn.Linear``: uniform in
+        # [-1/sqrt(in_features), 1/sqrt(in_features)] for both parameters.
+        bound = 1 / math.sqrt(self.in_features) if self.in_features > 0 else 0
+        init.uniform_(self.weight, -bound, bound)
         if self.bias is not None:
-            fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
-            bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
 
     def forward(self, x: Tensor) -> Tensor:
         shape = x.shape
-        x = x.view(-1, shape[-2], shape[-1]).transpose(0, 1)
-        x @= self.weight
-        x = x.transpose(0, 1).view(*shape[:-1], self.out_features)
+        x = x.reshape(-1, shape[-2], shape[-1]).transpose(0, 1)  # (n, batch, in)
+        x = torch.bmm(x, self.weight).transpose(0, 1)  # (batch, n, out)
         if self.bias is not None:
-            x += self.bias
-        return x
+            x = x + self.bias
+        return x.reshape(*shape[:-1], self.out_features)
 
     def extra_repr(self) -> str:
         return (

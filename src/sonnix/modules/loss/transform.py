@@ -52,8 +52,10 @@ class TransformedLoss(nn.Module):
     ) -> None:
         super().__init__()
         self.criterion: nn.Module = setup_module(criterion)
-        self.prediction: nn.Module = setup_module(prediction or nn.Identity())
-        self.target: nn.Module = setup_module(target or nn.Identity())
+        self.prediction: nn.Module = setup_module(
+            nn.Identity() if prediction is None else prediction
+        )
+        self.target: nn.Module = setup_module(nn.Identity() if target is None else target)
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         prediction = self.prediction(prediction)
