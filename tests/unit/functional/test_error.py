@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 import torch
 from coola.equality import objects_are_equal
@@ -11,6 +13,9 @@ from sonnix.functional import (
     symmetric_absolute_relative_error,
 )
 from tests.helpers import DEVICES_WITHOUT_MPS
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 DTYPES = (torch.long, torch.float)
 
@@ -249,3 +254,22 @@ def test_absolute_relative_error_invalid_eps(eps: float) -> None:
 def test_symmetric_absolute_relative_error_invalid_eps(eps: float) -> None:
     with pytest.raises(ValueError, match=r"eps must be greater than 0"):
         symmetric_absolute_relative_error(torch.ones(2, 3), torch.ones(2, 3), eps=eps)
+
+
+@pytest.mark.parametrize(
+    "func", [absolute_error, absolute_relative_error, symmetric_absolute_relative_error]
+)
+def test_error_functions_broadcast_shapes_are_rejected(func: Callable[..., torch.Tensor]) -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"prediction and target must have the same shape, got \(3, 1\) and \(1, 4\)",
+    ):
+        func(torch.ones(3, 1), torch.ones(1, 4))
+
+
+@pytest.mark.parametrize(
+    "func", [absolute_error, absolute_relative_error, symmetric_absolute_relative_error]
+)
+def test_error_functions_scalar_target_is_rejected(func: Callable[..., torch.Tensor]) -> None:
+    with pytest.raises(ValueError, match=r"prediction and target must have the same shape"):
+        func(torch.ones(3), torch.ones(()))

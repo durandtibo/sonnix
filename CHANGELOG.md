@@ -68,3 +68,9 @@ All notable changes to this project are documented in this file. The package is 
   `AverageFusion` and `ConcatFusion` extend it.
 - `SumFusion` has no `normalized` argument and `AverageFusion` no longer extends `SumFusion`:
   `SumFusion(normalized=True)` is now `AverageFusion()`.
+
+### Error functions
+
+- `absolute_error`, `absolute_relative_error` and `symmetric_absolute_relative_error` raise a
+  `ValueError` when `prediction` and `target` do not have the same shape, as their documentation
+  says, instead of broadcasting. This is the same policy as `relative_loss`.

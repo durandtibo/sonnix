@@ -9,6 +9,8 @@ __all__ = ["absolute_error", "absolute_relative_error", "symmetric_absolute_rela
 
 from typing import TYPE_CHECKING
 
+from sonnix.validation import validate_same_shape
+
 if TYPE_CHECKING:
     from torch import Tensor
 
@@ -26,6 +28,10 @@ def absolute_error(prediction: Tensor, target: Tensor) -> Tensor:
         The absolute error tensor, which has the same shape and data
             type as the inputs.
 
+    Raises:
+        ValueError: if ``prediction`` and ``target`` do not have the
+            same shape (the inputs are not broadcast).
+
     Example:
         ```pycon
         >>> import torch
@@ -36,6 +42,7 @@ def absolute_error(prediction: Tensor, target: Tensor) -> Tensor:
 
         ```
     """
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return target.sub(prediction).abs()
 
 
@@ -59,7 +66,9 @@ def absolute_relative_error(prediction: Tensor, target: Tensor, eps: float = 1e-
             and data type as the inputs.
 
     Raises:
-        ValueError: if ``eps`` is not strictly positive.
+        ValueError: if ``eps`` is not strictly positive or if
+            ``prediction`` and ``target`` do not have the same shape
+            (the inputs are not broadcast).
 
     Example:
         ```pycon
@@ -72,6 +81,7 @@ def absolute_relative_error(prediction: Tensor, target: Tensor, eps: float = 1e-
         ```
     """
     validate_gt(eps, 0, name="eps")
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return target.sub(prediction).div(target.abs().clamp(min=eps)).abs()
 
 
@@ -93,7 +103,9 @@ def symmetric_absolute_relative_error(
             same shape and data type as the inputs.
 
     Raises:
-        ValueError: if ``eps`` is not strictly positive.
+        ValueError: if ``eps`` is not strictly positive or if
+            ``prediction`` and ``target`` do not have the same shape
+            (the inputs are not broadcast).
 
     Example:
         ```pycon
@@ -106,6 +118,7 @@ def symmetric_absolute_relative_error(
         ```
     """
     validate_gt(eps, 0, name="eps")
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     return (
         target.sub(prediction).div(target.abs().add(prediction.abs()).mul(0.5).clamp(min=eps)).abs()
     )
