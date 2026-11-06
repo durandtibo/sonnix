@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 import torch
 from torch import nn
 
-from sonnix.modules.numerical.sine import prepare_tensor_param
+from sonnix.modules.numerical._utils import prepare_tensor_param
 
 if TYPE_CHECKING:
     from torch import Tensor
