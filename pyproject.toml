@@ -1,9 +1,12 @@
 [build-system]
-requires = ["hatchling>=1.32.0", "hatchling-autoextras-hook>=0.1.3"]
+requires = ["hatchling>=1.32.4", "hatchling-autoextras-hook>=0.1.3"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build]
+sources = ["src"]
+
 [tool.hatch.build.targets.sdist]
-only-include = ["src"]
+only-include = ["src", "tests"]
 
 [tool.hatch.metadata.hooks.autoextras]
 
@@ -17,6 +20,7 @@ authors = [
 ]
 keywords = ["torch", "module", "layer", "nn"]
 license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -25,6 +29,7 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
     "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -33,6 +38,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
 ]
 
 dynamic = ["maintainers"]
@@ -50,26 +56,27 @@ objectory = [ "objectory >=0.3.0,<1.0" ]
 
 [dependency-groups]
 dev = [
-    "black>=26.5.1",
     "coverage[toml]>=7.15.2,<8.0",
-    "docformatter[tomli] >=1.7,<2.0 ; python_version < '3.14'",
-    "feu[all]>=0.7.1,<1.0",
-    "invoke>=2.2.0,<4.0",
-    "pre-commit>=4.6.0,<5.0",
-    "pygments >=2.19,<3.0",
-    "pyright>=1.1.410,<2.0",
-    "pytest >=9.0,<10.0",
-    "pytest-cov >=7.0,<8.0",
-    "pytest-timeout >=2.4,<3.0",
-    "ruff>=0.15.15,<1.0",
-    "xdoctest >=1.3,<2.0",
+    "docformatter>=1.7.8,<2.0",
+    "feu[all]>=0.8.4,<1.0",
+    "invoke-tasklib>=0.0.8,<1.0",
+    "invoke>=3.0,<4.0",
+    "pre-commit>=4.6,<5.0",
+    "pygments>=2.20,<3.0",
+    "pytest-cov>=7.1,<8.0",
+    "pytest-timeout>=2.4,<3.0",
+    "pytest>=9.1,<10.0",
+    "ruff>=0.16,<1.0",
+    "ty>=0.0.90,<1.0",
+    "xdoctest>=1.3,<2.0",
 ]
 
 docs = [
-    "mike >=2.1,<3.0",
+    "griffe-inherited-docstrings >=1.1,<2.0",
+    "mike >=2.2,<3.0",
     "mkdocs-material >=9.7,<10.0",
     "mkdocstrings[python]>=1.0.6,<2.0",
-    "mkdocs-include-markdown-plugin >=7.2,<8.0",
+    "mkdocs-include-markdown-plugin >=7.3,<8.0",
 ]
 
 notebook = [
@@ -79,12 +86,18 @@ notebook = [
 ]
 
 [project.urls]
-homepage = "https://github.com/durandtibo/sonnix"
-repository = "https://github.com/durandtibo/sonnix"
-documentation = "https://durandtibo.github.io/sonnix/"
+Homepage = "https://github.com/durandtibo/sonnix"
+Repository = "https://github.com/durandtibo/sonnix"
+Documentation = "https://durandtibo.github.io/sonnix/"
+Changelog = "https://github.com/durandtibo/sonnix/releases"
+Issues = "https://github.com/durandtibo/sonnix/issues"
 
 [tool.uv.pip]
 torch-backend = "auto"
+
+[tool.codespell]
+skip = "*.lock,./.git,./htmlcov,./docs/site,coverage.xml"
+ignore-words-list = "coo"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
@@ -96,29 +109,29 @@ source = ["sonnix"]
 [tool.coverage.report]
 show_missing = true
 exclude_lines = [
-    "pragma: no cover",
-    "if TYPE_CHECKING:"
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "^\\s*\\.\\.\\.$",
+  "\\)( -> .+)?: \\.\\.\\.$",
 ]
 
-[tool.pytest]
+[tool.pytest.ini_options]
 minversion = "9.0"
 testpaths = ["tests/"]
 log_format = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-log_level = "DEBUG"
-addopts = ["--color", "yes", "--durations", "10", "-rf"]
+addopts = [
+  "--color",
+  "yes",
+  "--durations",
+  "10",
+  "-rf",
+  "--strict-markers",
+  "--strict-config",
+]
+xfail_strict = true
+timeout = 300
 # Configuration of the short test summary info
 # https://docs.pytest.org/en/stable/usage.html#detailed-summary-report
-
-[tool.black]
-line-length = 100
-target-version = ["py310", "py311", "py312", "py313", "py314"]
-include = '\.pyi?$|\.ipynb$'
-
-[tool.pylint.FORMAT]
-max-line-length = 100
-
-[tool.isort]
-profile = "black"
 
 [tool.docformatter]
 recursive = true
@@ -129,131 +142,67 @@ syntax = "google"
 [tool.ruff]
 # List of rules: https://docs.astral.sh/ruff/rules/
 lint.select = [
-    "A", # builtins
-    "ANN", # annotations
-    "ARG", # flake8-unused-arguments
-    "B", # bugbear
-    "BLE", # flake8-blind-except
-    "C4", # flake8-comprehensions
-    "D", # pydocstyle
-    "DTZ", # flake8-datetimez
-    "E", # pycodestyle (Error)
-    "EM", # flake8-errmsg
-    "EXE", # flake8-executable
-    "F", # pyflakes
-    "FA", # flake8-future-annotations
-    "FURB", # refurb
-    "ICN", # flake8-import-conventions
-    "INP", # flake8-no-pep420
-    "ISC", # flake8-implicit-str-concat
-    "LOG", # logging
-    "N", # naming
-    "NPY", # NumPy-specific rules
-    "PD", # pandas-vet
-    "PERF", # Perflint
-    "PGH", # pygrep-hooks
-    "PIE", # flake8-pie
-    "PL", # Pylint
-    "PT", # flake8-pytest-style
-    "PTH", # pathlib
-    "PYI", # flake8-pyi
-    "Q", # flake8-quotes
-    "RET", # flake8-return
-    "RSE", # flake8-raise
-    "RUF", # Ruff-specific rules
-    "S", # flake8-bandit
-    "SIM", # flake8-simplify
-    "T20", # flake8-print
-    "TCH", # flake8-type-checking
-    "TD", # flake8-todos
-    "TID", # flake8-tidy-imports
-    "TRY", # tryceratops
-    "UP", # pyupgrade
-    "W", # pycodestyle (Warning)
+  "A",    # builtins
+  "ANN",  # annotations
+  "ARG",  # flake8-unused-arguments
+  "B",    # bugbear
+  "BLE",  # flake8-blind-except
+  "C4",   # flake8-comprehensions
+  "C90",  # mccabe complexity
+  "D",    # pydocstyle
+  "DTZ",  # flake8-datetimez
+  "E",    # pycodestyle (Error)
+  "EM",   # flake8-errmsg
+  "EXE",  # flake8-executable
+  "F",    # pyflakes
+  "FA",   # flake8-future-annotations
+  "FURB", # refurb
+  "G",    # flake8-logging-format
+  "I",    # isort
+  "ICN",  # flake8-import-conventions
+  "INP",  # flake8-no-pep420
+  "ISC",  # flake8-implicit-str-concat
+  "LOG",  # logging
+  "N",    # naming
+  "NPY",  # NumPy-specific rules
+  "PD",   # pandas-vet
+  "PERF", # Perflint
+  "PGH",  # pygrep-hooks
+  "PIE",  # flake8-pie
+  "PL",   # Pylint
+  "PT",   # flake8-pytest-style
+  "PTH",  # pathlib
+  "PYI",  # flake8-pyi
+  "Q",    # flake8-quotes
+  "RET",  # flake8-return
+  "RSE",  # flake8-raise
+  "RUF",  # Ruff-specific rules
+  "S",    # flake8-bandit
+  "SIM",  # flake8-simplify
+  "T20",  # flake8-print
+  "TC",   # flake8-type-checking
+  "TD",   # flake8-todos
+  "TID",  # flake8-tidy-imports
+  "TRY",  # tryceratops
+  "UP",   # pyupgrade
+  "W",    # pycodestyle (Warning)
 ]
 lint.ignore = [
-    "A003", # Class attribute `{name}` is shadowing a python builtin
-    "ANN401", # Dynamically typed expressions (typing.Any) are disallowed.
-    "B905", # `zip()` without an explicit strict= parameter set. The `strict=` argument was added in Python 3.10
-    "E501", # Line lengths are recommended to be no greater than 79 characters.
-    "W505", # Doc line too long
-    "PLR0913", # Too many arguments in function definition (8 > 5)
-    "PLR2004", # Magic value used in comparison, consider replacing 0.0 with a constant variable
+  "A003",    # Class attribute `{name}` is shadowing a python builtin
+  "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed.
+  "E501",    # Line lengths are recommended to be no greater than 79 characters.
+  "W505",    # Doc line too long
+  "PLR0913", # Too many arguments in function definition (8 > 5)
+  "PLR0917", # Too many positional arguments
+  "G004",    # Logging statement uses f-string
+  "PLR2004", # Magic value used in comparison, consider replacing 0.0 with a constant variable
 
-    # The following rules are ignored because they conflict with another library like docformatter.
-    "D102", # Missing docstring in public method
-    "D105", # Missing docstring in magic method
-    "D107", # Missing docstring in `__init__`
-    "D205", # 1 blank line required between summary line and description
-    "D209", # Multi-line docstring closing quotes should be on a separate line
-]
-
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-lint.fixable = [
-    "A", # builtins
-    "ANN", # annotations
-    "ARG", # flake8-unused-arguments
-    "B", # bugbear
-    "BLE", # flake8-blind-except
-    "C4", # flake8-comprehensions
-    "D", # pydocstyle
-    "DTZ", # flake8-datetimez
-    "E", # pycodestyle (Error)
-    "EM", # flake8-errmsg
-    "EXE", # flake8-executable
-    "F", # pyflakes
-    "FA", # flake8-future-annotations
-    "FURB", # refurb
-    "ICN", # flake8-import-conventions
-    "INP", # flake8-no-pep420
-    "ISC", # flake8-implicit-str-concat
-    "LOG", # logging
-    "N", # naming
-    "NPY", # NumPy-specific rules
-    "PD", # pandas-vet
-    "PERF", # Perflint
-    "PGH", # pygrep-hooks
-    "PIE", # flake8-pie
-    "PL", # Pylint
-    "PT", # flake8-pytest-style
-    "PTH", # pathlib
-    "PYI", # flake8-pyi
-    "Q", # flake8-quotes
-    "RET", # flake8-return
-    "RSE", # flake8-raise
-    "RUF", # Ruff-specific rules
-    "S", # flake8-bandit
-    "SIM", # flake8-simplify
-    "T20", # flake8-print
-    "TCH", # flake8-type-checking
-    "TD", # flake8-todos
-    "TID", # flake8-tidy-imports
-    "TRY", # tryceratops
-    "UP", # pyupgrade
-    "W", # pycodestyle (Warning)
-]
-lint.unfixable = []
-
-lint.exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
+  # The following rules are ignored because they conflict with another library like docformatter.
+  "D102", # Missing docstring in public method
+  "D105", # Missing docstring in magic method
+  "D107", # Missing docstring in `__init__`
+  "D205", # 1 blank line required between summary line and description
+  "D209", # Multi-line docstring closing quotes should be on a separate line
 ]
 
 # Enable on top of the Google convention.
@@ -266,9 +215,8 @@ src = ["src"]
 [tool.ruff.lint.per-file-ignores]
 # Ignore all directories named `tests`.
 "tests/**" = [
-    "D", # pydocstyle
-    "PL", # Pylint
-    "S101", # flake8-bandit
+  "D",    # pydocstyle
+  "S101", # flake8-bandit: assert
 ]
 
 [tool.ruff.lint.mccabe]
@@ -281,6 +229,17 @@ convention = "google"
 max-doc-length = 72
 
 [tool.ruff.lint.isort]
-force-sort-within-sections = true
+force-sort-within-sections = false
 combine-as-imports = true
-known-first-party = ["src"]
+known-first-party = ["sonnix"]
+
+[tool.ruff.lint.flake8-import-conventions]
+[tool.ruff.lint.flake8-import-conventions.aliases]
+numpy = "np"
+pandas = "pd"
+polars = "pl"
+pyarrow = "pa"
+xarray = "xr"
+
+[tool.ty.src]
+include = ["src", "tests", "dev"]

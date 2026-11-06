@@ -1,0 +1,7 @@
+tasklib:
+  package:
+    name: sonnix
+    python_version: "3.13"
+  groups:
+    install: dev,docs
+    update: dev,docs
