@@ -8,6 +8,7 @@ __all__ = ["log_cosh_loss", "msle_loss"]
 import math
 from typing import TYPE_CHECKING
 
+from coola.validation import validate_gt
 from torch.nn.functional import mse_loss, softplus
 
 from sonnix.functional.reduction import reduce_loss
@@ -41,6 +42,10 @@ def log_cosh_loss(
     Returns:
         The logarithm of the hyperbolic cosine of the prediction error.
 
+    Raises:
+        ValueError: if ``scale`` is not strictly positive or if the
+            reduction is not valid.
+
     Example:
         ```pycon
         >>> import torch
@@ -52,6 +57,7 @@ def log_cosh_loss(
 
         ```
     """
+    validate_gt(scale, 0, name="scale")
     error = target.sub(prediction).div(scale).abs()
     # Numerically stable form of log(cosh(x)): it does not overflow for large |x|.
     loss = error + softplus(-2.0 * error) - math.log(2.0)
