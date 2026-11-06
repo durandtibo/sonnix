@@ -104,7 +104,7 @@ def test_binary_focal_loss_no_alpha(device: str) -> None:
     assert binary_focal_loss(
         torch.tensor([[0.9, 0.1, 0.9], [0.1, 0.9, 0.9]], device=device),
         torch.tensor([[1.0, 1.0, 0.0], [0.0, 1.0, 0.0]], device=device),
-        alpha=-1.0,
+        alpha=None,
     ).allclose(torch.tensor(0.9330737652408776, device=device))
 
 
@@ -219,7 +219,7 @@ def test_binary_focal_loss_with_logits_no_alpha(device: str) -> None:
     assert binary_focal_loss_with_logits(
         torch.tensor([[1.0, -1.0, 1.0], [-1.0, 1.0, 1.0]], device=device),
         torch.tensor([[1.0, 1.0, 0.0], [0.0, 1.0, 0.0]], device=device),
-        alpha=-1.0,
+        alpha=None,
     ).allclose(torch.tensor(0.3622631566961145, device=device))
 
 
@@ -245,9 +245,10 @@ def test_binary_focal_loss_with_logits_loss_backward(device: str) -> None:
 
 
 @pytest.mark.parametrize("loss", [binary_focal_loss, binary_focal_loss_with_logits])
-def test_binary_focal_loss_incorrect_alpha(loss: Callable) -> None:
-    with pytest.raises(ValueError, match="alpha must be less than or equal to 1"):
-        loss(torch.rand(2, 3), torch.ones(2, 3), alpha=5.0)
+@pytest.mark.parametrize("alpha", [5.0, -1.0])
+def test_binary_focal_loss_incorrect_alpha(loss: Callable, alpha: float) -> None:
+    with pytest.raises(ValueError, match=r"alpha must be in the range \[0, 1\]"):
+        loss(torch.rand(2, 3), torch.ones(2, 3), alpha=alpha)
 
 
 @pytest.mark.parametrize("loss", [binary_focal_loss, binary_focal_loss_with_logits])
@@ -259,7 +260,7 @@ def test_binary_focal_loss_incorrect_gamma(loss: Callable) -> None:
 def test_binary_focal_loss_with_logits_matches_probability_version() -> None:
     logits = torch.randn(6, 5, dtype=torch.float64)
     target = torch.randint(0, 2, (6, 5)).double()
-    for alpha in (-1.0, 0.25):
+    for alpha in (None, 0.25):
         assert binary_focal_loss_with_logits(logits, target, alpha=alpha).allclose(
             binary_focal_loss(logits.sigmoid(), target, alpha=alpha)
         )

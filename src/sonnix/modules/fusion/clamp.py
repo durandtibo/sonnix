@@ -12,9 +12,9 @@ class Clamp(torch.nn.Module):
     ``[min, max]``.
 
     Args:
-        min: The lower-bound of the range to be clamped to.
+        min_val: The lower-bound of the range to be clamped to.
             ``None`` means there is no minimum value.
-        max: The upper-bound of the range to be clamped to.
+        max_val: The upper-bound of the range to be clamped to.
             ``None`` means there is no maximum value.
 
     Shape:
@@ -25,9 +25,9 @@ class Clamp(torch.nn.Module):
         ```pycon
         >>> import torch
         >>> from sonnix.modules import Clamp
-        >>> m = Clamp(min=-1, max=2)
+        >>> m = Clamp(min_val=-1, max_val=2)
         >>> m
-        Clamp(min=-1, max=2)
+        Clamp(min_val=-1, max_val=2)
         >>> out = m(torch.tensor([[-2.0, -1.0, 0.0], [1.0, 2.0, 3.0]]))
         >>> out
         tensor([[-1., -1.,  0.], [ 1.,  2.,  2.]])
@@ -35,13 +35,13 @@ class Clamp(torch.nn.Module):
         ```
     """
 
-    def __init__(self, min: float | None = -1.0, max: float | None = 1.0) -> None:  # noqa: A002
+    def __init__(self, min_val: float | None = -1.0, max_val: float | None = 1.0) -> None:
         super().__init__()
-        self._min = min
-        self._max = max
+        self._min = min_val
+        self._max = max_val
 
     def extra_repr(self) -> str:
-        return f"min={self._min}, max={self._max}"
+        return f"min_val={self._min}, max_val={self._max}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return input.clamp(min=self._min, max=self._max)

@@ -28,7 +28,7 @@ def test_safe_exp_max_value_default(device: str) -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 def test_safe_exp_max_value_1(device: str) -> None:
     assert objects_are_allclose(
-        safe_exp(torch.tensor([-1.0, 0.0, 1.0, 10.0, 100.0], device=device), max=1.0),
+        safe_exp(torch.tensor([-1.0, 0.0, 1.0, 10.0, 100.0], device=device), max_val=1.0),
         torch.tensor(
             [0.3678794503211975, 1.0, 2.7182817459106445, 2.7182817459106445, 2.7182817459106445],
             device=device,
@@ -61,7 +61,7 @@ def test_safe_log_min_value_default(device: str) -> None:
 
 @pytest.mark.parametrize("device", get_available_devices())
 def test_safe_log_min_value_1(device: str) -> None:
-    assert safe_log(torch.tensor([-1.0, 0.0, 1.0, 2.0], device=device), min=1.0).equal(
+    assert safe_log(torch.tensor([-1.0, 0.0, 1.0, 2.0], device=device), min_val=1.0).equal(
         torch.tensor([0.0, 0.0, 0.0, 0.6931471805599453], device=device),
     )
 
@@ -77,13 +77,13 @@ def test_safe_log_shape(device: str, shape: tuple[int, ...]) -> None:
 
 def test_safe_exp_clamp_has_zero_gradient() -> None:
     x = torch.tensor([100.0], requires_grad=True)
-    safe_exp(x, max=20.0).backward()
+    safe_exp(x, max_val=20.0).backward()
     assert x.grad.item() == 0.0
 
 
 def test_safe_exp_preserve_gradient() -> None:
     x = torch.tensor([100.0], requires_grad=True)
-    out = safe_exp(x, max=20.0, preserve_gradient=True)
+    out = safe_exp(x, max_val=20.0, preserve_gradient=True)
     out.backward()
     assert out.allclose(torch.tensor(20.0).exp())
     assert x.grad.allclose(torch.tensor(20.0).exp())
@@ -91,13 +91,13 @@ def test_safe_exp_preserve_gradient() -> None:
 
 def test_safe_log_clamp_has_zero_gradient() -> None:
     x = torch.tensor([1e-10], requires_grad=True)
-    safe_log(x, min=1e-8).backward()
+    safe_log(x, min_val=1e-8).backward()
     assert x.grad.item() == 0.0
 
 
 def test_safe_log_preserve_gradient() -> None:
     x = torch.tensor([1e-10], requires_grad=True)
-    out = safe_log(x, min=1e-8, preserve_gradient=True)
+    out = safe_log(x, min_val=1e-8, preserve_gradient=True)
     out.backward()
     assert out.allclose(torch.tensor(1e-8).log())
     assert x.grad.allclose(torch.tensor(1e8))

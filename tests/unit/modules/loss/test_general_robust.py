@@ -242,7 +242,7 @@ def test_general_robust_regression_loss_forward_reduction_none() -> None:
 
 
 def test_general_robust_regression_loss_forward_max() -> None:
-    criterion = GeneralRobustRegressionLoss(alpha=2.0, scale=1.0, max=0.5, reduction="none")
+    criterion = GeneralRobustRegressionLoss(alpha=2.0, scale=1.0, max_val=0.5, reduction="none")
     assert objects_are_equal(
         criterion(
             prediction=torch.tensor([[0, 1, 2], [2, 1, 0]], dtype=torch.float),
@@ -260,7 +260,7 @@ def test_general_robust_regression_loss_forward_mock(
     alpha: float, scale: float, max_value: float | None, reduction: str
 ) -> None:
     criterion = GeneralRobustRegressionLoss(
-        alpha=alpha, scale=scale, max=max_value, reduction=reduction
+        alpha=alpha, scale=scale, max_val=max_value, reduction=reduction
     )
     with patch("sonnix.modules.loss.general_robust.general_robust_regression_loss") as loss_mock:
         criterion(prediction=torch.tensor([1.0]), target=torch.tensor([1.0]))
@@ -269,6 +269,6 @@ def test_general_robust_regression_loss_forward_mock(
             target=torch.tensor([1.0]),
             alpha=alpha,
             scale=scale,
-            max=max_value,
+            max_val=max_value,
             reduction=reduction,
         )

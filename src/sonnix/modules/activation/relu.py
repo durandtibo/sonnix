@@ -19,7 +19,7 @@ class ReLUn(nn.Module):
     The ReLU-n equation is: ``ReLUn(x, n)=min(max(0,x),n)``
 
     Args:
-        max: The maximum value a.k.a. ``n`` in the equation above.
+        max_val: The maximum value a.k.a. ``n`` in the equation above.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -29,9 +29,9 @@ class ReLUn(nn.Module):
         ```pycon
         >>> import torch
         >>> from sonnix.modules import ReLUn
-        >>> m = ReLUn(max=5)
+        >>> m = ReLUn(max_val=5)
         >>> m
-        ReLUn(max=5.0)
+        ReLUn(max_val=5.0)
         >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
         >>> out
         tensor([[0., 1., 2., 3.],
@@ -40,12 +40,12 @@ class ReLUn(nn.Module):
         ```
     """
 
-    def __init__(self, max: float = 1.0) -> None:  # noqa: A002
+    def __init__(self, max_val: float = 1.0) -> None:
         super().__init__()
-        self._max = float(max)
+        self._max = float(max_val)
 
     def extra_repr(self) -> str:
-        return f"max={self._max}"
+        return f"max_val={self._max}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return input.clamp(min=0.0, max=self._max)

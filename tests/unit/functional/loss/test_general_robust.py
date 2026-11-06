@@ -185,7 +185,7 @@ def test_general_robust_regression_loss_max() -> None:
     assert general_robust_regression_loss(
         prediction=torch.tensor([[0.0, 1.0, 2.0], [2.0, 1.0, 0.0]]),
         target=torch.tensor([[0.0, 1.0, 2.0], [1.0, 1.0, 1.0]]),
-        max=0.5,
+        max_val=0.5,
         reduction="none",
     ).equal(torch.tensor([[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]))
 

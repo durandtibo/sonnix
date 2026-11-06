@@ -35,7 +35,7 @@ class GeneralRobustRegressionLoss(nn.Module):
             loss.
         scale: The scale parameter that controls the size of the loss's
             quadratic bowl near 0.
-        max: The max value to clip the loss before to compute the
+        max_val: The max value to clip the loss before to compute the
             reduction. ``None`` means no clipping is used.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
@@ -58,7 +58,7 @@ class GeneralRobustRegressionLoss(nn.Module):
         >>> from sonnix.modules import GeneralRobustRegressionLoss
         >>> criterion = GeneralRobustRegressionLoss()
         >>> criterion
-        GeneralRobustRegressionLoss(alpha=2.0, scale=1.0, max=None, reduction=mean)
+        GeneralRobustRegressionLoss(alpha=2.0, scale=1.0, max_val=None, reduction=mean)
         >>> input = torch.randn(3, 2, requires_grad=True)
         >>> target = torch.rand(3, 2, requires_grad=False)
         >>> loss = criterion(input, target)
@@ -73,7 +73,7 @@ class GeneralRobustRegressionLoss(nn.Module):
         self,
         alpha: float = 2.0,
         scale: float = 1.0,
-        max: float | None = None,  # noqa: A002
+        max_val: float | None = None,
         *,
         reduction: str = "mean",
     ) -> None:
@@ -81,15 +81,13 @@ class GeneralRobustRegressionLoss(nn.Module):
         self._alpha = float(alpha)
         validate_gt(scale, 0, name="scale")
         self._scale = float(scale)
-        self._max = max
+        self._max = max_val
 
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction
 
     def extra_repr(self) -> str:
-        return (
-            f"alpha={self._alpha}, scale={self._scale}, max={self._max}, reduction={self.reduction}"
-        )
+        return f"alpha={self._alpha}, scale={self._scale}, max_val={self._max}, reduction={self.reduction}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         return general_robust_regression_loss(
@@ -97,6 +95,6 @@ class GeneralRobustRegressionLoss(nn.Module):
             target=target,
             alpha=self._alpha,
             scale=self._scale,
-            max=self._max,
+            max_val=self._max,
             reduction=self.reduction,
         )

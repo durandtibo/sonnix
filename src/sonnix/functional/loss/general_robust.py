@@ -18,7 +18,7 @@ def general_robust_regression_loss(
     target: torch.Tensor,
     alpha: float = 2.0,
     scale: float = 1.0,
-    max: float | None = None,  # noqa: A002
+    max_val: float | None = None,
     *,
     reduction: str = "mean",
 ) -> torch.Tensor:
@@ -49,7 +49,7 @@ def general_robust_regression_loss(
             used when ``alpha`` is within ``1e-5`` of 0 or 2.
         scale: The scale parameter that controls the size of the loss's
             quadratic bowl near 0.
-        max: The max value to clip the loss before to compute the
+        max_val: The max value to clip the loss before to compute the
             reduction. ``None`` means no clipping is used.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
@@ -91,6 +91,6 @@ def general_robust_regression_loss(
         # ``log1p``/``expm1`` keep the computation stable near ``alpha=0`` and ``alpha=2``.
         b = abs(alpha - 2)
         loss = (alpha / 2 * squared_error.div(b).log1p()).expm1().mul(b / alpha)
-    if max is not None:
-        loss = loss.clamp(max=max)
+    if max_val is not None:
+        loss = loss.clamp(max=max_val)
     return reduce_loss(loss, reduction)

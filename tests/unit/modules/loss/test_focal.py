@@ -21,7 +21,7 @@ def test_binary_focal_loss_str() -> None:
     assert str(BinaryFocalLoss()).startswith("BinaryFocalLoss(")
 
 
-@pytest.mark.parametrize("alpha", [-1.0, 0.0, 0.5, 1])
+@pytest.mark.parametrize("alpha", [None, 0.0, 0.5, 1])
 def test_binary_focal_loss_alpha(alpha: float) -> None:
     assert BinaryFocalLoss(alpha=alpha)._alpha == alpha
 
@@ -128,7 +128,7 @@ def test_binary_focal_loss_forward_alpha_0_5(device: str) -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 def test_binary_focal_loss_forward_no_alpha(device: str) -> None:
     device = torch.device(device)
-    criterion = BinaryFocalLoss(alpha=-1.0).to(device=device)
+    criterion = BinaryFocalLoss(alpha=None).to(device=device)
     loss = criterion(
         torch.tensor([[0.9, 0.1, 0.9], [0.1, 0.9, 0.9]], device=device),
         torch.tensor([[1.0, 1.0, 0.0], [0.0, 1.0, 0.0]], device=device),
@@ -168,7 +168,7 @@ def test_binary_focal_loss_with_logits_str() -> None:
     assert str(BinaryFocalLossWithLogits()).startswith("BinaryFocalLossWithLogits(")
 
 
-@pytest.mark.parametrize("alpha", [-1.0, 0.0, 0.5, 1])
+@pytest.mark.parametrize("alpha", [None, 0.0, 0.5, 1])
 def test_binary_focal_loss_with_logits_alpha(alpha: float) -> None:
     assert BinaryFocalLossWithLogits(alpha=alpha)._alpha == alpha
 
@@ -275,7 +275,7 @@ def test_binary_focal_loss_with_logits_forward_alpha_0_5(device: str) -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 def test_binary_focal_loss_with_logits_forward_no_alpha(device: str) -> None:
     device = torch.device(device)
-    criterion = BinaryFocalLossWithLogits(alpha=-1.0).to(device=device)
+    criterion = BinaryFocalLossWithLogits(alpha=None).to(device=device)
     loss = criterion(
         torch.tensor([[1.0, -1.0, 1.0], [-1.0, 1.0, 1.0]], device=device),
         torch.tensor([[1.0, 1.0, 0.0], [0.0, 1.0, 0.0]], device=device),
@@ -307,6 +307,7 @@ def test_binary_focal_loss_with_logits_backward(device: str) -> None:
 
 
 @pytest.mark.parametrize("loss", [BinaryFocalLoss, BinaryFocalLossWithLogits])
-def test_binary_focal_loss_module_incorrect_alpha(loss: type) -> None:
-    with pytest.raises(ValueError, match="alpha must be less than or equal to 1"):
-        loss(alpha=5.0)
+@pytest.mark.parametrize("alpha", [5.0, -1.0])
+def test_binary_focal_loss_module_incorrect_alpha(loss: type, alpha: float) -> None:
+    with pytest.raises(ValueError, match=r"alpha must be in the range \[0, 1\]"):
+        loss(alpha=alpha)
