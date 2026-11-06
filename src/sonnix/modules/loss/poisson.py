@@ -20,6 +20,8 @@ class PoissonRegressionLoss(nn.Module):
     https://arxiv.org/pdf/2307.02694
 
     Args:
+        eps: An arbitrary small strictly positive number to avoid
+            undefined results when the count is zero.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -28,8 +30,6 @@ class PoissonRegressionLoss(nn.Module):
             input, ``'sum'``: the output will be summed,
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
-        eps: An arbitrary small strictly positive number to avoid
-            undefined results when the count is zero.
 
     Example:
         ```pycon
@@ -46,7 +46,7 @@ class PoissonRegressionLoss(nn.Module):
         ```
     """
 
-    def __init__(self, reduction: str = "mean", eps: float = 1e-8) -> None:
+    def __init__(self, eps: float = 1e-8, *, reduction: str = "mean") -> None:
         super().__init__()
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction

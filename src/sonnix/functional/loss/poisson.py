@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def poisson_regression_loss(
-    prediction: torch.Tensor, target: torch.Tensor, reduction: str = "mean", eps: float = 1e-8
+    prediction: torch.Tensor, target: torch.Tensor, eps: float = 1e-8, *, reduction: str = "mean"
 ) -> torch.Tensor:
     r"""Compute the Poisson regression loss.
 
@@ -34,6 +34,8 @@ def poisson_regression_loss(
             positive: the loss is not meaningful for negative values.
         target: The count target values. The values must be positive
             (zero is allowed).
+        eps: An arbitrary small strictly positive number to avoid
+            undefined results when the count is zero.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -42,8 +44,6 @@ def poisson_regression_loss(
             input, ``'sum'``: the output will be summed,
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
-        eps: An arbitrary small strictly positive number to avoid
-            undefined results when the count is zero.
 
     Returns:
         The Poisson regression loss. The shape of the tensor depends

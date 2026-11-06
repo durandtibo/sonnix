@@ -21,6 +21,8 @@ class QuantileRegressionLoss(nn.Module):
     https://arxiv.org/pdf/2307.02694
 
     Args:
+        q: The quantile value. ``q=0.5`` is equivalent to the Mean
+            Absolute Error (MAE).
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -29,8 +31,6 @@ class QuantileRegressionLoss(nn.Module):
             input, ``'sum'``: the output will be summed,
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
-        q: The quantile value. ``q=0.5`` is equivalent to the Mean
-            Absolute Error (MAE).
 
     Example:
         ```pycon
@@ -47,7 +47,7 @@ class QuantileRegressionLoss(nn.Module):
         ```
     """
 
-    def __init__(self, reduction: str = "mean", q: float = 0.5) -> None:
+    def __init__(self, q: float = 0.5, *, reduction: str = "mean") -> None:
         super().__init__()
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction

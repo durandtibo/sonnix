@@ -19,8 +19,9 @@ if TYPE_CHECKING:
 def log_cosh_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
-    reduction: str = "mean",
     scale: float = 1.0,
+    *,
+    reduction: str = "mean",
 ) -> torch.Tensor:
     r"""Compute the logarithm of the hyperbolic cosine of the prediction
     error.
@@ -28,6 +29,10 @@ def log_cosh_loss(
     Args:
         prediction: The predictions.
         target: The target values.
+        scale: The scale factor. The error is divided by ``scale``
+            and the loss is multiplied by ``scale``, so the loss is
+            ``scale * log(cosh(error / scale))``. Its magnitude is
+            comparable to the Huber loss for any ``scale``.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -36,10 +41,6 @@ def log_cosh_loss(
             input, ``'sum'``: the output will be summed,
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
-        scale: The scale factor. The error is divided by ``scale``
-            and the loss is multiplied by ``scale``, so the loss is
-            ``scale * log(cosh(error / scale))``. Its magnitude is
-            comparable to the Huber loss for any ``scale``.
 
     Returns:
         The logarithm of the hyperbolic cosine of the prediction error.
@@ -62,7 +63,7 @@ def log_cosh_loss(
 
 
 def msle_loss(
-    prediction: torch.Tensor, target: torch.Tensor, reduction: str = "mean"
+    prediction: torch.Tensor, target: torch.Tensor, *, reduction: str = "mean"
 ) -> torch.Tensor:
     r"""Compute the mean squared error (MSE) on the logarithmic
     transformed predictions and targets.
