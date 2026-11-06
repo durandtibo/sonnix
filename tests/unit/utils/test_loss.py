@@ -42,7 +42,7 @@ def test_is_loss_decreasing_false() -> None:
     )
 
 
-def test_is_loss_decreasing_train_mode() -> None:
+def test_is_loss_decreasing_train_mode_check1() -> None:
     module = nn.Linear(4, 6)
     module.train()
     assert is_loss_decreasing(
@@ -52,10 +52,15 @@ def test_is_loss_decreasing_train_mode() -> None:
         feature=torch.rand(8, 4),
         target=torch.rand(8, 6),
     )
+
+
+def test_is_loss_decreasing_train_mode_training() -> None:
+    module = nn.Linear(4, 6)
+    module.train()
     assert module.training
 
 
-def test_is_loss_decreasing_eval_mode() -> None:
+def test_is_loss_decreasing_eval_mode_check1() -> None:
     module = nn.Linear(4, 6)
     module.eval()
     assert is_loss_decreasing(
@@ -65,6 +70,11 @@ def test_is_loss_decreasing_eval_mode() -> None:
         feature=torch.rand(8, 4),
         target=torch.rand(8, 6),
     )
+
+
+def test_is_loss_decreasing_eval_mode_training() -> None:
+    module = nn.Linear(4, 6)
+    module.eval()
     assert not module.training
 
 
