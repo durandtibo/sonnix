@@ -9,8 +9,8 @@ check, so a configuration can run any importable callable
 model as Hydra: **only use configurations from a trusted source**, never
 a file or a message provided by an untrusted user. The ``is_*_config``
 functions import the target but do not call it, so they can be used to
-check a configuration before the instantiation, but a callable without
-a return type hint is reported as invalid.
+check a configuration before the instantiation, but a callable without a
+return type hint is reported as invalid.
 """
 
 from __future__ import annotations

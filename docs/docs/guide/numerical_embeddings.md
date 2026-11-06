@@ -3,11 +3,11 @@
 A numerical encoder maps each scalar feature to a vector of `feature_size` values. The input has
 shape `(*, n_features)` and the output has shape `(*, n_features, feature_size)`.
 
-| Encoder                           | Encoding of a value `x`                                            |
-| --------------------------------- | ------------------------------------------------------------------ |
-| `AsinhNumericalEncoder`           | `asinh(x / scale)`, one value per scale                            |
-| `CosSinNumericalEncoder`          | cosine and sine of `x * frequency + phase`                         |
-| `AsinhCosSinNumericalEncoder`     | the cosine/sine encoding plus an `asinh` feature                   |
+| Encoder                           | Encoding of a value `x`                                                |
+| --------------------------------- | ---------------------------------------------------------------------- |
+| `AsinhNumericalEncoder`           | `asinh(x / scale)`, one value per scale                                |
+| `CosSinNumericalEncoder`          | cosine and sine of `x * frequency + phase`                             |
+| `AsinhCosSinNumericalEncoder`     | the cosine/sine encoding plus an `asinh` feature                       |
 | `PiecewiseLinearNumericalEncoder` | the position of `x` in each bin, as in the "piecewise linear" encoding |
 
 The classes have a `create` (or `from_quantiles`) class method that builds the encoder from the

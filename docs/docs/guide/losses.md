@@ -22,12 +22,12 @@ loss = criterion(torch.randn(4, 3), torch.randn(4, 3))
 All the losses accept the same `reduction` values. The elementwise loss `l` of a prediction of
 shape `(N, ...)` is reduced as follows:
 
-| Value         | Result                                       | Shape        |
-| ------------- | -------------------------------------------- | ------------ |
-| `"none"`      | no reduction                                 | same as `l`  |
-| `"mean"`      | the sum divided by the number of elements    | scalar       |
-| `"sum"`       | the sum of all the elements                  | scalar       |
-| `"batchmean"` | the sum divided by the size of dimension `0` | scalar       |
+| Value         | Result                                       | Shape       |
+| ------------- | -------------------------------------------- | ----------- |
+| `"none"`      | no reduction                                 | same as `l` |
+| `"mean"`      | the sum divided by the number of elements    | scalar      |
+| `"sum"`       | the sum of all the elements                  | scalar      |
+| `"batchmean"` | the sum divided by the size of dimension `0` | scalar      |
 
 `"mean"` is the default. `sonnix.functional.reduce_loss` implements these strategies and validates
 the value, so a custom loss only has to call it:
