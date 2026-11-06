@@ -97,3 +97,24 @@ def test_to_categorical_label_forward_2d(device: str) -> None:
         ),
         torch.tensor([3, 0], dtype=torch.long, device=device),
     )
+
+
+def test_to_categorical_label_dim_default() -> None:
+    assert ToCategoricalLabel().dim == -1
+
+
+def test_to_categorical_label_forward_dim_0() -> None:
+    module = ToCategoricalLabel(dim=0)
+    assert objects_are_equal(
+        module(torch.tensor([[1.0, 5.0], [3.0, 2.0], [2.0, 4.0]])),
+        torch.tensor([1, 0]),
+    )
+
+
+def test_to_categorical_label_forward_dim_1_3d() -> None:
+    module = ToCategoricalLabel(dim=1)
+    assert module(torch.tensor([[[1.0, 0.0], [0.0, 3.0]]])).shape == (1, 2)
+
+
+def test_to_categorical_label_extra_repr() -> None:
+    assert ToCategoricalLabel(dim=1).extra_repr() == "dim=1"

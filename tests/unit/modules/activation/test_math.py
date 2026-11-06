@@ -416,3 +416,16 @@ def test_safe_log_module_preserve_gradient() -> None:
     x = torch.tensor([1e-10], requires_grad=True)
     module(x).backward()
     assert x.grad.item() > 0
+
+
+def test_square_repr() -> None:
+    assert repr(Square()) == "Square()"
+
+
+def test_square_is_pow_2() -> None:
+    assert Square().exponent == 2.0
+
+
+def test_square_forward_equals_pow() -> None:
+    x = torch.tensor([-2.0, -0.5, 0.0, 3.0])
+    assert Square()(x).equal(Pow(exponent=2)(x))

@@ -76,13 +76,16 @@ class ToCategoricalLabel(nn.Module):
     r"""Implement a ``torch.nn.Module`` to compute categorical labels
     from scores.
 
+    Args:
+        dim: The dimension of the classes.
+
     Example:
         ```pycon
         >>> import torch
         >>> from sonnix.modules import ToCategoricalLabel
         >>> transform = ToCategoricalLabel()
         >>> transform
-        ToCategoricalLabel()
+        ToCategoricalLabel(dim=-1)
         >>> out = transform(torch.tensor([[1.0, 2.0, 3.0, 4.0], [5.0, 3.0, 2.0, 2.0]]))
         >>> out
         tensor([3, 0])
@@ -90,13 +93,22 @@ class ToCategoricalLabel(nn.Module):
         ```
     """
 
+    def __init__(self, dim: int = -1) -> None:
+        super().__init__()
+        self.dim = dim
+
+    def extra_repr(self) -> str:
+        return f"dim={self.dim}"
+
     def forward(self, scores: torch.Tensor) -> torch.Tensor:
         r"""Compute categorical labels from scores.
 
         Args:
             scores: The scores used to compute the categorical labels.
-                This input must be a ``torch.Tensor`` of shape
-                ``(d0, d1, ..., dn, num_classes)`` and type float.
+                This input must be a ``torch.Tensor`` of type float
+                where the dimension ``dim`` has size ``num_classes``,
+                for example ``(d0, d1, ..., dn, num_classes)`` with
+                the default ``dim``.
 
         Returns:
             The computed categorical labels where the values are in
@@ -115,4 +127,4 @@ class ToCategoricalLabel(nn.Module):
 
             ```
         """
-        return scores.argmax(dim=-1, keepdim=False)
+        return scores.argmax(dim=self.dim, keepdim=False)

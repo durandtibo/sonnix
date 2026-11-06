@@ -44,3 +44,11 @@ All notable changes to this project are documented in this file. The package is 
   as in the paper, and supports `device` and `dtype`. The `frequency` argument is replaced by
   `init`, and `Snake(frequency=2.0)` is now `Snake(init=2.0, learnable=False)`. The forward is
   `x + sin(alpha * x) ** 2 / alpha`, which has the same values with fewer operations.
+
+### Wrapper modules
+
+- Add `ToDtype(dtype)`. `ToFloat` and `ToLong` are now `ToDtype` subclasses (`float32` and `int64`).
+- `ToCategoricalLabel` has a `dim` argument (default `-1`).
+- `Square` is a `Pow(exponent=2)` subclass (it is no longer a separate implementation) and is listed
+  in `sonnix.modules.activation.math.__all__` with `Pow`. Its output on integer tensors is now
+  floating point, like `Pow`.
