@@ -15,6 +15,11 @@ from sonnix.factory import resolve_module
 class ResidualBlock(nn.Module):
     r"""Implementation of a residual block.
 
+    Warning:
+        A configuration (a ``dict`` with a ``_target_`` key) calls its
+        ``_target_`` before the type of the result is checked, so it
+        must come from a trusted source. See ``sonnix.factory``.
+
     Args:
         residual: The residual mapping module or its configuration
             (dictionary).

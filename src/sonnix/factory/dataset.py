@@ -52,6 +52,11 @@ def is_dataset_config(config: dict[Any, Any]) -> bool:
 def resolve_dataset(dataset: Dataset[T] | dict[Any, Any]) -> Dataset[T]:
     r"""Resolve a ``torch.utils.data.Dataset`` object.
 
+    Warning:
+        A configuration (a ``dict`` with a ``_target_`` key) calls its
+        ``_target_`` before the type of the result is checked, so it
+        must come from a trusted source. See ``sonnix.factory``.
+
     Args:
         dataset: The dataset or its configuration.
 

@@ -24,6 +24,11 @@ class RelativeLoss(BaseLoss):
     r"""Implement a "generic" relative loss that takes as input a
     criterion.
 
+    Warning:
+        A configuration (a ``dict`` with a ``_target_`` key) calls its
+        ``_target_`` before the type of the result is checked, so it
+        must come from a trusted source. See ``sonnix.factory``.
+
     Args:
         criterion: The criterion or its configuration. This criterion
             should not have reduction to be compatible with the shapes
@@ -106,6 +111,11 @@ class RelativeLoss(BaseLoss):
 class RelativeMSELoss(RelativeLoss):
     r"""Implement the relative MSE loss.
 
+    Warning:
+        A configuration (a ``dict`` with a ``_target_`` key) calls its
+        ``_target_`` before the type of the result is checked, so it
+        must come from a trusted source. See ``sonnix.factory``.
+
     Args:
         indicator: The indicator module or its configuration. If
             ``None``, ``ClassicalRelativeIndicator`` is instantiated.
@@ -163,6 +173,11 @@ class RelativeMSELoss(RelativeLoss):
 
 class RelativeSmoothL1Loss(RelativeLoss):
     r"""Implement the relative smooth L1 loss.
+
+    Warning:
+        A configuration (a ``dict`` with a ``_target_`` key) calls its
+        ``_target_`` before the type of the result is checked, so it
+        must come from a trusted source. See ``sonnix.factory``.
 
     Args:
         indicator: The indicator module or its configuration. If

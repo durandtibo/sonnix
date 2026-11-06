@@ -36,6 +36,8 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Changed
 
+- The documentation of `sonnix.factory` and of every `Module | dict` argument states that a configuration
+  calls its `_target_` and must come from a trusted source (review 2.8, #PR).
 - `PiecewiseLinearNumericalEncoder` and `from_quantiles` have a keyword-only
   `on_duplicate="warn" | "ignore"` option for the duplicate-edge warning (review 2.5, #360).
 - `PoissonRegressionLoss` and `poisson_regression_loss` have a keyword-only `log_input` option, and the
