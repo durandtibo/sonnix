@@ -1,504 +1,517 @@
 # Sonnix codebase review
 
-Scope: everything tracked in the repo (`src/`, `tests/`, `docs/`, `notebooks/`, `dev/`, `.github/`,
-`.make/`, `pyproject.toml`, README/CONTRIBUTING). Breaking changes are acceptable, and the package is
-still `0.0.1a0`, so this is the right time to make them.
+Date of review: 2026-11-06, on `main` at `bb26f91`.
 
-State at review time: 6518 tests pass (21 skipped), 100% line coverage, 134 doctests pass, `ruff`
-clean. `pyright` reports **1 error** and `lint-imports` **fails** (see 6.1 and 6.2).
+Scope: all of `src/` (read in full, about 6.8k lines), plus `pyproject.toml`, `.github/`,
+`.pre-commit-config.yaml`, `docs/`, `README.md`, `CONTRIBUTING.md`, `notebooks/` and the layout of
+`tests/` (about 9.7k lines). I did **not** audit the tests one by one: section 6 comes from the
+layout and from greps, not from reading every test. Breaking changes are acceptable, and the
+package is still `0.0.1a0`.
 
-Items marked **[verified]** were reproduced by running code. The others come from reading the source.
+Items marked **[verified]** were reproduced by running code (scripts were run in a scratch
+directory, nothing in the repo was changed except this file). The others come from reading the
+source.
 
-Priority legend: **P0** = wrong results or broken tooling, **P1** = API or design issue that is cheap
-to fix now and costly after release, **P2** = quality, **P3** = nice to have.
+Priority legend: **P0** = broken on `main` (tooling, wrong results), **P1** = bug or API issue
+that is cheap to fix now and costly after a release, **P2** = quality, **P3** = nice to have.
 
----
+## 0. Baseline on `main`
 
-## 1. Correctness bugs (P0)
+| Check                     | Result                                                         |
+| ------------------------- | -------------------------------------------------------------- |
+| `pytest tests`            | 6626 passed, 3 skipped                                         |
+| `ruff check src tests`    | clean                                                          |
+| `pyright src`             | 0 errors                                                       |
+| `ty check`                | clean                                                          |
+| `xdoctest src/sonnix all` | **3 failed**, 124 passed (see 1.1)                             |
+| `lint-imports`            | **fails**: `Could not read any configuration.` (see 1.3)       |
+| `mkdocs build --strict`   | **fails**: `sonnix.utils.imports could not be found` (see 1.2) |
 
-### 1.1 `NLinear` is initialised ~8x too small [verified]
+### Done since the previous review
 
-`src/sonnix/modules/nlinear.py:92-96`
-
-The weight has shape `(n, in, out)`. `init.kaiming_uniform_` and `_calculate_fan_in_and_fan_out`
-treat it like a conv kernel: dim 0 is the output maps, dim 1 the input maps, dim 2 the receptive
-field. So `fan_in = in * out` instead of `in`. For `NLinear(3, 16, 64)` I measured a weight std of
-0.018, against 0.144 for `nn.Linear(16, 64)`. The factor is `sqrt(out_features)`, which grows with
-layer width. The bias bound is wrong in the same way (0.031 instead of 0.25).
-
-Fix: compute the bound explicitly, e.g. `bound = 1 / math.sqrt(in_features)`, and use
-`init.uniform_(self.weight, -bound, bound)` for both parameters. Also add a test that compares the
-std to `nn.Linear`.
-
-Related issues in the same file:
-
-- `x.view(-1, ...)` fails on non-contiguous input. Use `reshape`.
-- `x @= self.weight` and `x += self.bias` look like in-place ops but are not clearly so, and `+=`
-  mutates an intermediate. A single `torch.baddbmm(bias.unsqueeze(1), x, weight)` or
-  `torch.einsum("bni,nio->bno", ...)` is clearer and avoids the transposes.
-- Add `device`/`dtype` factory kwargs to the docs (they exist but are undocumented in `Args`).
-- The docstring comment `# Example with 1 feature` is wrong.
-
-### 1.2 `log_cosh_loss` overflows for |error| > ~89 (fp32) [verified]
-
-`src/sonnix/functional/loss/log.py:51`
-
-`cosh(x).log()` returns `inf` for `x=100`, and the gradient is `nan`. Use the stable form
-`|x| + softplus(-2|x|) - log(2)` (or `x + softplus(-2x) - log 2`).
-
-The `scale` parameter divides the error but does not rescale the loss, so `scale` changes the loss
-magnitude as well as its shape. Document this, or multiply by `scale` so the loss is comparable to
-Huber.
-
-### 1.3 `ExpSin` docstring disagrees with the implementation [verified]
-
-`src/sonnix/modules/activation/alpha.py:103`
-
-The docstring says `exp(-sin(alpha * x))`, which matches the paper. The code computes
-`exp(+sin(alpha * x))`: `ExpSin()(tensor([1.0]))` gives 2.3198 where the formula gives 0.4311.
-Decide which one is intended and fix the other.
-
-### 1.4 `ExU` bias sign and shape
-
-`src/sonnix/modules/exu.py:79`
-
-The paper defines `h(x) = f(exp(w) * (x - b))`. The code does `x + b`. This is only a
-reparametrisation, but it matters when loading paper weights. The `extra_repr` line is also over
-100 chars. Document the sign convention or follow the paper.
-
-### 1.5 `ResidualBlock` / `TransformedLoss` / `RelativeLoss` use `x or default` on modules [verified]
-
-`src/sonnix/modules/residual.py:53`, `modules/loss/transform.py:55-56`, `modules/loss/relative.py:73`
-
-`skip or nn.Identity()` treats any falsy module as "not provided". `nn.Sequential()` defines
-`__len__`, so an empty `Sequential` is falsy. `ResidualBlock(..., skip=nn.Sequential())` silently
-becomes `Identity` (confirmed). An empty config dict does the same. Use `if skip is None`.
-
-### 1.6 `CosSinNumericalEncoder` doubles its learnable parameters [verified]
-
-`src/sonnix/modules/numerical/sine.py:85-89`
-
-`frequency.repeat(1, 2)` creates one parameter of width `feature_size`, so the sin half and the cos
-half are optimised independently. With `learnable=True` the sin and cos features no longer share a
-frequency after the first step. That contradicts the docstring (`feature_size // 2` frequencies) and
-changes what is being learned. Store the half-width parameter and concatenate in `forward`
-(`torch.cat((sin(z), cos(z)), -1)` with `z = x * freq + phase`). This is breaking for state dicts,
-which is fine at this version.
-
-### 1.7 Frozen parameters registered as `nn.Parameter` [verified]
-
-`AsinhNumericalEncoder`, `CosSinNumericalEncoder` (`learnable=False` default)
-
-A frozen tensor stored as `nn.Parameter(requires_grad=False)` appears in `module.parameters()`.
-`num_parameters(AsinhNumericalEncoder(torch.ones(2, 3)))` returns 6 and the optimizer receives it.
-Register it as a buffer when `learnable=False` (or make `learnable` structural: buffer vs
-parameter). `BaseAlphaActivation` has the same pattern.
-
-### 1.8 Division by zero and unvalidated hyperparameters
-
-- `MomentMeanIndicator(k=0)` raises a raw `ZeroDivisionError` in `forward` [verified]
-  (`functional/loss/relative.py:233`). Validate `k >= 1` in the constructor and the function.
-- `BinaryFocalLoss(alpha=5.0)` is accepted [verified], although the docs say `[0, 1]`. `gamma` is
-  validated in the module but not in the functional API.
-- `QuantileRegressionLoss(q=...)` does not check `0 <= q <= 1`.
-- `Snake(frequency=0)` divides by zero. `Gaussian`/`Laplacian` give `inf`/`nan` when `alpha` reaches
-  0 during training. Consider a clamp or an `eps`, or document it.
-- `reduce_loss(torch.tensor(1.), "batchmean")` raises `IndexError` on 0-d input [verified].
-
-### 1.9 `reduction="batchmean"` is accepted inconsistently [verified]
-
-`check_loss_reduction_strategy` accepts `batchmean`, but every docstring says only
-`mean`/`none`/`sum`. `BinaryFocalLoss(reduction="batchmean")` is accepted. `asinh_mse_loss(...,
-reduction="batchmean")` fails inside PyTorch with a different error and message, and `AsinhMSELoss`
-would pass `__init__` validation and then fail in `forward`. Either support it everywhere (route
-the asinh/msle losses through `reduce_loss` too) or remove it. Same for `RelativeLoss`.
-
-### 1.10 Docstrings that describe the wrong behaviour
-
-- `binary_poly1_loss*` and `BinaryPoly1Loss*`: `alpha` is documented as "in `[0, 1]`, ignored if
-  negative", copied from the focal loss. The code uses `ce + alpha * (1 - p_t)` with no such rule.
-  The module docs also list a `gamma` argument that does not exist
-  (`modules/loss/poly.py:26,104`).
-- `safe_exp`/`SafeExp`: "higher than the specified _minimum_ value" should read "maximum".
-- `Pow`: described as "natural logarithm of the input" (copy-paste).
-- `is_dataset_config` / `is_module_config` / `is_optimizer_config`: all say "configuration for a
-  `torch.nn.Module`".
-- `is_loss_decreasing_with_sgd` example calls `is_loss_decreasing_with_adam`.
-- `is_loss_decreasing` example uses `SGD` without importing it, and `relative_loss` uses
-  `classical_relative_indicator` without importing it. They pass under xdoctest only because it
-  shares the module namespace. Add the imports so the rendered docs are copy-pasteable.
-- `ScaleAndShift`, `BaseDynamicNorm`, `DynamicAsinh`, `DynamicTanh`: "willcnormalize" typo.
-  `BaseDynamicNorm`'s example instantiates `DynamicTanh`, and the class has no `forward`.
-- `get_random_seed` says the range is up to `2**63 - 1`, but `randint`'s upper bound is exclusive.
+The previous version of this file listed 1.1-1.10, 2.1-2.6, 3.1-3.8, 3.10 (partly) and 4.x. Those
+were merged in #247-#285: `NLinear` init, stable `log_cosh_loss`, `ExpSin`, `x or default` on modules,
+shared sin/cos parameters, buffers for frozen tensors, hyperparameter validation, `batchmean`,
+`BaseLoss` and the `Reduction` literal, the with/without-logits pairs sharing a base, `alpha: float | None`,
+`min_val`/`max_val`, keyword-only `reduction`, `ValueError` instead of `RuntimeError`, the objectory
+removal (`coola.factory`), the `numpy` extra, the classifier, `__version__`, `is_loss_decreasing`
+`max_norm`, `DummyDataset`, `MulticlassFlatten`, deterministic `get_module_devices`. I re-checked that
+they hold. The remaining and new points are below.
 
 ---
 
-## 2. Numerical robustness (P1)
+## 1. Broken on `main` (P0)
 
-- **`clamp` kills gradients.** `safe_exp`, `safe_log`, `general_robust_regression_loss(max=...)`,
-  `poisson_regression_loss`, `relative_loss` (eps), `absolute_relative_error` all use `clamp`, which
-  gives zero gradient outside the range. This is often the intent, but it is not documented. Offer a
-  gradient-preserving variant (e.g. `safe_log(x) = log(x + eps)` or a straight-through clamp) and
-  document the difference.
-- **Barron loss** (`general_robust_regression_loss`): the `alpha == 2` / `alpha == 0` branches use
-  exact float equality. `alpha=1e-3` falls into the generic formula, which is numerically unstable
-  near 0 (the paper's reference code uses a stabilised form). Add `alpha = -inf` and handle the
-  neighbourhood of 0 and 2 with an epsilon switch. It also does not support a tensor `alpha`, so the
-  "adaptive" half of the paper cannot be built on it. Accepting `alpha: float | Tensor` would make a
-  learnable-`alpha` module a small addition.
-- **Poisson loss** duplicates `torch.nn.functional.poisson_nll_loss(log_input=False, eps=...)`. If
-  you keep it, document the difference (no Stirling term; `clamp` vs `+ eps`). The docs say the
-  inputs "must be positive" but the example uses `randn`.
-- **Focal / Poly1 `*_with_logits`** compute `sigmoid` and a separate BCE. The focal weight can be
-  derived from the BCE (`p_t = exp(-ce)`, as torchvision does) to save an op and remove the
-  duplicated `p_t` code. Note that `binary_cross_entropy` (the probability variants) raises under
-  `torch.autocast`; document that the `*_with_logits` variants are the AMP-safe ones.
-- **`msle_loss`** returns `nan` for inputs `< -1`, silently. Document, or add a `clamp(min=...)`
-  option.
-- **Mixed precision.** Buffers/params created in `float32` (`BaseAlphaActivation` hard-codes
-  `dtype=torch.float`, `PiecewiseLinearNumericalEncoder` buffers, the numerical encoders) ignore the
-  `dtype=` convention that `NLinear` and `ExU` follow. Pick one policy: accept
-  `device`/`dtype` everywhere, or never.
+### 1.1 Three doctests fail since #275 [verified]
+
+`src/sonnix/modules/loss/relative.py`, the `RelativeLoss`, `RelativeMSELoss` and
+`RelativeSmoothL1Loss` examples.
+
+`extra_repr` now prints `detach_indicator=False`, but the docstrings still show
+`eps=1e-08, reduction=mean`. `inv test.doctest` (the `Doctest` CI job) runs `xdoctest`, so that job
+is red on `main`. Fix the three expected reprs. While there, `RelativeSmoothL1Loss` stores neither
+`beta` nor shows it in the repr, so the repr hides a hyperparameter (see 3.2).
+
+### 1.2 The documentation build is broken [verified]
+
+`docs/docs/refs/utils.md` has `::: sonnix.utils.imports`, but `sonnix/utils/imports.py` was removed
+with the objectory shim. `mkdocs build --strict` aborts with `BuildError`, so the `build` job of
+`ci-doctest.yaml` and `release-docs*` fail. Also:
+
+- `sonnix.utils.factory` has no page, although `resolve_module` and `create_sequential` are the
+  main entry points for config-driven models.
+- `refs/testing.md` documents `sonnix.testing`, which now contains only `DummyDataset`.
+- No CI job would have caught this earlier, since nothing builds the docs on pull requests
+  other than that job. Make sure it is a required check.
+
+### 1.3 `lint-imports` has no configuration [verified]
+
+`.pre-commit-config.yaml` runs `uv run lint-imports` ("Enforces the package layering contract
+defined in pyproject.toml"), but `pyproject.toml` has no `[tool.importlinter]` section. The hook
+exits non-zero. In addition `import-linter` is only installed for Python >= 3.14 in the dev group.
+Either add the contract or drop the hook. Suggested contract (it matches the real imports I read):
+
+```toml
+[tool.importlinter]
+root_package = "sonnix"
+
+[[tool.importlinter.contracts]]
+name = "Layers"
+type = "layers"
+layers = ["sonnix.modules", "sonnix.functional", "sonnix.utils"]
+```
+
+`sonnix.testing` should be independent. Note that `sonnix.modules.loss.relative` currently imports
+`BaseRelativeIndicator` from the package root `sonnix.modules.loss` under `TYPE_CHECKING`; import it
+from `sonnix.modules.loss.indicators` so the contract is clean.
+
+---
+
+## 2. Correctness and numerical issues (P1)
+
+### 2.1 `load_state_dict_to_module(..., strict=False)` silently loads nothing [verified]
+
+`src/sonnix/utils/state_dict.py`
+
+The "find the matching sub-dict" fallback only runs when `load_state_dict` raises `RuntimeError`.
+With `strict=False` torch never raises for missing or unexpected keys, so a wrapped checkpoint
+(`{"model": {...}}`) loads **nothing**, and the function logs `The weights are loaded in the module.`
+(I checked: the weights are unchanged). Fix: when `strict=False`, inspect the
+`_IncompatibleKeys` result, and if every key is missing, run the search. Also log the
+missing/unexpected keys, and do not log "loaded" in that case.
+
+Smaller points in the same file:
+
+- `find_module_state_dict` reassigns its parameter `state_dict` inside the loop
+  (`state_dict = find_module_state_dict(value, ...)`). It works, but it is hard to follow. Use a
+  new name.
+- An empty `module_keys` (a module without state, such as `ReLU`) matches the first empty dict and
+  returns `{}`, which the caller treats as "not found". Document or special-case it.
+- There is no cycle protection for self-referencing containers.
+
+### 2.2 The device helpers ignore buffers, which matters since #252 [verified]
+
+`src/sonnix/utils/device.py`
+
+Frozen encoders now hold their tensors as buffers. `get_module_device(AsinhNumericalEncoder(...).to("meta"))`
+returns `cpu`, and `is_module_on_device(module, meta)` is vacuously `True` for any module with
+only buffers. Use `itertools.chain(module.parameters(), module.buffers())` in
+`get_module_device`, `get_module_devices` and `is_module_on_device`, and document that. The same
+applies to `has_parameters`/`num_parameters` only if you want buffers counted, which you
+probably do not: keep those parameter-only, but say so.
+
+### 2.3 Focal and Poly-1 give different values for soft targets [verified]
+
+`src/sonnix/functional/loss/focal.py`, `poly.py`
+
+#261 derives `p_t` as `exp(-bce)` in the `*_with_logits` variants. That identity only holds for
+binary targets. For `target = rand(6)`, `binary_focal_loss(sigmoid(x), t)` and
+`binary_focal_loss_with_logits(x, t)` differ by up to 0.07 (focal) and 0.19 (Poly-1). The
+docstring says "targets are expected to be binary", but the probability variants accept soft
+targets (label smoothing, mixup) and produce a different, arguably more meaningful value. Either:
+
+- compute `p_t = sigmoid(x) * t + (1 - sigmoid(x)) * (1 - t)` in both (one extra op, same
+  results), or
+- validate/document the binary requirement in both variants and in the module docstrings.
+
+I recommend the first, since it makes the pair interchangeable (which is what the shared base class
+in #280 promises) and adds a test `with_logits(x, t) == probs(sigmoid(x), t)` for soft `t`.
+
+### 2.4 `NaN` gradients at exactly 0 [verified]
+
+- `geometric_mean_indicator` and `moment_mean_indicator` (k >= 2) have a `NaN` gradient where
+  `prediction == 0` (`sqrt(0)`, `0 ** (1/k)`). `relative_loss(..., geometric_mean_indicator)` with
+  a prediction of exactly 0 (any ReLU output) gives `grad = [nan, ...]`. Fix: compute
+  `sqrt(max(|t| * |p|, eps))`, or use `exp(0.5 * (log|t| + log|p|))` with a clamp. The
+  indicator is later clamped to `eps` in `relative_loss`, but the clamp does not help because
+  `NaN * 0` is `NaN`.
+- `binary_focal_loss_with_logits` with `gamma < 1` has a `NaN` gradient when `p_t == 1`
+  (`(1 - p_t) ** gamma` with `gamma = 0.5` at 0). Validate `gamma >= 1` or compute the weight with
+  a guarded `pow`. `gamma in (0, 1)` is unusual but accepted by the validator.
+
+### 2.5 `quantile_regression_loss` at `q=0.5` is half of the MAE [verified]
+
+The docstrings of `quantile_regression_loss` and `QuantileRegressionLoss` say "`q=0.5` is
+equivalent to the Mean Absolute Error". It returns `0.5008` where `l1_loss` returns `1.0016`. The
+pinball loss is `max(q * d, (q - 1) * d)`, so at `q=0.5` it is `0.5 * |d|`. Fix the docstring (or
+rescale by `2`, but that is not the standard definition).
+
+### 2.6 Other numerical points
+
+- `ExU.forward` computes `weight.exp()` in the input dtype. In `float16` it overflows for
+  `weight > 11`. The init (`N(4, 0.5)`) is far from it, but nothing bounds it during training.
+  Document, or add a clamp option as in the NAM reference implementations.
+- `PiecewiseLinearNumericalEncoder` with duplicate bin edges (`bins = [0, 0, 1]`) sets the zero
+  width to `1.0`, so the first segment contributes `0.5` for `x = 0.5` instead of saturating at
+  `1` [verified]. The paper's reference drops duplicate edges. Either dedupe the edges per feature
+  (needs ragged handling) or set the width to `eps` so the segment saturates, and warn.
+- `msle_loss` silently returns `nan` below `-1`. `Pow(exponent=0.5)` has the same issue for negative
+  inputs. Both are documented in the first case, not in the second.
+
+### 2.7 Unvalidated or inconsistently validated arguments [verified]
+
+The modules and the functions do not validate the same things:
+
+| Call                                                          | Result                                                   |
+| ------------------------------------------------------------- | -------------------------------------------------------- |
+| `GeneralRobustRegressionLoss(scale=0)`                        | `ValueError`                                             |
+| `general_robust_regression_loss(..., scale=0)`                | returns `nan`                                            |
+| `PoissonRegressionLoss(eps=-1)` / `RelativeLoss(..., eps=-1)` | accepted                                                 |
+| `AsinhSmoothL1Loss(beta=-1)`                                  | accepted, fails in `forward` with a torch `RuntimeError` |
+| `ReLUn(max_val=-1.0)`                                         | accepted, returns `-1` everywhere                        |
+| `Clamp(min_val=2.0, max_val=-2.0)`                            | accepted, returns `-2`                                   |
+| `MultiQuadratic(num_parameters=0)`                            | accepted                                                 |
+| `SafeLog(min_val=-1.0)`                                       | accepted                                                 |
+
+Put the validation in one place per hyperparameter: a `validate_*` helper in the functional module
+(as `validate_focal_params` already does) called by both the function and the module constructor,
+using `coola.validation` (`validate_gt`, `validate_ge`, `validate_range`) as the project rules
+require. Do the same for `eps` in `absolute_relative_error`, `symmetric_absolute_relative_error`,
+`poisson_regression_loss` and `relative_loss`, and for `beta` in the two `smooth_l1` losses.
 
 ---
 
 ## 3. API design (P1, breaking changes welcome)
 
-### 3.1 One loss base class, one reduction type
+### 3.1 Hyperparameters are still not readable [verified]
 
-Almost every loss module repeats the same `check_loss_reduction_strategy` + `self.reduction`
-boilerplate (about 15 classes), plus identical `extra_repr`/`forward` shapes. Introduce:
+`ReLUn`, `Clamp`, `Snake`, `Pow`, `View`, `ConcatFusion`, `AsinhSmoothL1Loss`, `BinaryFocalLoss`,
+`QuantileRegressionLoss`, ... store `self._max`, `self._alpha`, `self._beta`, ... and expose nothing
+(`hasattr(ReLUn(), "max_val")` is `False`), while `reduction`, `ExU.in_features` and
+`ToBinaryLabel.threshold` are public. Users cannot read or log a config, and `copy`/`torch.save` of
+a module are inconsistent in what they expose. Pick public attributes (or read-only properties)
+for every constructor argument, named like the argument, and keep `_`-prefixed names only for
+derived state. This was 3.4 in the previous review and was not done.
 
-```python
-Reduction = Literal["none", "mean", "sum"]  # (+ "batchmean" if kept)
+### 3.2 `RelativeSmoothL1Loss` hides `beta`
 
+`beta` goes into `nn.SmoothL1Loss(reduction="none", beta=beta)`, and the class stores nothing, so
+the repr shows `(criterion): SmoothL1Loss()` (torch prints no `beta`). Store `beta` and show it in
+`extra_repr`, and validate it (`beta >= 0`). `RelativeLoss` also stores `eps` without `float()`
+(unlike every other module).
 
-class BaseLoss(nn.Module):
-    def __init__(self, reduction: Reduction = "mean"): ...
-```
+### 3.3 Shared `extra_repr` in `BaseLoss`
 
-or subclass `torch.nn.modules.loss._Loss`, which already provides `reduction`. Typing `reduction`
-as `Literal` gives editor and type-checker support, and `str` currently lets `reduction="meen"`
-through the type checker.
+Every loss repeats `extra_repr`, and the order is inconsistent: `reduction=mean, beta=1.0`
+for `AsinhSmoothL1Loss`, `alpha=..., reduction=...` for the focal losses. Let `BaseLoss.extra_repr`
+return `reduction=...` and have subclasses extend it (`f"{super().extra_repr()}, beta={...}"`),
+or generate the repr from a tuple of hyperparameter names.
 
-### 3.2 Remove duplicated module pairs
+### 3.4 Inconsistent names across layers
 
-`BinaryFocalLoss`/`BinaryFocalLossWithLogits` and `BinaryPoly1Loss`/`BinaryPoly1LossWithLogits` are
-line-for-line copies. The same applies to the functional pairs. Options: a `from_logits: bool`
-flag, or a shared private base that holds validation and `extra_repr`. The same applies to
-`AsinhMSELoss`/`AsinhSmoothL1Loss`.
+- `ExU`, `NLinear` use `in_features`/`out_features`; the encoders use `input_size`/`output_size`;
+  `ScaleAndShift` and the dynamic norms use `normalized_shape`. Pick `in_features`/`out_features`
+  for anything that maps a feature dimension, and `n_features`/`feature_size` for encoders (the
+  `extra_repr` already prints `n_features=..., feature_size=...`, so the properties disagree with
+  the repr).
+- `TransformedLoss(criterion, prediction, target)`: `prediction` and `target` are the
+  _transform modules_, the same words as the forward arguments. Rename to `prediction_transform` and
+  `target_transform` (breaking).
+- Loss function arguments are `(prediction, target)` while torch uses `(input, target)`, and the
+  activation functions use `input`. That is a legitimate choice, but state it in the docs.
 
-### 3.3 Sentinel values in public signatures
+### 3.5 Options must be keyword-only
 
-- Focal `alpha < 0` means "disabled". Use `alpha: float | None = None`.
-- `ReLUn(max=...)`, `Clamp(min=..., max=...)`, `SafeExp(max)`, `SafeLog(min)`, and
-  `GeneralRobustRegression(max=...)` shadow builtins and need `# noqa: A002`. The PyTorch names
-  `min_val`/`max_val` (as in `nn.Hardtanh`) avoid the noqa and the shadowing.
-- Functions that take `input` (also shadows a builtin) are fine for PyTorch parity, but the losses
-  use `(prediction, target)` and `torch` uses `(input, target)`. Pick one and say so in the docs.
+`CLAUDE.md` says new options are keyword-only, but the following accept them positionally:
+`SafeExp(max_val, preserve_gradient)`, `SafeLog`, `safe_exp`, `safe_log`, `NLinear(..., bias, device, dtype)`,
+`ExU`, `BaseAlphaActivation(num_parameters, init, learnable, device, dtype)`, `ScaleAndShift`,
+`BaseDynamicNorm(..., device, dtype)`, the encoders' `learnable`, `create_*` class methods.
+`SafeExp(20.0, True)` is unreadable. Add `*` before `preserve_gradient`, `learnable`, `device`,
+`dtype`, `bias`.
 
-### 3.4 Inconsistent argument order and attribute visibility
+### 3.6 `Snake` is not the paper's Snake
 
-- `log_cosh_loss(prediction, target, reduction, scale)` but `general_robust_regression_loss(...,
-alpha, scale, max, reduction)` and `quantile_regression_loss(..., q, reduction)` vs
-  `QuantileRegressionLoss(reduction, q)`. Make `reduction` always last and keyword-only
-  (`*, reduction=`).
-- Hyperparameters are private (`self._alpha`) in most modules but public (`self.alpha`, `self.reduction`)
-  in others. Private attributes with no property mean users cannot read or tune them, and
-  `torch.save`/`copy` see an inconsistent shape. Pick public read-only properties.
-- `ExU`/`NLinear` expose `in_features`/`out_features`, but `ScaleAndShift` and the dynamic norms use
-  `normalized_shape`.
-- `input_size` / `output_size` on the numerical encoders, while the rest of the library uses
-  `in_features` / `out_features`.
+The paper's `a` is a learnable parameter (per-channel). `Snake(frequency)` is a fixed float with no
+`device`/`dtype`. Make it a `BaseAlphaActivation` (which already has `learnable`,
+`num_parameters`, `device`, `dtype`), with the forward `x + sin(a x)^2 / a`. Note the formula
+currently computed (`x - cos(2 a x) / (2 a) + 1 / (2 a)`) is equivalent but costs more ops.
 
-### 3.5 `utils.factory`
+### 3.7 Trivial wrapper modules
 
-- `setup_object_typed` only **logs a warning** when the object is not an instance of `cls`
-  (`factory.py:411-412`) and returns it anyway, so `setup_module({"_target_": "torch.optim.SGD",
-...})` returns an optimizer typed as `Module`. This also causes the single pyright error. Raise
-  `TypeError`.
-- `setup_object` and `setup_object_typed` log f-strings at INFO (`G004` is ignored in ruff config).
-  Prefer lazy `%s` logging, and `debug` level for per-object construction, which is noisy for deep
-  configs.
-- The module relies on a `fallback/objectory.py` shim whose three functions all raise. A simpler
-  design is a lazy import inside the three functions that need it, with one clear error. This
-  removes `utils/fallback/`, `check_objectory`, `objectory_available`, `raise_error_objectory_missing`
-  and half of `utils/imports.py`.
-- `utils/imports.py::objectory_available` is a decorator that silently returns `None` when the
-  package is missing. That is a trap. Its name also collides with the pytest marker of the same name
-  in `testing/fixtures.py`. Drop one.
-- `is_dataset_config` / `setup_dataset` / `setup_optimizer` / `is_optimizer_config` have nothing to do
-  with "a library of PyTorch modules". Consider moving the factory helpers to a separate package, or
-  trimming to `setup_module` + `create_sequential`.
+(Open from the previous review, 3.6.) `Exp`, `Expm1`, `Log`, `Log1p`, `Sin`, `Sinh`, `Asinh`,
+`Square`, `ToFloat`, `ToLong`, and the eight indicator classes are one-liners with 25-30 lines of
+docs each, which is a lot of text for no logic. Options:
 
-### 3.6 Trivial wrapper modules
+1. A single `Elementwise(name: Literal["exp", "log", ...])` module plus a `ToDtype(dtype)` (this
+   replaces `ToFloat`/`ToLong`, which hard-code `float32`/`int64`).
+2. Keep the names for config files but generate them from one base (`fn` class attribute).
 
-`Exp`, `Expm1`, `Log`, `Log1p`, `Sin`, `Sinh`, `Asinh`, `Square`, `ToFloat`, `ToLong`,
-`ClassicalRelativeIndicator`, ... are one-liners with ~30 lines of docs each. Two options:
+Also: `Square` duplicates `Pow(2)`, and `ToCategoricalLabel` has no `dim` argument.
 
-1. Keep them (they are useful for config-driven models) but generate them from one `Elementwise`
-   base with a `fn` attribute, plus `ToDtype(dtype)` replacing `ToFloat`/`ToLong`.
-2. Add a generic `Lambda(fn)` / `Elementwise("exp")` module and deprecate the individual classes.
+### 3.8 `ScaleAndShift` and `BaseDynamicNorm` duplicate each other
 
-Either way, `ToFloat`/`ToLong` hard-code `float32`/`int64`, so a `ToDtype(torch.float64)` /
-`ToDtype("bfloat16")` module is the natural generalisation.
+Same `normalized_shape` parsing, same weight/bias creation, same `reset_parameters` (plus `alpha`).
+`DynamicTanh`/`DynamicAsinh` are `ScaleAndShift` with an inner nonlinearity and a scalar `alpha`.
+Make `BaseDynamicNorm` extend `ScaleAndShift`. `BaseDynamicNorm` also has no `forward` and does not
+use `ABC`/`abstractmethod` (the indicators do since #275), and the subclasses' docstrings do not
+mention `device`/`dtype`. Neither module has an option to drop the bias.
 
-### 3.7 Indicators
+### 3.9 `AverageFusion(SumFusion)`
 
-`BaseRelativeIndicator.forward` raises `NotImplementedError`. Use `abc.ABC` + `@abstractmethod` (or
-delete the class and use plain callables). The eight indicator classes and eight functions differ
-only in one expression. Consider one `RelativeIndicator(kind: Literal[...], k=1)` or registering
-functions in a dict. Also:
+It subclasses `SumFusion` only to hard-code `normalized=True` (and its own `__init__` takes no
+argument). Make them thin wrappers of one private `_ReduceFusion`, or drop `normalized`
+from `SumFusion`. `MultiplicationFusion`, `SumFusion`, `ConcatFusion` repeat the same
+`if not inputs: raise ValueError` block three times.
 
-- `RelativeLoss` docstring says `indicator` is "the name of the indicator function", but it takes a
-  module or config.
-- The denominator is not detached, so gradients flow through the indicator
-  (e.g. `ReversedRelativeIndicator` is `|prediction|`, which rewards shrinking the prediction).
-  Add `detach_indicator: bool` and document the default.
-- `RelativeSmoothL1Loss` does not expose `beta`.
-- `relative_loss` raises `RuntimeError` for a shape mismatch. `ValueError` is the right type.
+### 3.10 `functional.error` and `relative_loss`
 
-### 3.8 Error types
+- `absolute_error`, `absolute_relative_error` and `symmetric_absolute_relative_error` say "same
+  shape" but silently broadcast [verified: `(3,1)` and `(1,4)` give `(3,4)`]. `relative_loss`
+  _does_ check shapes. Pick one policy and document it.
+- These three functions have no module counterparts, while every loss function has one except
+  `log_cosh_loss` and `msle_loss`, which also lack modules (see section 8).
 
-Argument validation raises `RuntimeError` in `numerical/sine.py`, `fusion/*`, and
-`functional/loss/relative.py`, and `ValueError` elsewhere. Use `ValueError`/`TypeError` for bad
-arguments, keep `RuntimeError` for state errors. This is a breaking change, but the right one to
-make before 1.0.
+### 3.11 `View` should use `reshape`
 
-### 3.9 Numerical encoders
+`View.forward` uses `x.view(*shape)`, which fails on non-contiguous input [verified]. #283 fixed
+this for `MulticlassFlatten`; do the same here (or name the module `Reshape` and keep `View` as an
+alias). `Squeeze` accepts only an `int`, while `Tensor.squeeze` takes a tuple since torch 2.0.
 
-- `create_rand_frequency` / `create_rand_value_range` use the global RNG and cannot be seeded locally.
-  The library already has `sonnix.utils.random.get_torch_generator`, but nothing in `src/` uses
-  it. Add a `generator`/`seed` argument.
-- Six `create_*` class methods (`rand`/`linspace`/`logspace` x `frequency`/`value_range`) could be one
-  `create(spacing=..., range=...)`, or the `*_value_range` ones could be a flag.
-- `prepare_tensor_param`, `check_frequency`, and `check_abs_range` are in `sine.py`'s public
-  `__all__`, and `asinh.py`/`piecewise.py` import from `sine.py`. Move them to a private
-  `numerical/_utils.py`.
-- `PiecewiseLinearNumericalEncoder`: add a `from_quantiles(x, n_bins)` constructor (the paper's main
-  use case). Bin duplicates are silently turned into width 1 (`width[width == 0] = 1.0`); log or
-  raise instead.
-- Add a learnable-embedding follow-up (the paper pairs these encoders with a per-feature linear
-  layer), which is exactly what `NLinear` provides. A short `NumericalEmbedding` composition
-  example in the docs would show the intent of this library.
+### 3.12 `utils` public API with no user in the package
 
-### 3.10 Smaller API points
+Nothing in `src/` uses `resolve_torch_generator`, `get_named_modules`, `top_module_mode`,
+`get_module_devices`, `is_module_on_device`, `resolve_dataset`, `resolve_optimizer`,
+`is_dataset_config`, `is_optimizer_config`, `create_sequential`, or `find_module_state_dict`
+(only tests and docs reference them). The library describes itself as "a library of PyTorch
+modules", so decide what `sonnix.utils` is: either a documented, supported toolbox (then give it a
+docs page per module, see 1.2) or an internal package with `_` names. In particular, the dataset and
+optimizer config helpers have nothing to do with modules or losses and could be dropped.
+`get_named_modules(depth=...)` also has two code paths (`depth == 1` vs `> 1`, the second counts dots
+in names); a single bounded traversal is simpler. `module_mode` keys the saved modes by name, which
+is wrong for shared submodules that appear under two names (the last one wins).
 
-- `Snake`: the paper's `a` is learnable (and per-channel). Here it is a fixed float. Subclass
-  `BaseAlphaActivation`, or add `learnable`.
-- `BaseAlphaActivation.num_parameters` per-channel broadcasts over the **last** dim, while
-  `nn.PReLU` uses dim 1. State this explicitly in the docs.
-- `ScaleAndShift` and `BaseDynamicNorm` duplicate weight/bias creation and `reset_parameters`. Share a
-  helper. They also lack `device`/`dtype`.
-- `MulticlassFlatten` uses `.view` (fails on non-contiguous inputs) and returns `Any`. Use `reshape`,
-  and type the return as `Tensor`.
-- `Squeeze`, `View` mirror `nn.Flatten`/`nn.Unflatten`. Fine to keep, but consider `Reshape` with
-  `reshape` instead of `view`.
-- `AverageFusion(SumFusion)` takes a `normalized` constructor arg it then ignores. A subclass that
-  hard-codes a parent flag is a Liskov smell: make both thin wrappers of one `ReduceFusion(op)`.
-- `get_module_devices` returns `list({...})` from a set, so ordering is nondeterministic. Sort it or
-  return a `set`.
-- `find_module_state_dict` reuses the parameter name `state_dict` as its loop variable, which makes
-  the control flow hard to follow, and `load_state_dict_to_module` only retries on `RuntimeError`.
-  That is fine, but the retry path never honours `strict=False` the way a user would expect.
-- `get_named_modules(depth=...)`: depth semantics differ between `depth == 1` (children) and `> 1`
-  (uses `named_modules` and counts dots). Rewrite it as a single bounded traversal.
-- `is_loss_decreasing` hard-codes `clip_grad_norm_(max_norm=1)`, which changes what is being tested.
-  Make it a parameter. The import alias `random_seed as torch_seed` is misleading.
-- `DummyDataset.__init__` converts `feature_size`/`num_examples` with `int(...)` but then passes the
-  unconverted values to `torch.randn`. Its docstring omits `rng_seed`.
-- `functional.error.*` accept broadcastable inputs although the docs say "same shape". Either check or
-  document broadcasting.
+### 3.13 Numerical encoders
+
+(Open from the previous review, 3.9.)
+
+- `create_rand_frequency` / `create_rand_value_range` use the global RNG: no `generator`/`seed`
+  argument, and no `dtype`/`device`. `sonnix.utils.random.resolve_torch_generator` exists for
+  exactly this and is unused.
+- Six `create_*` class methods (`rand`/`linspace`/`logspace` x `frequency`/`value_range`) differ in
+  one line each. One `create(spacing: Literal["rand", "linspace", "logspace"], *, frequency_range=None,
+value_range=None)` removes six near-identical docstrings and signatures.
+- `prepare_tensor_param`, `check_frequency` and `check_abs_range` are in `sine.py`'s `__all__` and
+  imported from there by `asinh.py` and `piecewise.py`. `check_frequency`/`check_abs_range` are
+  hand-written range checks that `coola.validation.validate_ge`/`validate_gt` already cover (project
+  rule). Move the shared helpers to a private `numerical/_utils.py`.
+- `learnable=False` registers a clone of the tensor, `learnable=True` registers the parameter
+  from a clone in `CosSin` but from the original in `AsinhNumericalEncoder` (`nn.Parameter(scale)`
+  aliases the caller's tensor, so in-place changes of `scale` leak into the module). Clone in both.
+- Add `PiecewiseLinearNumericalEncoder.from_quantiles(x, n_bins)`; it is the paper's main use case
+  and the current constructor requires users to compute the bins themselves.
+
+### 3.14 Alpha activations
+
+- Per-channel `alpha` broadcasts over the **last** dimension (`nn.PReLU` uses dim 1). Document it,
+  or add a `channel_dim` argument. For an `(N, C, L)` input a `Gaussian(num_parameters=C)` raises a
+  shape error [verified].
+- `init` and `num_parameters` are not validated (`num_parameters=0`, `init=0` for `Gaussian` give a
+  degenerate module).
+- `ExpSin`, `Gaussian`, ... docstrings document 3 constructor arguments but the class takes 5
+  (`device`, `dtype` are inherited and undocumented).
 
 ---
 
-## 4. Packaging and dependencies (P1)
+## 4. Packaging and dependencies (P2)
 
-- **`sonnix.testing` imports `pytest` at import time** (`testing/fixtures.py:11`), but `pytest` is
-  not a runtime dependency. `import sonnix.testing` (and the `testing` docs page) fails for users
-  without it. Guard the import, or move the markers to a `pytest` plugin / `tests/` helper.
-- **`numpy` extra is unused**: nothing in `src/` imports numpy, yet `pyproject.toml` declares a
-  `numpy` extra and `docs/get_started.md` says `pip install 'sonnix[all]'` "installs NumPy and
-  PyTorch". Remove the extra, or use it.
-- `coola` is a **hard dependency** but is used for exactly two things: `package_available` (a
-  one-liner with `importlib.util.find_spec`) and `random_seed` in `utils/loss.py`. Dropping it
-  removes a runtime dependency for a numerical library. (If `coola` stays only for tests, move it to
-  the dev group.)
-- `torch>=2.4,<3.0`: verify the lower bound in CI (the `ci-test-deps` matrix should include the
-  oldest supported torch). The upper bound `<3.0` is fine.
-- Version is `0.0.1a0` but the classifier is `Development Status :: 4 - Beta`. Use `3 - Alpha`, or
-  bump the version. There is no changelog (`Changelog` URL points to GitHub releases only).
-- `__version__` falls back to `"0.0.0"`, and `tests/package_checks.py` asserts it is not `0.0.0`.
-  Fine, but prefer `importlib.metadata` only and let it raise in dev installs.
+- `torch>=2.4,<3.0`: the CI matrix should include the oldest supported torch. I did not find a
+  job pinning torch 2.4 (`ci-test-deps.yaml` has no `torch` reference); verify and add one, or
+  raise the floor to what is tested. The environment used for this review has torch 2.15.0, so
+  nothing in this review says anything about 2.4.
+- `environment.yaml` (conda) duplicates the dependency list. Generate it or delete it, along with
+  the `make conda` instructions (see 5.2).
+- `[tool.pyright]` hard-codes `venvPath = "."` and `venv = ".venv"`, which breaks for contributors
+  with another environment layout. Prefer running `uv run pyright`.
+- Two type checkers run side by side (`pyright` and `ty`). `ty` is pre-1.0 (`>=0.0.97`). Gate on
+  one and keep the other advisory, otherwise every `ty` release can turn CI red.
+- `Changelog` URL points at GitHub Releases, and there is no `CHANGELOG.md`. CLAUDE.md says to
+  update "any changelog": there is none to update. Since this review recommends several breaking
+  changes (3.1, 3.4, 3.5, 3.7), start one now.
 
 ---
 
-## 5. Tests (P2)
+## 5. Documentation (P1-P2)
 
-The tests are plentiful, but several kinds are missing:
-
-- **No dtype coverage**: no test uses `float64` / `float16` / `bfloat16` (grep over `tests/`). The
-  `NLinear` and `PiecewiseLinear...` buffers/params are not tested after `.to(dtype)`.
-- **No numerical-gradient checks**: `torch.autograd.gradcheck` on the functional losses and
-  activations (in `float64`) would have caught 1.2 and similar issues. Many tests only check
-  `loss.backward()` runs.
-- **No property-based tests** even though `hypothesis` is declared in the `property` group and the
-  comment in `pyproject.toml` explains why. Good targets: `reduce_loss` invariants, indicator
-  ordering `min <= geometric <= arithmetic <= max`, `ToBinaryLabel` idempotence, `quantile` with
-  `q=0.5 == 0.5 * L1`.
-- **No equivalence tests against PyTorch / reference implementations** (the strongest guard against
-  silent bugs like 1.1): `NLinear` vs `n` separate `nn.Linear`; `binary_focal_loss_with_logits` vs
-  `torchvision.ops.sigmoid_focal_loss` (optional dep); `quantile(q=0.5)` vs `l1_loss / 2`;
-  `asinh_mse_loss` vs manual; `general_robust(alpha=2)` vs `mse_loss`; `general_robust(alpha=1)` vs
-  the Charbonnier loss.
-- **No `torch.compile` / TorchScript / `torch.export` smoke tests.** Several modules use in-place ops
-  (`NLinear`), Python control flow on shape (`Piecewise`), or `float()` conversions.
-- **No state-dict round-trip tests** for the modules with buffers/parameters (confirms 1.7).
-- **No CUDA/MPS runs in CI**: `torch_cuda_available` tests are skipped on every runner. Fine for GitHub
-  runners, but say so in CONTRIBUTING.
-- **Test layout mirrors `src/` but duplicates `functional` and `modules` cases.** Parametrize
-  one reduction test over all losses (a registry of `(functional, module, kwargs)`) instead of ~15
-  near-identical `test_*_invalid_reduction` / `test_*_extra_repr` / `test_*_reduction_*` cases.
-  This would remove a large part of the ~9.4k lines of tests, and new losses would get full
-  coverage by registration.
-- 100% line coverage hides the issues above. Consider enabling mutation testing (e.g. `mutmut`) on
-  `functional/` as a periodic job.
-- `coverage.xml`, `htmlcov/`, `.coverage` exist in the working tree. They are git-ignored, but
-  `make clean` should also be part of `inv` tasks.
-
----
-
-## 6. Tooling, CI, and docs (P1-P2)
-
-### 6.1 `import-linter` is configured nowhere [verified]
-
-`.pre-commit-config.yaml` runs `uv run lint-imports` with the comment "Enforces the package layering
-contract defined in pyproject.toml", but `pyproject.toml` has no `[tool.importlinter]` section.
-Running it prints `Could not read any configuration.` and exits non-zero. Either add the contract
-(suggested layers: `sonnix.modules` -> `sonnix.functional` -> `sonnix.utils`; `sonnix.testing`
-independent) or remove the hook. Note also that `import-linter` is only installed for Python
-
-> = 3.14 in the dev group, so the hook cannot work on 3.11-3.13 dev environments.
-
-### 6.2 `pyright` reports an error [verified]
-
-`utils/factory.py:320` (`setup_object_typed` returns `Any | object` for a `T`). The last commit is
-titled "Fix typing" but the checker still fails. Fixing 3.5 (raise `TypeError`, then
-`cast(T, obj)`) resolves it. Also note two type checkers run side by side (`pyright` and `ty`):
-`ty` is still pre-1.0 and its rules are in flux. Either gate on only one, or mark `ty` advisory.
-
-### 6.3 README and docs are stale
+### 5.1 README and home page
 
 - README badges point to workflows that do not exist: `nightly-tests.yaml`, `docs.yaml`,
-  `docs-dev.yaml` (actual files: `nightly-test-package*.yaml`, `release-docs*.yaml`). A "Code style:
-  black" badge is shown but the repo uses `ruff format`.
-- README is a badge wall plus one sentence. Add: install, a 10-line example for modules/losses/
-  encoders, the list of what is in the library, and a comparison with PyTorch's built-ins (why
-  use sonnix).
-- `docs/docs/get_started.md` describes installing from source with **poetry**, **Python 3.8+**,
-  `make conda`: none of which exist any more (the repo uses `uv`, Python >= 3.11, and `inv`).
-- `docs/docs/index.md`, user-guide nav entries are commented out in `mkdocs.yml`. Either write a
-  short User Guide (activations, losses, numerical encoders, config-driven construction) or delete
-  the commented-out nav.
-- `CONTRIBUTING.md` mentions `make unit-test-cov`, but I found no such target in the `Makefile` or
-  `.make/*.mk` (it may come from `invoke`). Verify the documented commands.
-- API docs are one `::: package` block per sub-package, so every class lands on a giant page. Use
-  per-submodule pages (activation, loss, numerical, ...) and a summary table.
-- One notebook (`notebooks/activations.ipynb`) exists but is not referenced from the docs or tested.
-  Run it in CI with `nbmake`/`papermill` or link it from the docs, and add notebooks for losses and
-  encoders.
-- Docstring `pycon` examples show reprs and values that are only partially deterministic
-  (`DummyDataset(... rng_seed=14700295087918620795)`). They pass today but will break on RNG changes
-  across torch releases. Use `...` more.
+  `docs-dev.yaml` [verified against `.github/workflows/`]. The "Code style: black" badge is wrong
+  (the repo uses `ruff format`).
+- README is a badge wall plus "A library of PyTorch modules". `docs/docs/index.md` has
+  `## Overview` and `## Motivation` both set to `TODO`. Add: install, a short example for a loss, a
+  module and an encoder, what the library contains, and why use it instead of plain PyTorch.
 
-### 6.4 CI/workflow volume
+### 5.2 Stale instructions [verified]
 
-There are 28 workflow files for a 6.7k-line library, including bots, nightly matrices, and three
-`lib-get-*` reusable workflows. This is a lot to maintain. Consider: merge the `nightly-test-*` trio,
-and drop `bot-cancel-stale-queued-runs` (GitHub's `concurrency:` + `cancel-in-progress` does this).
-Check that every workflow sets `concurrency` and minimal `permissions` (the main one does).
-Add `pip-audit`/`osv-scanner` or rely on Dependabot (already present).
+- `docs/docs/get_started.md`: still describes `poetry`, "Python 3.8+" and `make conda`. The repo
+  uses `uv`, requires Python >= 3.11, and `inv` for tasks.
+- `CONTRIBUTING.md` says `make unit-test-cov`; no such target exists (`grep` over the `Makefile`
+  and `.make/` finds only the CONTRIBUTING mention). Document the real commands
+  (`inv test.unit`, `inv test.all`, `inv test.doctest`, ... see `inv --list`).
+- `mkdocs.yml` has the whole User Guide nav commented out. Write a short guide (losses and
+  reductions, activations, numerical encoders, building models from configs) or delete the comment.
+- The API reference is one `::: package` block per sub-package, so `sonnix.modules` renders as one
+  page with 64 classes. Split by sub-module (activation, loss, numerical, fusion) and add a
+  summary table per page.
+- `notebooks/activations.ipynb` is not linked from the docs and not executed in CI.
 
-### 6.5 Lint configuration
+### 5.3 Docstring errors still present [verified by reading]
 
-- `E501`/`W505` are ignored while `pycodestyle.max-doc-length = 72` and `line-length = 100` are set.
-  The ignore makes the limit a no-op. Remove one or the other.
-- `PLR0913` is globally ignored (many args). Fine for losses, but the `S` ruleset is enabled for
-  `src/` and `logging` f-strings (`G004`) are ignored: those cost lazy-evaluation perf in hot paths
-  (`factory.py`).
-- `docformatter` and `ruff` docstring rules overlap (D205/D209 are disabled to avoid fighting).
-  Newer `ruff format` has docstring formatting, so one of them could go.
-- `[tool.pyright]` sets `venvPath = "."`, `venv = ".venv"`, which breaks for contributors who use
-  another env location. Prefer `uv run pyright`.
-- `environment.yaml` (conda) duplicates the dependency list. If conda is still supported, generate
-  it from `pyproject.toml`; if not, remove it.
+- `general_robust_regression_loss`: "If `max` is set" (the argument is `max_val`), "adaptative"
+  typo and a mis-indented `Note:`; `GeneralRobustRegressionLoss` has the same typo. The new `alpha`
+  documentation says the limit cases are used "when `alpha` is within `1e-5`" but the signature
+  is `alpha: float`, so the tensor support mentioned in #259 is not typed. A 0-d tensor works
+  [verified], any other shape cannot (the code branches with Python `abs(alpha - 2) < eps`).
+  Either type it as `float` and remove the claim, or implement the tensor path with `torch.where`.
+- `PoissonRegressionLoss` doctest feeds `torch.randn` predictions although the docstring says the
+  loss is only meaningful for positive predictions (the functional example was fixed in #260, the
+  module example was not). The functional docs also say the targets "must be positive (zero is
+  allowed)".
+- `BinaryFocalLoss` / `BinaryFocalLossWithLogits` class docs describe `reduction` with the older
+  three-value wording; use the same paragraph as everywhere else (the paragraph is duplicated in
+  about 20 docstrings, see 7.2).
+- `MultiQuadratic`/`Quadratic`: "Formula" is correct, but the `learnable` docs say "the parameters are
+  learnt", while `num_parameters` text says "there is only two values are legitimate" (grammar).
 
 ---
 
-## 7. Structure and layering (P2)
+## 6. Tests (P2)
 
-- `sonnix.modules.__init__` re-exports 80 names flat, but sub-packages (`modules.activation`,
-  `modules.loss`, `modules.numerical`, `modules.fusion`) also export them, so every class has two or
-  three import paths and `Clamp` is imported from `fusion.clamp` while `fusion/__init__.py`
-  doesn't list it. Pick one canonical path per symbol and enforce it in docs. `BaseDynamicNorm` is
-  public in `dynamic.py.__all__` but not re-exported.
-- `Clamp` is in `modules/fusion/` but is not a fusion module (single input). Move it to
-  `modules/activation/`, next to `ReLUn`, which is `clamp(0, max)`.
-- `sonnix.functional` mixes activations, losses, errors, and reduction helpers. `reduction.py` and
-  `error.py` sit beside the `loss/` and `activation/` sub-packages. Fine, but `functional/__init__`
-  re-exports `check_loss_reduction_strategy`/`reduce_loss`, which are internal helpers. Make them
-  `_reduction` or keep them out of the root namespace.
+From the layout and greps (not a test-by-test audit):
+
+- **No `gradcheck`, no `hypothesis`, no `torch.compile`/`torch.export` test** anywhere in `tests/`,
+  although `hypothesis` is declared in the `property` group, and `pytest-benchmark` in `dev` has no
+  benchmark. I ran `torch.export.export` by hand on `NLinear`, `ExU`, `CosSinNumericalEncoder` and
+  `PiecewiseLinearNumericalEncoder`; all four export [verified]. A parametrized smoke test over every
+  module in `sonnix.modules.__all__` (build with a minimal config, run `export` and `compile` on
+  CPU) would keep it that way, and it is the right place to catch the Python-side control flow in
+  `PiecewiseLinear...forward`.
+- `float64` appears in 8 places and `bfloat16` in 3, `float16` nowhere. Add a dtype-parametrized
+  forward/backward test over all modules and functions (`float32`, `float64`, `bfloat16`), and a
+  test that `module.to(dtype)` keeps buffers and parameters consistent.
+- Add `gradcheck` (in `float64`) for every functional loss and activation. It would have found 2.4
+  (NaN gradient at 0), which none of the current `loss.backward()` smoke tests detect, because they
+  only check that the backward runs, not that gradients are finite.
+- Add **equivalence tests** against PyTorch or against another variant: `with_logits` vs probability
+  focal/Poly-1 for soft targets (2.3), `NLinear` vs `n` separate `nn.Linear`, `quantile(q=0.5)` vs
+  `0.5 * l1_loss` (2.5), `general_robust(alpha=2)` vs `mse_loss`, `poisson_regression_loss` vs
+  `poisson_nll_loss(log_input=False)` up to the eps.
+- Regression tests for 2.1 (`strict=False` with a wrapped checkpoint) and 2.2 (buffers and
+  devices) should be written first, to verify they fail before the fix.
+- The unit tests of the `*_invalid_reduction`, `*_extra_repr`, `*_reduction_*` kind are repeated for
+  each loss. One parametrized test over a registry of `(function, module, kwargs)` would check all
+  of them, and a new loss would be covered by registering it. The registry can also drive the
+  gradcheck, dtype and export tests above, so the cost is paid once.
+- CI never runs a GPU or MPS job (`torch_cuda_available` tests are skipped on every runner). Say so
+  in `CONTRIBUTING.md` and run the CUDA tests locally before a release.
+
+---
+
+## 7. Tooling and CI (P2)
+
+### 7.1 Workflow and lint configuration
+
+- 28 workflow files for a 6.8k-line library, including a stale-run canceller
+  (`bot-cancel-stale-queued-runs`, which `concurrency: cancel-in-progress` covers), three
+  `lib-get-*` reusable workflows and four `nightly-*` ones. Merge what can be merged. Check that
+  every workflow sets `concurrency` and minimal `permissions` (the ones I read do set
+  `permissions: contents: read`).
+- `E501` and `W505` are ignored while `line-length = 100` and `pycodestyle.max-doc-length = 72` are
+  set, so both limits are no-ops for ruff (`ruff format` and `docformatter` do the wrapping). Remove the
+  dead settings or enforce them. `docformatter` and `ruff` docstring rules overlap and need
+  `D205`/`D209` disabled to not fight each other; recent `ruff format` formats docstring code, so
+  one of them could go.
+- `G004` (f-strings in logging) is ignored globally, and `utils/loss.py` and `utils/state_dict.py`
+  log with f-strings. Prefer `%s` lazy logging in new code.
+- `.benchmarks/`, `htmlcov/`, `coverage.xml` and `.coverage` are in the working tree. They are
+  ignored by git (no tracked file matches), so this is only about `inv clean.all` covering them.
+
+### 7.2 Repeated documentation blocks
+
+The five-line `reduction` paragraph appears in about 20 docstrings (every loss function and
+module). It is the reason `reduction` documentation drifts (see 5.3). Define it once, for example
+as a module-level constant used by a docstring decorator, or refer the reader to
+`sonnix.functional.reduce_loss` and keep one line per docstring. `mkdocstrings` supports
+`--8<--` snippets for the markdown pages, but not for docstrings, so the reference-by-link approach
+is the pragmatic one.
+
+---
+
+## 8. Structure and missing features (P2-P3)
+
+### 8.1 Structure
+
+- Every class has two or three import paths: `sonnix.modules.X`, `sonnix.modules.<sub>.X` and the
+  file path. `Clamp` is imported in `sonnix/modules/__init__.py` from `fusion.clamp` but is not in
+  `fusion/__all__`, and it is not a fusion module (it has a single input); move it next to
+  `ReLUn` in `modules/activation/` (a `ReLUn` is `Clamp(0, n)`).
+- `BaseDynamicNorm`, `BaseBinaryFocalLoss`, `BaseBinaryPoly1Loss`, `BaseLoss` are public in their
+  sub-package but not in `sonnix.modules.__all__` (while `BaseAlphaActivation` and
+  `BaseRelativeIndicator` are). Decide which base classes are API.
 - `modules/loss/poisson.py` and `quantile.py` import from `sonnix.functional.loss`, while the other
-  loss modules import from `sonnix.functional`. Pick one.
-- `RelativeLoss` imports `BaseRelativeIndicator` only under `TYPE_CHECKING` from
-  `sonnix.modules.loss` (the package root), which hints at an import-cycle workaround. With the
-  import-linter contract from 6.1 this would be visible.
-- `utils/fallback/`, `utils/imports.py`, `utils/factory.py` form an optional-dependency layer that is
-  larger than what it protects (see 3.5).
+  loss modules import from `sonnix.functional`. Use one.
+- `validate_focal_params` and `check_moment_order` are public (no underscore, as the project rule
+  asks) but not in `__all__`, and `modules/loss/focal.py` imports one of them by file path.
+  Export them or move them to `sonnix.functional.validation`.
+- `sonnix.functional.__init__` re-exports `check_loss_reduction_strategy`; callers should use
+  `validate_in` from `coola`, or `reduce_loss` directly (which already checks). Keep only
+  `reduce_loss` and `Reduction` public.
+
+### 8.2 Missing counterparts
+
+- No `LogCoshLoss` and no `MSLELoss` module although `log_cosh_loss` and `msle_loss` exist.
+  `AsinhMSELoss` and `AsinhSmoothL1Loss` have both.
+- Candidates that fit the scope: `Tweedie` and `Huber`-with-scale losses, `Dice`/`Tversky` for
+  segmentation, `SwiGLU`/`GeGLU`, a learnable `Snake` (3.6), and a `NumericalEmbedding`
+  composition (encoder + `NLinear`) in the docs, which shows why `NLinear` and the encoders are in
+  the same library.
+
+### 8.3 Performance (P3)
+
+- `PiecewiseLinearNumericalEncoder.forward` builds a Python list with a conditional splat and a
+  `cat` on every call. Precomputing per-position `lo`/`hi` buffers (`lo[0] = -inf`, `hi[-1] = inf`)
+  gives one `clamp(min=lo, max=hi)` and no data-dependent Python branches.
+- `NLinear.forward` does reshape + transpose + `bmm` + transpose + add + reshape. A single
+  `torch.baddbmm` or `einsum("bni,nio->bno")` avoids the two transposes. Benchmark it first
+  (`pytest-benchmark` is already a dev dependency).
+- `ExU.forward` recomputes `weight.exp()` every call; with `torch.compile` this is fused, in eager
+  it costs one extra elementwise op. Not worth changing.
 
 ---
 
-## 8. Performance (P3)
+## 9. Suggested order of work
 
-- `NLinear`: replace transpose + matmul + transpose with `einsum`/`baddbmm`, and benchmark against
-  `torch.nn.utils.parametrizations`-free alternatives. `pytest-benchmark` is already a dev
-  dependency but there are no benchmarks. A `benchmarks/` folder (NLinear vs loop of `nn.Linear`,
-  encoders at large batch) would document the cost.
-- `PiecewiseLinearNumericalEncoder.forward` builds a Python list with conditional splats and a
-  `cat` every call. A single `x.clamp(min, max)` with per-position bounds (precomputed
-  `lo`/`hi` buffers, `lo[0] = -inf`, `hi[-1] = inf`) is one fused op and compile-friendly.
-- Focal/Poly1 `*_with_logits` compute `sigmoid` and BCE separately (see section 2).
-- `module_mode` stores modes by name and re-walks `named_modules()` in `finally`. Fine, but keying by
-  the module object would avoid problems with parameter-sharing aliasing.
+One pull request per line, each with a test that fails before the fix.
 
----
-
-## 9. Missing features worth considering (P3)
-
-Things users of a "library of PyTorch modules" with this scope would expect:
-
-- Losses: `huber`-with-scale, `Tweedie`, `LogCoshLoss` module (functional exists, module missing,
-  like `msle_loss`), `Dice`/`Tversky`, and class-weighted CE variants. Note the functional
-  `log_cosh_loss` and `msle_loss` have no module counterparts, while every other functional loss has one
-  (`MSLELoss`, `LogCoshLoss`). This asymmetry is probably accidental.
-- Same for `absolute_error`, `absolute_relative_error`, `symmetric_absolute_relative_error`: no module
-  wrappers, which is fine if they are metrics, but then document them as such.
-- Activations: `SwiGLU`/`GeGLU`, learnable `Snake`, `PositiveSoftplus`.
-- A `compile`-friendly, documented list of what is `torch.compile`/`export` safe.
-- `__repr__` for `Parameter`-based hyperparameters; `ScaleAndShift.extra_repr` only prints the
-  shape.
-
----
-
-## 10. Suggested order of work
-
-1. **Bugs (P0):** 1.1 (NLinear init), 1.2 (log-cosh), 1.3 (ExpSin), 1.5 (`or` on modules), 1.6 (sin/cos
-   params), 1.8 (`k=0`), 6.1 (import-linter), 6.2 (pyright). Each is a few lines plus a test, and 1.1
-   and 1.6 change numerical behaviour or state dicts, so call them out in release notes.
-2. **API clean-up before the first beta (P1):** 3.1-3.5 (BaseLoss + `Literal` reductions, drop
-   duplicated pairs, `alpha: float | None`, `TypeError` in `setup_object_typed`, consistent error types),
-   1.7 (buffers), 1.9 (`batchmean`), section 4 (`pytest` import, `numpy` extra, `coola`).
-3. **Docs (P1-P2):** fix the docstring errors in 1.10, README, `get_started.md`, broken badges.
-4. **Tests (P2):** add an equivalence/gradcheck/dtype layer (section 5) and collapse duplicated tests
-   into registry-driven parametrisations.
-5. **Structure and extras (P2-P3):** section 7, 8, 9.
+1. **Unbreak `main` (P0):** 1.1 (doctest reprs), 1.2 (docs reference), 1.3 (`import-linter`
+   config or remove the hook). These are small, and they make three CI checks green again.
+2. **Correctness (P1):** 2.1 (`strict=False` loading), 2.2 (buffers in device helpers), 2.3
+   (soft-target focal/Poly-1), 2.4 (NaN gradients of the indicators), 2.5 (quantile docstring), then 2.7
+   (one validation point per hyperparameter).
+3. **API clean-up before the first beta (P1):** 3.1 (public hyperparameters), 3.5 (keyword-only
+   options), 3.4 (names), 3.2/3.3 (`BaseLoss.extra_repr`, `beta`), 3.6 (`Snake`), 3.11 (`View`). Add a
+   `CHANGELOG.md` with this PR, since most of these break callers.
+4. **Docs (P1-P2):** 5.1-5.3, and the docs build as a required check.
+5. **Tests (P2):** a registry of losses/modules driving reduction, dtype, `gradcheck`, `export` and
+   equivalence tests (section 6), then delete the per-loss duplicates they replace.
+6. **Structure and extras (P2-P3):** 3.7-3.10, 3.12-3.14, sections 4, 7 and 8.
