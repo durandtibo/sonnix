@@ -21,6 +21,10 @@ def poisson_regression_loss(
     Loss Functions and Metrics in Deep Learning
     https://arxiv.org/pdf/2307.02694
 
+    Note:
+        The predictions are clamped to ``eps``, so the gradient is zero
+        for the predictions lower than ``eps``.
+
     Args:
         prediction: The count predictions. The values must be positive.
         target: The count target values. The values must be positive.

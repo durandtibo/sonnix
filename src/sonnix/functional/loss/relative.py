@@ -30,6 +30,10 @@ def relative_loss(
     The indicators are designed based on
     https://en.wikipedia.org/wiki/Relative_change#Indicators_of_relative_change.
 
+    Note:
+        The indicator is clamped to ``eps``, so the gradient with
+        respect to the indicator is zero where it is lower than ``eps``.
+
     Args:
         loss: The loss values. The tensor must have the same shape as
             the target.

@@ -10,16 +10,27 @@ if TYPE_CHECKING:
     import torch
 
 
-def safe_exp(input: torch.Tensor, max: float = 20.0) -> torch.Tensor:  # noqa: A002
+def safe_exp(
+    input: torch.Tensor,  # noqa: A002
+    max: float = 20.0,  # noqa: A002
+    preserve_gradient: bool = False,
+) -> torch.Tensor:
     r"""Compute safely the exponential of the elements.
 
     The values that are higher than the specified minimum value are
     set to this maximum value. Using a not too large positive value
     leads to an output tensor without Inf.
 
+    Note:
+        ``clamp`` has a zero gradient for the values outside of the
+        range. Set ``preserve_gradient=True`` to keep the gradient of
+        the unclamped input (straight-through estimator).
+
     Args:
         input: The input tensor.
         max: The maximum value.
+        preserve_gradient: If ``True``, the gradient is computed as
+            if the input was not clamped (straight-through).
 
     Returns:
         A tensor with the exponential of the elements.
@@ -34,19 +45,33 @@ def safe_exp(input: torch.Tensor, max: float = 20.0) -> torch.Tensor:  # noqa: A
 
         ```
     """
-    return input.clamp(max=max).exp()
+    clamped = input.clamp(max=max)
+    if preserve_gradient:
+        clamped = input + (clamped - input).detach()
+    return clamped.exp()
 
 
-def safe_log(input: torch.Tensor, min: float = 1e-8) -> torch.Tensor:  # noqa: A002
+def safe_log(
+    input: torch.Tensor,  # noqa: A002
+    min: float = 1e-8,  # noqa: A002
+    preserve_gradient: bool = False,
+) -> torch.Tensor:
     r"""Compute safely the logarithm natural logarithm of the elements.
 
     The values that are lower than the specified minimum value are set
     to this minimum value. Using a small positive value leads to an
     output tensor without NaN or Inf.
 
+    Note:
+        ``clamp`` has a zero gradient for the values outside of the
+        range. Set ``preserve_gradient=True`` to keep the gradient of
+        the unclamped input (straight-through estimator).
+
     Args:
         input: The input tensor.
         min: The minimum value.
+        preserve_gradient: If ``True``, the gradient is computed as
+            if the input was not clamped (straight-through).
 
     Returns:
         A tensor with the natural logarithm of the elements.
@@ -60,4 +85,7 @@ def safe_log(input: torch.Tensor, min: float = 1e-8) -> torch.Tensor:  # noqa: A
 
         ```
     """
-    return input.clamp(min=min).log()
+    clamped = input.clamp(min=min)
+    if preserve_gradient:
+        clamped = input + (clamped - input).detach()
+    return clamped.log()

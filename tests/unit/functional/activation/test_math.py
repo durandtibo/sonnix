@@ -73,3 +73,31 @@ def test_safe_log_shape(device: str, shape: tuple[int, ...]) -> None:
     assert objects_are_allclose(
         safe_log(torch.ones(*shape, device=device)), torch.zeros(*shape, device=device)
     )
+
+
+def test_safe_exp_clamp_has_zero_gradient() -> None:
+    x = torch.tensor([100.0], requires_grad=True)
+    safe_exp(x, max=20.0).backward()
+    assert x.grad.item() == 0.0
+
+
+def test_safe_exp_preserve_gradient() -> None:
+    x = torch.tensor([100.0], requires_grad=True)
+    out = safe_exp(x, max=20.0, preserve_gradient=True)
+    out.backward()
+    assert out.allclose(torch.tensor(20.0).exp())
+    assert x.grad.allclose(torch.tensor(20.0).exp())
+
+
+def test_safe_log_clamp_has_zero_gradient() -> None:
+    x = torch.tensor([1e-10], requires_grad=True)
+    safe_log(x, min=1e-8).backward()
+    assert x.grad.item() == 0.0
+
+
+def test_safe_log_preserve_gradient() -> None:
+    x = torch.tensor([1e-10], requires_grad=True)
+    out = safe_log(x, min=1e-8, preserve_gradient=True)
+    out.backward()
+    assert out.allclose(torch.tensor(1e-8).log())
+    assert x.grad.allclose(torch.tensor(1e8))

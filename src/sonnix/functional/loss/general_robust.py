@@ -35,6 +35,10 @@ def general_robust_regression_loss(
         The "adaptative" part of the loss is not implemented in this
             function.
 
+    Note:
+        If ``max`` is set, the loss is clamped, so the gradient is zero
+        for the elements whose loss is larger than ``max``.
+
     Args:
         prediction: The predictions.
         target: The target values.
