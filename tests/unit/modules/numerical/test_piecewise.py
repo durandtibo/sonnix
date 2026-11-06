@@ -27,31 +27,54 @@ def test_piecewise_linear_numerical_encoder_str() -> None:
 @pytest.mark.parametrize(
     "bins", [torch.tensor([1.0, 2.0, 4.0, 6.0]), torch.tensor([[1.0, 2.0, 4.0, 6.0]])]
 )
-def test_piecewise_linear_numerical_encoder_bins_1_feature(bins: torch.Tensor) -> None:
+def test_piecewise_linear_numerical_encoder_bins_1_feature_edges(bins: torch.Tensor) -> None:
     module = PiecewiseLinearNumericalEncoder(bins)
     assert module.edges.equal(torch.tensor([[1.0, 2.0, 4.0]]))
+
+
+@pytest.mark.parametrize(
+    "bins", [torch.tensor([1.0, 2.0, 4.0, 6.0]), torch.tensor([[1.0, 2.0, 4.0, 6.0]])]
+)
+def test_piecewise_linear_numerical_encoder_bins_1_feature_width(bins: torch.Tensor) -> None:
+    module = PiecewiseLinearNumericalEncoder(bins)
     assert module.width.equal(torch.tensor([[1.0, 2.0, 2.0]]))
 
 
-def test_piecewise_linear_numerical_encoder_bins_2_features() -> None:
+def test_piecewise_linear_numerical_encoder_bins_2_features_edges() -> None:
     module = PiecewiseLinearNumericalEncoder(
         bins=torch.tensor([[0.0, 1.0, 2.0, 4.0], [2.0, 4.0, 6.0, 8.0]])
     )
     assert module.edges.equal(torch.tensor([[0.0, 1.0, 2.0], [2.0, 4.0, 6.0]]))
+
+
+def test_piecewise_linear_numerical_encoder_bins_2_features_width() -> None:
+    module = PiecewiseLinearNumericalEncoder(
+        bins=torch.tensor([[0.0, 1.0, 2.0, 4.0], [2.0, 4.0, 6.0, 8.0]])
+    )
     assert module.width.equal(torch.tensor([[1.0, 1.0, 2.0], [2.0, 2.0, 2.0]]))
 
 
-def test_piecewise_linear_numerical_encoder_bins_1() -> None:
+def test_piecewise_linear_numerical_encoder_bins_1_edges() -> None:
     module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0]]))
     assert module.edges.equal(torch.tensor([[0.0]]))
+
+
+def test_piecewise_linear_numerical_encoder_bins_1_width() -> None:
+    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0]]))
     assert module.width.equal(torch.tensor([[1.0]]))
 
 
-def test_piecewise_linear_numerical_encoder_bins_sort() -> None:
+def test_piecewise_linear_numerical_encoder_bins_sort_edges() -> None:
     module = PiecewiseLinearNumericalEncoder(
         bins=torch.tensor([[4.0, 2.0, 1.0, 0.0], [6.0, 4.0, 2.0, 8.0]])
     )
     assert module.edges.equal(torch.tensor([[0.0, 1.0, 2.0], [2.0, 4.0, 6.0]]))
+
+
+def test_piecewise_linear_numerical_encoder_bins_sort_width() -> None:
+    module = PiecewiseLinearNumericalEncoder(
+        bins=torch.tensor([[4.0, 2.0, 1.0, 0.0], [6.0, 4.0, 2.0, 8.0]])
+    )
     assert module.width.equal(torch.tensor([[1.0, 1.0, 2.0], [2.0, 2.0, 2.0]]))
 
 
@@ -83,7 +106,7 @@ def test_piecewise_linear_numerical_encoder_output_size() -> None:
 @pytest.mark.parametrize("n_features", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_piecewise_linear_numerical_encoder_forward_2d(
+def test_piecewise_linear_numerical_encoder_forward_2d_shape(
     device: str, batch_size: int, n_features: int, feature_size: int, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -93,7 +116,39 @@ def test_piecewise_linear_numerical_encoder_forward_2d(
     module.train(mode)
     out = module(torch.rand(batch_size, n_features, device=device))
     assert out.shape == (batch_size, n_features, feature_size)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_piecewise_linear_numerical_encoder_forward_2d_device(
+    device: str, batch_size: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = PiecewiseLinearNumericalEncoder(bins=torch.rand(n_features, feature_size + 1)).to(
+        device=device
+    )
+    module.train(mode)
+    out = module(torch.rand(batch_size, n_features, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_piecewise_linear_numerical_encoder_forward_2d_dtype(
+    device: str, batch_size: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = PiecewiseLinearNumericalEncoder(bins=torch.rand(n_features, feature_size + 1)).to(
+        device=device
+    )
+    module.train(mode)
+    out = module(torch.rand(batch_size, n_features, device=device))
     assert out.dtype == torch.float
 
 
@@ -103,7 +158,7 @@ def test_piecewise_linear_numerical_encoder_forward_2d(
 @pytest.mark.parametrize("n_features", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_piecewise_linear_numerical_encoder_forward_3d(
+def test_piecewise_linear_numerical_encoder_forward_3d_shape(
     device: str, d1: int, d2: int, n_features: int, feature_size: int, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -113,14 +168,48 @@ def test_piecewise_linear_numerical_encoder_forward_3d(
     module.train(mode)
     out = module(torch.rand(d1, d2, n_features, device=device))
     assert out.shape == (d1, d2, n_features, feature_size)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("d1", SIZES)
+@pytest.mark.parametrize("d2", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_piecewise_linear_numerical_encoder_forward_3d_device(
+    device: str, d1: int, d2: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = PiecewiseLinearNumericalEncoder(bins=torch.rand(n_features, feature_size + 1)).to(
+        device=device
+    )
+    module.train(mode)
+    out = module(torch.rand(d1, d2, n_features, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("d1", SIZES)
+@pytest.mark.parametrize("d2", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_piecewise_linear_numerical_encoder_forward_3d_dtype(
+    device: str, d1: int, d2: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = PiecewiseLinearNumericalEncoder(bins=torch.rand(n_features, feature_size + 1)).to(
+        device=device
+    )
+    module.train(mode)
+    out = module(torch.rand(d1, d2, n_features, device=device))
     assert out.dtype == torch.float
 
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_piecewise_linear_numerical_encoder_backward(
+def test_piecewise_linear_numerical_encoder_backward_shape(
     device: str, batch_size: int, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -129,7 +218,33 @@ def test_piecewise_linear_numerical_encoder_backward(
     out = module(torch.rand(batch_size, 3, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == (batch_size, 3, 5)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_piecewise_linear_numerical_encoder_backward_device(
+    device: str, batch_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = PiecewiseLinearNumericalEncoder(bins=torch.rand(3, 6)).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, 3, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_piecewise_linear_numerical_encoder_backward_dtype(
+    device: str, batch_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = PiecewiseLinearNumericalEncoder(bins=torch.rand(3, 6)).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, 3, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
 
 
