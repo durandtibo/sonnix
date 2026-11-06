@@ -15,11 +15,17 @@ from sonnix.modules import MulticlassFlatten, Squeeze, View
 #######################################
 
 
-def test_flatten_multiclass_forward_args() -> None:
+def test_flatten_multiclass_forward_args_check1() -> None:
     module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
     net = MulticlassFlatten(module)
     out = net(torch.ones(6, 2, 4), torch.zeros(6, 2))
     assert objects_are_equal(out, torch.tensor(1.0))
+
+
+def test_flatten_multiclass_forward_args_call_args_args() -> None:
+    module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
+    net = MulticlassFlatten(module)
+    net(torch.ones(6, 2, 4), torch.zeros(6, 2))
     assert objects_are_equal(module.call_args.args, (torch.ones(12, 4), torch.zeros(12)))
 
 
@@ -31,19 +37,31 @@ def test_flatten_multiclass_forward_non_contiguous_prediction() -> None:
     assert objects_are_equal(module.call_args.args[0], prediction.reshape(24, 2))
 
 
-def test_flatten_multiclass_forward_kwargs() -> None:
+def test_flatten_multiclass_forward_kwargs_check1() -> None:
     module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
     net = MulticlassFlatten(module)
     out = net(prediction=torch.ones(6, 2, 4), target=torch.zeros(6, 2))
     assert objects_are_equal(out, torch.tensor(1.0))
+
+
+def test_flatten_multiclass_forward_kwargs_call_args_args() -> None:
+    module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
+    net = MulticlassFlatten(module)
+    net(prediction=torch.ones(6, 2, 4), target=torch.zeros(6, 2))
     assert objects_are_equal(module.call_args.args, (torch.ones(12, 4), torch.zeros(12)))
 
 
-def test_flatten_multiclass_forward_args_and_kwargs() -> None:
+def test_flatten_multiclass_forward_args_and_kwargs_check1() -> None:
     module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
     net = MulticlassFlatten(module)
     out = net(torch.ones(6, 2, 4), target=torch.zeros(6, 2))
     assert objects_are_equal(out, torch.tensor(1.0))
+
+
+def test_flatten_multiclass_forward_args_and_kwargs_call_args_args() -> None:
+    module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
+    net = MulticlassFlatten(module)
+    net(torch.ones(6, 2, 4), target=torch.zeros(6, 2))
     assert objects_are_equal(module.call_args.args, (torch.ones(12, 4), torch.zeros(12)))
 
 
