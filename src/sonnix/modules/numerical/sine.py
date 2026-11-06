@@ -20,6 +20,7 @@ from sonnix.modules.numerical._utils import (
     check_frequency,
     prepare_tensor_param,
 )
+from sonnix.utils.random import resolve_torch_generator
 from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:
@@ -145,6 +146,9 @@ class CosSinNumericalEncoder(nn.Module):
         frequency_range: tuple[float, float] | None = None,
         value_range: tuple[float, float] | None = None,
         learnable: bool = False,
+        generator: torch.Generator | int | None = None,
+        device: torch.device | None = None,
+        dtype: torch.dtype | None = None,
     ) -> Self:
         r"""Create an encoder for one feature where the frequencies are
         initialized in a range and the phase-shifts are zero.
@@ -168,6 +172,14 @@ class CosSinNumericalEncoder(nn.Module):
                 than or equal to the minimum.
             learnable: If ``True`` the parameters are learnable,
                 otherwise they are frozen.
+            generator: The random number generator or the random seed
+                used by ``spacing="rand"``. ``None`` uses the global
+                random number generator. A generator has to be on the
+                same device as ``device``. It is ignored by the other
+                spacings.
+            device: The device of the parameters.
+            dtype: The data type of the parameters. ``None`` uses the
+                default floating point type.
 
         Returns:
             An instantiated encoder with ``n_features=1``.
@@ -191,6 +203,11 @@ class CosSinNumericalEncoder(nn.Module):
             ... )
             >>> m
             CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
+            >>> m = CosSinNumericalEncoder.create(
+            ...     "rand", num_frequencies=5, frequency_range=(0.1, 1.0), generator=42
+            ... )
+            >>> m.frequency.shape
+            torch.Size([1, 5])
 
             ```
         """
@@ -212,17 +229,31 @@ class CosSinNumericalEncoder(nn.Module):
         )
         if spacing == "rand":
             frequency = (
-                torch.rand(1, num_frequencies).mul(max_frequency - min_frequency).add(min_frequency)
+                torch.rand(
+                    1,
+                    num_frequencies,
+                    generator=None if generator is None else resolve_torch_generator(generator),
+                    device=device,
+                    dtype=dtype,
+                )
+                .mul(max_frequency - min_frequency)
+                .add(min_frequency)
             )
         elif spacing == "linspace":
             frequency = torch.linspace(
-                start=min_frequency, end=max_frequency, steps=num_frequencies
+                start=min_frequency,
+                end=max_frequency,
+                steps=num_frequencies,
+                device=device,
+                dtype=dtype,
             )
         else:
             frequency = torch.logspace(
                 start=math.log10(min_frequency),
                 end=math.log10(max_frequency),
                 steps=num_frequencies,
+                device=device,
+                dtype=dtype,
             )
         return cls(
             frequency=frequency,

@@ -55,6 +55,9 @@ if TYPE_CHECKING:
         (CosSinNumericalEncoder.create, "frequency_range"),
         (CosSinNumericalEncoder.create, "value_range"),
         (CosSinNumericalEncoder.create, "learnable"),
+        (CosSinNumericalEncoder.create, "generator"),
+        (CosSinNumericalEncoder.create, "device"),
+        (CosSinNumericalEncoder.create, "dtype"),
     ],
 )
 def test_option_is_keyword_only(callable_: Callable, name: str) -> None:

@@ -104,3 +104,6 @@ All notable changes to this project are documented in this file. The package is 
   `create_logspace_value_range(5, 0.1, 10.0)` is
   `create("logspace", 5, value_range=(0.1, 10.0))`. It also works for
   `AsinhCosSinNumericalEncoder` and returns the subclass.
+- `CosSinNumericalEncoder.create` accepts `generator` (a `torch.Generator` or a seed, used by
+  `spacing="rand"`), `device` and `dtype`, so the initialization can be reproduced without touching
+  the global random number generator.
