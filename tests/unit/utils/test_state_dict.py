@@ -64,7 +64,7 @@ def test_load_state_dict_to_module_partial_state_dict() -> None:
         load_state_dict_to_module({"weight": torch.ones(5, 4)}, nn.Linear(4, 5))
 
 
-def test_load_state_dict_to_module_dict_strict_false_partial_state() -> None:
+def test_load_state_dict_to_module_dict_strict_false_partial_state_shape() -> None:
     module = nn.Linear(4, 5)
     load_state_dict_to_module({"weight": torch.ones(5, 4)}, module, strict=False)
 
@@ -73,6 +73,13 @@ def test_load_state_dict_to_module_dict_strict_false_partial_state() -> None:
         2,
         5,
     )  # The bias is randomly initialized so it is not possible to know the exact value.
+
+
+def test_load_state_dict_to_module_dict_strict_false_partial_state_weight() -> None:
+    module = nn.Linear(4, 5)
+    load_state_dict_to_module({"weight": torch.ones(5, 4)}, module, strict=False)
+
+    module(torch.ones(2, 4))
     assert module.weight.equal(torch.ones(5, 4))
 
 
