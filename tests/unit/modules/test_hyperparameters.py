@@ -5,7 +5,6 @@ from torch import nn
 
 from sonnix.modules import (
     AsinhSmoothL1Loss,
-    AverageFusion,
     BinaryFocalLoss,
     BinaryFocalLossWithLogits,
     BinaryPoly1Loss,
@@ -24,7 +23,6 @@ from sonnix.modules import (
     SafeLog,
     ScaleAndShift,
     Squeeze,
-    SumFusion,
     View,
 )
 
@@ -48,8 +46,6 @@ from sonnix.modules import (
         (Squeeze(dim=1), "dim", 1),
         (View(shape=[2, 3]), "shape", (2, 3)),
         (ConcatFusion(dim=2), "dim", 2),
-        (SumFusion(normalized=True), "normalized", True),
-        (AverageFusion(), "normalized", True),
         (ScaleAndShift(normalized_shape=4), "normalized_shape", (4,)),
         (DynamicTanh(normalized_shape=4, alpha_init_value=0.3), "alpha_init_value", 0.3),
         (MomentMeanIndicator(k=3), "k", 3),

@@ -10,7 +10,7 @@ All notable changes to this project are documented in this file. The package is 
 - The hyperparameters of the modules are public attributes named like the constructor arguments
   (`ReLUn.max_val`, `Clamp.min_val`/`max_val`, `Snake.frequency`, `Pow.exponent`,
   `SafeExp.max_val`/`preserve_gradient`, `SafeLog.min_val`/`preserve_gradient`, `Squeeze.dim`,
-  `View.shape`, `ConcatFusion.dim`, `SumFusion.normalized`, `ScaleAndShift.normalized_shape`,
+  `View.shape`, `ConcatFusion.dim`, `ScaleAndShift.normalized_shape`,
   `DynamicTanh.alpha_init_value`, `MomentMeanIndicator.k`, and the `alpha`, `gamma`, `beta`, `q`,
   `eps`, `scale`, `max_val`, `detach_indicator` attributes of the losses). The previous private
   attributes (`_max`, `_alpha`, ...) are removed.
@@ -60,3 +60,11 @@ All notable changes to this project are documented in this file. The package is 
   `weight` and `bias`, so the order of the keys of the state dict changes (the names do not).
 - `ScaleAndShift`, `DynamicTanh` and `DynamicAsinh` accept `bias=False` (no shift, `bias` is
   `None`). `bias` is part of their representation.
+
+### Fusion modules
+
+- Add `BaseFusion`: it checks that there is at least one input (the check was repeated in three
+  modules) and calls the abstract method `fuse`. `MultiplicationFusion`, `SumFusion`,
+  `AverageFusion` and `ConcatFusion` extend it.
+- `SumFusion` has no `normalized` argument and `AverageFusion` no longer extends `SumFusion`:
+  `SumFusion(normalized=True)` is now `AverageFusion()`.
