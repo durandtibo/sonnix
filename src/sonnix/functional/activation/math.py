@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 def safe_exp(input: torch.Tensor, max: float = 20.0) -> torch.Tensor:  # noqa: A002
     r"""Compute safely the exponential of the elements.
 
-    The values that are higher than the specified minimum value are
+    The values that are higher than the specified maximum value are
     set to this maximum value. Using a not too large positive value
     leads to an output tensor without Inf.
 
@@ -38,7 +38,7 @@ def safe_exp(input: torch.Tensor, max: float = 20.0) -> torch.Tensor:  # noqa: A
 
 
 def safe_log(input: torch.Tensor, min: float = 1e-8) -> torch.Tensor:  # noqa: A002
-    r"""Compute safely the logarithm natural logarithm of the elements.
+    r"""Compute safely the natural logarithm of the elements.
 
     The values that are lower than the specified minimum value are set
     to this minimum value. Using a small positive value leads to an

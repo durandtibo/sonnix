@@ -16,8 +16,8 @@ def get_random_seed(seed: int) -> int:
             reproducible.
 
     Returns:
-        int: A random seed. The value is between ``-2 ** 63`` and
-            ``2 ** 63 - 1``.
+        int: A random seed. The value is between ``-2 ** 63`` (included)
+            and ``2 ** 63 - 1`` (excluded).
 
     Example:
         ```pycon

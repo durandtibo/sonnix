@@ -21,7 +21,7 @@ class BaseDynamicNorm(nn.Module):
     Args:
         normalized_shape: The input shape to normalize.
             If a single integer is used, it is treated as a singleton
-            list, and this module willcnormalize over the last
+            list, and this module will normalize over the last
             dimension which is expected to be of that specific size.
         alpha_init_value: The initial value for alpha.
         device: The device of the parameters.
@@ -35,14 +35,14 @@ class BaseDynamicNorm(nn.Module):
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.modules import DynamicTanh
-        >>> m = DynamicTanh(normalized_shape=5)
+        >>> from sonnix.modules.activation.dynamic import BaseDynamicNorm
+        >>> class MyDynamicNorm(BaseDynamicNorm):
+        ...     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        ...         return x.mul(self.alpha).tanh().mul(self.weight).add(self.bias)
+        ...
+        >>> m = MyDynamicNorm(normalized_shape=5)
         >>> m
-        DynamicTanh(normalized_shape=(5,))
-        >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
-        >>> out
-        tensor([[-0.7616, -0.4621,  0.0000,  0.4621,  0.7616],
-                [ 0.9051,  0.7616,  0.4621,  0.7616,  0.9051]], grad_fn=<AddBackward0>)
+        MyDynamicNorm(normalized_shape=(5,))
 
         ```
     """
@@ -89,7 +89,7 @@ class DynamicAsinh(BaseDynamicNorm):
     Args:
         normalized_shape: The input shape to normalize.
             If a single integer is used, it is treated as a singleton
-            list, and this module willcnormalize over the last
+            list, and this module will normalize over the last
             dimension which is expected to be of that specific size.
         alpha_init_value: The initial value for alpha.
 
@@ -131,7 +131,7 @@ class DynamicTanh(BaseDynamicNorm):
     Args:
         normalized_shape: The input shape to normalize.
             If a single integer is used, it is treated as a singleton
-            list, and this module willcnormalize over the last
+            list, and this module will normalize over the last
             dimension which is expected to be of that specific size.
         alpha_init_value: The initial value for alpha.
 

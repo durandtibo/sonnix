@@ -53,6 +53,7 @@ def relative_loss(
         ```pycon
         >>> import torch
         >>> from sonnix.functional import relative_loss
+        >>> from sonnix.functional.loss import classical_relative_indicator
         >>> prediction = torch.randn(3, 5, requires_grad=True)
         >>> target = torch.randn(3, 5)
         >>> loss = relative_loss(

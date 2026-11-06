@@ -21,7 +21,7 @@ class ScaleAndShift(nn.Module):
     Args:
         normalized_shape: The input shape to normalize.
             If a single integer is used, it is treated as a singleton
-            list, and this module willcnormalize over the last
+            list, and this module will normalize over the last
             dimension which is expected to be of that specific size.
         device: The device of the parameters.
         dtype: The data type of the parameters. ``None`` uses the
