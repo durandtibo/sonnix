@@ -426,8 +426,8 @@ def test_square_repr() -> None:
     assert repr(Square()) == "Square()"
 
 
-def test_square_is_pow_2() -> None:
-    assert Square().exponent == 2.0
+def test_square_is_not_a_pow() -> None:
+    assert not isinstance(Square(), Pow)
 
 
 def test_square_forward_equals_pow() -> None:

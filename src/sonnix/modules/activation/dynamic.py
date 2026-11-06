@@ -45,11 +45,10 @@ class BaseDynamicNorm(ScaleAndShift, ABC):
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.modules import ScaleAndShift
         >>> from sonnix.modules.activation.dynamic import BaseDynamicNorm
         >>> class MyDynamicNorm(BaseDynamicNorm):
         ...     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        ...         return ScaleAndShift.forward(self, x.mul(self.alpha).tanh())
+        ...         return self._affine(x.mul(self.alpha).tanh())
         ...
         >>> m = MyDynamicNorm(normalized_shape=5)
         >>> m
@@ -130,7 +129,7 @@ class DynamicAsinh(BaseDynamicNorm):
     """
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return ScaleAndShift.forward(self, x.mul(self.alpha).asinh())
+        return self._affine(x.mul(self.alpha).asinh())
 
 
 class DynamicTanh(BaseDynamicNorm):
@@ -177,4 +176,4 @@ class DynamicTanh(BaseDynamicNorm):
     """
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return ScaleAndShift.forward(self, x.mul(self.alpha).tanh())
+        return self._affine(x.mul(self.alpha).tanh())

@@ -7,6 +7,9 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- `Square` is an independent module instead of a subclass of `Pow`: it has no `exponent` attribute anymore.
+  `DynamicTanh`, `DynamicAsinh` and the user subclasses of `BaseDynamicNorm` apply the affine transformation
+  with the new `ScaleAndShift._affine` method instead of `ScaleAndShift.forward(self, ...)` (review 3.2, #365).
 - `BaseLoss(reduction)` is keyword-only like all the losses: `BaseLoss("sum")` is a `TypeError`. The
   redundant `__init__` of `MSLELoss` and `AsinhMSELoss`, and the copy of `extra_repr` of `AsinhMSELoss`, are
   removed (review 3.1, #364).

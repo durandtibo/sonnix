@@ -365,11 +365,11 @@ class Sinh(nn.Module):
         return input.sinh()
 
 
-class Square(Pow):
+class Square(nn.Module):
     r"""Implement the square activation.
 
-    It is ``Pow(exponent=2)`` with a name that is easier to use in a
-    configuration.
+    It is equivalent to ``Pow(exponent=2)`` with a name that is easier
+    to use in a configuration.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -390,8 +390,5 @@ class Square(Pow):
         ```
     """
 
-    def __init__(self) -> None:
-        super().__init__(exponent=2)
-
-    def extra_repr(self) -> str:
-        return ""
+    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        return input.pow(2)
