@@ -17,6 +17,8 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Fixed
 
+- `poisson_regression_loss` clamps the prediction in the linear term too, so the loss is bounded below for
+  negative predictions (review 2.4, #359).
 - `log_cosh_loss` validates `scale` like `LogCoshLoss` does: `scale <= 0` raises a `ValueError` instead
   of returning `nan` or a negative loss (review 2.3, #358).
 - `general_robust_regression_loss` and `GeneralRobustRegressionLoss` reject `alpha` equal to `NaN` or
@@ -29,6 +31,8 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Changed
 
+- `PoissonRegressionLoss` and `poisson_regression_loss` have a keyword-only `log_input` option, and the
+  representation of the module shows `log_input` (review 2.4, #359).
 - `BaseLoss.extra_repr` returns `reduction=...` and the losses extend it, so the representation of
   every loss starts with `reduction=...` followed by its hyperparameters.
 
