@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 import torch
 from torch import nn
 
-from sonnix.functional.loss.relative import (
+from sonnix.functional import (
     arithmetical_mean_indicator,
     classical_relative_indicator,
     geometric_mean_indicator,
