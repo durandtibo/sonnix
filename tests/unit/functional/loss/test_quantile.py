@@ -89,3 +89,9 @@ def test_quantile_regression_loss_q_overestimate(device: str, q: float, loss: fl
     assert quantile_regression_loss(
         torch.ones(2, 2, device=device), 2 * torch.eye(2, device=device) - 1, q=q
     ).equal(torch.tensor(loss, device=device))
+
+
+@pytest.mark.parametrize("q", [-0.1, 1.1])
+def test_quantile_regression_loss_incorrect_q(q: float) -> None:
+    with pytest.raises(ValueError, match="Incorrect parameter q"):
+        quantile_regression_loss(torch.randn(2, 3), torch.randn(2, 3), q=q)

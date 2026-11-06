@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 
 from torch.nn.functional import mse_loss, smooth_l1_loss
 
+from sonnix.functional.reduction import reduce_loss
+
 if TYPE_CHECKING:
     import torch
 
@@ -27,10 +29,13 @@ def asinh_mse_loss(
         prediction: The predictions.
         target: The target values.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
 
     Returns:
         The mean squared error (MSE) on the inverse hyperbolic sine
@@ -43,12 +48,12 @@ def asinh_mse_loss(
         >>> from sonnix.functional import asinh_mse_loss
         >>> loss = asinh_mse_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
         >>> loss
-        tensor(..., grad_fn=<MseLossBackward0>)
+        tensor(..., grad_fn=<MeanBackward0>)
         >>> loss.backward()
 
         ```
     """
-    return mse_loss(prediction.asinh(), target.asinh(), reduction=reduction)
+    return reduce_loss(mse_loss(prediction.asinh(), target.asinh(), reduction="none"), reduction)
 
 
 def asinh_smooth_l1_loss(
@@ -65,10 +70,13 @@ def asinh_smooth_l1_loss(
         prediction: The predictions.
         target: The target values.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
         beta: The threshold at which to change between L1 and L2 loss.
             The value must be non-negative.
 
@@ -83,9 +91,12 @@ def asinh_smooth_l1_loss(
         >>> from sonnix.functional import asinh_smooth_l1_loss
         >>> loss = asinh_smooth_l1_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
         >>> loss
-        tensor(..., grad_fn=<SmoothL1LossBackward0>)
+        tensor(..., grad_fn=<MeanBackward0>)
         >>> loss.backward()
 
         ```
     """
-    return smooth_l1_loss(prediction.asinh(), target.asinh(), reduction=reduction, beta=beta)
+    return reduce_loss(
+        smooth_l1_loss(prediction.asinh(), target.asinh(), reduction="none", beta=beta),
+        reduction,
+    )

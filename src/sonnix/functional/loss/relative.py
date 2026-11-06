@@ -39,10 +39,13 @@ def relative_loss(
             the target.
         indicator: The indicator values.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
 
@@ -57,6 +60,7 @@ def relative_loss(
         ```pycon
         >>> import torch
         >>> from sonnix.functional import relative_loss
+        >>> from sonnix.functional.loss import classical_relative_indicator
         >>> prediction = torch.randn(3, 5, requires_grad=True)
         >>> target = torch.randn(3, 5)
         >>> loss = relative_loss(
@@ -208,6 +212,20 @@ def minimum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
     return torch.minimum(target.abs(), prediction.abs())
 
 
+def check_moment_order(k: int) -> None:
+    r"""Check the order of the moment mean indicator.
+
+    Args:
+        k: The order.
+
+    Raises:
+        ValueError: if the order is not a positive integer.
+    """
+    if k < 1:
+        msg = f"Incorrect parameter k ({k}). k has to be greater or equal to 1."
+        raise ValueError(msg)
+
+
 def moment_mean_indicator(
     prediction: torch.Tensor, target: torch.Tensor, k: int = 1
 ) -> torch.Tensor:
@@ -234,6 +252,7 @@ def moment_mean_indicator(
 
         ```
     """
+    check_moment_order(k)
     return target.abs().pow(k).add(prediction.abs().pow(k)).mul(0.5).pow(1 / k)
 
 

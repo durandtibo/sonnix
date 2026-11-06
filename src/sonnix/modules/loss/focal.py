@@ -12,6 +12,7 @@ from sonnix.functional import (
     binary_focal_loss_with_logits,
     check_loss_reduction_strategy,
 )
+from sonnix.functional.loss.focal import validate_focal_params
 
 
 class BinaryFocalLoss(nn.Module):
@@ -26,7 +27,7 @@ class BinaryFocalLoss(nn.Module):
         gamma: The focusing parameter, which must be positive
             (``>=0``).
         reduction: The reduction to apply to the output:
-            ``'none'`` | ``'mean'`` | ``'sum'``.
+            ``'none'`` | ``'mean'`` | ``'sum'`` | ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum of the output will be divided by the number of
             elements in the output, ``'sum'``: the output will be
@@ -57,13 +58,9 @@ class BinaryFocalLoss(nn.Module):
 
     def __init__(self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean") -> None:
         super().__init__()
+        validate_focal_params(alpha=alpha, gamma=gamma)
         self._alpha = float(alpha)
-
-        if gamma >= 0:
-            self._gamma = float(gamma)
-        else:
-            msg = f"Incorrect parameter gamma ({gamma}). Gamma has to be positive (>=0)."
-            raise ValueError(msg)
+        self._gamma = float(gamma)
 
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction
@@ -110,7 +107,7 @@ class BinaryFocalLossWithLogits(nn.Module):
         gamma: The focusing parameter, which must be positive
             (``>=0``).
         reduction: The reduction to apply to the output:
-            ``'none'`` | ``'mean'`` | ``'sum'``.
+            ``'none'`` | ``'mean'`` | ``'sum'`` | ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum of the output will be divided by the number of
             elements in the output, ``'sum'``: the output will be
@@ -141,13 +138,9 @@ class BinaryFocalLossWithLogits(nn.Module):
 
     def __init__(self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean") -> None:
         super().__init__()
+        validate_focal_params(alpha=alpha, gamma=gamma)
         self._alpha = float(alpha)
-
-        if gamma >= 0:
-            self._gamma = float(gamma)
-        else:
-            msg = f"Incorrect parameter gamma ({gamma}). Gamma has to be positive (>=0)."
-            raise ValueError(msg)
+        self._gamma = float(gamma)
 
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction

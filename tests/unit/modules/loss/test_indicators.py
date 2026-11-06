@@ -199,3 +199,8 @@ def test_reversed_relative_indicator_forward(device: str) -> None:
         ),
         torch.tensor([[2.0, 1.0, 0.0], [3.0, 5.0, 1.0]], device=device),
     )
+
+
+def test_moment_mean_indicator_incorrect_k() -> None:
+    with pytest.raises(ValueError, match="Incorrect parameter k"):
+        MomentMeanIndicator(k=0)

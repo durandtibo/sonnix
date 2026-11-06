@@ -23,10 +23,13 @@ class AsinhMSELoss(nn.Module):
 
     Args:
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
 
     Example:
         ```pycon
@@ -37,7 +40,7 @@ class AsinhMSELoss(nn.Module):
         AsinhMSELoss(reduction=mean)
         >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
         >>> loss
-        tensor(..., grad_fn=<MseLossBackward0>)
+        tensor(..., grad_fn=<MeanBackward0>)
         >>> loss.backward()
 
         ```
@@ -65,10 +68,13 @@ class AsinhSmoothL1Loss(nn.Module):
 
     Args:
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
         beta: The threshold at which to change between L1 and L2 loss.
             The value must be non-negative.
 
@@ -81,7 +87,7 @@ class AsinhSmoothL1Loss(nn.Module):
         AsinhSmoothL1Loss(reduction=mean, beta=1.0)
         >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
         >>> loss
-        tensor(..., grad_fn=<SmoothL1LossBackward0>)
+        tensor(..., grad_fn=<MeanBackward0>)
         >>> loss.backward()
 
         ```

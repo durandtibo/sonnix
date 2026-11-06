@@ -21,8 +21,11 @@ class ScaleAndShift(nn.Module):
     Args:
         normalized_shape: The input shape to normalize.
             If a single integer is used, it is treated as a singleton
-            list, and this module willcnormalize over the last
+            list, and this module will normalize over the last
             dimension which is expected to be of that specific size.
+        device: The device of the parameters.
+        dtype: The data type of the parameters. ``None`` uses the
+            default floating point type.
 
     Shape:
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.
@@ -43,14 +46,23 @@ class ScaleAndShift(nn.Module):
         ```
     """
 
-    def __init__(self, normalized_shape: int | list[int] | tuple[int, ...]) -> None:
+    def __init__(
+        self,
+        normalized_shape: int | list[int] | tuple[int, ...],
+        device: torch.device | None = None,
+        dtype: torch.dtype | None = None,
+    ) -> None:
         super().__init__()
         if isinstance(normalized_shape, int):
             normalized_shape = (normalized_shape,)
         self._normalized_shape = tuple(normalized_shape)
 
-        self.weight: nn.Parameter = nn.Parameter(torch.empty(self._normalized_shape))
-        self.bias: nn.Parameter = nn.Parameter(torch.empty(self._normalized_shape))
+        self.weight: nn.Parameter = nn.Parameter(
+            torch.empty(self._normalized_shape, device=device, dtype=dtype)
+        )
+        self.bias: nn.Parameter = nn.Parameter(
+            torch.empty(self._normalized_shape, device=device, dtype=dtype)
+        )
         self.reset_parameters()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

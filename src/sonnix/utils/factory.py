@@ -42,7 +42,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 def is_dataset_config(config: dict[Any, Any]) -> bool:
     r"""Indicate if the input configuration is a configuration for a
-    ``torch.nn.Module``.
+    ``torch.utils.data.Dataset``.
 
     This function only checks if the value of the key  ``_target_``
     is valid. It does not check the other values. If ``_target_``

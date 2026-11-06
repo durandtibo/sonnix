@@ -154,8 +154,7 @@ class Log1p(nn.Module):
 
 
 class Pow(nn.Module):
-    r"""Implement a ``torch.nn.Module`` to compute the natural logarithm
-    of the input.
+    r"""Implement a ``torch.nn.Module`` to raise the input to a power.
 
     This module is equivalent to  ``pow(input, exponent)``
 
@@ -193,7 +192,7 @@ class SafeExp(nn.Module):
     r"""Implement a ``torch.nn.Module`` to compute the exponential of the
     elements.
 
-    The values that are higher than the specified minimum value are
+    The values that are higher than the specified maximum value are
     set to this maximum value. Using a not too large positive value
     leads to an output tensor without Inf.
 

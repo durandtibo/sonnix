@@ -304,3 +304,9 @@ def test_binary_focal_loss_with_logits_backward(device: str) -> None:
     )
     loss.backward()
     assert loss.allclose(torch.tensor(0.20943205058574677, device=device))
+
+
+@pytest.mark.parametrize("loss", [BinaryFocalLoss, BinaryFocalLossWithLogits])
+def test_binary_focal_loss_module_incorrect_alpha(loss: type) -> None:
+    with pytest.raises(ValueError, match="Incorrect parameter alpha"):
+        loss(alpha=5.0)

@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 import torch
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import asinh_mse_loss, asinh_smooth_l1_loss
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 SHAPES = [(2,), (2, 3), (2, 3, 4)]
 
@@ -60,7 +65,7 @@ def test_asinh_mse_loss_reduction_none(device: str) -> None:
 
 
 def test_asinh_mse_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"incorrect is not a valid value for reduction"):
+    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
         asinh_mse_loss(torch.ones(2, 2), torch.eye(2), reduction="incorrect")
 
 
@@ -125,7 +130,7 @@ def test_asinh_smooth_l1_loss_reduction_none(device: str) -> None:
 
 
 def test_asinh_smooth_l1_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"incorrect is not a valid value for reduction"):
+    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
         asinh_smooth_l1_loss(torch.ones(2, 2), torch.eye(2), reduction="incorrect")
 
 
@@ -136,3 +141,11 @@ def test_asinh_smooth_l1_loss_shape(device: str, shape: tuple[int, ...]) -> None
     assert asinh_smooth_l1_loss(
         torch.ones(*shape, device=device), torch.ones(*shape, device=device)
     ).equal(torch.tensor(0.0, device=device))
+
+
+@pytest.mark.parametrize("loss", [asinh_mse_loss, asinh_smooth_l1_loss])
+def test_asinh_loss_batchmean(loss: Callable) -> None:
+    prediction, target = torch.randn(4, 3), torch.randn(4, 3)
+    assert loss(prediction, target, reduction="batchmean").allclose(
+        loss(prediction, target, reduction="sum") / 4
+    )

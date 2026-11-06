@@ -11,6 +11,28 @@ from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_
 from sonnix.functional.reduction import reduce_loss
 
 
+def validate_focal_params(alpha: float, gamma: float) -> None:
+    r"""Check the parameters of the focal loss.
+
+    Args:
+        alpha: The weighting factor. It has to be in the range
+            ``[0, 1]``, or negative to disable the weighting.
+        gamma: The focusing parameter. It has to be non-negative.
+
+    Raises:
+        ValueError: if one of the parameters is invalid.
+    """
+    if alpha > 1:
+        msg = (
+            f"Incorrect parameter alpha ({alpha}). Alpha has to be in the range [0, 1] "
+            "(or negative to disable the weighting)."
+        )
+        raise ValueError(msg)
+    if gamma < 0:
+        msg = f"Incorrect parameter gamma ({gamma}). Gamma has to be positive (>=0)."
+        raise ValueError(msg)
+
+
 def binary_focal_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
@@ -36,10 +58,13 @@ def binary_focal_loss(
         gamma: The focusing parameter, which must be positive
             (``>=0``).
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
 
     Returns:
         The computed binary focal loss. The shape of the tensor depends
@@ -59,6 +84,7 @@ def binary_focal_loss(
 
         ```
     """
+    validate_focal_params(alpha=alpha, gamma=gamma)
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
     p_t = prediction * target + (1 - prediction) * (1 - target)
     loss = ce_loss * ((1 - p_t) ** gamma)
@@ -94,10 +120,13 @@ def binary_focal_loss_with_logits(
         gamma: The focusing parameter, which must be positive
             (``>=0``).
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
 
     Returns:
         The computed binary focal loss. The shape of the tensor depends
@@ -117,6 +146,7 @@ def binary_focal_loss_with_logits(
 
         ```
     """
+    validate_focal_params(alpha=alpha, gamma=gamma)
     p = torch.sigmoid(prediction)
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
     p_t = p * target + (1 - p) * (1 - target)

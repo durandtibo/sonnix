@@ -21,10 +21,13 @@ class QuantileRegressionLoss(nn.Module):
 
     Args:
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
         q: The quantile value. ``q=0.5`` is equivalent to the Mean
             Absolute Error (MAE).
 
@@ -47,6 +50,9 @@ class QuantileRegressionLoss(nn.Module):
         super().__init__()
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction
+        if not 0.0 <= q <= 1.0:
+            msg = f"Incorrect parameter q ({q}). q has to be in the range [0, 1]."
+            raise ValueError(msg)
         self._q = float(q)
 
     def extra_repr(self) -> str:

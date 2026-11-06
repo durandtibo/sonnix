@@ -27,10 +27,13 @@ def quantile_regression_loss(
         q: The quantile value. ``q=0.5`` is equivalent to the Mean
             Absolute Error (MAE).
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
 
     Returns:
         The quantile regression loss. The shape of the tensor depends
@@ -49,6 +52,9 @@ def quantile_regression_loss(
 
         ```
     """
+    if not 0.0 <= q <= 1.0:
+        msg = f"Incorrect parameter q ({q}). q has to be in the range [0, 1]."
+        raise ValueError(msg)
     diff = target - prediction
     loss = q * diff.clamp_min(0.0) + (1.0 - q) * (diff.neg().clamp_min(0.0))
     return reduce_loss(loss, reduction)

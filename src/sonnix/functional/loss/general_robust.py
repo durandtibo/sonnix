@@ -49,10 +49,13 @@ def general_robust_regression_loss(
         max: The max value to clip the loss before to compute the
             reduction. ``None`` means no clipping is used.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
 
     Returns:
         The loss. The shape of the tensor depends on the reduction

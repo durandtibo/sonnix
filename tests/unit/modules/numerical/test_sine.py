@@ -38,16 +38,14 @@ def test_cos_sin_numerical_encoder_str() -> None:
 def test_cos_sin_numerical_encoder_frequency_1_feature(frequency: torch.Tensor) -> None:
     assert CosSinNumericalEncoder(
         frequency=frequency, phase_shift=torch.zeros(1, 3)
-    ).frequency.equal(torch.tensor([[1.0, 2.0, 4.0, 1.0, 2.0, 4.0]]))
+    ).frequency.equal(torch.tensor([[1.0, 2.0, 4.0]]))
 
 
 def test_cos_sin_numerical_encoder_frequency_2_features() -> None:
     assert CosSinNumericalEncoder(
         frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]]),
         phase_shift=torch.zeros(2, 3),
-    ).frequency.equal(
-        torch.tensor([[1.0, 2.0, 4.0, 1.0, 2.0, 4.0], [2.0, 3.0, 4.0, 2.0, 3.0, 4.0]])
-    )
+    ).frequency.equal(torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]]))
 
 
 @pytest.mark.parametrize(
@@ -57,16 +55,14 @@ def test_cos_sin_numerical_encoder_frequency_2_features() -> None:
 def test_cos_sin_numerical_encoder_phase_shift_1_feature(phase_shift: torch.Tensor) -> None:
     assert CosSinNumericalEncoder(
         frequency=torch.tensor([[1.0, 2.0, 4.0]]), phase_shift=phase_shift
-    ).phase_shift.equal(torch.tensor([[2.0, 1.0, 0.0, 2.0, 1.0, 0.0]]))
+    ).phase_shift.equal(torch.tensor([[2.0, 1.0, 0.0]]))
 
 
 def test_cos_sin_numerical_encoder_phase_shift_2_features() -> None:
     assert CosSinNumericalEncoder(
         frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]]),
         phase_shift=torch.tensor([[2.0, 1.0, 0.0], [1.0, 2.0, 3.0]]),
-    ).phase_shift.equal(
-        torch.tensor([[2.0, 1.0, 0.0, 2.0, 1.0, 0.0], [1.0, 2.0, 3.0, 1.0, 2.0, 3.0]])
-    )
+    ).phase_shift.equal(torch.tensor([[2.0, 1.0, 0.0], [1.0, 2.0, 3.0]]))
 
 
 def test_cos_sin_numerical_encoder_different_shape() -> None:
@@ -328,8 +324,8 @@ def test_cos_sin_numerical_encoder_create_rand_frequency() -> None:
     module = CosSinNumericalEncoder.create_rand_frequency(
         num_frequencies=3, min_frequency=0.2, max_frequency=1
     )
-    assert module.frequency.data.equal(torch.tensor([[0.2, 0.6, 1.0, 0.2, 0.6, 1.0]]))
-    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]))
+    assert module.frequency.data.equal(torch.tensor([[0.2, 0.6, 1.0]]))
+    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0]]))
 
 
 @pytest.mark.parametrize("learnable", [True, False])
@@ -349,8 +345,8 @@ def test_cos_sin_numerical_encoder_create_rand_value_range() -> None:
     module = CosSinNumericalEncoder.create_rand_value_range(
         num_frequencies=3, min_abs_value=0.2, max_abs_value=1
     )
-    assert module.frequency.data.equal(torch.tensor([[1.0, 3.0, 5.0, 1.0, 3.0, 5.0]]))
-    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]))
+    assert module.frequency.data.equal(torch.tensor([[1.0, 3.0, 5.0]]))
+    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0]]))
 
 
 @pytest.mark.parametrize("learnable", [True, False])
@@ -366,8 +362,8 @@ def test_cos_sin_numerical_encoder_create_linspace_frequency() -> None:
     module = CosSinNumericalEncoder.create_linspace_frequency(
         num_frequencies=3, min_frequency=0.2, max_frequency=1
     )
-    assert module.frequency.data.equal(torch.tensor([[0.2, 0.6, 1.0, 0.2, 0.6, 1.0]]))
-    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]))
+    assert module.frequency.data.equal(torch.tensor([[0.2, 0.6, 1.0]]))
+    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0]]))
 
 
 @pytest.mark.parametrize("learnable", [True, False])
@@ -383,8 +379,8 @@ def test_cos_sin_numerical_encoder_create_linspace_value_range() -> None:
     module = CosSinNumericalEncoder.create_linspace_value_range(
         num_frequencies=3, min_abs_value=0.2, max_abs_value=1
     )
-    assert module.frequency.data.equal(torch.tensor([[1.0, 3.0, 5.0, 1.0, 3.0, 5.0]]))
-    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]))
+    assert module.frequency.data.equal(torch.tensor([[1.0, 3.0, 5.0]]))
+    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0]]))
 
 
 @pytest.mark.parametrize("learnable", [True, False])
@@ -400,8 +396,8 @@ def test_cos_sin_numerical_encoder_create_logspace_frequency() -> None:
     module = CosSinNumericalEncoder.create_logspace_frequency(
         num_frequencies=3, min_frequency=0.01, max_frequency=1
     )
-    assert module.frequency.data.equal(torch.tensor([[0.01, 0.1, 1.0, 0.01, 0.1, 1.0]]))
-    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]))
+    assert module.frequency.data.equal(torch.tensor([[0.01, 0.1, 1.0]]))
+    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0]]))
 
 
 @pytest.mark.parametrize("learnable", [True, False])
@@ -417,8 +413,8 @@ def test_cos_sin_numerical_encoder_create_logspace_value_range() -> None:
     module = CosSinNumericalEncoder.create_logspace_value_range(
         num_frequencies=3, min_abs_value=0.01, max_abs_value=1.0
     )
-    assert module.frequency.data.equal(torch.tensor([[1.0, 10.0, 100.0, 1.0, 10.0, 100.0]]))
-    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]))
+    assert module.frequency.data.equal(torch.tensor([[1.0, 10.0, 100.0]]))
+    assert module.phase_shift.data.equal(torch.tensor([[0.0, 0.0, 0.0]]))
 
 
 @pytest.mark.parametrize("learnable", [True, False])
@@ -451,16 +447,14 @@ def test_asinh_cos_sin_numerical_encoder_str() -> None:
 def test_asinh_cos_sin_numerical_encoder_frequency_1_feature(frequency: torch.Tensor) -> None:
     assert AsinhCosSinNumericalEncoder(
         frequency=frequency, phase_shift=torch.zeros(1, 3)
-    ).frequency.equal(torch.tensor([[1.0, 2.0, 4.0, 1.0, 2.0, 4.0]]))
+    ).frequency.equal(torch.tensor([[1.0, 2.0, 4.0]]))
 
 
 def test_asinh_cos_sin_numerical_encoder_frequency_2_features() -> None:
     assert AsinhCosSinNumericalEncoder(
         frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]]),
         phase_shift=torch.zeros(2, 3),
-    ).frequency.equal(
-        torch.tensor([[1.0, 2.0, 4.0, 1.0, 2.0, 4.0], [2.0, 3.0, 4.0, 2.0, 3.0, 4.0]])
-    )
+    ).frequency.equal(torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]]))
 
 
 @pytest.mark.parametrize(
@@ -470,16 +464,14 @@ def test_asinh_cos_sin_numerical_encoder_frequency_2_features() -> None:
 def test_asinh_cos_sin_numerical_encoder_phase_shift_1_feature(phase_shift: torch.Tensor) -> None:
     assert AsinhCosSinNumericalEncoder(
         frequency=torch.tensor([[1.0, 2.0, 4.0]]), phase_shift=phase_shift
-    ).phase_shift.equal(torch.tensor([[2.0, 1.0, 0.0, 2.0, 1.0, 0.0]]))
+    ).phase_shift.equal(torch.tensor([[2.0, 1.0, 0.0]]))
 
 
 def test_asinh_cos_sin_numerical_encoder_phase_shift_2_features() -> None:
     assert AsinhCosSinNumericalEncoder(
         frequency=torch.tensor([[1.0, 2.0, 4.0], [2.0, 3.0, 4.0]]),
         phase_shift=torch.tensor([[2.0, 1.0, 0.0], [1.0, 2.0, 3.0]]),
-    ).phase_shift.equal(
-        torch.tensor([[2.0, 1.0, 0.0, 2.0, 1.0, 0.0], [1.0, 2.0, 3.0, 1.0, 2.0, 3.0]])
-    )
+    ).phase_shift.equal(torch.tensor([[2.0, 1.0, 0.0], [1.0, 2.0, 3.0]]))
 
 
 def test_asinh_cos_sin_numerical_encoder_different_shape() -> None:
@@ -817,3 +809,39 @@ def test_check_frequency_invalid_max_frequency() -> None:
         RuntimeError, match=r"'max_frequency' .* has to be greater than 'min_frequency'"
     ):
         check_frequency(num_frequencies=3, min_frequency=2, max_frequency=1)
+
+
+def test_cos_sin_numerical_encoder_sin_cos_share_parameters() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.tensor([[1.0, 2.0, 4.0]]), phase_shift=torch.zeros(1, 3), learnable=True
+    )
+    assert module.frequency.shape == (1, 3)
+    assert module.phase_shift.shape == (1, 3)
+    assert module.output_size == 6
+    assert sum(p.numel() for p in module.parameters()) == 6
+
+
+def test_cos_sin_numerical_encoder_sin_cos_stay_consistent_after_update() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.tensor([[1.0, 2.0]]), phase_shift=torch.zeros(1, 2), learnable=True
+    )
+    optimizer = torch.optim.SGD(module.parameters(), lr=0.1)
+    module(torch.tensor([[1.0]])).sum().backward()
+    optimizer.step()
+    out = module(torch.tensor([[1.0]]))
+    assert out[..., :2].pow(2).add(out[..., 2:].pow(2)).allclose(torch.ones(1, 1, 2))
+
+
+def test_cos_sin_numerical_encoder_frozen_is_buffer() -> None:
+    module = CosSinNumericalEncoder(frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3))
+    assert not module.learnable
+    assert len(list(module.parameters())) == 0
+    assert set(module.state_dict()) == {"frequency", "phase_shift"}
+
+
+def test_cos_sin_numerical_encoder_learnable_is_parameter() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3), learnable=True
+    )
+    assert module.learnable
+    assert {n for n, _ in module.named_parameters()} == {"frequency", "phase_shift"}

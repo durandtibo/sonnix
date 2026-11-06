@@ -63,7 +63,18 @@ class AsinhNumericalEncoder(nn.Module):
     def __init__(self, scale: Tensor, learnable: bool = False) -> None:
         super().__init__()
         scale = prepare_tensor_param(scale, name="scale")
-        self.scale: nn.Parameter = nn.Parameter(scale, requires_grad=learnable)
+        self.scale: Tensor
+        if learnable:
+            self.scale = nn.Parameter(scale)
+        else:
+            # Frozen values are buffers: they are saved in the state dict and moved with
+            # the module, but they are not returned by ``parameters()``.
+            self.register_buffer("scale", scale.detach().clone())
+
+    @property
+    def learnable(self) -> bool:
+        r"""Indicate if the scales are learnable."""
+        return isinstance(self.scale, nn.Parameter)
 
     @property
     def input_size(self) -> int:
@@ -76,7 +87,7 @@ class AsinhNumericalEncoder(nn.Module):
         return self.scale.shape[1]
 
     def extra_repr(self) -> str:
-        return f"scale={tuple(self.scale.shape)}, learnable={self.scale.requires_grad}"
+        return f"scale={tuple(self.scale.shape)}, learnable={self.learnable}"
 
     def forward(self, scalar: Tensor) -> Tensor:
         return scalar.unsqueeze(dim=-1).mul(self.scale).asinh()
