@@ -61,8 +61,8 @@
   (`register_buffer`), not `nn.Parameter(requires_grad=False)`.
 - Use `x is None` (not `x or default`) for optional modules and configs.
 - Keep new options keyword-only (`*`).
-- `torch` is a hard dependency; other libraries (`objectory`, ...) are optional and must be
-  imported through the `sonnix.utils.imports` helpers, not at module level in `src`.
+- `torch` is a hard dependency; other libraries (`numpy`, ...) are optional and must not be
+  imported at module level in `src` (guard the import with an availability helper).
 - Every function, public or private (leading underscore), needs a docstring and its own unit
   tests. Private functions are not exempt. An override that adds nothing to the docstring of the
   method it overrides (same behaviour, arguments and exceptions) has no docstring: it inherits the

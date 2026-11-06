@@ -46,7 +46,6 @@ dependencies = ["coola>=2.0.0a1,<3.0", "torch>=2.4,<3.0"]
 
 [project.optional-dependencies]
 numpy = ["numpy >=1.24,<3.0"]
-objectory = ["objectory >=0.3.0,<1.0"]
 
 [dependency-groups]
 dev = [
