@@ -30,20 +30,40 @@ def test_residual_block_skip() -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_residual_block_forward(device: str, batch_size: int, mode: bool) -> None:
+def test_residual_block_forward_shape(device: str, batch_size: int, mode: bool) -> None:
     device = torch.device(device)
     module = ResidualBlock(residual=nn.Linear(4, 4)).to(device=device)
     module.train(mode)
     out = module(torch.rand(batch_size, 4, device=device))
     assert out.shape == (batch_size, 4)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_residual_block_forward_device(device: str, batch_size: int, mode: bool) -> None:
+    device = torch.device(device)
+    module = ResidualBlock(residual=nn.Linear(4, 4)).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, 4, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_residual_block_forward_dtype(device: str, batch_size: int, mode: bool) -> None:
+    device = torch.device(device)
+    module = ResidualBlock(residual=nn.Linear(4, 4)).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, 4, device=device))
     assert out.dtype == torch.float
 
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_residual_block_forward_skip(device: str, batch_size: int, mode: bool) -> None:
+def test_residual_block_forward_skip_shape(device: str, batch_size: int, mode: bool) -> None:
     device = torch.device(device)
     module = ResidualBlock(
         residual=nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 4)), skip=nn.Linear(4, 4)
@@ -51,7 +71,31 @@ def test_residual_block_forward_skip(device: str, batch_size: int, mode: bool) -
     module.train(mode)
     out = module(torch.rand(batch_size, 4, device=device))
     assert out.shape == (batch_size, 4)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_residual_block_forward_skip_device(device: str, batch_size: int, mode: bool) -> None:
+    device = torch.device(device)
+    module = ResidualBlock(
+        residual=nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 4)), skip=nn.Linear(4, 4)
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, 4, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_residual_block_forward_skip_dtype(device: str, batch_size: int, mode: bool) -> None:
+    device = torch.device(device)
+    module = ResidualBlock(
+        residual=nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 4)), skip=nn.Linear(4, 4)
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, 4, device=device))
     assert out.dtype == torch.float
 
 
