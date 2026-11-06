@@ -85,9 +85,9 @@ repos:
           - tomli
   - repo: local
     hooks:
-      - id: ty
-        name: ty
-        entry: uv run ty check
+      - id: pyright
+        name: pyright
+        entry: uv run inv types.check
         language: system
         types: [python]
         pass_filenames: false

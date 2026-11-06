@@ -1,5 +1,5 @@
 # Type checking workflow.
-# Validates type annotations using pyright to ensure type safety.
+# Validates type annotations: pyright is blocking, ty is advisory.
 # Helps catch type-related bugs before runtime.
 
 name: Type Checking
@@ -23,7 +23,13 @@ jobs:
         with:
           install-args: "--groups dev,docs"
 
-      # Type-check the source code and the tests with pyright
-      - name: Check types
+      # pyright is the gate: it is stable, so a new release does not turn CI red by itself.
+      - name: Check types with pyright
         run: |
           inv types.check
+
+      # ty is pre-1.0, so it is advisory: a failure is reported but does not fail the workflow.
+      - name: Check types with ty (advisory)
+        continue-on-error: true
+        run: |
+          uv run ty check
