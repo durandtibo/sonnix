@@ -2,8 +2,6 @@ r"""Contain activation modules with a learnable parameter ``alpha``."""
 
 from __future__ import annotations
 
-from coola.validation import validate_finite, validate_ge, validate_int
-
 __all__ = [
     "BaseAlphaActivation",
     "ExpSin",
@@ -16,6 +14,7 @@ __all__ = [
 from typing import TYPE_CHECKING
 
 import torch
+from coola.validation import validate_finite, validate_ge, validate_int
 from torch import nn
 
 if TYPE_CHECKING:

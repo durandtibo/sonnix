@@ -3,11 +3,11 @@ r"""Contain the loss functions that use the inverse hyperbolic sine
 
 from __future__ import annotations
 
-from coola.validation import validate_ge
-
 __all__ = ["AsinhMSELoss", "AsinhSmoothL1Loss"]
 
 from typing import TYPE_CHECKING
+
+from coola.validation import validate_ge
 
 from sonnix.functional import asinh_mse_loss, asinh_smooth_l1_loss
 from sonnix.modules.loss.base import BaseLoss

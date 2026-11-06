@@ -3,11 +3,11 @@ function."""
 
 from __future__ import annotations
 
-from coola.validation import validate_gt
-
 __all__ = ["poisson_regression_loss"]
 
 from typing import TYPE_CHECKING
+
+from coola.validation import validate_gt
 
 from sonnix.functional.reduction import reduce_loss
 

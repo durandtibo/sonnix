@@ -3,12 +3,11 @@ r"""Contain the loss functions that use the inverse hyperbolic sine
 
 from __future__ import annotations
 
-from coola.validation import validate_ge
-
 __all__ = ["asinh_mse_loss", "asinh_smooth_l1_loss"]
 
 from typing import TYPE_CHECKING
 
+from coola.validation import validate_ge
 from torch.nn.functional import mse_loss, smooth_l1_loss
 
 from sonnix.functional.reduction import reduce_loss

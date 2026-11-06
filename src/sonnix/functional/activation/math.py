@@ -2,11 +2,11 @@ r"""Contain functional implementation of some activation layers."""
 
 from __future__ import annotations
 
-from coola.validation import validate_gt
-
 __all__ = ["safe_exp", "safe_log"]
 
 from typing import TYPE_CHECKING
+
+from coola.validation import validate_gt
 
 if TYPE_CHECKING:
     import torch
