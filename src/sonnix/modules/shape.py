@@ -2,7 +2,7 @@ r"""Contain ``torch.nn.Module``s to change tensor's shape."""
 
 from __future__ import annotations
 
-__all__ = ["Squeeze", "View"]
+__all__ = ["Squeeze"]
 
 
 import torch
@@ -53,38 +53,3 @@ class Squeeze(nn.Module):
         if self.dim is None:
             return input.squeeze()
         return input.squeeze(self.dim)
-
-
-class View(nn.Module):
-    r"""Implement a ``torch.nn.Module`` to return a new tensor with the
-    same data as the input tensor but of a different shape.
-
-    It uses ``torch.reshape``, so it also works with non-contiguous
-    inputs (the data are copied if needed).
-
-    Args:
-        shape: The desired shape.
-
-    Example:
-        ```pycon
-        >>> import torch
-        >>> from sonnix.modules import View
-        >>> m = View(shape=(-1, 2, 3))
-        >>> m
-        View(shape=(-1, 2, 3))
-        >>> out = m(torch.ones(4, 5, 2, 3))
-        >>> out.shape
-        torch.Size([20, 2, 3])
-
-        ```
-    """
-
-    def __init__(self, shape: tuple[int, ...] | list[int]) -> None:
-        super().__init__()
-        self.shape = tuple(shape)
-
-    def extra_repr(self) -> str:
-        return f"shape={self.shape}"
-
-    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.reshape(self.shape)

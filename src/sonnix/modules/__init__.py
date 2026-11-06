@@ -66,7 +66,6 @@ __all__ = [
     "ToFloat",
     "ToLong",
     "TransformedLoss",
-    "View",
 ]
 
 from sonnix.modules.activation.alpha import (
@@ -134,4 +133,4 @@ from sonnix.modules.numerical.sine import (
 )
 from sonnix.modules.residual import ResidualBlock
 from sonnix.modules.scale_and_shift import ScaleAndShift
-from sonnix.modules.shape import Squeeze, View
+from sonnix.modules.shape import Squeeze

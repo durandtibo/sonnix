@@ -14,7 +14,6 @@ Linear layers, residual blocks, normalization-like layers and shape/dtype helper
 | [`ToDtype`](#sonnix.modules.ToDtype)                       |
 | [`ToFloat`](#sonnix.modules.ToFloat)                       |
 | [`ToLong`](#sonnix.modules.ToLong)                         |
-| [`View`](#sonnix.modules.View)                             |
 
 ## ::: sonnix.modules.ExU
 
@@ -36,4 +35,3 @@ Linear layers, residual blocks, normalization-like layers and shape/dtype helper
 
 ## ::: sonnix.modules.ToLong
 
-## ::: sonnix.modules.View
