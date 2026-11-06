@@ -85,11 +85,27 @@ class ScaleAndShift(nn.Module):
         # can override ``reset_parameters`` with parameters that are not created yet.
         ScaleAndShift.reset_parameters(self)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def _affine(self, x: torch.Tensor) -> torch.Tensor:
+        r"""Apply the scale and the shift.
+
+        The subclasses call this method to apply the affine
+        transformation after their own nonlinearity, without calling
+        ``ScaleAndShift.forward`` explicitly.
+
+        Args:
+            x: The input tensor.
+
+        Returns:
+            The tensor ``x * weight + bias``, which has the same shape
+                as the input (``bias`` is skipped if there is none).
+        """
         out = x * self.weight
         if self.bias is not None:
             out = out + self.bias
         return out
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self._affine(x)
 
     def extra_repr(self) -> str:
         return f"normalized_shape={self.normalized_shape}, bias={self.bias is not None}"
