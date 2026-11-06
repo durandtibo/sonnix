@@ -6,32 +6,16 @@ __all__ = ["binary_focal_loss", "binary_focal_loss_with_logits"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_ge, validate_range
 from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_logits
 
 from sonnix.functional.power import safe_pow
 from sonnix.functional.reduction import reduce_loss
+from sonnix.validation import validate_focal_params
 
 if TYPE_CHECKING:
     import torch
 
     from sonnix.functional.reduction import Reduction
-
-
-def validate_focal_params(alpha: float | None, gamma: float) -> None:
-    r"""Check the parameters of the focal loss.
-
-    Args:
-        alpha: The weighting factor. It has to be in the range
-            ``[0, 1]``, or ``None`` to disable the weighting.
-        gamma: The focusing parameter. It has to be non-negative.
-
-    Raises:
-        ValueError: if one of the parameters is invalid.
-    """
-    if alpha is not None:
-        validate_range(alpha, 0, 1, name="alpha")
-    validate_ge(gamma, 0, name="gamma")
 
 
 def binary_focal_loss(
