@@ -51,6 +51,7 @@ class BaseDynamicNorm(nn.Module):
         self,
         normalized_shape: int | list[int] | tuple[int, ...],
         alpha_init_value: float = 0.5,
+        *,
         device: torch.device | None = None,
         dtype: torch.dtype | None = None,
     ) -> None:

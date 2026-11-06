@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 def safe_exp(
     input: torch.Tensor,  # noqa: A002
     max_val: float = 20.0,
+    *,
     preserve_gradient: bool = False,
 ) -> torch.Tensor:
     r"""Compute safely the exponential of the elements.
@@ -56,6 +57,7 @@ def safe_exp(
 def safe_log(
     input: torch.Tensor,  # noqa: A002
     min_val: float = 1e-8,
+    *,
     preserve_gradient: bool = False,
 ) -> torch.Tensor:
     r"""Compute safely the natural logarithm of the elements.

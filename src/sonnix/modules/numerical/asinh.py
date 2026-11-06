@@ -60,7 +60,7 @@ class AsinhNumericalEncoder(nn.Module):
         ```
     """
 
-    def __init__(self, scale: Tensor, learnable: bool = False) -> None:
+    def __init__(self, scale: Tensor, *, learnable: bool = False) -> None:
         super().__init__()
         scale = prepare_tensor_param(scale, name="scale")
         self.scale: Tensor

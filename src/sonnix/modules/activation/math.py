@@ -230,7 +230,7 @@ class SafeExp(nn.Module):
         ```
     """
 
-    def __init__(self, max_val: float = 20.0, preserve_gradient: bool = False) -> None:
+    def __init__(self, max_val: float = 20.0, *, preserve_gradient: bool = False) -> None:
         super().__init__()
         self.max_val = float(max_val)
         self.preserve_gradient = preserve_gradient
@@ -279,7 +279,7 @@ class SafeLog(nn.Module):
         ```
     """
 
-    def __init__(self, min_val: float = 1e-8, preserve_gradient: bool = False) -> None:
+    def __init__(self, min_val: float = 1e-8, *, preserve_gradient: bool = False) -> None:
         super().__init__()
         validate_gt(min_val, 0, name="min_val")
         self.min_val = float(min_val)

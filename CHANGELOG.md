@@ -30,3 +30,10 @@ All notable changes to this project are documented in this file. The package is 
   `feature_size`, like their representation.
 - The `prediction` and `target` arguments (and attributes) of `TransformedLoss` are now
   `prediction_transform` and `target_transform`.
+
+### Changed (keyword-only options)
+
+- The options are keyword-only: `preserve_gradient` (`safe_exp`, `safe_log`, `SafeExp`, `SafeLog`),
+  `bias` (`NLinear`, `ExU`), `device` and `dtype` (`NLinear`, `ExU`, `ScaleAndShift`, the dynamic
+  norms, the alpha activations), `learnable` (the alpha activations, the numerical encoders and their
+  `create_*` class methods). `SafeExp(20.0, True)` is now `SafeExp(20.0, preserve_gradient=True)`.
