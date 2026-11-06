@@ -32,10 +32,13 @@ def binary_poly1_loss(
         alpha: The weighting factor, which must be in the range
             ``[0, 1]``. This parameter is ignored if negative.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
 
     Returns:
         The computed Poly-1 loss value. The shape of the tensor depends
@@ -82,10 +85,13 @@ def binary_poly1_loss_with_logits(
         alpha: The weighting factor, which must be in the range
             ``[0, 1]``. This parameter is ignored if negative.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
 
     Returns:
         The computed Poly-1 loss value. The shape of the tensor depends

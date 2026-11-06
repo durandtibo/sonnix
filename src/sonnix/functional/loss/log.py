@@ -28,10 +28,13 @@ def log_cosh_loss(
         prediction: The predictions.
         target: The target values.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
         scale: The scale factor.
 
     Returns:
@@ -71,10 +74,13 @@ def msle_loss(
         prediction: The predictions.
         target: The target values.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
 
     Returns:
         The mean squared logarithmic error. The shape of
@@ -86,9 +92,9 @@ def msle_loss(
         >>> from sonnix.functional import msle_loss
         >>> loss = msle_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
         >>> loss
-        tensor(..., grad_fn=<MseLossBackward0>)
+        tensor(..., grad_fn=<MeanBackward0>)
         >>> loss.backward()
 
         ```
     """
-    return mse_loss(prediction.log1p(), target.log1p(), reduction=reduction)
+    return reduce_loss(mse_loss(prediction.log1p(), target.log1p(), reduction="none"), reduction)
