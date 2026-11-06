@@ -843,3 +843,23 @@ def test_cos_sin_numerical_encoder_create_device(spacing: str, device: str) -> N
     )
     assert module.frequency.device == torch.device(device)
     assert module.phase_shift.device == torch.device(device)
+
+
+def test_cos_sin_numerical_encoder_create_n_features_shape() -> None:
+    module = CosSinNumericalEncoder.create("linspace", 3, frequency_range=(0.2, 1), n_features=4)
+    assert module.frequency.shape == (4, 3)
+
+
+def test_cos_sin_numerical_encoder_create_n_features_phase_shift_shape() -> None:
+    module = CosSinNumericalEncoder.create("linspace", 3, frequency_range=(0.2, 1), n_features=4)
+    assert module.phase_shift.shape == (4, 3)
+
+
+def test_cos_sin_numerical_encoder_create_n_features_is_keyword_only() -> None:
+    with pytest.raises(TypeError, match=r"positional argument"):
+        CosSinNumericalEncoder.create("linspace", 3, (0.2, 1), 2)
+
+
+def test_cos_sin_numerical_encoder_create_n_features_invalid() -> None:
+    with pytest.raises(ValueError, match=r"n_features must be greater than or equal to 1"):
+        CosSinNumericalEncoder.create("linspace", 3, frequency_range=(0.2, 1), n_features=0)

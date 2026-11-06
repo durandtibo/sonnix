@@ -179,3 +179,106 @@ def test_asinh_numerical_encoder_scale_is_a_copy(learnable: bool) -> None:
     module = AsinhNumericalEncoder(scale, learnable=learnable)
     scale.add_(1.0)
     assert module.scale.equal(torch.tensor([[1.0, 2.0, 4.0]]))
+
+
+################################################
+#     Tests for AsinhNumericalEncoder.create     #
+################################################
+
+
+def test_asinh_numerical_encoder_create_linspace_scale_range() -> None:
+    module = AsinhNumericalEncoder.create("linspace", 3, scale_range=(0.2, 1))
+    assert module.scale.equal(torch.tensor([[0.2, 0.6, 1.0]]))
+
+
+def test_asinh_numerical_encoder_create_linspace_value_range() -> None:
+    module = AsinhNumericalEncoder.create("linspace", 3, value_range=(0.2, 1))
+    assert module.scale.equal(torch.tensor([[1.0, 3.0, 5.0]]))
+
+
+def test_asinh_numerical_encoder_create_logspace_scale_range() -> None:
+    module = AsinhNumericalEncoder.create("logspace", 3, scale_range=(0.01, 1))
+    assert module.scale.equal(torch.tensor([[0.01, 0.1, 1.0]]))
+
+
+def test_asinh_numerical_encoder_create_logspace_value_range() -> None:
+    module = AsinhNumericalEncoder.create("logspace", 3, value_range=(0.01, 1.0))
+    assert module.scale.equal(torch.tensor([[1.0, 10.0, 100.0]]))
+
+
+def test_asinh_numerical_encoder_create_rand_shape() -> None:
+    module = AsinhNumericalEncoder.create("rand", 5, scale_range=(0.2, 1), n_features=3)
+    assert module.scale.shape == (3, 5)
+
+
+def test_asinh_numerical_encoder_create_rand_in_range() -> None:
+    module = AsinhNumericalEncoder.create("rand", 50, scale_range=(0.2, 1), generator=3)
+    assert ((module.scale >= 0.2) & (module.scale <= 1.0)).all()
+
+
+def test_asinh_numerical_encoder_create_rand_same_seed() -> None:
+    assert AsinhNumericalEncoder.create("rand", 5, scale_range=(0.2, 1), generator=3).scale.equal(
+        AsinhNumericalEncoder.create("rand", 5, scale_range=(0.2, 1), generator=3).scale
+    )
+
+
+def test_asinh_numerical_encoder_create_n_features() -> None:
+    module = AsinhNumericalEncoder.create("linspace", 3, scale_range=(0.2, 1), n_features=2)
+    assert module.n_features == 2
+
+
+@pytest.mark.parametrize("learnable", [True, False])
+def test_asinh_numerical_encoder_create_learnable(learnable: bool) -> None:
+    module = AsinhNumericalEncoder.create("linspace", 3, scale_range=(0.2, 1), learnable=learnable)
+    assert module.learnable == learnable
+
+
+@pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
+def test_asinh_numerical_encoder_create_dtype(dtype: torch.dtype) -> None:
+    module = AsinhNumericalEncoder.create("linspace", 3, scale_range=(0.2, 1), dtype=dtype)
+    assert module.scale.dtype == dtype
+
+
+def test_asinh_numerical_encoder_create_forward() -> None:
+    module = AsinhNumericalEncoder.create("linspace", 3, scale_range=(1, 3), n_features=2)
+    assert module(torch.ones(4, 2)).shape == (4, 2, 3)
+
+
+def test_asinh_numerical_encoder_create_invalid_spacing() -> None:
+    with pytest.raises(ValueError, match=r"spacing"):
+        AsinhNumericalEncoder.create("incorrect", 3, scale_range=(0.2, 1))
+
+
+def test_asinh_numerical_encoder_create_no_range() -> None:
+    with pytest.raises(ValueError, match=r"Exactly one of 'scale_range' and 'value_range'"):
+        AsinhNumericalEncoder.create("linspace", 3)
+
+
+def test_asinh_numerical_encoder_create_two_ranges() -> None:
+    with pytest.raises(ValueError, match=r"Exactly one of 'scale_range' and 'value_range'"):
+        AsinhNumericalEncoder.create("linspace", 3, scale_range=(0.2, 1), value_range=(0.2, 1))
+
+
+def test_asinh_numerical_encoder_create_invalid_feature_size() -> None:
+    with pytest.raises(ValueError, match=r"feature_size must be greater than or equal to 1"):
+        AsinhNumericalEncoder.create("linspace", 0, scale_range=(0.2, 1))
+
+
+def test_asinh_numerical_encoder_create_non_positive_scale() -> None:
+    with pytest.raises(ValueError, match=r"min_scale must be greater than 0"):
+        AsinhNumericalEncoder.create("linspace", 3, scale_range=(0, 1))
+
+
+def test_asinh_numerical_encoder_create_invalid_scale_range() -> None:
+    with pytest.raises(ValueError, match=r"'max_scale' .* has to be greater than"):
+        AsinhNumericalEncoder.create("linspace", 3, scale_range=(1, 0.2))
+
+
+def test_asinh_numerical_encoder_create_invalid_value_range() -> None:
+    with pytest.raises(ValueError, match=r"'max_abs_value' .* has to be greater than"):
+        AsinhNumericalEncoder.create("linspace", 3, value_range=(1, 0.2))
+
+
+def test_asinh_numerical_encoder_create_invalid_n_features() -> None:
+    with pytest.raises(ValueError, match=r"n_features must be greater than or equal to 1"):
+        AsinhNumericalEncoder.create("linspace", 3, scale_range=(0.2, 1), n_features=0)
