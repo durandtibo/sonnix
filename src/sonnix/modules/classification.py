@@ -45,11 +45,11 @@ class ToBinaryLabel(nn.Module):
     def extra_repr(self) -> str:
         return f"threshold={self.threshold}"
 
-    def forward(self, scores: torch.Tensor) -> torch.Tensor:
+    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         r"""Compute binary labels from scores.
 
         Args:
-            scores: The scores used to compute the binary labels.
+            input: The scores used to compute the binary labels.
                 This input must be a ``torch.Tensor`` of type float
                 and shape ``(d0, d1, ..., dn)``
 
@@ -69,7 +69,7 @@ class ToBinaryLabel(nn.Module):
 
             ```
         """
-        return (scores > self.threshold).long()
+        return (input > self.threshold).long()
 
 
 class ToCategoricalLabel(nn.Module):
@@ -100,11 +100,11 @@ class ToCategoricalLabel(nn.Module):
     def extra_repr(self) -> str:
         return f"dim={self.dim}"
 
-    def forward(self, scores: torch.Tensor) -> torch.Tensor:
+    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         r"""Compute categorical labels from scores.
 
         Args:
-            scores: The scores used to compute the categorical labels.
+            input: The scores used to compute the categorical labels.
                 This input must be a ``torch.Tensor`` of type float
                 where the dimension ``dim`` has size ``num_classes``,
                 for example ``(d0, d1, ..., dn, num_classes)`` with
@@ -127,4 +127,4 @@ class ToCategoricalLabel(nn.Module):
 
             ```
         """
-        return scores.argmax(dim=self.dim, keepdim=False)
+        return input.argmax(dim=self.dim, keepdim=False)

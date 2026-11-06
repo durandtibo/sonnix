@@ -96,11 +96,11 @@ class NLinear(nn.Module):
         if self.bias is not None:
             init.uniform_(self.bias, -bound, bound)
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
         r"""Apply the ``n`` linear layers.
 
         Args:
-            x: The input tensor of shape ``(*, n, in_features)``.
+            input: The input tensor of shape ``(*, n, in_features)``.
 
         Returns:
             The output tensor of shape ``(*, n, out_features)``.
@@ -109,18 +109,18 @@ class NLinear(nn.Module):
             ValueError: if the input has less than 2 dimensions or if
                 its second to last dimension is not ``n``.
         """
-        if x.ndim < 2 or x.shape[-2] != self.n:
+        if input.ndim < 2 or input.shape[-2] != self.n:
             msg = (
                 f"Expected an input of shape (*, n={self.n}, in_features={self.in_features}) "
-                f"but received {tuple(x.shape)}"
+                f"but received {tuple(input.shape)}"
             )
             raise ValueError(msg)
-        shape = x.shape
-        x = x.reshape(-1, shape[-2], shape[-1]).transpose(0, 1)  # (n, batch, in)
-        x = torch.bmm(x, self.weight).transpose(0, 1)  # (batch, n, out)
+        shape = input.shape
+        out = input.reshape(-1, shape[-2], shape[-1]).transpose(0, 1)  # (n, batch, in)
+        out = torch.bmm(out, self.weight).transpose(0, 1)  # (batch, n, out)
         if self.bias is not None:
-            x = x + self.bias
-        return x.reshape(*shape[:-1], self.out_features)
+            out = out + self.bias
+        return out.reshape(*shape[:-1], self.out_features)
 
     def extra_repr(self) -> str:
         return (
