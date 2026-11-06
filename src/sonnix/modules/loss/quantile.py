@@ -5,15 +5,20 @@ from __future__ import annotations
 
 __all__ = ["QuantileRegressionLoss"]
 
-import torch
+from typing import TYPE_CHECKING
+
 from coola.validation import validate_range
-from torch import nn
 
 from sonnix.functional.loss import quantile_regression_loss
-from sonnix.functional.reduction import check_loss_reduction_strategy
+from sonnix.modules.loss.base import BaseLoss
+
+if TYPE_CHECKING:
+    import torch
+
+    from sonnix.functional.reduction import Reduction
 
 
-class QuantileRegressionLoss(nn.Module):
+class QuantileRegressionLoss(BaseLoss):
     r"""Implement a loss module that computes the quantile regression
     loss.
 
@@ -47,10 +52,8 @@ class QuantileRegressionLoss(nn.Module):
         ```
     """
 
-    def __init__(self, q: float = 0.5, *, reduction: str = "mean") -> None:
-        super().__init__()
-        check_loss_reduction_strategy(reduction)
-        self.reduction = reduction
+    def __init__(self, q: float = 0.5, *, reduction: Reduction = "mean") -> None:
+        super().__init__(reduction=reduction)
         validate_range(q, 0.0, 1.0, name="q")
         self._q = float(q)
 

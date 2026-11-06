@@ -14,9 +14,11 @@ from sonnix.functional.reduction import reduce_loss
 if TYPE_CHECKING:
     import torch
 
+    from sonnix.functional.reduction import Reduction
+
 
 def asinh_mse_loss(
-    prediction: torch.Tensor, target: torch.Tensor, *, reduction: str = "mean"
+    prediction: torch.Tensor, target: torch.Tensor, *, reduction: Reduction = "mean"
 ) -> torch.Tensor:
     r"""Compute the mean squared error (MSE) on the inverse hyperbolic
     sine (asinh) transformed predictions and targets.
@@ -57,7 +59,11 @@ def asinh_mse_loss(
 
 
 def asinh_smooth_l1_loss(
-    prediction: torch.Tensor, target: torch.Tensor, beta: float = 1.0, *, reduction: str = "mean"
+    prediction: torch.Tensor,
+    target: torch.Tensor,
+    beta: float = 1.0,
+    *,
+    reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the smooth L1 loss on the inverse hyperbolic sine (asinh)
     transformed predictions and targets.

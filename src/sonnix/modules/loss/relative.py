@@ -9,15 +9,17 @@ from typing import TYPE_CHECKING, Any
 import torch
 from torch import nn
 
-from sonnix.functional import check_loss_reduction_strategy, relative_loss
+from sonnix.functional import relative_loss
+from sonnix.modules.loss.base import BaseLoss
 from sonnix.modules.loss.indicators import ClassicalRelativeIndicator
 from sonnix.utils.factory import resolve_module
 
 if TYPE_CHECKING:
+    from sonnix.functional.reduction import Reduction
     from sonnix.modules.loss import BaseRelativeIndicator
 
 
-class RelativeLoss(nn.Module):
+class RelativeLoss(BaseLoss):
     r"""Implement a "generic" relative loss that takes as input a
     criterion.
 
@@ -74,17 +76,15 @@ class RelativeLoss(nn.Module):
         indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
         eps: float = 1e-8,
         *,
-        reduction: str = "mean",
+        reduction: Reduction = "mean",
         detach_indicator: bool = False,
     ) -> None:
-        super().__init__()
+        super().__init__(reduction=reduction)
         self.criterion: nn.Module = resolve_module(criterion)
         self.indicator: nn.Module = resolve_module(
             ClassicalRelativeIndicator() if indicator is None else indicator
         )
 
-        check_loss_reduction_strategy(reduction)
-        self.reduction = reduction
         self._eps = eps
         self._detach_indicator = bool(detach_indicator)
 
@@ -153,7 +153,7 @@ class RelativeMSELoss(RelativeLoss):
         indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
         eps: float = 1e-8,
         *,
-        reduction: str = "mean",
+        reduction: Reduction = "mean",
         detach_indicator: bool = False,
     ) -> None:
         super().__init__(
@@ -216,7 +216,7 @@ class RelativeSmoothL1Loss(RelativeLoss):
         indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
         eps: float = 1e-8,
         *,
-        reduction: str = "mean",
+        reduction: Reduction = "mean",
         detach_indicator: bool = False,
         beta: float = 1.0,
     ) -> None:

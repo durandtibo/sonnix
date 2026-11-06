@@ -4,7 +4,6 @@ from __future__ import annotations
 
 __all__ = ["binary_focal_loss", "binary_focal_loss_with_logits"]
 
-
 from typing import TYPE_CHECKING
 
 from coola.validation import validate_ge, validate_range
@@ -14,6 +13,8 @@ from sonnix.functional.reduction import reduce_loss
 
 if TYPE_CHECKING:
     import torch
+
+    from sonnix.functional.reduction import Reduction
 
 
 def validate_focal_params(alpha: float | None, gamma: float) -> None:
@@ -38,7 +39,7 @@ def binary_focal_loss(
     alpha: float | None = 0.25,
     gamma: float = 2.0,
     *,
-    reduction: str = "mean",
+    reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the binary focal loss.
 
@@ -106,7 +107,7 @@ def binary_focal_loss_with_logits(
     alpha: float | None = 0.25,
     gamma: float = 2.0,
     *,
-    reduction: str = "mean",
+    reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the binary focal loss.
 

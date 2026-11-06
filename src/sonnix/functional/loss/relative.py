@@ -13,11 +13,15 @@ __all__ = [
     "reversed_relative_indicator",
 ]
 
+from typing import TYPE_CHECKING
 
 import torch
 from coola.validation import validate_ge
 
 from sonnix.functional.reduction import reduce_loss
+
+if TYPE_CHECKING:
+    from sonnix.functional.reduction import Reduction
 
 
 def relative_loss(
@@ -25,7 +29,7 @@ def relative_loss(
     indicator: torch.Tensor,
     eps: float = 1e-8,
     *,
-    reduction: str = "mean",
+    reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the relative loss.
 

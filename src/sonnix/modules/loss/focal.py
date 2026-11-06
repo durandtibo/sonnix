@@ -4,18 +4,22 @@ from __future__ import annotations
 
 __all__ = ["BinaryFocalLoss", "BinaryFocalLossWithLogits"]
 
-import torch
-from torch import nn
+from typing import TYPE_CHECKING
 
 from sonnix.functional import (
     binary_focal_loss,
     binary_focal_loss_with_logits,
-    check_loss_reduction_strategy,
 )
 from sonnix.functional.loss.focal import validate_focal_params
+from sonnix.modules.loss.base import BaseLoss
+
+if TYPE_CHECKING:
+    import torch
+
+    from sonnix.functional.reduction import Reduction
 
 
-class BinaryFocalLoss(nn.Module):
+class BinaryFocalLoss(BaseLoss):
     r"""Implementation of the binary focal loss.
 
     Based on "focal loss for Dense Object Detection"
@@ -57,15 +61,12 @@ class BinaryFocalLoss(nn.Module):
     """
 
     def __init__(
-        self, alpha: float | None = 0.25, gamma: float = 2.0, *, reduction: str = "mean"
+        self, alpha: float | None = 0.25, gamma: float = 2.0, *, reduction: Reduction = "mean"
     ) -> None:
-        super().__init__()
+        super().__init__(reduction=reduction)
         validate_focal_params(alpha=alpha, gamma=gamma)
         self._alpha = None if alpha is None else float(alpha)
         self._gamma = float(gamma)
-
-        check_loss_reduction_strategy(reduction)
-        self.reduction = reduction
 
     def extra_repr(self) -> str:
         return f"alpha={self._alpha}, gamma={self._gamma}, reduction={self.reduction}"
@@ -97,7 +98,7 @@ class BinaryFocalLoss(nn.Module):
         )
 
 
-class BinaryFocalLossWithLogits(nn.Module):
+class BinaryFocalLossWithLogits(BaseLoss):
     r"""Implementation of the binary focal loss.
 
     Based on "focal loss for Dense Object Detection"
@@ -139,15 +140,12 @@ class BinaryFocalLossWithLogits(nn.Module):
     """
 
     def __init__(
-        self, alpha: float | None = 0.25, gamma: float = 2.0, *, reduction: str = "mean"
+        self, alpha: float | None = 0.25, gamma: float = 2.0, *, reduction: Reduction = "mean"
     ) -> None:
-        super().__init__()
+        super().__init__(reduction=reduction)
         validate_focal_params(alpha=alpha, gamma=gamma)
         self._alpha = None if alpha is None else float(alpha)
         self._gamma = float(gamma)
-
-        check_loss_reduction_strategy(reduction)
-        self.reduction = reduction
 
     def extra_repr(self) -> str:
         return f"alpha={self._alpha}, gamma={self._gamma}, reduction={self.reduction}"

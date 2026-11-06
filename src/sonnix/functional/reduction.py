@@ -2,16 +2,19 @@ r"""Contain loss reduction functions."""
 
 from __future__ import annotations
 
-__all__ = ["check_loss_reduction_strategy", "reduce_loss"]
+__all__ = ["Reduction", "check_loss_reduction_strategy", "reduce_loss"]
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, get_args
 
 from coola.validation import validate_in
 
 if TYPE_CHECKING:
     from torch import Tensor
 
-VALID_REDUCTIONS = ("none", "mean", "sum", "batchmean")
+Reduction = Literal["none", "mean", "sum", "batchmean"]
+r"""The valid loss reduction strategies."""
+
+VALID_REDUCTIONS: tuple[str, ...] = get_args(Reduction)
 
 
 def check_loss_reduction_strategy(reduction: str) -> None:
@@ -36,7 +39,7 @@ def check_loss_reduction_strategy(reduction: str) -> None:
     validate_in(reduction, VALID_REDUCTIONS, name="reduction")
 
 
-def reduce_loss(tensor: Tensor, reduction: str) -> Tensor:
+def reduce_loss(tensor: Tensor, reduction: Reduction) -> Tensor:
     r"""Return the reduced loss.
 
     This function is designed to be used with loss functions.

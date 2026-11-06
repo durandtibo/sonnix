@@ -9,6 +9,7 @@ module objects.
 from __future__ import annotations
 
 __all__ = [
+    "Reduction",
     "absolute_error",
     "absolute_relative_error",
     "arithmetical_mean_indicator",
@@ -64,4 +65,4 @@ from sonnix.functional.loss.relative import (
     relative_loss,
     reversed_relative_indicator,
 )
-from sonnix.functional.reduction import check_loss_reduction_strategy, reduce_loss
+from sonnix.functional.reduction import Reduction, check_loss_reduction_strategy, reduce_loss

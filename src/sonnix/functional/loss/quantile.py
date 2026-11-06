@@ -14,9 +14,11 @@ from sonnix.functional.reduction import reduce_loss
 if TYPE_CHECKING:
     import torch
 
+    from sonnix.functional.reduction import Reduction
+
 
 def quantile_regression_loss(
-    prediction: torch.Tensor, target: torch.Tensor, q: float = 0.5, *, reduction: str = "mean"
+    prediction: torch.Tensor, target: torch.Tensor, q: float = 0.5, *, reduction: Reduction = "mean"
 ) -> torch.Tensor:
     r"""Compute the quantile regression loss.
 

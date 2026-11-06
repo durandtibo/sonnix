@@ -4,17 +4,21 @@ from __future__ import annotations
 
 __all__ = ["BinaryPoly1Loss", "BinaryPoly1LossWithLogits"]
 
-import torch
-from torch import nn
+from typing import TYPE_CHECKING
 
 from sonnix.functional import (
     binary_poly1_loss,
     binary_poly1_loss_with_logits,
-    check_loss_reduction_strategy,
 )
+from sonnix.modules.loss.base import BaseLoss
+
+if TYPE_CHECKING:
+    import torch
+
+    from sonnix.functional.reduction import Reduction
 
 
-class BinaryPoly1Loss(nn.Module):
+class BinaryPoly1Loss(BaseLoss):
     r"""Implementation of the binary Poly-1 loss for binary targets.
 
     Based on "PolyLoss: A Polynomial Expansion Perspective of
@@ -55,12 +59,9 @@ class BinaryPoly1Loss(nn.Module):
         ```
     """
 
-    def __init__(self, alpha: float = 1.0, *, reduction: str = "mean") -> None:
-        super().__init__()
+    def __init__(self, alpha: float = 1.0, *, reduction: Reduction = "mean") -> None:
+        super().__init__(reduction=reduction)
         self._alpha = float(alpha)
-
-        check_loss_reduction_strategy(reduction)
-        self.reduction = reduction
 
     def extra_repr(self) -> str:
         return f"alpha={self._alpha}, reduction={self.reduction}"
@@ -91,7 +92,7 @@ class BinaryPoly1Loss(nn.Module):
         )
 
 
-class BinaryPoly1LossWithLogits(nn.Module):
+class BinaryPoly1LossWithLogits(BaseLoss):
     r"""Implementation of the binary Poly-1 loss for binary targets.
 
     Based on "PolyLoss: A Polynomial Expansion Perspective of
@@ -132,12 +133,9 @@ class BinaryPoly1LossWithLogits(nn.Module):
         ```
     """
 
-    def __init__(self, alpha: float = 1.0, *, reduction: str = "mean") -> None:
-        super().__init__()
+    def __init__(self, alpha: float = 1.0, *, reduction: Reduction = "mean") -> None:
+        super().__init__(reduction=reduction)
         self._alpha = float(alpha)
-
-        check_loss_reduction_strategy(reduction)
-        self.reduction = reduction
 
     def extra_repr(self) -> str:
         return f"alpha={self._alpha}, reduction={self.reduction}"

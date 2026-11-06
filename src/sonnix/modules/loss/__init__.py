@@ -6,6 +6,7 @@ __all__ = [
     "ArithmeticalMeanIndicator",
     "AsinhMSELoss",
     "AsinhSmoothL1Loss",
+    "BaseLoss",
     "BaseRelativeIndicator",
     "BinaryFocalLoss",
     "BinaryFocalLossWithLogits",
@@ -27,6 +28,7 @@ __all__ = [
 ]
 
 from sonnix.modules.loss.asinh import AsinhMSELoss, AsinhSmoothL1Loss
+from sonnix.modules.loss.base import BaseLoss
 from sonnix.modules.loss.focal import BinaryFocalLoss, BinaryFocalLossWithLogits
 from sonnix.modules.loss.general_robust import GeneralRobustRegressionLoss
 from sonnix.modules.loss.indicators import (

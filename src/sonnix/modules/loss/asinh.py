@@ -5,14 +5,18 @@ from __future__ import annotations
 
 __all__ = ["AsinhMSELoss", "AsinhSmoothL1Loss"]
 
-import torch
-from torch import nn
+from typing import TYPE_CHECKING
 
-from sonnix.functional import check_loss_reduction_strategy
 from sonnix.functional.loss.asinh import asinh_mse_loss, asinh_smooth_l1_loss
+from sonnix.modules.loss.base import BaseLoss
+
+if TYPE_CHECKING:
+    import torch
+
+    from sonnix.functional.reduction import Reduction
 
 
-class AsinhMSELoss(nn.Module):
+class AsinhMSELoss(BaseLoss):
     r"""Implement a loss module that computes the mean squared error
     (MSE) on the inverse hyperbolic sine (asinh) transformed predictions
     and targets.
@@ -46,10 +50,8 @@ class AsinhMSELoss(nn.Module):
         ```
     """
 
-    def __init__(self, *, reduction: str = "mean") -> None:
-        super().__init__()
-        check_loss_reduction_strategy(reduction)
-        self.reduction = reduction
+    def __init__(self, *, reduction: Reduction = "mean") -> None:
+        super().__init__(reduction=reduction)
 
     def extra_repr(self) -> str:
         return f"reduction={self.reduction}"
@@ -58,7 +60,7 @@ class AsinhMSELoss(nn.Module):
         return asinh_mse_loss(prediction, target, reduction=self.reduction)
 
 
-class AsinhSmoothL1Loss(nn.Module):
+class AsinhSmoothL1Loss(BaseLoss):
     r"""Implement a loss module that computes the smooth L1 loss on the
     inverse hyperbolic sine (asinh) transformed predictions and targets.
 
@@ -93,10 +95,8 @@ class AsinhSmoothL1Loss(nn.Module):
         ```
     """
 
-    def __init__(self, beta: float = 1.0, *, reduction: str = "mean") -> None:
-        super().__init__()
-        check_loss_reduction_strategy(reduction)
-        self.reduction = reduction
+    def __init__(self, beta: float = 1.0, *, reduction: Reduction = "mean") -> None:
+        super().__init__(reduction=reduction)
         self._beta = float(beta)
 
     def extra_repr(self) -> str:

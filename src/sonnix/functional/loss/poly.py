@@ -4,7 +4,6 @@ from __future__ import annotations
 
 __all__ = ["binary_poly1_loss", "binary_poly1_loss_with_logits"]
 
-
 from typing import TYPE_CHECKING
 
 from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_logits
@@ -14,13 +13,15 @@ from sonnix.functional.reduction import reduce_loss
 if TYPE_CHECKING:
     import torch
 
+    from sonnix.functional.reduction import Reduction
+
 
 def binary_poly1_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
     alpha: float = 1.0,
     *,
-    reduction: str = "mean",
+    reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the Poly-1 loss for binary targets.
 
@@ -80,7 +81,7 @@ def binary_poly1_loss_with_logits(
     target: torch.Tensor,
     alpha: float = 1.0,
     *,
-    reduction: str = "mean",
+    reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the Poly-1 loss.
 

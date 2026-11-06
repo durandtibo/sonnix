@@ -5,14 +5,18 @@ from __future__ import annotations
 
 __all__ = ["PoissonRegressionLoss"]
 
-import torch
-from torch import nn
+from typing import TYPE_CHECKING
 
 from sonnix.functional.loss import poisson_regression_loss
-from sonnix.functional.reduction import check_loss_reduction_strategy
+from sonnix.modules.loss.base import BaseLoss
+
+if TYPE_CHECKING:
+    import torch
+
+    from sonnix.functional.reduction import Reduction
 
 
-class PoissonRegressionLoss(nn.Module):
+class PoissonRegressionLoss(BaseLoss):
     r"""Implement a loss module that computes the Poisson regression
     loss.
 
@@ -46,10 +50,8 @@ class PoissonRegressionLoss(nn.Module):
         ```
     """
 
-    def __init__(self, eps: float = 1e-8, *, reduction: str = "mean") -> None:
-        super().__init__()
-        check_loss_reduction_strategy(reduction)
-        self.reduction = reduction
+    def __init__(self, eps: float = 1e-8, *, reduction: Reduction = "mean") -> None:
+        super().__init__(reduction=reduction)
         self._eps = float(eps)
 
     def extra_repr(self) -> str:

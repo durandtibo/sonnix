@@ -15,13 +15,15 @@ from sonnix.functional.reduction import reduce_loss
 if TYPE_CHECKING:
     import torch
 
+    from sonnix.functional.reduction import Reduction
+
 
 def log_cosh_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
     scale: float = 1.0,
     *,
-    reduction: str = "mean",
+    reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the logarithm of the hyperbolic cosine of the prediction
     error.
@@ -63,7 +65,7 @@ def log_cosh_loss(
 
 
 def msle_loss(
-    prediction: torch.Tensor, target: torch.Tensor, *, reduction: str = "mean"
+    prediction: torch.Tensor, target: torch.Tensor, *, reduction: Reduction = "mean"
 ) -> torch.Tensor:
     r"""Compute the mean squared error (MSE) on the logarithmic
     transformed predictions and targets.
