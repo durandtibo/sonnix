@@ -356,3 +356,8 @@ def test_piecewise_linear_numerical_encoder_duplicate_edges_values_are_bounded()
     with pytest.warns(UserWarning, match=r"duplicate edges"):
         module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0, 1.0, 1.0]]))
     assert module(torch.tensor([[-100.0], [100.0]])).abs().max() <= 1.0
+
+
+def test_piecewise_linear_numerical_encoder_is_step_not_in_state_dict() -> None:
+    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 1.0, 2.0]]))
+    assert sorted(module.state_dict().keys()) == ["edges", "width"]

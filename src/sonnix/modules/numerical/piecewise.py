@@ -98,7 +98,7 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         else:
             is_duplicate = torch.zeros_like(is_duplicate)
         width[width == 0] = 1.0
-        self.register_buffer("is_step", is_duplicate)
+        self.register_buffer("is_step", is_duplicate, persistent=False)
         self.register_buffer("width", width)
 
     @property
