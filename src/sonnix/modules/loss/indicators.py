@@ -13,6 +13,7 @@ __all__ = [
     "ReversedRelativeIndicator",
 ]
 
+from abc import ABC, abstractmethod
 
 import torch
 from torch import nn
@@ -29,7 +30,7 @@ from sonnix.functional.loss.relative import (
 )
 
 
-class BaseRelativeIndicator(nn.Module):
+class BaseRelativeIndicator(nn.Module, ABC):
     r"""Define the base class to implement a relative indicator function.
 
     The indicators are designed based on
@@ -55,6 +56,7 @@ class BaseRelativeIndicator(nn.Module):
         ```
     """
 
+    @abstractmethod
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         r"""Return the indicator values.
 
@@ -65,7 +67,6 @@ class BaseRelativeIndicator(nn.Module):
         Returns:
             The indicator values.
         """
-        raise NotImplementedError
 
 
 class ArithmeticalMeanIndicator(BaseRelativeIndicator):

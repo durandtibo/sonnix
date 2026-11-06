@@ -316,3 +316,66 @@ def test_relative_loss_empty_sequential_indicator_is_kept() -> None:
     indicator = nn.Sequential()
     module = RelativeLoss(criterion=nn.MSELoss(), indicator=indicator)
     assert module.indicator is indicator
+
+
+###############################################
+#     Tests for detach_indicator and beta     #
+###############################################
+
+
+def test_relative_loss_detach_indicator_false_gradient_flows_through_indicator() -> None:
+    prediction = torch.tensor([[2.0, 4.0]], requires_grad=True)
+    target = torch.zeros(1, 2)
+    module = RelativeLoss(
+        criterion=nn.L1Loss(reduction="none"),
+        indicator=ReversedRelativeIndicator(),
+        reduction="sum",
+    )
+    module(prediction, target).backward()
+    # loss / indicator is constant (1) so the gradient is zero when the indicator is not detached.
+    assert prediction.grad.allclose(torch.zeros(1, 2))
+
+
+def test_relative_loss_detach_indicator_true_gradient_ignores_indicator() -> None:
+    prediction = torch.tensor([[2.0, 4.0]], requires_grad=True)
+    target = torch.zeros(1, 2)
+    module = RelativeLoss(
+        criterion=nn.L1Loss(reduction="none"),
+        indicator=ReversedRelativeIndicator(),
+        reduction="sum",
+        detach_indicator=True,
+    )
+    module(prediction, target).backward()
+    assert prediction.grad.allclose(torch.tensor([[0.5, 0.25]]))
+
+
+def test_relative_mse_loss_detach_indicator_true() -> None:
+    prediction = torch.tensor([[2.0, 4.0]], requires_grad=True)
+    module = RelativeMSELoss(
+        indicator=ReversedRelativeIndicator(), reduction="sum", detach_indicator=True
+    )
+    module(prediction, torch.zeros(1, 2)).backward()
+    assert prediction.grad.allclose(torch.tensor([[2.0, 2.0]]))
+
+
+def test_relative_smooth_l1_loss_detach_indicator_true() -> None:
+    prediction = torch.tensor([[2.0, 4.0]], requires_grad=True)
+    module = RelativeSmoothL1Loss(
+        indicator=ReversedRelativeIndicator(), reduction="sum", detach_indicator=True
+    )
+    module(prediction, torch.zeros(1, 2)).backward()
+    assert prediction.grad.allclose(torch.tensor([[0.5, 0.25]]))
+
+
+def test_relative_smooth_l1_loss_beta_default() -> None:
+    module = RelativeSmoothL1Loss(reduction="none")
+    out = module(torch.tensor([[1.5, 3.0]]), torch.ones(1, 2))
+    # smooth_l1 is 0.5 * 0.5**2 and 2 - 0.5; the classical indicator is |target| = 1.
+    assert out.allclose(torch.tensor([[0.125, 1.5]]))
+
+
+def test_relative_smooth_l1_loss_beta() -> None:
+    module = RelativeSmoothL1Loss(reduction="none", beta=4.0)
+    out = module(torch.tensor([[1.5, 3.0]]), torch.ones(1, 2))
+    # smooth_l1 is 0.5 * x**2 / 4 and the classical indicator is |target| = 1.
+    assert out.allclose(torch.tensor([[0.03125, 0.5]]))
