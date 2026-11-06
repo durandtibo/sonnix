@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+
 import pytest
 from torch import nn
 
@@ -10,50 +12,58 @@ from sonnix.utils.mode import module_mode, top_module_mode
 #################################
 
 
-def test_module_mode_train() -> None:
-    module = nn.ModuleDict({"module1": nn.Linear(4, 6), "module2": nn.Linear(2, 4).eval()})
-    assert module.training
-    assert module["module1"].training
-    assert not module["module2"].training
+def _states(module: nn.ModuleDict) -> tuple[bool, bool, bool]:
+    return (module.training, module["module1"].training, module["module2"].training)
+
+
+def _make_module() -> nn.ModuleDict:
+    return nn.ModuleDict({"module1": nn.Linear(4, 6), "module2": nn.Linear(2, 4).eval()})
+
+
+def test_module_mode_train_inside() -> None:
+    module = _make_module()
     with module_mode(module):
         module.train()
-        assert module.training
-        assert module["module1"].training
-        assert module["module2"].training
-    assert module.training
-    assert module["module1"].training
-    assert not module["module2"].training
+        states = _states(module)
+    assert states == (True, True, True)
 
 
-def test_module_mode_eval() -> None:
-    module = nn.ModuleDict({"module1": nn.Linear(4, 6), "module2": nn.Linear(2, 4).eval()})
-    assert module.training
-    assert module["module1"].training
-    assert not module["module2"].training
+def test_module_mode_train_restored() -> None:
+    module = _make_module()
+    with module_mode(module):
+        module.train()
+    assert _states(module) == (True, True, False)
+
+
+def test_module_mode_eval_inside() -> None:
+    module = _make_module()
     with module_mode(module):
         module.eval()
-        assert not module.training
-        assert not module["module1"].training
-        assert not module["module2"].training
-    assert module.training
-    assert module["module1"].training
-    assert not module["module2"].training
+        states = _states(module)
+    assert states == (False, False, False)
 
 
-def test_module_mode_with_exception() -> None:
-    module = nn.ModuleDict({"module1": nn.Linear(4, 6), "module2": nn.Linear(2, 4).eval()})
-    assert module.training
-    with pytest.raises(RuntimeError, match=r"Exception"), module_mode(module):  # noqa: PT012
+def test_module_mode_eval_restored() -> None:
+    module = _make_module()
+    with module_mode(module):
         module.eval()
-        assert not module.training
-        assert not module["module1"].training
-        assert not module["module2"].training
-        msg = "Exception"
-        raise RuntimeError(msg)
+    assert _states(module) == (True, True, False)
 
-    assert module.training
-    assert module["module1"].training
-    assert not module["module2"].training
+
+def test_module_mode_with_exception_raises() -> None:
+    module = _make_module()
+    error = RuntimeError("Exception")
+    with pytest.raises(RuntimeError, match=r"Exception"), module_mode(module):
+        raise error
+
+
+def test_module_mode_with_exception_restored() -> None:
+    module = _make_module()
+    error = RuntimeError("Exception")
+    with contextlib.suppress(RuntimeError), module_mode(module):
+        module.eval()
+        raise error
+    assert _states(module) == (True, True, False)
 
 
 #####################################
@@ -61,33 +71,49 @@ def test_module_mode_with_exception() -> None:
 #####################################
 
 
-def test_top_module_mode_train() -> None:
+def test_top_module_mode_train_inside() -> None:
     module = nn.Linear(4, 6)
-    assert module.training
     with top_module_mode(module):
         module.eval()
-        assert not module.training
+        training = module.training
+    assert not training
+
+
+def test_top_module_mode_train_restored() -> None:
+    module = nn.Linear(4, 6)
+    with top_module_mode(module):
+        module.eval()
     assert module.training
 
 
-def test_top_module_mode_eval() -> None:
-    module = nn.Linear(4, 6)
-    module.eval()
-    assert not module.training
+def test_top_module_mode_eval_inside() -> None:
+    module = nn.Linear(4, 6).eval()
     with top_module_mode(module):
         module.train()
-        assert module.training
+        training = module.training
+    assert training
+
+
+def test_top_module_mode_eval_restored() -> None:
+    module = nn.Linear(4, 6).eval()
+    with top_module_mode(module):
+        module.train()
     assert not module.training
 
 
-def test_top_module_mode_with_exception() -> None:
+def test_top_module_mode_with_exception_raises() -> None:
     module = nn.Linear(4, 6)
-    assert module.training
-    with pytest.raises(RuntimeError, match=r"Exception"), top_module_mode(module):  # noqa: PT012
+    error = RuntimeError("Exception")
+    with pytest.raises(RuntimeError, match=r"Exception"), top_module_mode(module):
+        raise error
+
+
+def test_top_module_mode_with_exception_restored() -> None:
+    module = nn.Linear(4, 6)
+    error = RuntimeError("Exception")
+    with contextlib.suppress(RuntimeError), top_module_mode(module):
         module.eval()
-        assert not module.training
-        msg = "Exception"
-        raise RuntimeError(msg)
+        raise error
     assert module.training
 
 
