@@ -25,7 +25,7 @@ We actively welcome your pull requests.
    ```
 5. Make sure your code lints. The following commands can help you to format the code:
    ```shell
-   black .
+   inv format.fix-python
    pre-commit run --all-files
    ```
 
