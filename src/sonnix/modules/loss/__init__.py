@@ -6,6 +6,8 @@ __all__ = [
     "ArithmeticalMeanIndicator",
     "AsinhMSELoss",
     "AsinhSmoothL1Loss",
+    "BaseBinaryFocalLoss",
+    "BaseBinaryPoly1Loss",
     "BaseLoss",
     "BaseRelativeIndicator",
     "BinaryFocalLoss",
@@ -29,7 +31,11 @@ __all__ = [
 
 from sonnix.modules.loss.asinh import AsinhMSELoss, AsinhSmoothL1Loss
 from sonnix.modules.loss.base import BaseLoss
-from sonnix.modules.loss.focal import BinaryFocalLoss, BinaryFocalLossWithLogits
+from sonnix.modules.loss.focal import (
+    BaseBinaryFocalLoss,
+    BinaryFocalLoss,
+    BinaryFocalLossWithLogits,
+)
 from sonnix.modules.loss.general_robust import GeneralRobustRegressionLoss
 from sonnix.modules.loss.indicators import (
     ArithmeticalMeanIndicator,
@@ -42,7 +48,11 @@ from sonnix.modules.loss.indicators import (
     ReversedRelativeIndicator,
 )
 from sonnix.modules.loss.poisson import PoissonRegressionLoss
-from sonnix.modules.loss.poly import BinaryPoly1Loss, BinaryPoly1LossWithLogits
+from sonnix.modules.loss.poly import (
+    BaseBinaryPoly1Loss,
+    BinaryPoly1Loss,
+    BinaryPoly1LossWithLogits,
+)
 from sonnix.modules.loss.quantile import QuantileRegressionLoss
 from sonnix.modules.loss.relative import (
     RelativeLoss,
