@@ -396,3 +396,14 @@ def test_relative_mse_loss_invalid_eps(eps: float) -> None:
 def test_relative_smooth_l1_loss_invalid_beta() -> None:
     with pytest.raises(ValueError, match=r"beta must be greater than or equal to 0"):
         RelativeSmoothL1Loss(beta=-1.0)
+
+
+def test_relative_smooth_l1_loss_beta_attribute() -> None:
+    assert RelativeSmoothL1Loss(beta=4).beta == 4.0
+
+
+def test_relative_smooth_l1_loss_extra_repr() -> None:
+    assert (
+        RelativeSmoothL1Loss(beta=4.0).extra_repr()
+        == "eps=1e-08, reduction=mean, detach_indicator=False, beta=4.0"
+    )

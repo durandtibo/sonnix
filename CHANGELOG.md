@@ -14,3 +14,7 @@ All notable changes to this project are documented in this file. The package is 
   `DynamicTanh.alpha_init_value`, `MomentMeanIndicator.k`, and the `alpha`, `gamma`, `beta`, `q`,
   `eps`, `scale`, `max_val`, `detach_indicator` attributes of the losses). The previous private
   attributes (`_max`, `_alpha`, ...) are removed.
+
+### Fixed
+
+- `RelativeSmoothL1Loss` stores `beta` and shows it in its representation.
