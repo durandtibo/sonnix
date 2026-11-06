@@ -7,6 +7,11 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- Remove `View` (it reshaped the batch dimension too, so it only worked for one batch size): use `nn.Flatten`,
+  `nn.Unflatten` or `x.reshape` in the model. The alpha activations validate `init` in an overridable
+  `_validate_init` method instead of the class flags `allow_zero_init` / `allow_negative_init` (removed). The focal and
+  Poly-1 functions share `probability_of_target` and `class_weight` (`sonnix.functional.loss._binary`), with the same
+  values (target state step 9, #423).
 - Reorganize the packages (target state step 8, #422):
   `sonnix.utils.loss` (`is_loss_decreasing*`) moves to `sonnix.testing.loss`; `sonnix.factory.dataset` and
   `sonnix.factory.optimizer` (`resolve_dataset`, `is_dataset_config`, `resolve_optimizer`, `is_optimizer_config`)
