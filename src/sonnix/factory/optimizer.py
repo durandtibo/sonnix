@@ -1,5 +1,5 @@
-r"""Contain functions to instantiate a ``torch.optim.Optimizer`` object from
-its configuration."""
+r"""Contain functions to instantiate a ``torch.optim.Optimizer`` object
+from its configuration."""
 
 from __future__ import annotations
 

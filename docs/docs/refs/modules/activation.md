@@ -2,33 +2,33 @@
 
 Activation functions and element-wise math modules. See also the [`sonnix.modules`](index.md) overview.
 
-| Name |
-| --- |
-| [`Asinh`](#sonnix.modules.Asinh) |
+| Name                                                         |
+| ------------------------------------------------------------ |
+| [`Asinh`](#sonnix.modules.Asinh)                             |
 | [`BaseAlphaActivation`](#sonnix.modules.BaseAlphaActivation) |
-| [`BaseDynamicNorm`](#sonnix.modules.BaseDynamicNorm) |
-| [`Clamp`](#sonnix.modules.Clamp) |
-| [`DynamicAsinh`](#sonnix.modules.DynamicAsinh) |
-| [`DynamicTanh`](#sonnix.modules.DynamicTanh) |
-| [`Exp`](#sonnix.modules.Exp) |
-| [`ExpSin`](#sonnix.modules.ExpSin) |
-| [`Expm1`](#sonnix.modules.Expm1) |
-| [`Gaussian`](#sonnix.modules.Gaussian) |
-| [`Laplacian`](#sonnix.modules.Laplacian) |
-| [`Log`](#sonnix.modules.Log) |
-| [`Log1p`](#sonnix.modules.Log1p) |
-| [`MultiQuadratic`](#sonnix.modules.MultiQuadratic) |
-| [`Pow`](#sonnix.modules.Pow) |
-| [`Quadratic`](#sonnix.modules.Quadratic) |
-| [`ReLUn`](#sonnix.modules.ReLUn) |
-| [`RectifierAsinhUnit`](#sonnix.modules.RectifierAsinhUnit) |
-| [`SafeExp`](#sonnix.modules.SafeExp) |
-| [`SafeLog`](#sonnix.modules.SafeLog) |
-| [`Sin`](#sonnix.modules.Sin) |
-| [`Sinh`](#sonnix.modules.Sinh) |
-| [`Snake`](#sonnix.modules.Snake) |
-| [`Square`](#sonnix.modules.Square) |
-| [`SquaredReLU`](#sonnix.modules.SquaredReLU) |
+| [`BaseDynamicNorm`](#sonnix.modules.BaseDynamicNorm)         |
+| [`Clamp`](#sonnix.modules.Clamp)                             |
+| [`DynamicAsinh`](#sonnix.modules.DynamicAsinh)               |
+| [`DynamicTanh`](#sonnix.modules.DynamicTanh)                 |
+| [`Exp`](#sonnix.modules.Exp)                                 |
+| [`ExpSin`](#sonnix.modules.ExpSin)                           |
+| [`Expm1`](#sonnix.modules.Expm1)                             |
+| [`Gaussian`](#sonnix.modules.Gaussian)                       |
+| [`Laplacian`](#sonnix.modules.Laplacian)                     |
+| [`Log`](#sonnix.modules.Log)                                 |
+| [`Log1p`](#sonnix.modules.Log1p)                             |
+| [`MultiQuadratic`](#sonnix.modules.MultiQuadratic)           |
+| [`Pow`](#sonnix.modules.Pow)                                 |
+| [`Quadratic`](#sonnix.modules.Quadratic)                     |
+| [`ReLUn`](#sonnix.modules.ReLUn)                             |
+| [`RectifierAsinhUnit`](#sonnix.modules.RectifierAsinhUnit)   |
+| [`SafeExp`](#sonnix.modules.SafeExp)                         |
+| [`SafeLog`](#sonnix.modules.SafeLog)                         |
+| [`Sin`](#sonnix.modules.Sin)                                 |
+| [`Sinh`](#sonnix.modules.Sinh)                               |
+| [`Snake`](#sonnix.modules.Snake)                             |
+| [`Square`](#sonnix.modules.Square)                           |
+| [`SquaredReLU`](#sonnix.modules.SquaredReLU)                 |
 
 ## ::: sonnix.modules.Asinh
 

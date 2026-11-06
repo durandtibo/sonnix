@@ -20,6 +20,7 @@ We actively welcome your pull requests.
 2. If you've added code that should be tested, add tests.
 3. If you've changed APIs, update the documentation.
 4. Ensure the test suite passes. You can use the following command to run the tests:
+
    ```shell
    inv test.unit
    inv test.integration
@@ -32,6 +33,7 @@ We actively welcome your pull requests.
    tests parametrized with `get_available_devices()`) only run on the CPU there. If your change
    touches device handling, run the tests on a machine with a GPU (CUDA or MPS) before opening the
    pull request, and run the CUDA tests locally before a release.
+
 5. Make sure your code lints. The following commands can help you to format the code:
    ```shell
    inv format.fix-python
