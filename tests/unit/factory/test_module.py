@@ -62,17 +62,54 @@ def test_resolve_module_incorrect_type() -> None:
         ({OBJECT_TARGET: "torch.nn.Linear", "in_features": 4, "out_features": 6}, nn.ReLU()),
     ],
 )
-def test_create_sequential(modules: Sequence) -> None:
+def test_create_sequential_check1(modules: Sequence) -> None:
     module = create_sequential(modules)
     assert isinstance(module, nn.Sequential)
+
+
+@pytest.mark.parametrize(
+    "modules",
+    [
+        [{OBJECT_TARGET: "torch.nn.Linear", "in_features": 4, "out_features": 6}, nn.ReLU()],
+        ({OBJECT_TARGET: "torch.nn.Linear", "in_features": 4, "out_features": 6}, nn.ReLU()),
+    ],
+)
+def test_create_sequential_check2(modules: Sequence) -> None:
+    module = create_sequential(modules)
     assert len(module) == 2
+
+
+@pytest.mark.parametrize(
+    "modules",
+    [
+        [{OBJECT_TARGET: "torch.nn.Linear", "in_features": 4, "out_features": 6}, nn.ReLU()],
+        ({OBJECT_TARGET: "torch.nn.Linear", "in_features": 4, "out_features": 6}, nn.ReLU()),
+    ],
+)
+def test_create_sequential_check3(modules: Sequence) -> None:
+    module = create_sequential(modules)
     assert isinstance(module[0], nn.Linear)
+
+
+@pytest.mark.parametrize(
+    "modules",
+    [
+        [{OBJECT_TARGET: "torch.nn.Linear", "in_features": 4, "out_features": 6}, nn.ReLU()],
+        ({OBJECT_TARGET: "torch.nn.Linear", "in_features": 4, "out_features": 6}, nn.ReLU()),
+    ],
+)
+def test_create_sequential_check4(modules: Sequence) -> None:
+    module = create_sequential(modules)
     assert isinstance(module[1], nn.ReLU)
 
 
-def test_create_sequential_empty() -> None:
+def test_create_sequential_empty_check1() -> None:
     module = create_sequential([])
     assert isinstance(module, nn.Sequential)
+
+
+def test_create_sequential_empty_check2() -> None:
+    module = create_sequential([])
     assert len(module) == 0
 
 
