@@ -223,27 +223,3 @@ def test_scale_and_shift_incorrect_normalized_shape(normalized_shape: object) ->
 def test_scale_and_shift_incorrect_normalized_shape_type() -> None:
     with pytest.raises(TypeError, match=r"normalized_shape must be an int"):
         ScaleAndShift(normalized_shape=(2.5,))
-
-
-#############################
-#     Tests for _affine     #
-#############################
-
-
-def test_scale_and_shift_affine() -> None:
-    module = ScaleAndShift(normalized_shape=3)
-    module.weight.data.fill_(2.0)
-    module.bias.data.fill_(1.0)
-    assert module._affine(torch.tensor([[1.0, 2.0, 3.0]])).equal(torch.tensor([[3.0, 5.0, 7.0]]))
-
-
-def test_scale_and_shift_affine_without_bias() -> None:
-    module = ScaleAndShift(normalized_shape=3, bias=False)
-    module.weight.data.fill_(2.0)
-    assert module._affine(torch.tensor([[1.0, 2.0, 3.0]])).equal(torch.tensor([[2.0, 4.0, 6.0]]))
-
-
-def test_scale_and_shift_forward_calls_affine() -> None:
-    module = ScaleAndShift(normalized_shape=3)
-    x = torch.rand(2, 3, generator=torch.manual_seed(1))
-    assert module(x).equal(module._affine(x))

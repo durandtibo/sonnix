@@ -7,6 +7,11 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- `BaseDynamicNorm` (and so `DynamicTanh` and `DynamicAsinh`) does not inherit from `ScaleAndShift` anymore: it
+  owns one as `affine`. The parameters are `affine.weight` and `affine.bias` (were `weight` and `bias`), so the
+  keys of the `state_dict` change, and a checkpoint of an older version does not load. Subclasses implement
+  `_activation(input)` instead of `forward`, `ScaleAndShift._affine` is removed, and the representation shows the
+  `affine` submodule (target state step 6, #419).
 - The tensor argument of `forward` is named `input` in `NLinear`, `ScaleAndShift`, `DynamicTanh`,
   `DynamicAsinh`, `View`, the four numerical encoders (was `x` or `scalar`), `ToBinaryLabel` and
   `ToCategoricalLabel` (was `scores`). Positional calls are unchanged; `forward(x=...)`,

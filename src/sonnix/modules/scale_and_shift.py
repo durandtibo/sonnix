@@ -81,31 +81,13 @@ class ScaleAndShift(nn.Module):
             self.bias = nn.Parameter(torch.empty(self.normalized_shape, device=device, dtype=dtype))
         else:
             self.register_parameter("bias", None)
-        # ``ScaleAndShift.reset_parameters`` is called explicitly because a subclass
-        # can override ``reset_parameters`` with parameters that are not created yet.
-        ScaleAndShift.reset_parameters(self)
+        self.reset_parameters()
 
-    def _affine(self, x: torch.Tensor) -> torch.Tensor:
-        r"""Apply the scale and the shift.
-
-        The subclasses call this method to apply the affine
-        transformation after their own nonlinearity, without calling
-        ``ScaleAndShift.forward`` explicitly.
-
-        Args:
-            x: The input tensor.
-
-        Returns:
-            The tensor ``x * weight + bias``, which has the same shape
-                as the input (``bias`` is skipped if there is none).
-        """
-        out = x * self.weight
+    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        out = input * self.weight
         if self.bias is not None:
             out = out + self.bias
         return out
-
-    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return self._affine(input)
 
     def extra_repr(self) -> str:
         return f"normalized_shape={self.normalized_shape}, bias={self.bias is not None}"
