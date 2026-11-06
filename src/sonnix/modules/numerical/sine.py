@@ -8,25 +8,18 @@ __all__ = [
     "CosSinNumericalEncoder",
 ]
 
-import math
 from typing import TYPE_CHECKING, Literal
 
 import torch
-from coola.validation import validate_in
 from torch import nn
 
-from sonnix.modules.numerical._utils import (
-    prepare_tensor_param,
-)
-from sonnix.utils.random import resolve_torch_generator
+from sonnix.modules.numerical._utils import create_spaced_values, prepare_tensor_param
 from sonnix.validation import validate_abs_range, validate_frequency, validate_same_shape
 
 if TYPE_CHECKING:
     from typing import Self
 
     from torch import Tensor
-
-_SPACINGS = ("rand", "linspace", "logspace")
 
 
 class CosSinNumericalEncoder(nn.Module):
@@ -143,13 +136,14 @@ class CosSinNumericalEncoder(nn.Module):
         *,
         frequency_range: tuple[float, float] | None = None,
         value_range: tuple[float, float] | None = None,
+        n_features: int = 1,
         learnable: bool = False,
         generator: torch.Generator | int | None = None,
         device: torch.device | None = None,
         dtype: torch.dtype | None = None,
     ) -> Self:
-        r"""Create an encoder for one feature where the frequencies are
-        initialized in a range and the phase-shifts are zero.
+        r"""Create an encoder where the frequencies are initialized in a
+        range and the phase-shifts are zero.
 
         The range is given either as a frequency range
         (``frequency_range``) or as the range of the absolute values
@@ -168,6 +162,10 @@ class CosSinNumericalEncoder(nn.Module):
                 of the absolute values to encode. The minimum has to be
                 strictly positive and the maximum has to be greater
                 than or equal to the minimum.
+            n_features: The number of features. The frequencies are
+                sampled independently for each feature with
+                ``spacing="rand"``, otherwise every feature has the
+                same frequencies.
             learnable: If ``True`` the parameters are learnable,
                 otherwise they are frozen.
             generator: The random number generator or the random seed
@@ -180,12 +178,13 @@ class CosSinNumericalEncoder(nn.Module):
                 default floating point type.
 
         Returns:
-            An instantiated encoder with ``n_features=1``.
+            An instantiated encoder with ``n_features`` features.
 
         Raises:
             ValueError: if ``spacing`` is not valid, if both or none of
                 ``frequency_range`` and ``value_range`` are given, or if
-                the range or ``num_frequencies`` are invalid.
+                the range, ``num_frequencies`` or ``n_features`` are
+                invalid.
 
         Example:
             ```pycon
@@ -209,7 +208,6 @@ class CosSinNumericalEncoder(nn.Module):
 
             ```
         """
-        validate_in(spacing, _SPACINGS, name="spacing")
         msg = "Exactly one of 'frequency_range' and 'value_range' has to be provided"
         if frequency_range is not None and value_range is not None:
             raise ValueError(msg)
@@ -225,34 +223,16 @@ class CosSinNumericalEncoder(nn.Module):
             min_frequency=min_frequency,
             max_frequency=max_frequency,
         )
-        if spacing == "rand":
-            frequency = (
-                torch.rand(
-                    1,
-                    num_frequencies,
-                    generator=None if generator is None else resolve_torch_generator(generator),
-                    device=device,
-                    dtype=dtype,
-                )
-                .mul(max_frequency - min_frequency)
-                .add(min_frequency)
-            )
-        elif spacing == "linspace":
-            frequency = torch.linspace(
-                start=min_frequency,
-                end=max_frequency,
-                steps=num_frequencies,
-                device=device,
-                dtype=dtype,
-            )
-        else:
-            frequency = torch.logspace(
-                start=math.log10(min_frequency),
-                end=math.log10(max_frequency),
-                steps=num_frequencies,
-                device=device,
-                dtype=dtype,
-            )
+        frequency = create_spaced_values(
+            spacing,
+            num_frequencies,
+            min_frequency,
+            max_frequency,
+            n_features=n_features,
+            generator=generator,
+            device=device,
+            dtype=dtype,
+        )
         return cls(
             frequency=frequency,
             phase_shift=torch.zeros_like(frequency),
