@@ -55,7 +55,7 @@ All notable changes to this project are documented in this file. The package is 
 
 - `AsinhNumericalEncoder.create(...)` builds an encoder with spaced scales like
   `CosSinNumericalEncoder.create`, and both `create` methods have a keyword-only `n_features` option
-  (review 3.7, #PR).
+  (review 3.7, #370).
 - The README and the documentation home page state that `sonnix` also ships training and testing helpers
   (`sonnix.factory`, `sonnix.utils`, `sonnix.testing`) (review 3.6, #369).
 - The documentation of `sonnix.factory` and of every `Module | dict` argument states that a configuration
