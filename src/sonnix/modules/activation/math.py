@@ -2,6 +2,8 @@ r"""Contain activation modules using mathematical functions."""
 
 from __future__ import annotations
 
+from coola.validation import validate_gt
+
 __all__ = ["Asinh", "Exp", "Expm1", "Log", "Log1p", "SafeExp", "SafeLog", "Sin", "Sinh"]
 
 import torch
@@ -158,6 +160,13 @@ class Pow(nn.Module):
 
     This module is equivalent to  ``pow(input, exponent)``
 
+    Note:
+        The result is ``nan`` for a negative input and a non-integer
+        exponent (for example ``Pow(exponent=0.5)`` on negative inputs),
+        and no error is raised. Clamp or shift the inputs if they can be
+        negative. The gradient of a power with an exponent in ``(0, 1)``
+        is infinite at ``0``.
+
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
@@ -252,6 +261,9 @@ class SafeLog(nn.Module):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
+    Raises:
+        ValueError: if ``min_val`` is not strictly positive.
+
     Example:
         ```pycon
         >>> import torch
@@ -269,6 +281,7 @@ class SafeLog(nn.Module):
 
     def __init__(self, min_val: float = 1e-8, preserve_gradient: bool = False) -> None:
         super().__init__()
+        validate_gt(min_val, 0, name="min_val")
         self._min = float(min_val)
         self._preserve_gradient = preserve_gradient
 

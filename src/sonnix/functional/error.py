@@ -3,6 +3,8 @@ targets."""
 
 from __future__ import annotations
 
+from coola.validation import validate_gt
+
 __all__ = ["absolute_error", "absolute_relative_error", "symmetric_absolute_relative_error"]
 
 from typing import TYPE_CHECKING
@@ -56,6 +58,9 @@ def absolute_relative_error(prediction: Tensor, target: Tensor, eps: float = 1e-
         The absolute relative error tensor, which has the same shape
             and data type as the inputs.
 
+    Raises:
+        ValueError: if ``eps`` is not strictly positive.
+
     Example:
         ```pycon
         >>> import torch
@@ -66,6 +71,7 @@ def absolute_relative_error(prediction: Tensor, target: Tensor, eps: float = 1e-
 
         ```
     """
+    validate_gt(eps, 0, name="eps")
     return target.sub(prediction).div(target.abs().clamp(min=eps)).abs()
 
 
@@ -86,6 +92,9 @@ def symmetric_absolute_relative_error(
         The symmetric absolute relative error tensor, which has the
             same shape and data type as the inputs.
 
+    Raises:
+        ValueError: if ``eps`` is not strictly positive.
+
     Example:
         ```pycon
         >>> import torch
@@ -96,6 +105,7 @@ def symmetric_absolute_relative_error(
 
         ```
     """
+    validate_gt(eps, 0, name="eps")
     return (
         target.sub(prediction).div(target.abs().add(prediction.abs()).mul(0.5).clamp(min=eps)).abs()
     )

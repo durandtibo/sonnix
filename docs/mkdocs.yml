@@ -34,6 +34,7 @@ nav:
       - sonnix.modules: refs/modules.md
       - sonnix.testing: refs/testing.md
       - sonnix.utils: refs/utils.md
+      - sonnix.validation: refs/validation.md
   - GitHub: https://github.com/durandtibo/sonnix
 
 repo_url: https://github.com/durandtibo/sonnix

@@ -91,3 +91,9 @@ def test_poisson_regression_loss_target_zero(device: str) -> None:
     assert poisson_regression_loss(
         torch.ones(2, 2, device=device), torch.zeros(2, 2, device=device)
     ).equal(torch.tensor(1.0, device=device))
+
+
+@pytest.mark.parametrize("eps", [0.0, -1.0])
+def test_poisson_regression_loss_invalid_eps(eps: float) -> None:
+    with pytest.raises(ValueError, match=r"eps must be greater than 0"):
+        poisson_regression_loss(torch.ones(2, 3), torch.ones(2, 3), eps=eps)

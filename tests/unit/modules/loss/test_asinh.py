@@ -135,3 +135,8 @@ def test_asinh_smooth_l1_loss_shape(device: str, shape: tuple[int, ...]) -> None
     criterion = AsinhSmoothL1Loss().to(device=device)
     loss = criterion(torch.ones(*shape, device=device), torch.ones(*shape, device=device))
     assert objects_are_equal(loss, torch.tensor(0.0, device=device))
+
+
+def test_asinh_smooth_l1_loss_invalid_beta() -> None:
+    with pytest.raises(ValueError, match=r"beta must be greater than or equal to 0"):
+        AsinhSmoothL1Loss(beta=-1.0)

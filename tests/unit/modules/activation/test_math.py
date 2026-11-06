@@ -292,17 +292,10 @@ def test_safe_log_forward_min_1(device: str) -> None:
     )
 
 
-@pytest.mark.parametrize("device", get_available_devices())
-def test_safe_log_forward_min_minus_1(device: str) -> None:
-    device = torch.device(device)
-    module = SafeLog(min_val=-1).to(device=device)
-    assert objects_are_allclose(
-        module(torch.tensor([-1, 0, 1, 2], dtype=torch.float, device=device)),
-        torch.tensor(
-            [float("NaN"), float("-inf"), 0.0, 0.6931471805599453], dtype=torch.float, device=device
-        ),
-        equal_nan=True,
-    )
+@pytest.mark.parametrize("min_val", [-1.0, 0.0])
+def test_safe_log_invalid_min_val(min_val: float) -> None:
+    with pytest.raises(ValueError, match=r"min_val must be greater than 0"):
+        SafeLog(min_val=min_val)
 
 
 @pytest.mark.parametrize("device", get_available_devices())

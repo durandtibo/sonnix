@@ -3,6 +3,8 @@ r"""Contain the loss functions that use the inverse hyperbolic sine
 
 from __future__ import annotations
 
+from coola.validation import validate_ge
+
 __all__ = ["asinh_mse_loss", "asinh_smooth_l1_loss"]
 
 from typing import TYPE_CHECKING
@@ -91,6 +93,9 @@ def asinh_smooth_l1_loss(
             transformed predictions and targets. The shape of
             the tensor depends on the reduction strategy.
 
+    Raises:
+        ValueError: if ``beta`` is negative.
+
     Example:
         ```pycon
         >>> import torch
@@ -102,6 +107,7 @@ def asinh_smooth_l1_loss(
 
         ```
     """
+    validate_ge(beta, 0, name="beta")
     return reduce_loss(
         smooth_l1_loss(prediction.asinh(), target.asinh(), reduction="none", beta=beta),
         reduction,

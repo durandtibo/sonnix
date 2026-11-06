@@ -121,7 +121,7 @@ def test_relative_loss_incorrect_shapes() -> None:
     prediction = torch.tensor([[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]], requires_grad=True)
     target = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]])
     criterion = RelativeLoss(criterion=nn.MSELoss())
-    with pytest.raises(ValueError, match=r"loss .* and indicator .* shapes do not match"):
+    with pytest.raises(ValueError, match=r"loss and indicator must have the same shape"):
         criterion(prediction=prediction, target=target)
 
 
@@ -379,3 +379,20 @@ def test_relative_smooth_l1_loss_beta() -> None:
     out = module(torch.tensor([[1.5, 3.0]]), torch.ones(1, 2))
     # smooth_l1 is 0.5 * x**2 / 4 and the classical indicator is |target| = 1.
     assert out.allclose(torch.tensor([[0.03125, 0.5]]))
+
+
+@pytest.mark.parametrize("eps", [0.0, -1.0])
+def test_relative_loss_invalid_eps(eps: float) -> None:
+    with pytest.raises(ValueError, match=r"eps must be greater than 0"):
+        RelativeLoss(criterion=nn.MSELoss(reduction="none"), eps=eps)
+
+
+@pytest.mark.parametrize("eps", [0.0, -1.0])
+def test_relative_mse_loss_invalid_eps(eps: float) -> None:
+    with pytest.raises(ValueError, match=r"eps must be greater than 0"):
+        RelativeMSELoss(eps=eps)
+
+
+def test_relative_smooth_l1_loss_invalid_beta() -> None:
+    with pytest.raises(ValueError, match=r"beta must be greater than or equal to 0"):
+        RelativeSmoothL1Loss(beta=-1.0)

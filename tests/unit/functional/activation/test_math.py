@@ -101,3 +101,9 @@ def test_safe_log_preserve_gradient() -> None:
     out.backward()
     assert out.allclose(torch.tensor(1e-8).log())
     assert x.grad.allclose(torch.tensor(1e8))
+
+
+@pytest.mark.parametrize("min_val", [0.0, -1.0])
+def test_safe_log_invalid_min_val(min_val: float) -> None:
+    with pytest.raises(ValueError, match=r"min_val must be greater than 0"):
+        safe_log(torch.ones(2, 3), min_val=min_val)

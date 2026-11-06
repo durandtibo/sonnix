@@ -66,7 +66,7 @@ def test_cos_sin_numerical_encoder_phase_shift_2_features() -> None:
 
 
 def test_cos_sin_numerical_encoder_different_shape() -> None:
-    with pytest.raises(ValueError, match=r"'frequency' and 'phase_shift' shapes do not match:"):
+    with pytest.raises(ValueError, match=r"'frequency' and 'phase_shift' must have the same shape"):
         CosSinNumericalEncoder(
             frequency=torch.ones(2, 4),
             phase_shift=torch.zeros(2, 3),
@@ -475,7 +475,7 @@ def test_asinh_cos_sin_numerical_encoder_phase_shift_2_features() -> None:
 
 
 def test_asinh_cos_sin_numerical_encoder_different_shape() -> None:
-    with pytest.raises(ValueError, match=r"'frequency' and 'phase_shift' shapes do not match:"):
+    with pytest.raises(ValueError, match=r"'frequency' and 'phase_shift' must have the same shape"):
         AsinhCosSinNumericalEncoder(
             frequency=torch.ones(2, 4),
             phase_shift=torch.zeros(2, 3),

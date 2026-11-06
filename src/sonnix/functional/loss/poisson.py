@@ -3,6 +3,8 @@ function."""
 
 from __future__ import annotations
 
+from coola.validation import validate_gt
+
 __all__ = ["poisson_regression_loss"]
 
 from typing import TYPE_CHECKING
@@ -55,6 +57,9 @@ def poisson_regression_loss(
         The Poisson regression loss. The shape of the tensor depends
             on the reduction strategy.
 
+    Raises:
+        ValueError: if ``eps`` is not strictly positive.
+
     Example:
         ```pycon
         >>> import torch
@@ -68,5 +73,6 @@ def poisson_regression_loss(
 
         ```
     """
+    validate_gt(eps, 0, name="eps")
     loss = prediction - target.mul(prediction.clamp(min=eps).log())
     return reduce_loss(loss, reduction)

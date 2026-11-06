@@ -237,3 +237,15 @@ def test_symmetric_absolute_relative_error_dtypes(device: str, dtype: torch.dtyp
         ),
         torch.zeros(2, 3, dtype=torch.float, device=device),
     )
+
+
+@pytest.mark.parametrize("eps", [0.0, -1.0])
+def test_absolute_relative_error_invalid_eps(eps: float) -> None:
+    with pytest.raises(ValueError, match=r"eps must be greater than 0"):
+        absolute_relative_error(torch.ones(2, 3), torch.ones(2, 3), eps=eps)
+
+
+@pytest.mark.parametrize("eps", [0.0, -1.0])
+def test_symmetric_absolute_relative_error_invalid_eps(eps: float) -> None:
+    with pytest.raises(ValueError, match=r"eps must be greater than 0"):
+        symmetric_absolute_relative_error(torch.ones(2, 3), torch.ones(2, 3), eps=eps)

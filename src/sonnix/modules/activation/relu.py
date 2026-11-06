@@ -2,6 +2,8 @@ r"""Contain relu-like activation modules."""
 
 from __future__ import annotations
 
+from coola.validation import validate_ge
+
 __all__ = ["ReLUn", "SquaredReLU"]
 
 from typing import TYPE_CHECKING
@@ -25,6 +27,9 @@ class ReLUn(nn.Module):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
+    Raises:
+        ValueError: if ``max_val`` is negative.
+
     Example:
         ```pycon
         >>> import torch
@@ -42,6 +47,7 @@ class ReLUn(nn.Module):
 
     def __init__(self, max_val: float = 1.0) -> None:
         super().__init__()
+        validate_ge(max_val, 0, name="max_val")
         self._max = float(max_val)
 
     def extra_repr(self) -> str:

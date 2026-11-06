@@ -28,8 +28,9 @@ def quantile_regression_loss(
     Args:
         prediction: The predictions.
         target: The target values.
-        q: The quantile value. ``q=0.5`` is equivalent to the Mean
-            Absolute Error (MAE).
+        q: The quantile value. ``q=0.5`` gives half of the Mean
+            Absolute Error (MAE), because the loss is
+            ``max(q * d, (q - 1) * d)`` with ``d = target - prediction``.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.

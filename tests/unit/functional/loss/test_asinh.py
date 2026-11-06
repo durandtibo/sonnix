@@ -149,3 +149,8 @@ def test_asinh_loss_batchmean(loss: Callable) -> None:
     assert loss(prediction, target, reduction="batchmean").allclose(
         loss(prediction, target, reduction="sum") / 4
     )
+
+
+def test_asinh_smooth_l1_loss_invalid_beta() -> None:
+    with pytest.raises(ValueError, match=r"beta must be greater than or equal to 0"):
+        asinh_smooth_l1_loss(torch.ones(2, 3), torch.ones(2, 3), beta=-1.0)
