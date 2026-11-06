@@ -5,7 +5,7 @@ from __future__ import annotations
 __all__ = ["resolve_torch_generator"]
 
 import torch
-from coola.random import get_torch_generator
+from coola.random import make_torch_generator
 
 
 def resolve_torch_generator(generator_or_seed: int | torch.Generator) -> torch.Generator:
@@ -29,4 +29,4 @@ def resolve_torch_generator(generator_or_seed: int | torch.Generator) -> torch.G
     """
     if isinstance(generator_or_seed, torch.Generator):
         return generator_or_seed
-    return get_torch_generator(generator_or_seed)
+    return make_torch_generator(generator_or_seed)
