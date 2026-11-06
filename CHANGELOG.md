@@ -17,6 +17,8 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Fixed
 
+- `general_robust_regression_loss` and `GeneralRobustRegressionLoss` reject `alpha` equal to `NaN` or
+  `+inf` and a non-positive `max_val` (review 2.2, #PR).
 - `geometric_mean_indicator` and `moment_mean_indicator` no longer overflow in half precision, for
   large values or for a large order `k` (review 2.1, #356).
 - `sonnix.modules` can be imported again with `coola` 2.0.0a2: `get_torch_generator` is replaced by
