@@ -9,7 +9,7 @@ All notable changes to this project are documented in this file. The package is 
 
 - `load_state_dict_to_module(strict=...)`, and `num_iterations`, `random_seed` and `lr` of `is_loss_decreasing*` are
   keyword-only. `random_seed` of `is_loss_decreasing*` also seeds the optimization steps, so the functions are
-  deterministic for a module with randomness (review 3.5, #PR).
+  deterministic for a module with randomness (review 3.5, #368).
 - `ToBinaryLabel.threshold` and `NLinear.n/in_features/out_features` are plain attributes like the other
   hyperparameters (they were a read-only property); `NLinear.forward` is documented (review 3.4, #367).
 - `safe_pow` is exported from `sonnix.functional`. The implementation details `ALPHA_EPS`, `SPACINGS` and
@@ -33,7 +33,7 @@ All notable changes to this project are documented in this file. The package is 
 
 - `load_state_dict_to_module` finds the state dict of checkpoints saved from `DataParallel` (`module.` prefix)
   or `torch.compile` (`_orig_mod.` prefix), and `import sonnix` no longer fails when the package is not
-  installed (`__version__` is `0.0.0+unknown`) (review 3.5, #PR).
+  installed (`__version__` is `0.0.0+unknown`) (review 3.5, #368).
 - `NLinear`, `ExU`, `ScaleAndShift` (and its subclasses), the alpha activations and `MomentMeanIndicator` validate
   their arguments with `coola.validation` (sizes >= 1, integer types, finite `init`, `Laplacian` needs
   `init > 0`), and `NLinear.forward` names `n` when the input shape does not match (review 2.6, #361).
