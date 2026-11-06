@@ -139,3 +139,6 @@ All notable changes to this project are documented in this file. The package is 
   `sonnix.validation.loss`), with the other validators, and is exported there. It now has tests.
 - Add the `LogCoshLoss(scale=1.0, *, reduction="mean")` and `MSLELoss(*, reduction="mean")` modules,
   the counterparts of `log_cosh_loss` and `msle_loss`.
+- `PiecewiseLinearNumericalEncoder.forward` clamps with two precomputed non-persistent buffers
+  (`lower`, `upper`) instead of building a list and calling `cat` on every call. The output and the
+  state dict are unchanged.
