@@ -37,3 +37,10 @@ All notable changes to this project are documented in this file. The package is 
   `bias` (`NLinear`, `ExU`), `device` and `dtype` (`NLinear`, `ExU`, `ScaleAndShift`, the dynamic
   norms, the alpha activations), `learnable` (the alpha activations, the numerical encoders and their
   `create_*` class methods). `SafeExp(20.0, True)` is now `SafeExp(20.0, preserve_gradient=True)`.
+
+### Snake
+
+- `Snake` is a `BaseAlphaActivation` with a learnable `alpha` (per channel with `num_parameters`),
+  as in the paper, and supports `device` and `dtype`. The `frequency` argument is replaced by
+  `init`, and `Snake(frequency=2.0)` is now `Snake(init=2.0, learnable=False)`. The forward is
+  `x + sin(alpha * x) ** 2 / alpha`, which has the same values with fewer operations.
