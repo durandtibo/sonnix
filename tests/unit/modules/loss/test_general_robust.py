@@ -272,3 +272,10 @@ def test_general_robust_regression_loss_forward_mock(
             max_val=max_value,
             reduction=reduction,
         )
+
+
+def test_general_robust_regression_loss_extra_repr() -> None:
+    assert (
+        GeneralRobustRegressionLoss(alpha=1.0, scale=2.0, max_val=5.0).extra_repr()
+        == "reduction=mean, alpha=1.0, scale=2.0, max_val=5.0"
+    )

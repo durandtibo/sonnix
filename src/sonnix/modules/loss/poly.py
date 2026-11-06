@@ -36,7 +36,7 @@ class BaseBinaryPoly1Loss(BaseLoss):
         self.alpha = float(alpha)
 
     def extra_repr(self) -> str:
-        return f"alpha={self.alpha}, reduction={self.reduction}"
+        return f"{super().extra_repr()}, alpha={self.alpha}"
 
 
 class BinaryPoly1Loss(BaseBinaryPoly1Loss):
@@ -69,7 +69,7 @@ class BinaryPoly1Loss(BaseBinaryPoly1Loss):
         >>> from sonnix.modules import BinaryPoly1Loss
         >>> criterion = BinaryPoly1Loss()
         >>> criterion
-        BinaryPoly1Loss(alpha=1.0, reduction=mean)
+        BinaryPoly1Loss(reduction=mean, alpha=1.0)
         >>> prediction = torch.rand(2, 4, requires_grad=True)
         >>> target = torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]])
         >>> loss = criterion(prediction, target)
@@ -136,7 +136,7 @@ class BinaryPoly1LossWithLogits(BaseBinaryPoly1Loss):
         >>> from sonnix.modules import BinaryPoly1LossWithLogits
         >>> criterion = BinaryPoly1LossWithLogits()
         >>> criterion
-        BinaryPoly1LossWithLogits(alpha=1.0, reduction=mean)
+        BinaryPoly1LossWithLogits(reduction=mean, alpha=1.0)
         >>> prediction = torch.randn(2, 4, requires_grad=True)
         >>> target = torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]])
         >>> loss = criterion(prediction, target)

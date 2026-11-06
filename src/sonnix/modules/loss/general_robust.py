@@ -62,7 +62,7 @@ class GeneralRobustRegressionLoss(BaseLoss):
         >>> from sonnix.modules import GeneralRobustRegressionLoss
         >>> criterion = GeneralRobustRegressionLoss()
         >>> criterion
-        GeneralRobustRegressionLoss(alpha=2.0, scale=1.0, max_val=None, reduction=mean)
+        GeneralRobustRegressionLoss(reduction=mean, alpha=2.0, scale=1.0, max_val=None)
         >>> input = torch.randn(3, 2, requires_grad=True)
         >>> target = torch.rand(3, 2, requires_grad=False)
         >>> loss = criterion(input, target)
@@ -88,7 +88,10 @@ class GeneralRobustRegressionLoss(BaseLoss):
         self.max_val = max_val
 
     def extra_repr(self) -> str:
-        return f"alpha={self.alpha}, scale={self.scale}, max_val={self.max_val}, reduction={self.reduction}"
+        return (
+            f"{super().extra_repr()}, alpha={self.alpha}, scale={self.scale}, "
+            f"max_val={self.max_val}"
+        )
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         return general_robust_regression_loss(

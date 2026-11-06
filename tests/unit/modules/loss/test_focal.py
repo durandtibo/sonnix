@@ -321,7 +321,7 @@ def test_binary_focal_loss_module_incorrect_alpha(loss: type, alpha: float) -> N
 
 def test_basebinaryfocalloss_repr() -> None:
     assert (
-        repr(BaseBinaryFocalLoss()) == "BaseBinaryFocalLoss(alpha=0.25, gamma=2.0, reduction=mean)"
+        repr(BaseBinaryFocalLoss()) == "BaseBinaryFocalLoss(reduction=mean, alpha=0.25, gamma=2.0)"
     )
 
 
@@ -332,3 +332,9 @@ def test_basebinaryfocalloss_subclass(loss: type) -> None:
 
 def test_basebinaryfocalloss_pair_are_independent() -> None:
     assert not issubclass(BinaryFocalLoss, BinaryFocalLossWithLogits)
+
+
+def test_binary_focal_loss_extra_repr() -> None:
+    assert (
+        BinaryFocalLoss(alpha=0.5, gamma=3.0).extra_repr() == "reduction=mean, alpha=0.5, gamma=3.0"
+    )

@@ -59,7 +59,7 @@ class QuantileRegressionLoss(BaseLoss):
         self.q = float(q)
 
     def extra_repr(self) -> str:
-        return f"reduction={self.reduction}, q={self.q}"
+        return f"{super().extra_repr()}, q={self.q}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         return quantile_regression_loss(prediction, target, reduction=self.reduction, q=self.q)

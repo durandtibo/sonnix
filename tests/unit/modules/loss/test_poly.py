@@ -247,7 +247,7 @@ def test_binary_focal_loss_with_logits_backward(device: str) -> None:
 
 
 def test_basebinarypoly1loss_repr() -> None:
-    assert repr(BaseBinaryPoly1Loss()) == "BaseBinaryPoly1Loss(alpha=1.0, reduction=mean)"
+    assert repr(BaseBinaryPoly1Loss()) == "BaseBinaryPoly1Loss(reduction=mean, alpha=1.0)"
 
 
 @pytest.mark.parametrize("loss", [BinaryPoly1Loss, BinaryPoly1LossWithLogits])
@@ -257,3 +257,7 @@ def test_basebinarypoly1loss_subclass(loss: type) -> None:
 
 def test_basebinarypoly1loss_pair_are_independent() -> None:
     assert not issubclass(BinaryPoly1Loss, BinaryPoly1LossWithLogits)
+
+
+def test_binary_poly1_loss_extra_repr() -> None:
+    assert BinaryPoly1Loss(alpha=0.5).extra_repr() == "reduction=mean, alpha=0.5"

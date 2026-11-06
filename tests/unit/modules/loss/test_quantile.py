@@ -101,3 +101,7 @@ def test_quantile_regression_loss_median_is_half_of_l1_loss() -> None:
     assert QuantileRegressionLoss(q=0.5)(prediction, target).allclose(
         0.5 * torch.nn.functional.l1_loss(prediction, target)
     )
+
+
+def test_quantile_regression_loss_extra_repr() -> None:
+    assert QuantileRegressionLoss(q=0.3).extra_repr() == "reduction=mean, q=0.3"

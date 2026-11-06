@@ -43,7 +43,7 @@ class BaseBinaryFocalLoss(BaseLoss):
         self.gamma = float(gamma)
 
     def extra_repr(self) -> str:
-        return f"alpha={self.alpha}, gamma={self.gamma}, reduction={self.reduction}"
+        return f"{super().extra_repr()}, alpha={self.alpha}, gamma={self.gamma}"
 
 
 class BinaryFocalLoss(BaseBinaryFocalLoss):
@@ -76,7 +76,7 @@ class BinaryFocalLoss(BaseBinaryFocalLoss):
         >>> from sonnix.modules import BinaryFocalLoss
         >>> criterion = BinaryFocalLoss()
         >>> criterion
-        BinaryFocalLoss(alpha=0.25, gamma=2.0, reduction=mean)
+        BinaryFocalLoss(reduction=mean, alpha=0.25, gamma=2.0)
         >>> prediction = torch.rand(2, 4, requires_grad=True)
         >>> target = torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]])
         >>> loss = criterion(prediction, target)
@@ -144,7 +144,7 @@ class BinaryFocalLossWithLogits(BaseBinaryFocalLoss):
         >>> from sonnix.modules import BinaryFocalLossWithLogits
         >>> criterion = BinaryFocalLossWithLogits()
         >>> criterion
-        BinaryFocalLossWithLogits(alpha=0.25, gamma=2.0, reduction=mean)
+        BinaryFocalLossWithLogits(reduction=mean, alpha=0.25, gamma=2.0)
         >>> prediction = torch.randn(2, 4, requires_grad=True)
         >>> target = torch.tensor([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 1.0, 0.0]])
         >>> loss = criterion(prediction, target)

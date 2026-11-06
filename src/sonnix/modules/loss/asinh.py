@@ -106,7 +106,7 @@ class AsinhSmoothL1Loss(BaseLoss):
         self.beta = float(beta)
 
     def extra_repr(self) -> str:
-        return f"reduction={self.reduction}, beta={self.beta}"
+        return f"{super().extra_repr()}, beta={self.beta}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         return asinh_smooth_l1_loss(prediction, target, reduction=self.reduction, beta=self.beta)
