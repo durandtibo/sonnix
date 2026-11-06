@@ -48,6 +48,11 @@ def is_optimizer_config(config: dict[Any, Any]) -> bool:
 def resolve_optimizer(optimizer: Optimizer | dict[Any, Any]) -> Optimizer:
     r"""Resolve a ``torch.optim.Optimizer`` object.
 
+    Warning:
+        A configuration (a ``dict`` with a ``_target_`` key) calls its
+        ``_target_`` before the type of the result is checked, so it
+        must come from a trusted source. See ``sonnix.factory``.
+
     Args:
         optimizer: The optimizer or its configuration.
 

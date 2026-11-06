@@ -22,6 +22,11 @@ class MulticlassFlatten(nn.Module):
     and is reshaped to ``(d1 * d2 * ... * dn,)``.
     ``reshape`` is used, so non-contiguous inputs are supported.
 
+    Warning:
+        A configuration (a ``dict`` with a ``_target_`` key) calls its
+        ``_target_`` before the type of the result is checked, so it
+        must come from a trusted source. See ``sonnix.factory``.
+
     Args:
         module: The module (or its configuration) to wrap. It takes
             the flattened prediction and target as inputs and returns

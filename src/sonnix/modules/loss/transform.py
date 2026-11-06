@@ -17,6 +17,11 @@ class TransformedLoss(nn.Module):
     r"""Implement a loss function where the predictions and targets are
     transformed before to be fed to the loss function.
 
+    Warning:
+        A configuration (a ``dict`` with a ``_target_`` key) calls its
+        ``_target_`` before the type of the result is checked, so it
+        must come from a trusted source. See ``sonnix.factory``.
+
     Args:
         criterion: The criterion or its configuration. The loss has
             two inputs: predictions and targets.

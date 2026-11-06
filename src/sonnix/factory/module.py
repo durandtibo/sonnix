@@ -50,6 +50,11 @@ def is_module_config(config: dict[Any, Any]) -> bool:
 def resolve_module(module: Module | dict[Any, Any]) -> Module:
     r"""Resolve a ``torch.nn.Module`` object.
 
+    Warning:
+        A configuration (a ``dict`` with a ``_target_`` key) calls its
+        ``_target_`` before the type of the result is checked, so it
+        must come from a trusted source. See ``sonnix.factory``.
+
     Args:
         module: The module or its configuration.
 
@@ -72,6 +77,11 @@ def resolve_module(module: Module | dict[Any, Any]) -> Module:
 
 def create_sequential(modules: Sequence[Module | dict[Any, Any]]) -> Sequential:
     r"""Create a ``torch.nn.Sequential`` from a sequence of modules.
+
+    Warning:
+        A configuration (a ``dict`` with a ``_target_`` key) calls its
+        ``_target_`` before the type of the result is checked, so it
+        must come from a trusted source. See ``sonnix.factory``.
 
     Args:
         modules: The sequence of modules or their configuration.
