@@ -21,6 +21,12 @@ def test_to_binary_label_threshold(threshold: float) -> None:
     assert ToBinaryLabel(threshold=threshold).threshold == threshold
 
 
+def test_to_binary_label_threshold_is_a_plain_attribute() -> None:
+    module = ToBinaryLabel()
+    module.threshold = 1.5
+    assert module(torch.tensor([1.0, 2.0])).equal(torch.tensor([0, 1]))
+
+
 def test_to_binary_label_threshold_default() -> None:
     assert ToBinaryLabel().threshold == 0.0
 

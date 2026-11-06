@@ -7,6 +7,8 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- `ToBinaryLabel.threshold` and `NLinear.n/in_features/out_features` are plain attributes like the other
+  hyperparameters (they were a read-only property); `NLinear.forward` is documented (review 3.4, #367).
 - `safe_pow` is exported from `sonnix.functional`. The implementation details `ALPHA_EPS`, `SPACINGS` and
   `BaseAlphaActivation.broadcast_alpha` are private (`_ALPHA_EPS`, `_SPACINGS`, `_broadcast_alpha`)
   (review 3.3, #366).

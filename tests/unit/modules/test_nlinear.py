@@ -270,3 +270,7 @@ def test_nlinear_forward_1d_input() -> None:
 def test_nlinear_forward_incorrect_n() -> None:
     with pytest.raises(ValueError, match=r"n=3.*received \(2, 2, 4\)"):
         NLinear(3, 4, 5)(torch.ones(2, 2, 4))
+
+
+def test_nlinear_sizes_are_plain_attributes() -> None:
+    assert {"n", "in_features", "out_features"} <= NLinear(3, 4, 5).__dict__.keys()
