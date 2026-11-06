@@ -7,6 +7,9 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- The options of the functions of `sonnix.functional` are keyword-only (`log_cosh_loss(p, t, scale=2.0)`):
+  `scale`, `alpha`, `gamma`, `beta`, `q`, `eps`, `k`, `max_val` and `min_val`. Positional calls are a `TypeError`
+  (target state step 3, #415).
 - Functions of two tensors of the same role (`log_cosh_loss`, `quantile_regression_loss`, `poisson_regression_loss`,
   the focal, Poly-1, general robust, asinh and MSLE losses, and the relative indicators) raise a `ValueError`
   when the shapes differ, instead of a torch error, a warning or a silent broadcast (`quantile_regression_loss`

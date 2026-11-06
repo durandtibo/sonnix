@@ -29,8 +29,8 @@ if TYPE_CHECKING:
 def relative_loss(
     loss: torch.Tensor,
     indicator: torch.Tensor,
-    eps: float = 1e-8,
     *,
+    eps: float = 1e-8,
     reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the relative loss.
@@ -238,7 +238,7 @@ def minimum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
 
 
 def moment_mean_indicator(
-    prediction: torch.Tensor, target: torch.Tensor, k: int = 1
+    prediction: torch.Tensor, target: torch.Tensor, *, k: int = 1
 ) -> torch.Tensor:
     r"""Return the moment mean change of order k.
 

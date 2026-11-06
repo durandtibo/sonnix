@@ -23,10 +23,10 @@ if TYPE_CHECKING:
 def general_robust_regression_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
+    *,
     alpha: float = 2.0,
     scale: float = 1.0,
     max_val: float | None = None,
-    *,
     reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the general robust regression loss a.k.a. Barron robust

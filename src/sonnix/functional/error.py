@@ -46,7 +46,7 @@ def absolute_error(prediction: Tensor, target: Tensor) -> Tensor:
     return target.sub(prediction).abs()
 
 
-def absolute_relative_error(prediction: Tensor, target: Tensor, eps: float = 1e-8) -> Tensor:
+def absolute_relative_error(prediction: Tensor, target: Tensor, *, eps: float = 1e-8) -> Tensor:
     r"""Compute the element-wise absolute relative error between the
     predictions and targets.
 
@@ -86,7 +86,7 @@ def absolute_relative_error(prediction: Tensor, target: Tensor, eps: float = 1e-
 
 
 def symmetric_absolute_relative_error(
-    prediction: Tensor, target: Tensor, eps: float = 1e-8
+    prediction: Tensor, target: Tensor, *, eps: float = 1e-8
 ) -> Tensor:
     r"""Compute the element-wise symmetric absolute relative error
     between the predictions and targets.

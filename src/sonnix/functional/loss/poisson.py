@@ -21,8 +21,8 @@ if TYPE_CHECKING:
 def poisson_regression_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
-    eps: float = 1e-8,
     *,
+    eps: float = 1e-8,
     log_input: bool = False,
     reduction: Reduction = "mean",
 ) -> torch.Tensor:

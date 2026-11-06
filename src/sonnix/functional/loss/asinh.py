@@ -61,8 +61,8 @@ def asinh_mse_loss(
 def asinh_smooth_l1_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
-    beta: float = 1.0,
     *,
+    beta: float = 1.0,
     reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the smooth L1 loss on the inverse hyperbolic sine (asinh)
