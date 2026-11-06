@@ -5,6 +5,7 @@ from __future__ import annotations
 
 __all__ = ["PiecewiseLinearNumericalEncoder"]
 
+import warnings
 from typing import TYPE_CHECKING
 
 import torch
@@ -30,7 +31,12 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         bins: The bins used to compute the piecewise linear
             representations. This input should be a tensor of shape
             ``(n_features, n_bins)`` or ``(n_bins,)``. The bin values
-            are sorted by ascending order for each feature.
+            are sorted by ascending order for each feature. Duplicate
+            edges are accepted with a warning when there are more
+            than two bins: a segment of zero width is a step function
+            (``0`` when the input is not above the edge, ``1``
+            otherwise). With only two bins (a single segment), the
+            width is set to ``1``.
 
     Shape:
         - Input: ``(*, n_features)``, where ``*`` means any number of
@@ -74,6 +80,7 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
 
     edges: Tensor
     width: Tensor
+    is_step: Tensor
 
     def __init__(self, bins: Tensor) -> None:
         super().__init__()
@@ -81,7 +88,17 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         n_bins = bins.shape[1]
         self.register_buffer("edges", bins[:, :-1] if n_bins > 1 else bins)
         width = bins.diff() if n_bins > 1 else torch.ones_like(bins)
+        is_duplicate = width == 0
+        if n_bins > 2 and is_duplicate.any():
+            warnings.warn(
+                "The bins contain duplicate edges. The corresponding segments are step functions.",
+                UserWarning,
+                stacklevel=2,
+            )
+        else:
+            is_duplicate = torch.zeros_like(is_duplicate)
         width[width == 0] = 1.0
+        self.register_buffer("is_step", is_duplicate)
         self.register_buffer("width", width)
 
     @property
@@ -100,7 +117,8 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         return f"n_features={self.input_size}, feature_size={self.output_size}"
 
     def forward(self, scalar: Tensor) -> Tensor:
-        x = (scalar[..., None] - self.edges) / self.width
+        delta = scalar[..., None] - self.edges
+        x = torch.where(self.is_step, (delta > 0).to(delta.dtype), delta / self.width)
         n_bins = x.shape[-1]
         if n_bins == 1:
             return x
