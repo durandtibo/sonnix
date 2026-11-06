@@ -198,6 +198,9 @@ class SafeExp(nn.Module):
 
     Args:
         max: The maximum value before to compute the exponential.
+        preserve_gradient: If ``True``, the gradient is computed as
+            if the input was not clamped (straight-through). By
+            default, ``clamp`` gives a zero gradient outside the range.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -218,15 +221,17 @@ class SafeExp(nn.Module):
         ```
     """
 
-    def __init__(self, max: float = 20.0) -> None:  # noqa: A002
+    def __init__(self, max: float = 20.0, preserve_gradient: bool = False) -> None:  # noqa: A002
         super().__init__()
         self._max = float(max)
+        self._preserve_gradient = preserve_gradient
 
     def extra_repr(self) -> str:
-        return f"max={self._max}"
+        extra = ", preserve_gradient=True" if self._preserve_gradient else ""
+        return f"max={self._max}{extra}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return safe_exp(input, self._max)
+        return safe_exp(input, self._max, preserve_gradient=self._preserve_gradient)
 
 
 class SafeLog(nn.Module):
@@ -239,6 +244,9 @@ class SafeLog(nn.Module):
 
     Args:
         min: The minimum value before to compute the logarithm natural.
+        preserve_gradient: If ``True``, the gradient is computed as
+            if the input was not clamped (straight-through). By
+            default, ``clamp`` gives a zero gradient outside the range.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -259,15 +267,17 @@ class SafeLog(nn.Module):
         ```
     """
 
-    def __init__(self, min: float = 1e-8) -> None:  # noqa: A002
+    def __init__(self, min: float = 1e-8, preserve_gradient: bool = False) -> None:  # noqa: A002
         super().__init__()
         self._min = float(min)
+        self._preserve_gradient = preserve_gradient
 
     def extra_repr(self) -> str:
-        return f"min={self._min}"
+        extra = ", preserve_gradient=True" if self._preserve_gradient else ""
+        return f"min={self._min}{extra}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return safe_log(input, self._min)
+        return safe_log(input, self._min, preserve_gradient=self._preserve_gradient)
 
 
 class Sin(nn.Module):

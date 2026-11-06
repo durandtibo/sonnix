@@ -41,6 +41,10 @@ def absolute_relative_error(prediction: Tensor, target: Tensor, eps: float = 1e-
     r"""Compute the element-wise absolute relative error between the
     predictions and targets.
 
+    Note:
+        The denominator is clamped to ``eps``, so the gradient with
+        respect to it is zero where it is lower than ``eps``.
+
     Args:
         prediction: The tensor of predictions.
         target: The target tensor, which must have the same shape and
