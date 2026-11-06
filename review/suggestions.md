@@ -504,8 +504,8 @@ other candidates (`Tweedie`, `Huber` with scale, `Dice`/`Tversky`, `SwiGLU`/`GeG
 
 Status: the piecewise encoder is done (#335). `NLinear`: benchmarked on CPU (4 shapes, forward and
 forward + backward) `reshape + bmm + transpose`, `einsum("bni,nio->bno")` and `baddbmm`: none is
-consistently faster than the current code (`einsum` is 10-80% slower in forward on 3 of 4 shapes,
-`baddbmm` is up to 87% slower in forward + backward), so `NLinear.forward` is unchanged. `ExU` is
+consistently faster than the current code (`einsum` is 3-78% slower in forward on all 4 shapes,
+`baddbmm` is 10-25% faster in forward on 2 shapes but up to 87% slower in forward + backward), so `NLinear.forward` is unchanged. `ExU` is
 unchanged, as the review said.
 
 - `PiecewiseLinearNumericalEncoder.forward` builds a Python list with a conditional splat and a
