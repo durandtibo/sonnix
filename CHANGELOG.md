@@ -7,6 +7,11 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- The tensor argument of `forward` is named `input` in `NLinear`, `ScaleAndShift`, `DynamicTanh`,
+  `DynamicAsinh`, `View`, the four numerical encoders (was `x` or `scalar`), `ToBinaryLabel` and
+  `ToCategoricalLabel` (was `scores`). Positional calls are unchanged; `forward(x=...)`,
+  `forward(scalar=...)` and `forward(scores=...)` are a `TypeError`. The `# noqa: A002` are kept (decision
+  D4 is not applied) (target state step 5, #418).
 - Remove the losses that are a composition of a `torch.nn` criterion and a transform: `AsinhMSELoss`,
   `AsinhSmoothL1Loss`, `MSLELoss`, `RelativeMSELoss`, `RelativeSmoothL1Loss`, `asinh_mse_loss`,
   `asinh_smooth_l1_loss` and `msle_loss`. Use `TransformedLoss` or `RelativeLoss` (recipes in the losses

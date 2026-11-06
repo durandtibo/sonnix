@@ -104,8 +104,8 @@ class ScaleAndShift(nn.Module):
             out = out + self.bias
         return out
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self._affine(x)
+    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        return self._affine(input)
 
     def extra_repr(self) -> str:
         return f"normalized_shape={self.normalized_shape}, bias={self.bias is not None}"

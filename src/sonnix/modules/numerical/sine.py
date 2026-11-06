@@ -124,8 +124,8 @@ class CosSinNumericalEncoder(nn.Module):
             f"learnable={self.learnable}"
         )
 
-    def forward(self, scalar: Tensor) -> Tensor:
-        features = scalar.unsqueeze(dim=-1).mul(self.frequency).add(self.phase_shift)
+    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
+        features = input.unsqueeze(dim=-1).mul(self.frequency).add(self.phase_shift)
         return torch.cat((features.sin(), features.cos()), dim=-1)
 
     @classmethod
@@ -303,9 +303,9 @@ class AsinhCosSinNumericalEncoder(CosSinNumericalEncoder):
         r"""Return the output feature size."""
         return super().feature_size + 1
 
-    def forward(self, scalar: Tensor) -> Tensor:
-        features = super().forward(scalar)
+    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
+        features = super().forward(input)
         return torch.cat(
-            (features, scalar.unsqueeze(dim=-1).asinh()),
+            (features, input.unsqueeze(dim=-1).asinh()),
             dim=-1,
         )
