@@ -61,11 +61,17 @@ def test_num_parameters_25_frozen() -> None:
     assert num_parameters(module) == 25  # 20 (weight) + 5 (bias)
 
 
-def test_num_parameters_2_layers() -> None:
+def test_num_parameters_2_layers_check1() -> None:
     fc1 = nn.Linear(4, 5)
     fc2 = nn.Linear(5, 8)
     model = nn.Sequential(fc1, fc2)
     assert num_parameters(model) == 25 + 48
+
+
+def test_num_parameters_2_layers_check2() -> None:
+    fc1 = nn.Linear(4, 5)
+    fc2 = nn.Linear(5, 8)
+    model = nn.Sequential(fc1, fc2)
     # Freeze the parameters of FC2.
     freeze_module(fc2)
     assert num_parameters(model) == 25 + 48
@@ -88,11 +94,17 @@ def test_num_learnable_parameters_25() -> None:
     assert num_learnable_parameters(nn.Linear(4, 5)) == 25  # 20 (weight) + 5 (bias)
 
 
-def test_num_learnable_parameters_2_layers() -> None:
+def test_num_learnable_parameters_2_layers_check1() -> None:
     fc1 = nn.Linear(4, 5)
     fc2 = nn.Linear(5, 8)
     model = nn.Sequential(fc1, fc2)
     assert num_learnable_parameters(model) == 25 + 48
+
+
+def test_num_learnable_parameters_2_layers_check2() -> None:
+    fc1 = nn.Linear(4, 5)
+    fc2 = nn.Linear(5, 8)
+    model = nn.Sequential(fc1, fc2)
     # Freeze the parameters of FC2.
     freeze_module(fc2)
     assert num_learnable_parameters(model) == 25  # 20 (weight) + 5 (bias)
@@ -114,17 +126,27 @@ def test_freeze_module(module: nn.Module) -> None:
 #####################################
 
 
-def test_unfreeze_module_tanh() -> None:
+def test_unfreeze_module_tanh_check1() -> None:
     module = nn.Tanh()
     freeze_module(module)
     assert num_learnable_parameters(module) == 0
+
+
+def test_unfreeze_module_tanh_check2() -> None:
+    module = nn.Tanh()
+    freeze_module(module)
     unfreeze_module(module)
     assert num_learnable_parameters(module) == 0
 
 
-def test_unfreeze_module_linear() -> None:
+def test_unfreeze_module_linear_check1() -> None:
     module = nn.Linear(4, 5)
     freeze_module(module)
     assert num_learnable_parameters(module) == 0
+
+
+def test_unfreeze_module_linear_check2() -> None:
+    module = nn.Linear(4, 5)
+    freeze_module(module)
     unfreeze_module(module)
     assert num_learnable_parameters(module) == 25  # 20 (weight) + 5 (bias)
