@@ -174,3 +174,7 @@ def test_msle_loss_batchmean() -> None:
     assert msle_loss(prediction, target, reduction="batchmean").allclose(
         msle_loss(prediction, target, reduction="sum") / 4
     )
+
+
+def test_msle_loss_below_minus_one_is_nan() -> None:
+    assert msle_loss(torch.tensor([-2.0]), torch.tensor([1.0])).isnan()
