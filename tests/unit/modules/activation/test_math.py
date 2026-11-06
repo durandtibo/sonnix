@@ -238,7 +238,7 @@ def test_safe_exp_forward(device: str) -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 def test_safe_exp_forward_max_10(device: str) -> None:
     device = torch.device(device)
-    module = SafeExp(max=10).to(device=device)
+    module = SafeExp(max_val=10).to(device=device)
     assert objects_are_allclose(
         module(torch.tensor([-1, 0, 1, 10, 100], dtype=torch.float, device=device)),
         torch.tensor(
@@ -285,7 +285,7 @@ def test_safe_log_forward(device: str) -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 def test_safe_log_forward_min_1(device: str) -> None:
     device = torch.device(device)
-    module = SafeLog(min=1).to(device=device)
+    module = SafeLog(min_val=1).to(device=device)
     assert objects_are_allclose(
         module(torch.tensor([-1, 0, 1, 2], dtype=torch.float, device=device)),
         torch.tensor([0.0, 0.0, 0.0, 0.6931471805599453], dtype=torch.float, device=device),
@@ -295,7 +295,7 @@ def test_safe_log_forward_min_1(device: str) -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 def test_safe_log_forward_min_minus_1(device: str) -> None:
     device = torch.device(device)
-    module = SafeLog(min=-1).to(device=device)
+    module = SafeLog(min_val=-1).to(device=device)
     assert objects_are_allclose(
         module(torch.tensor([-1, 0, 1, 2], dtype=torch.float, device=device)),
         torch.tensor(
@@ -410,16 +410,16 @@ def test_square_forward_shape(device: str, shape: tuple[int, ...]) -> None:
 
 
 def test_safe_exp_module_preserve_gradient() -> None:
-    module = SafeExp(max=20.0, preserve_gradient=True)
-    assert repr(module) == "SafeExp(max=20.0, preserve_gradient=True)"
+    module = SafeExp(max_val=20.0, preserve_gradient=True)
+    assert repr(module) == "SafeExp(max_val=20.0, preserve_gradient=True)"
     x = torch.tensor([100.0], requires_grad=True)
     module(x).backward()
     assert x.grad.item() > 0
 
 
 def test_safe_log_module_preserve_gradient() -> None:
-    module = SafeLog(min=1e-8, preserve_gradient=True)
-    assert repr(module) == "SafeLog(min=1e-08, preserve_gradient=True)"
+    module = SafeLog(min_val=1e-8, preserve_gradient=True)
+    assert repr(module) == "SafeLog(min_val=1e-08, preserve_gradient=True)"
     x = torch.tensor([1e-10], requires_grad=True)
     module(x).backward()
     assert x.grad.item() > 0

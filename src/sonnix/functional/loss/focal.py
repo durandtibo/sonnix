@@ -7,7 +7,7 @@ __all__ = ["binary_focal_loss", "binary_focal_loss_with_logits"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_ge, validate_le
+from coola.validation import validate_ge, validate_range
 from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_logits
 
 from sonnix.functional.reduction import reduce_loss
@@ -16,25 +16,26 @@ if TYPE_CHECKING:
     import torch
 
 
-def validate_focal_params(alpha: float, gamma: float) -> None:
+def validate_focal_params(alpha: float | None, gamma: float) -> None:
     r"""Check the parameters of the focal loss.
 
     Args:
         alpha: The weighting factor. It has to be in the range
-            ``[0, 1]``, or negative to disable the weighting.
+            ``[0, 1]``, or ``None`` to disable the weighting.
         gamma: The focusing parameter. It has to be non-negative.
 
     Raises:
         ValueError: if one of the parameters is invalid.
     """
-    validate_le(alpha, 1, name="alpha")
+    if alpha is not None:
+        validate_range(alpha, 0, 1, name="alpha")
     validate_ge(gamma, 0, name="gamma")
 
 
 def binary_focal_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
-    alpha: float = 0.25,
+    alpha: float | None = 0.25,
     gamma: float = 2.0,
     *,
     reduction: str = "mean",
@@ -58,7 +59,7 @@ def binary_focal_loss(
             the binary classification label for each element in inputs
             (0 for the negative class and 1 for the positive class).
         alpha: The weighting factor, which must be in the range
-            ``[0, 1]``. This parameter is ignored if negative.
+            ``[0, 1]``. ``None`` disables the weighting.
         gamma: The focusing parameter, which must be positive
             (``>=0``).
         reduction: The reduction strategy. The valid values are
@@ -93,7 +94,7 @@ def binary_focal_loss(
     p_t = prediction * target + (1 - prediction) * (1 - target)
     loss = ce_loss * ((1 - p_t) ** gamma)
 
-    if alpha >= 0:
+    if alpha is not None:
         alpha_t = alpha * target + (1 - alpha) * (1 - target)
         loss = alpha_t * loss
     return reduce_loss(loss, reduction)
@@ -102,7 +103,7 @@ def binary_focal_loss(
 def binary_focal_loss_with_logits(
     prediction: torch.Tensor,
     target: torch.Tensor,
-    alpha: float = 0.25,
+    alpha: float | None = 0.25,
     gamma: float = 2.0,
     *,
     reduction: str = "mean",
@@ -125,7 +126,7 @@ def binary_focal_loss_with_logits(
             the binary classification label for each element in inputs
             (0 for the negative class and 1 for the positive class).
         alpha: The weighting factor, which must be in the range
-            ``[0, 1]``. This parameter is ignored if negative.
+            ``[0, 1]``. ``None`` disables the weighting.
         gamma: The focusing parameter, which must be positive
             (``>=0``).
         reduction: The reduction strategy. The valid values are
@@ -161,7 +162,7 @@ def binary_focal_loss_with_logits(
     p_t = ce_loss.neg().exp()
     loss = ce_loss * ((1 - p_t) ** gamma)
 
-    if alpha >= 0:
+    if alpha is not None:
         alpha_t = alpha * target + (1 - alpha) * (1 - target)
         loss = alpha_t * loss
     return reduce_loss(loss, reduction)

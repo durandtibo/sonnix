@@ -23,7 +23,7 @@ class BinaryFocalLoss(nn.Module):
 
     Args:
         alpha: The weighting factor, which must be in the range
-            ``[0, 1]``. This parameter is ignored if negative.
+            ``[0, 1]``. ``None`` disables the weighting.
         gamma: The focusing parameter, which must be positive
             (``>=0``).
         reduction: The reduction to apply to the output:
@@ -56,10 +56,12 @@ class BinaryFocalLoss(nn.Module):
         ```
     """
 
-    def __init__(self, alpha: float = 0.25, gamma: float = 2.0, *, reduction: str = "mean") -> None:
+    def __init__(
+        self, alpha: float | None = 0.25, gamma: float = 2.0, *, reduction: str = "mean"
+    ) -> None:
         super().__init__()
         validate_focal_params(alpha=alpha, gamma=gamma)
-        self._alpha = float(alpha)
+        self._alpha = None if alpha is None else float(alpha)
         self._gamma = float(gamma)
 
         check_loss_reduction_strategy(reduction)
@@ -103,7 +105,7 @@ class BinaryFocalLossWithLogits(nn.Module):
 
     Args:
         alpha: The weighting factor, which must be in the range
-            ``[0, 1]``. This parameter is ignored if negative.
+            ``[0, 1]``. ``None`` disables the weighting.
         gamma: The focusing parameter, which must be positive
             (``>=0``).
         reduction: The reduction to apply to the output:
@@ -136,10 +138,12 @@ class BinaryFocalLossWithLogits(nn.Module):
         ```
     """
 
-    def __init__(self, alpha: float = 0.25, gamma: float = 2.0, *, reduction: str = "mean") -> None:
+    def __init__(
+        self, alpha: float | None = 0.25, gamma: float = 2.0, *, reduction: str = "mean"
+    ) -> None:
         super().__init__()
         validate_focal_params(alpha=alpha, gamma=gamma)
-        self._alpha = float(alpha)
+        self._alpha = None if alpha is None else float(alpha)
         self._gamma = float(gamma)
 
         check_loss_reduction_strategy(reduction)

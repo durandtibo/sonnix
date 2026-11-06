@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def safe_exp(
     input: torch.Tensor,  # noqa: A002
-    max: float = 20.0,  # noqa: A002
+    max_val: float = 20.0,
     preserve_gradient: bool = False,
 ) -> torch.Tensor:
     r"""Compute safely the exponential of the elements.
@@ -28,7 +28,7 @@ def safe_exp(
 
     Args:
         input: The input tensor.
-        max: The maximum value.
+        max_val: The maximum value.
         preserve_gradient: If ``True``, the gradient is computed as
             if the input was not clamped (straight-through).
 
@@ -45,7 +45,7 @@ def safe_exp(
 
         ```
     """
-    clamped = input.clamp(max=max)
+    clamped = input.clamp(max=max_val)
     if preserve_gradient:
         clamped = input + (clamped - input).detach()
     return clamped.exp()
@@ -53,7 +53,7 @@ def safe_exp(
 
 def safe_log(
     input: torch.Tensor,  # noqa: A002
-    min: float = 1e-8,  # noqa: A002
+    min_val: float = 1e-8,
     preserve_gradient: bool = False,
 ) -> torch.Tensor:
     r"""Compute safely the natural logarithm of the elements.
@@ -69,7 +69,7 @@ def safe_log(
 
     Args:
         input: The input tensor.
-        min: The minimum value.
+        min_val: The minimum value.
         preserve_gradient: If ``True``, the gradient is computed as
             if the input was not clamped (straight-through).
 
@@ -85,7 +85,7 @@ def safe_log(
 
         ```
     """
-    clamped = input.clamp(min=min)
+    clamped = input.clamp(min=min_val)
     if preserve_gradient:
         clamped = input + (clamped - input).detach()
     return clamped.log()
