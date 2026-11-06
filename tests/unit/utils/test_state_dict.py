@@ -158,6 +158,16 @@ def test_find_module_state_dict_prefix_with_different_keys() -> None:
     assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
 
 
+def test_find_module_state_dict_prefix_differs_between_keys() -> None:
+    state_dict = {"a.weight": torch.ones(5, 4), "b.bias": 2 * torch.ones(5)}
+    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+
+
+def test_find_module_state_dict_prefix_with_extra_key() -> None:
+    state_dict = {"module.bias": 2 * torch.ones(5), "module.other": 1}
+    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+
+
 def test_find_module_state_dict_prefix_empty_module_keys() -> None:
     assert find_module_state_dict({"module.weight": 1}, set()) == {}
 
