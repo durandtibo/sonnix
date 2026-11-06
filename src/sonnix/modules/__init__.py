@@ -16,6 +16,11 @@ __all__ = [
     "AsinhSmoothL1Loss",
     "AverageFusion",
     "BaseAlphaActivation",
+    "BaseBinaryFocalLoss",
+    "BaseBinaryPoly1Loss",
+    "BaseDynamicNorm",
+    "BaseFusion",
+    "BaseLoss",
     "BaseRelativeIndicator",
     "BinaryFocalLoss",
     "BinaryFocalLossWithLogits",
@@ -78,6 +83,7 @@ __all__ = [
 from sonnix.modules.activation import (
     Asinh,
     BaseAlphaActivation,
+    BaseDynamicNorm,
     Clamp,
     DynamicAsinh,
     DynamicTanh,
@@ -106,6 +112,7 @@ from sonnix.modules.dtype import ToDtype, ToFloat, ToLong
 from sonnix.modules.exu import ExU
 from sonnix.modules.fusion import (
     AverageFusion,
+    BaseFusion,
     ConcatFusion,
     MultiplicationFusion,
     SumFusion,
@@ -114,6 +121,9 @@ from sonnix.modules.loss import (
     ArithmeticalMeanIndicator,
     AsinhMSELoss,
     AsinhSmoothL1Loss,
+    BaseBinaryFocalLoss,
+    BaseBinaryPoly1Loss,
+    BaseLoss,
     BaseRelativeIndicator,
     BinaryFocalLoss,
     BinaryFocalLossWithLogits,
