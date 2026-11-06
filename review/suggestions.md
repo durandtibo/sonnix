@@ -397,6 +397,11 @@ value_range=None)` removes six near-identical docstrings and signatures.
 
 ## 6. Tests (P2)
 
+Status: done in #337 (registry, `export`, `compile`), #339 (dtypes), #340 (`gradcheck`), #341
+(equivalence), #342 (reduction registry) and #336 (GPU note). The `hypothesis` and
+`pytest-benchmark` dependencies are still unused. The `compile` test uses the `eager` backend with
+`fullgraph=True` (no C++ compiler needed). `float16` is not tested.
+
 From the layout and greps (not a test-by-test audit):
 
 - **No `gradcheck`, no `hypothesis`, no `torch.compile`/`torch.export` test** anywhere in `tests/`,
@@ -461,6 +466,11 @@ is the pragmatic one.
 
 ### 8.1 Structure
 
+Status: `Clamp` moved (#329), base classes exported (#330), loss modules import from
+`sonnix.functional` (#331), `validate_focal_params` moved to `sonnix.validation` (#332).
+`check_moment_order` and `check_loss_reduction_strategy` had already been handled (validators in
+`sonnix.validation`); the stale mention in `CLAUDE.md` is fixed in #333.
+
 - Every class has two or three import paths: `sonnix.modules.X`, `sonnix.modules.<sub>.X` and the
   file path. `Clamp` is imported in `sonnix/modules/__init__.py` from `fusion.clamp` but is not in
   `fusion/__all__`, and it is not a fusion module (it has a single input); move it next to
@@ -479,6 +489,10 @@ is the pragmatic one.
 
 ### 8.2 Missing counterparts
 
+Status: `LogCoshLoss` and `MSLELoss` added (#334). The learnable `Snake` was done with 3.6. The
+other candidates (`Tweedie`, `Huber` with scale, `Dice`/`Tversky`, `SwiGLU`/`GeGLU`, the
+`NumericalEmbedding` docs example) are new features, not fixes, and are not done.
+
 - No `LogCoshLoss` and no `MSLELoss` module although `log_cosh_loss` and `msle_loss` exist.
   `AsinhMSELoss` and `AsinhSmoothL1Loss` have both.
 - Candidates that fit the scope: `Tweedie` and `Huber`-with-scale losses, `Dice`/`Tversky` for
@@ -487,6 +501,12 @@ is the pragmatic one.
   the same library.
 
 ### 8.3 Performance (P3)
+
+Status: the piecewise encoder is done (#335). `NLinear`: benchmarked on CPU (4 shapes, forward and
+forward + backward) `reshape + bmm + transpose`, `einsum("bni,nio->bno")` and `baddbmm`: none is
+consistently faster than the current code (`einsum` is 3-78% slower in forward on all 4 shapes,
+`baddbmm` is 10-25% faster in forward on 2 shapes but up to 87% slower in forward + backward), so `NLinear.forward` is unchanged. `ExU` is
+unchanged, as the review said.
 
 - `PiecewiseLinearNumericalEncoder.forward` builds a Python list with a conditional splat and a
   `cat` on every call. Precomputing per-position `lo`/`hi` buffers (`lo[0] = -inf`, `hi[-1] = inf`)
