@@ -10,8 +10,8 @@ from sonnix.functional import (
     binary_focal_loss,
     binary_focal_loss_with_logits,
 )
-from sonnix.functional.loss.focal import validate_focal_params
 from sonnix.modules.loss.base import BaseLoss
+from sonnix.validation import validate_focal_params
 
 if TYPE_CHECKING:
     import torch
