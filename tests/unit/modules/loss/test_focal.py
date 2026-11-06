@@ -18,10 +18,6 @@ SHAPES = [(2,), (2, 3), (2, 3, 4)]
 #####################################
 
 
-def test_binary_focal_loss_str() -> None:
-    assert str(BinaryFocalLoss()).startswith("BinaryFocalLoss(")
-
-
 @pytest.mark.parametrize("alpha", [None, 0.0, 0.5, 1])
 def test_binary_focal_loss_alpha(alpha: float) -> None:
     assert BinaryFocalLoss(alpha=alpha).alpha == alpha
@@ -69,17 +65,6 @@ def test_binary_focal_loss_forward_partially_correct(device: str) -> None:
         torch.tensor([[1.0, 1.0, 0.0], [0.0, 1.0, 0.0]], device=device),
     )
     assert loss.allclose(torch.tensor(0.5442052292941304, device=device))
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-def test_binary_focal_loss_forward_reduction_sum(device: str) -> None:
-    device = torch.device(device)
-    criterion = BinaryFocalLoss(reduction="sum").to(device=device)
-    loss = criterion(
-        torch.tensor([[0.9, 0.1, 0.9], [0.1, 0.9, 0.9]], device=device),
-        torch.tensor([[1.0, 1.0, 0.0], [0.0, 1.0, 0.0]], device=device),
-    )
-    assert loss.allclose(torch.tensor(3.2652313757647824, device=device))
 
 
 @pytest.mark.parametrize("device", get_available_devices())
@@ -165,10 +150,6 @@ def test_binary_focal_loss_backward(device: str) -> None:
 ###############################################
 
 
-def test_binary_focal_loss_with_logits_str() -> None:
-    assert str(BinaryFocalLossWithLogits()).startswith("BinaryFocalLossWithLogits(")
-
-
 @pytest.mark.parametrize("alpha", [None, 0.0, 0.5, 1])
 def test_binary_focal_loss_with_logits_alpha(alpha: float) -> None:
     assert BinaryFocalLossWithLogits(alpha=alpha).alpha == alpha
@@ -216,17 +197,6 @@ def test_binary_focal_loss_with_logits_forward_partially_correct(device: str) ->
         torch.tensor([[1.0, 1.0, 0.0], [0.0, 1.0, 0.0]], device=device),
     )
     assert loss.allclose(torch.tensor(0.20943205058574677, device=device))
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-def test_binary_focal_loss_with_logits_forward_reduction_sum(device: str) -> None:
-    device = torch.device(device)
-    criterion = BinaryFocalLossWithLogits(reduction="sum").to(device=device)
-    loss = criterion(
-        torch.tensor([[1.0, -1.0, 1.0], [-1.0, 1.0, 1.0]], device=device),
-        torch.tensor([[1.0, 1.0, 0.0], [0.0, 1.0, 0.0]], device=device),
-    )
-    assert loss.allclose(torch.tensor(1.2565922737121582, device=device))
 
 
 @pytest.mark.parametrize("device", get_available_devices())

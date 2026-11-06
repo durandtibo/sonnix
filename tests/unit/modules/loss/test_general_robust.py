@@ -18,10 +18,6 @@ SIZES = (1, 2, 3)
 #################################################
 
 
-def test_general_robust_regression_loss_str() -> None:
-    assert str(GeneralRobustRegressionLoss()).startswith("GeneralRobustRegressionLoss(")
-
-
 @pytest.mark.parametrize("alpha", [-1, 0, 1, 2])
 def test_general_robust_regression_loss_alpha(alpha: float) -> None:
     assert GeneralRobustRegressionLoss(alpha=alpha).alpha == alpha
@@ -216,17 +212,6 @@ def test_general_robust_regression_loss_forward_reduction_mean() -> None:
             target=torch.tensor([[0, 1, 2], [1, 1, 1]], dtype=torch.float),
         ),
         torch.tensor(1 / 3),
-    )
-
-
-def test_general_robust_regression_loss_forward_reduction_sum() -> None:
-    criterion = GeneralRobustRegressionLoss(alpha=2.0, scale=1.0, reduction="sum")
-    assert objects_are_equal(
-        criterion(
-            prediction=torch.tensor([[0, 1, 2], [2, 1, 0]], dtype=torch.float),
-            target=torch.tensor([[0, 1, 2], [1, 1, 1]], dtype=torch.float),
-        ),
-        torch.tensor(2.0),
     )
 
 

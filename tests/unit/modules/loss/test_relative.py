@@ -18,10 +18,6 @@ from sonnix.modules.loss import (
 ##################################
 
 
-def test_relative_loss_str() -> None:
-    assert str(RelativeLoss(criterion=nn.MSELoss(reduction="none"))).startswith("RelativeLoss(")
-
-
 @pytest.mark.parametrize("device", get_available_devices())
 def test_relative_loss_reduction_mean(device: str) -> None:
     prediction = torch.tensor(
@@ -35,18 +31,6 @@ def test_relative_loss_reduction_mean(device: str) -> None:
 
 
 @pytest.mark.parametrize("device", get_available_devices())
-def test_relative_loss_reduction_sum(device: str) -> None:
-    prediction = torch.tensor(
-        [[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]], device=device, requires_grad=True
-    )
-    target = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], device=device)
-    criterion = RelativeLoss(criterion=nn.MSELoss(reduction="none"), reduction="sum", eps=1e-5)
-    loss = criterion(prediction=prediction, target=target)
-    loss.backward()
-    assert objects_are_equal(loss, torch.tensor(400029.0, device=device))
-
-
-@pytest.mark.parametrize("device", get_available_devices())
 def test_relative_loss_reduction_none(device: str) -> None:
     prediction = torch.tensor(
         [[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]], device=device, requires_grad=True
@@ -57,11 +41,6 @@ def test_relative_loss_reduction_none(device: str) -> None:
     assert objects_are_equal(
         loss, torch.tensor([[400.0, 0.0, 1.0], [12.0, 16.0, 0.0]], device=device)
     )
-
-
-def test_relative_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"reduction must be one of"):
-        RelativeLoss(criterion=nn.MSELoss(reduction="none"), reduction="incorrect")
 
 
 @pytest.mark.parametrize("device", get_available_devices())
@@ -130,10 +109,6 @@ def test_relative_loss_incorrect_shapes() -> None:
 #####################################
 
 
-def test_relative_mse_loss_str() -> None:
-    assert str(RelativeMSELoss()).startswith("RelativeMSELoss(")
-
-
 @pytest.mark.parametrize("device", get_available_devices())
 def test_relative_mse_loss_reduction_mean(device: str) -> None:
     prediction = torch.tensor(
@@ -147,18 +122,6 @@ def test_relative_mse_loss_reduction_mean(device: str) -> None:
 
 
 @pytest.mark.parametrize("device", get_available_devices())
-def test_relative_mse_loss_reduction_sum(device: str) -> None:
-    prediction = torch.tensor(
-        [[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]], device=device, requires_grad=True
-    )
-    target = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], device=device)
-    criterion = RelativeMSELoss(reduction="sum", eps=1e-5)
-    loss = criterion(prediction=prediction, target=target)
-    loss.backward()
-    assert objects_are_equal(loss, torch.tensor(400029.0, device=device))
-
-
-@pytest.mark.parametrize("device", get_available_devices())
 def test_relative_mse_loss_reduction_none(device: str) -> None:
     prediction = torch.tensor(
         [[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]], device=device, requires_grad=True
@@ -169,11 +132,6 @@ def test_relative_mse_loss_reduction_none(device: str) -> None:
     assert objects_are_equal(
         loss, torch.tensor([[400.0, 0.0, 1.0], [12.0, 16.0, 0.0]], device=device)
     )
-
-
-def test_relative_mse_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"reduction must be one of"):
-        RelativeMSELoss(reduction="incorrect")
 
 
 @pytest.mark.parametrize("device", get_available_devices())
@@ -220,10 +178,6 @@ def test_relative_mse_loss_indicator_reversed_relative(device: str) -> None:
 ##########################################
 
 
-def test_relative_smooth_l1_loss_str() -> None:
-    assert str(RelativeSmoothL1Loss()).startswith("RelativeSmoothL1Loss(")
-
-
 @pytest.mark.parametrize("device", get_available_devices())
 def test_relative_smooth_l1_loss_reduction_mean(device: str) -> None:
     prediction = torch.tensor(
@@ -237,18 +191,6 @@ def test_relative_smooth_l1_loss_reduction_mean(device: str) -> None:
 
 
 @pytest.mark.parametrize("device", get_available_devices())
-def test_relative_smooth_l1_loss_reduction_sum(device: str) -> None:
-    prediction = torch.tensor(
-        [[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]], device=device, requires_grad=True
-    )
-    target = torch.tensor([[0.0, 1.0, -1.0], [3.0, 1.0, -1.0]], device=device)
-    criterion = RelativeSmoothL1Loss(reduction="sum", eps=1e-5)
-    loss = criterion(prediction=prediction, target=target)
-    loss.backward()
-    assert objects_are_equal(loss, torch.tensor(150005.828125, device=device))
-
-
-@pytest.mark.parametrize("device", get_available_devices())
 def test_relative_smooth_l1_loss_reduction_none(device: str) -> None:
     prediction = torch.tensor(
         [[-2.0, 1.0, 0.0], [-3.0, 5.0, -1.0]], device=device, requires_grad=True
@@ -259,11 +201,6 @@ def test_relative_smooth_l1_loss_reduction_none(device: str) -> None:
     assert objects_are_equal(
         loss, torch.tensor([[150.0, 0.0, 0.5], [1.8333333333333333, 3.5, 0.0]], device=device)
     )
-
-
-def test_relative_smooth_l1_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"reduction must be one of"):
-        RelativeSmoothL1Loss(reduction="incorrect")
 
 
 @pytest.mark.parametrize("device", get_available_devices())

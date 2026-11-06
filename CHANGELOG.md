@@ -137,3 +137,8 @@ All notable changes to this project are documented in this file. The package is 
   `poisson` and `quantile` used the file path or `sonnix.functional.loss`). No change for callers.
 - `validate_focal_params` moves from `sonnix.functional.loss.focal` to `sonnix.validation` (and
   `sonnix.validation.loss`), with the other validators, and is exported there. It now has tests.
+- Add the `LogCoshLoss(scale=1.0, *, reduction="mean")` and `MSLELoss(*, reduction="mean")` modules,
+  the counterparts of `log_cosh_loss` and `msle_loss`.
+- `PiecewiseLinearNumericalEncoder.forward` clamps with two precomputed non-persistent buffers
+  (`lower`, `upper`) instead of building a list and calling `cat` on every call. The output and the
+  state dict are unchanged.

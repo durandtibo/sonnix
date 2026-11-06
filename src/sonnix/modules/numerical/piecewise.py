@@ -84,6 +84,8 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
     edges: Tensor
     width: Tensor
     is_step: Tensor
+    lower: Tensor
+    upper: Tensor
 
     def __init__(self, bins: Tensor) -> None:
         super().__init__()
@@ -103,6 +105,21 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         width[width == 0] = 1.0
         self.register_buffer("is_step", is_duplicate, persistent=False)
         self.register_buffer("width", width)
+        # The first segment is only clamped above and the last segment only
+        # below, the other segments are clamped to ``[0, 1]``. A single
+        # segment is not clamped. The bounds are precomputed so ``forward``
+        # has a single ``clamp`` and no data-dependent Python branch.
+        n_segments = width.shape[1]
+        lower = torch.zeros(n_segments, dtype=width.dtype, device=width.device)
+        upper = torch.ones(n_segments, dtype=width.dtype, device=width.device)
+        if n_segments == 1:
+            lower.fill_(-torch.inf)
+            upper.fill_(torch.inf)
+        else:
+            lower[0] = -torch.inf
+            upper[-1] = torch.inf
+        self.register_buffer("lower", lower, persistent=False)
+        self.register_buffer("upper", upper, persistent=False)
 
     @classmethod
     def from_quantiles(cls, x: Tensor, n_bins: int) -> Self:
@@ -166,14 +183,4 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
     def forward(self, scalar: Tensor) -> Tensor:
         delta = scalar[..., None] - self.edges
         x = torch.where(self.is_step, (delta > 0).to(delta.dtype), delta / self.width)
-        n_bins = x.shape[-1]
-        if n_bins == 1:
-            return x
-        return torch.cat(
-            [
-                x[..., :1].clamp_max(1.0),
-                *([] if n_bins == 2 else [x[..., 1:-1].clamp(0.0, 1.0)]),
-                x[..., -1:].clamp_min(0.0),
-            ],
-            dim=-1,
-        )
+        return x.clamp(min=self.lower, max=self.upper)
