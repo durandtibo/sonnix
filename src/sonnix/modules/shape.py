@@ -56,9 +56,9 @@ class Squeeze(nn.Module):
     r"""Implement a ``torch.nn.Module`` to squeeze the input tensor.
 
     Args:
-        dim: The dimension to squeeze the input tensor. If ``None``,
-            all the dimensions of the input tensor of size 1 are
-            removed.
+        dim: The dimension(s) to squeeze the input tensor. It can be
+            an integer or a tuple of integers. If ``None``, all the
+            dimensions of the input tensor of size 1 are removed.
 
     Example:
         ```pycon
@@ -70,13 +70,17 @@ class Squeeze(nn.Module):
         >>> out = m(torch.ones(2, 1, 3, 1))
         >>> out.shape
         torch.Size([2, 3])
+        >>> Squeeze(dim=(1, 3))(torch.ones(2, 1, 3, 1)).shape
+        torch.Size([2, 3])
 
         ```
     """
 
-    def __init__(self, dim: int | None = None) -> None:
+    def __init__(self, dim: int | tuple[int, ...] | list[int] | None = None) -> None:
         super().__init__()
-        self.dim = dim
+        self.dim: int | tuple[int, ...] | None = (
+            tuple(dim) if isinstance(dim, (tuple, list)) else dim
+        )
 
     def extra_repr(self) -> str:
         return f"dim={self.dim}"
@@ -90,6 +94,9 @@ class Squeeze(nn.Module):
 class View(nn.Module):
     r"""Implement a ``torch.nn.Module`` to return a new tensor with the
     same data as the input tensor but of a different shape.
+
+    It uses ``torch.reshape``, so it also works with non-contiguous
+    inputs (the data are copied if needed).
 
     Args:
         shape: The desired shape.
@@ -116,4 +123,4 @@ class View(nn.Module):
         return f"shape={self.shape}"
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return x.view(*self.shape)
+        return x.reshape(self.shape)
