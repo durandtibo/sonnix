@@ -86,5 +86,5 @@ class View(nn.Module):
     def extra_repr(self) -> str:
         return f"shape={self.shape}"
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return x.reshape(self.shape)
+    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        return input.reshape(self.shape)

@@ -203,7 +203,7 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
     def extra_repr(self) -> str:
         return f"n_features={self.n_features}, feature_size={self.feature_size}"
 
-    def forward(self, scalar: Tensor) -> Tensor:
-        delta = scalar[..., None] - self.edges
+    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
+        delta = input[..., None] - self.edges
         x = torch.where(self.is_step, (delta > 0).to(delta.dtype), delta / self.width)
         return x.clamp(min=self.lower, max=self.upper)

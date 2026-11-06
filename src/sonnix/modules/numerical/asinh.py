@@ -198,5 +198,5 @@ class AsinhNumericalEncoder(nn.Module):
     def extra_repr(self) -> str:
         return f"scale={tuple(self.scale.shape)}, learnable={self.learnable}"
 
-    def forward(self, scalar: Tensor) -> Tensor:
-        return scalar.unsqueeze(dim=-1).mul(self.scale).asinh()
+    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
+        return input.unsqueeze(dim=-1).mul(self.scale).asinh()
