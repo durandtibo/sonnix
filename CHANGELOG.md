@@ -130,3 +130,6 @@ All notable changes to this project are documented in this file. The package is 
 - `Clamp` moves from `sonnix.modules.fusion.clamp` to `sonnix.modules.activation.clamp` (next to
   `ReLUn`; it has a single input, so it is not a fusion module). `sonnix.modules.Clamp` and
   `sonnix.modules.activation.Clamp` still work.
+- Every base class is part of the API and is exported from `sonnix.modules`: `BaseLoss`,
+  `BaseBinaryFocalLoss`, `BaseBinaryPoly1Loss`, `BaseFusion` and `BaseDynamicNorm` (which is also in
+  `sonnix.modules.activation.__all__`), next to `BaseAlphaActivation` and `BaseRelativeIndicator`.

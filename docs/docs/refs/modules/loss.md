@@ -7,9 +7,9 @@ Loss modules, the relative loss indicators and the shared base classes. See also
 | [`ArithmeticalMeanIndicator`](#sonnix.modules.ArithmeticalMeanIndicator) |
 | [`AsinhMSELoss`](#sonnix.modules.AsinhMSELoss) |
 | [`AsinhSmoothL1Loss`](#sonnix.modules.AsinhSmoothL1Loss) |
-| [`BaseBinaryFocalLoss`](#sonnix.modules.loss.BaseBinaryFocalLoss) |
-| [`BaseBinaryPoly1Loss`](#sonnix.modules.loss.BaseBinaryPoly1Loss) |
-| [`BaseLoss`](#sonnix.modules.loss.BaseLoss) |
+| [`BaseBinaryFocalLoss`](#sonnix.modules.BaseBinaryFocalLoss) |
+| [`BaseBinaryPoly1Loss`](#sonnix.modules.BaseBinaryPoly1Loss) |
+| [`BaseLoss`](#sonnix.modules.BaseLoss) |
 | [`BaseRelativeIndicator`](#sonnix.modules.BaseRelativeIndicator) |
 | [`BinaryFocalLoss`](#sonnix.modules.BinaryFocalLoss) |
 | [`BinaryFocalLossWithLogits`](#sonnix.modules.BinaryFocalLossWithLogits) |
@@ -35,11 +35,11 @@ Loss modules, the relative loss indicators and the shared base classes. See also
 
 ## ::: sonnix.modules.AsinhSmoothL1Loss
 
-## ::: sonnix.modules.loss.BaseBinaryFocalLoss
+## ::: sonnix.modules.BaseBinaryFocalLoss
 
-## ::: sonnix.modules.loss.BaseBinaryPoly1Loss
+## ::: sonnix.modules.BaseBinaryPoly1Loss
 
-## ::: sonnix.modules.loss.BaseLoss
+## ::: sonnix.modules.BaseLoss
 
 ## ::: sonnix.modules.BaseRelativeIndicator
 
