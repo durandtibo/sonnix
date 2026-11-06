@@ -29,6 +29,13 @@ All notable changes to this project are documented in this file. The package is 
   `eps`, `scale`, `max_val`, `detach_indicator` attributes of the losses). The previous private
   attributes (`_max`, `_alpha`, ...) are removed.
 
+### Added
+
+- Design rules (P1-P15) in `docs/docs/conventions.md`; import-linter contracts for `factory` (independent
+  packages, `functional` does not import `modules`/`factory`, `testing` on top of the layers); tests that
+  every argument accepting a configuration documents the trust warning and that no registered module
+  mutates its inputs (target state step 1, #413).
+
 ### Fixed
 
 - `load_state_dict_to_module` finds the state dict of checkpoints saved from `DataParallel` (`module.` prefix)
