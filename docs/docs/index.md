@@ -44,7 +44,8 @@
 
 `sonnix` is a library of [PyTorch](https://pytorch.org/) building blocks that are missing from
 `torch.nn`. It has three layers: `sonnix.functional` (stateless operations), `sonnix.modules` (the
-`torch.nn.Module` wrappers) and `sonnix.utils` (helpers to inspect and train modules). It contains:
+`torch.nn.Module` wrappers) and `sonnix.utils` (helpers to inspect and train modules). It also ships
+helpers for training and testing, listed at the end. It contains:
 
 - **Losses**: robust and asymmetric regression losses (general robust, quantile, Poisson, relative
   and asinh losses), binary focal and Poly-1 losses, and `TransformedLoss`. They share the same
@@ -55,6 +56,11 @@
   `AsinhNumericalEncoder` and `PiecewiseLinearNumericalEncoder` to embed numerical features.
 - **Layers**: `NLinear`, `ExU`, `ResidualBlock`, `ScaleAndShift`, `DynamicTanh`, `DynamicAsinh`,
   the fusion modules and the shape and dtype helpers.
+- **Training and testing helpers** (not used by the modules and the functions above): `sonnix.factory`
+  builds modules, datasets and optimizers from a configuration (`ResidualBlock` and `TransformedLoss`
+  use its `resolve_module`), `sonnix.utils` inspects, freezes and checks modules (`num_parameters`,
+  `freeze_module`, `is_loss_decreasing`, `load_state_dict_to_module`), and `sonnix.testing` provides
+  `DummyDataset`.
 
 ## Installation
 
