@@ -23,8 +23,9 @@ from sonnix.functional.reduction import reduce_loss
 def relative_loss(
     loss: torch.Tensor,
     indicator: torch.Tensor,
-    reduction: str = "mean",
     eps: float = 1e-8,
+    *,
+    reduction: str = "mean",
 ) -> torch.Tensor:
     r"""Compute the relative loss.
 
@@ -39,6 +40,8 @@ def relative_loss(
         loss: The loss values. The tensor must have the same shape as
             the target.
         indicator: The indicator values.
+        eps: An arbitrary small strictly positive number to avoid
+            undefined results when the indicator is zero.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -47,8 +50,6 @@ def relative_loss(
             input, ``'sum'``: the output will be summed,
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
-        eps: An arbitrary small strictly positive number to avoid
-            undefined results when the indicator is zero.
 
     Returns:
         The computed relative loss.

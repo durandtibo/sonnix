@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 def asinh_mse_loss(
-    prediction: torch.Tensor, target: torch.Tensor, reduction: str = "mean"
+    prediction: torch.Tensor, target: torch.Tensor, *, reduction: str = "mean"
 ) -> torch.Tensor:
     r"""Compute the mean squared error (MSE) on the inverse hyperbolic
     sine (asinh) transformed predictions and targets.
@@ -57,7 +57,7 @@ def asinh_mse_loss(
 
 
 def asinh_smooth_l1_loss(
-    prediction: torch.Tensor, target: torch.Tensor, reduction: str = "mean", beta: float = 1.0
+    prediction: torch.Tensor, target: torch.Tensor, beta: float = 1.0, *, reduction: str = "mean"
 ) -> torch.Tensor:
     r"""Compute the smooth L1 loss on the inverse hyperbolic sine (asinh)
     transformed predictions and targets.
@@ -69,6 +69,8 @@ def asinh_smooth_l1_loss(
     Args:
         prediction: The predictions.
         target: The target values.
+        beta: The threshold at which to change between L1 and L2 loss.
+            The value must be non-negative.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -77,8 +79,6 @@ def asinh_smooth_l1_loss(
             input, ``'sum'``: the output will be summed,
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
-        beta: The threshold at which to change between L1 and L2 loss.
-            The value must be non-negative.
 
     Returns:
         The smooth L1 loss on the inverse hyperbolic sine (asinh)
