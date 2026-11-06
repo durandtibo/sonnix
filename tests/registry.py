@@ -27,7 +27,8 @@ class ModuleCase:
 
     Attributes:
         name: The identifier of the case (used as the test id).
-        build: A function that returns a new module.
+        build: A function that returns a new module. The keyword
+            arguments are passed to the constructor.
         make_inputs: A function that returns the (seeded) positional
             inputs of the module in ``float32``.
         differentiable: ``True`` if the output is a floating point tensor
@@ -35,7 +36,7 @@ class ModuleCase:
     """
 
     name: str
-    build: Callable[[], nn.Module]
+    build: Callable[..., nn.Module]
     make_inputs: Callable[[], tuple[torch.Tensor, ...]]
     differentiable: bool = True
 
@@ -104,7 +105,7 @@ def _case(
 ) -> ModuleCase:
     return ModuleCase(
         name=cls.__name__,
-        build=lambda: cls(*args, **kwargs),
+        build=lambda **extra: cls(*args, **kwargs, **extra),
         make_inputs=make_inputs,
         differentiable=differentiable,
     )
@@ -117,7 +118,9 @@ def _lazy_case(
 ) -> ModuleCase:
     # The arguments are built for every module: a submodule shared between
     # two modules would be modified in place (for example by ``.to(dtype)``).
-    return ModuleCase(name=cls.__name__, build=lambda: cls(*make_args()), make_inputs=make_inputs)
+    return ModuleCase(
+        name=cls.__name__, build=lambda **extra: cls(*make_args(), **extra), make_inputs=make_inputs
+    )
 
 
 _BINS = torch.tensor([[0.0, 1.0, 2.0, 3.0], [-1.0, 0.0, 1.0, 5.0], [0.0, 2.0, 4.0, 6.0]])

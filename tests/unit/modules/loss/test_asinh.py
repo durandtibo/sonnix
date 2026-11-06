@@ -12,10 +12,6 @@ from sonnix.modules import AsinhMSELoss, AsinhSmoothL1Loss
 ##################################
 
 
-def test_asinh_mse_loss_str() -> None:
-    assert str(AsinhMSELoss()).startswith("AsinhMSELoss(")
-
-
 @pytest.mark.parametrize("device", get_available_devices())
 def test_asinh_mse_loss_correct(device: str) -> None:
     device = torch.device(device)
@@ -41,14 +37,6 @@ def test_asinh_mse_loss_partially_correct(device: str) -> None:
 
 
 @pytest.mark.parametrize("device", get_available_devices())
-def test_asinh_mse_loss_reduction_sum(device: str) -> None:
-    device = torch.device(device)
-    criterion = AsinhMSELoss(reduction="sum").to(device=device)
-    loss = criterion(torch.ones(2, 2, device=device), 2 * torch.eye(2, device=device) - 1)
-    assert objects_are_allclose(loss, torch.tensor(6.214555199165568, device=device))
-
-
-@pytest.mark.parametrize("device", get_available_devices())
 def test_asinh_mse_loss_reduction_none(device: str) -> None:
     device = torch.device(device)
     criterion = AsinhMSELoss(reduction="none").to(device=device)
@@ -56,11 +44,6 @@ def test_asinh_mse_loss_reduction_none(device: str) -> None:
     assert objects_are_allclose(
         loss, torch.tensor([[0.0, 3.107277599582784], [3.107277599582784, 0.0]], device=device)
     )
-
-
-def test_asinh_mse_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"reduction must be one of"):
-        AsinhMSELoss(reduction="incorrect")
 
 
 @pytest.mark.parametrize("device", get_available_devices())
@@ -75,10 +58,6 @@ def test_asinh_mse_loss_shape(device: str, shape: tuple[int, ...]) -> None:
 #######################################
 #     Tests for AsinhSmoothL1Loss     #
 #######################################
-
-
-def test_asinh_smooth_l1_loss_str() -> None:
-    assert str(AsinhSmoothL1Loss()).startswith("AsinhSmoothL1Loss(")
 
 
 @pytest.mark.parametrize("device", get_available_devices())
@@ -106,14 +85,6 @@ def test_asinh_smooth_l1_loss_partially_correct(device: str) -> None:
 
 
 @pytest.mark.parametrize("device", get_available_devices())
-def test_asinh_smooth_l1_loss_reduction_sum(device: str) -> None:
-    device = torch.device(device)
-    criterion = AsinhSmoothL1Loss(reduction="sum").to(device=device)
-    loss = criterion(torch.ones(2, 2, device=device), 2 * torch.eye(2, device=device) - 1)
-    assert objects_are_allclose(loss, torch.tensor(2.525494348078172, device=device))
-
-
-@pytest.mark.parametrize("device", get_available_devices())
 def test_asinh_smooth_l1_loss_reduction_none(device: str) -> None:
     device = torch.device(device)
     criterion = AsinhSmoothL1Loss(reduction="none").to(device=device)
@@ -121,11 +92,6 @@ def test_asinh_smooth_l1_loss_reduction_none(device: str) -> None:
     assert objects_are_allclose(
         loss, torch.tensor([[0.0, 1.262747174039086], [1.262747174039086, 0.0]], device=device)
     )
-
-
-def test_asinh_smooth_l1_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"reduction must be one of"):
-        AsinhSmoothL1Loss(reduction="incorrect")
 
 
 @pytest.mark.parametrize("device", get_available_devices())

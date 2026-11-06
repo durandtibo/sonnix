@@ -12,10 +12,6 @@ from sonnix.modules import PoissonRegressionLoss
 ###########################################
 
 
-def test_poisson_regression_loss_str() -> None:
-    assert str(PoissonRegressionLoss()).startswith("PoissonRegressionLoss(")
-
-
 @pytest.mark.parametrize("device", get_available_devices())
 def test_poisson_regression_loss_correct(device: str) -> None:
     device = torch.device(device)
@@ -41,14 +37,6 @@ def test_poisson_regression_loss_partially_correct(device: str) -> None:
 
 
 @pytest.mark.parametrize("device", get_available_devices())
-def test_poisson_regression_loss_reduction_sum(device: str) -> None:
-    device = torch.device(device)
-    criterion = PoissonRegressionLoss(reduction="sum").to(device=device)
-    loss = criterion(torch.eye(2, device=device) + 1, torch.ones(2, 2, device=device))
-    assert objects_are_allclose(loss, torch.tensor(4.613705638880109, device=device))
-
-
-@pytest.mark.parametrize("device", get_available_devices())
 def test_poisson_regression_loss_reduction_none(device: str) -> None:
     device = torch.device(device)
     criterion = PoissonRegressionLoss(reduction="none").to(device=device)
@@ -56,11 +44,6 @@ def test_poisson_regression_loss_reduction_none(device: str) -> None:
     assert objects_are_allclose(
         loss, torch.tensor([[1.3068528194400546, 1.0], [1.0, 1.3068528194400546]], device=device)
     )
-
-
-def test_poisson_regression_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"reduction must be one of"):
-        PoissonRegressionLoss(reduction="incorrect")
 
 
 @pytest.mark.parametrize("device", get_available_devices())
