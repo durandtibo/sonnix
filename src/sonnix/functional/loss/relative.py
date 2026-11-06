@@ -16,7 +16,7 @@ __all__ = [
 from typing import TYPE_CHECKING
 
 import torch
-from coola.validation import validate_ge
+from coola.validation import validate_ge, validate_gt
 
 from sonnix.functional.reduction import reduce_loss
 
@@ -61,6 +61,7 @@ def relative_loss(
     Raises:
         ValueError: if the loss and indicator shapes do not match.
         ValueError: if the reduction is not valid.
+        ValueError: if ``eps`` is not strictly positive.
 
     Example:
         ```pycon
@@ -79,6 +80,7 @@ def relative_loss(
 
         ```
     """
+    validate_gt(eps, 0, name="eps")
     if loss.shape != indicator.shape:
         msg = f"loss {loss.shape} and indicator {indicator.shape} shapes do not match"
         raise ValueError(msg)

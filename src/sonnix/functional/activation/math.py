@@ -2,6 +2,8 @@ r"""Contain functional implementation of some activation layers."""
 
 from __future__ import annotations
 
+from coola.validation import validate_gt
+
 __all__ = ["safe_exp", "safe_log"]
 
 from typing import TYPE_CHECKING
@@ -76,6 +78,9 @@ def safe_log(
     Returns:
         A tensor with the natural logarithm of the elements.
 
+    Raises:
+        ValueError: if ``min_val`` is not strictly positive.
+
     Example:
         ```pycon
         >>> import torch
@@ -85,6 +90,7 @@ def safe_log(
 
         ```
     """
+    validate_gt(min_val, 0, name="min_val")
     clamped = input.clamp(min=min_val)
     if preserve_gradient:
         clamped = input + (clamped - input).detach()

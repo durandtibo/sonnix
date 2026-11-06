@@ -2,6 +2,8 @@ r"""Contain activation modules using mathematical functions."""
 
 from __future__ import annotations
 
+from coola.validation import validate_gt
+
 __all__ = ["Asinh", "Exp", "Expm1", "Log", "Log1p", "SafeExp", "SafeLog", "Sin", "Sinh"]
 
 import torch
@@ -252,6 +254,9 @@ class SafeLog(nn.Module):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
+    Raises:
+        ValueError: if ``min_val`` is not strictly positive.
+
     Example:
         ```pycon
         >>> import torch
@@ -269,6 +274,7 @@ class SafeLog(nn.Module):
 
     def __init__(self, min_val: float = 1e-8, preserve_gradient: bool = False) -> None:
         super().__init__()
+        validate_gt(min_val, 0, name="min_val")
         self._min = float(min_val)
         self._preserve_gradient = preserve_gradient
 

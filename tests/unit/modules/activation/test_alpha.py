@@ -390,3 +390,9 @@ def test_gaussian_dtype(dtype: torch.dtype) -> None:
     module = Gaussian(dtype=dtype)
     assert module.alpha.dtype == dtype
     assert module(torch.ones(2, 3, dtype=dtype)).dtype == dtype
+
+
+@pytest.mark.parametrize("module", [ExpSin, Gaussian, Laplacian, MultiQuadratic, Quadratic])
+def test_alpha_activation_invalid_num_parameters(module: type[torch.nn.Module]) -> None:
+    with pytest.raises(ValueError, match=r"num_parameters must be greater than or equal to 1"):
+        module(num_parameters=0)

@@ -2,6 +2,8 @@ r"""Contain activation modules with a learnable parameter ``alpha``."""
 
 from __future__ import annotations
 
+from coola.validation import validate_ge
+
 __all__ = [
     "BaseAlphaActivation",
     "ExpSin",
@@ -44,6 +46,9 @@ class BaseAlphaActivation(nn.Module):
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
 
+    Raises:
+        ValueError: if ``num_parameters`` is lower than 1.
+
     Example:
         ```pycon
         >>> import torch
@@ -68,6 +73,7 @@ class BaseAlphaActivation(nn.Module):
         dtype: torch.dtype | None = None,
     ) -> None:
         super().__init__()
+        validate_ge(num_parameters, 1, name="num_parameters")
         self.alpha: Tensor
         alpha = torch.full(
             (num_parameters,),

@@ -3,6 +3,8 @@ loss."""
 
 from __future__ import annotations
 
+from coola.validation import validate_gt
+
 __all__ = ["general_robust_regression_loss"]
 
 from typing import TYPE_CHECKING
@@ -72,6 +74,7 @@ def general_robust_regression_loss(
 
     Raises:
         ValueError: if the reduction is not valid.
+        ValueError: if ``scale`` is not strictly positive.
 
     Example:
         ```pycon
@@ -86,6 +89,7 @@ def general_robust_regression_loss(
 
         ```
     """
+    validate_gt(scale, 0, name="scale")
     squared_error = prediction.sub(target).div(scale).pow(2)
     if abs(alpha - 2) < ALPHA_EPS:
         loss = squared_error

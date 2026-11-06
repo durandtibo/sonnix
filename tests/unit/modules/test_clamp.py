@@ -56,3 +56,18 @@ def test_clamp_forward_shape(device: str, shape: tuple[int, ...]) -> None:
     assert objects_are_allclose(
         module(torch.ones(*shape, device=device)), torch.ones(*shape, device=device)
     )
+
+
+def test_clamp_min_greater_than_max() -> None:
+    with pytest.raises(ValueError, match=r"min_val \(2.0\) must be lower than or equal to"):
+        Clamp(min_val=2.0, max_val=-2.0)
+
+
+def test_clamp_min_equal_to_max() -> None:
+    assert Clamp(min_val=1.0, max_val=1.0)(torch.tensor([0.0, 2.0])).equal(torch.ones(2))
+
+
+def test_clamp_without_min() -> None:
+    assert Clamp(min_val=None, max_val=1.0)(torch.tensor([-5.0, 2.0])).equal(
+        torch.tensor([-5.0, 1.0])
+    )

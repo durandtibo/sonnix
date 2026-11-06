@@ -296,3 +296,9 @@ def test_reversed_relative_indicator(device: str) -> None:
 def test_moment_mean_indicator_incorrect_k(k: int) -> None:
     with pytest.raises(ValueError, match="k must be greater than or equal to 1"):
         moment_mean_indicator(torch.randn(2, 3), torch.randn(2, 3), k=k)
+
+
+@pytest.mark.parametrize("eps", [0.0, -1.0])
+def test_relative_loss_invalid_eps(eps: float) -> None:
+    with pytest.raises(ValueError, match=r"eps must be greater than 0"):
+        relative_loss(torch.ones(2, 3), torch.ones(2, 3), eps=eps)

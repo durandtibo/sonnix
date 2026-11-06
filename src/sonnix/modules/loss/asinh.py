@@ -3,6 +3,8 @@ r"""Contain the loss functions that use the inverse hyperbolic sine
 
 from __future__ import annotations
 
+from coola.validation import validate_ge
+
 __all__ = ["AsinhMSELoss", "AsinhSmoothL1Loss"]
 
 from typing import TYPE_CHECKING
@@ -80,6 +82,9 @@ class AsinhSmoothL1Loss(BaseLoss):
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
 
+    Raises:
+        ValueError: if ``beta`` is negative.
+
     Example:
         ```pycon
         >>> import torch
@@ -97,6 +102,7 @@ class AsinhSmoothL1Loss(BaseLoss):
 
     def __init__(self, beta: float = 1.0, *, reduction: Reduction = "mean") -> None:
         super().__init__(reduction=reduction)
+        validate_ge(beta, 0, name="beta")
         self._beta = float(beta)
 
     def extra_repr(self) -> str:
