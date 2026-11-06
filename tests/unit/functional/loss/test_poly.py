@@ -197,3 +197,11 @@ def test_binary_poly1_loss_with_logits_loss_backward(device: str) -> None:
     )
     loss.backward()
     assert loss.allclose(torch.tensor(0.5822031346214558, device=device))
+
+
+def test_binary_poly1_loss_with_logits_matches_probability_version() -> None:
+    logits = torch.randn(6, 5, dtype=torch.float64)
+    target = torch.randint(0, 2, (6, 5)).double()
+    assert binary_poly1_loss_with_logits(logits, target).allclose(
+        binary_poly1_loss(logits.sigmoid(), target)
+    )

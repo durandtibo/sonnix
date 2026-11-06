@@ -5,10 +5,14 @@ from __future__ import annotations
 __all__ = ["binary_poly1_loss", "binary_poly1_loss_with_logits"]
 
 
-import torch
+from typing import TYPE_CHECKING
+
 from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_logits
 
 from sonnix.functional.reduction import reduce_loss
+
+if TYPE_CHECKING:
+    import torch
 
 
 def binary_poly1_loss(
@@ -22,6 +26,11 @@ def binary_poly1_loss(
     Based on "PolyLoss: A Polynomial Expansion Perspective of
     Classification Loss Functions"
     (https://arxiv.org/pdf/2204.12511)
+
+    Note:
+        ``torch.nn.functional.binary_cross_entropy`` raises an error under
+        ``torch.autocast``. Use the ``*_with_logits`` variant for mixed
+        precision training.
 
     Args:
         prediction: The float tensor with predictions as probabilities
@@ -77,6 +86,10 @@ def binary_poly1_loss_with_logits(
     Classification Loss Functions"
     (https://arxiv.org/pdf/2204.12511)
 
+    Note:
+        Targets are expected to be binary (0 or 1). This variant is safe to
+        use with ``torch.autocast``.
+
     Args:
         prediction: The float tensor with predictions as unnormalized
             scores (often referred to as logits) for each example.
@@ -113,8 +126,8 @@ def binary_poly1_loss_with_logits(
 
         ```
     """
-    p = torch.sigmoid(prediction)
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
-    p_t = p * target + (1 - p) * (1 - target)
+    # For binary targets, ``exp(-ce) = p_t``: no need to compute the sigmoid.
+    p_t = ce_loss.neg().exp()
     loss = ce_loss + alpha * (1 - p_t)
     return reduce_loss(loss, reduction)

@@ -254,3 +254,12 @@ def test_binary_focal_loss_incorrect_alpha(loss: Callable) -> None:
 def test_binary_focal_loss_incorrect_gamma(loss: Callable) -> None:
     with pytest.raises(ValueError, match="Incorrect parameter gamma"):
         loss(torch.rand(2, 3), torch.ones(2, 3), gamma=-1.0)
+
+
+def test_binary_focal_loss_with_logits_matches_probability_version() -> None:
+    logits = torch.randn(6, 5, dtype=torch.float64)
+    target = torch.randint(0, 2, (6, 5)).double()
+    for alpha in (-1.0, 0.25):
+        assert binary_focal_loss_with_logits(logits, target, alpha=alpha).allclose(
+            binary_focal_loss(logits.sigmoid(), target, alpha=alpha)
+        )
