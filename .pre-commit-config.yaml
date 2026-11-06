@@ -6,6 +6,11 @@ default_stages: [pre-commit]
 exclude: ^\.make/
 
 repos:
+  - repo: https://github.com/srstevenson/nb-clean
+    rev: v6.0.0
+    hooks:
+      - id: nb-clean
+        args: ["--remove-empty-cells", "--remove-all-notebook-metadata"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
