@@ -215,7 +215,8 @@ class SafeExp(nn.Module):
 
     The values that are higher than the specified maximum value are
     set to this maximum value. Using a not too large positive value
-    leads to an output tensor without Inf.
+    leads to an output tensor without Inf. A ``NaN`` input stays
+    ``NaN``.
 
     Args:
         max_val: The maximum value before to compute the exponential.
@@ -261,7 +262,13 @@ class SafeLog(nn.Module):
 
     The values that are lower than the specified minimum value are set
     to this minimum value. Using a small positive value leads to an
-    output tensor without NaN or Inf.
+    output tensor without NaN or Inf. A ``NaN`` input stays ``NaN``.
+
+    Note:
+        With ``preserve_gradient=True``, the gradient is the one of the
+        logarithm at the clamped value, ``1 / min_val`` for an input
+        lower than ``min_val`` (``1e8`` at ``0`` with the default
+        ``min_val``), not a finite or zero gradient.
 
     Args:
         min_val: The minimum value before to compute the logarithm natural.
