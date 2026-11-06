@@ -5,18 +5,22 @@ from __future__ import annotations
 
 __all__ = ["GeneralRobustRegressionLoss"]
 
+from typing import TYPE_CHECKING
 
-import torch
 from coola.validation import validate_gt
-from torch import nn
 
 from sonnix.functional import (
-    check_loss_reduction_strategy,
     general_robust_regression_loss,
 )
+from sonnix.modules.loss.base import BaseLoss
+
+if TYPE_CHECKING:
+    import torch
+
+    from sonnix.functional.reduction import Reduction
 
 
-class GeneralRobustRegressionLoss(nn.Module):
+class GeneralRobustRegressionLoss(BaseLoss):
     r"""Implement the general robust regression loss a.k.a. Barron robust
     loss.
 
@@ -75,16 +79,13 @@ class GeneralRobustRegressionLoss(nn.Module):
         scale: float = 1.0,
         max_val: float | None = None,
         *,
-        reduction: str = "mean",
+        reduction: Reduction = "mean",
     ) -> None:
-        super().__init__()
+        super().__init__(reduction=reduction)
         self._alpha = float(alpha)
         validate_gt(scale, 0, name="scale")
         self._scale = float(scale)
         self._max = max_val
-
-        check_loss_reduction_strategy(reduction)
-        self.reduction = reduction
 
     def extra_repr(self) -> str:
         return f"alpha={self._alpha}, scale={self._scale}, max_val={self._max}, reduction={self.reduction}"

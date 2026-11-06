@@ -5,12 +5,18 @@ from __future__ import annotations
 
 __all__ = ["general_robust_regression_loss"]
 
+from typing import TYPE_CHECKING
+
 import torch
 
 from sonnix.functional.reduction import reduce_loss
 
 # ``alpha`` values closer than ``ALPHA_EPS`` to 0 or 2 use the limit formulas.
 ALPHA_EPS = 1e-5
+
+
+if TYPE_CHECKING:
+    from sonnix.functional.reduction import Reduction
 
 
 def general_robust_regression_loss(
@@ -20,7 +26,7 @@ def general_robust_regression_loss(
     scale: float = 1.0,
     max_val: float | None = None,
     *,
-    reduction: str = "mean",
+    reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the general robust regression loss a.k.a. Barron robust
     loss.

@@ -12,9 +12,15 @@ from sonnix.functional.reduction import reduce_loss
 if TYPE_CHECKING:
     import torch
 
+    from sonnix.functional.reduction import Reduction
+
 
 def poisson_regression_loss(
-    prediction: torch.Tensor, target: torch.Tensor, eps: float = 1e-8, *, reduction: str = "mean"
+    prediction: torch.Tensor,
+    target: torch.Tensor,
+    eps: float = 1e-8,
+    *,
+    reduction: Reduction = "mean",
 ) -> torch.Tensor:
     r"""Compute the Poisson regression loss.
 
