@@ -9,7 +9,7 @@ import warnings
 from typing import TYPE_CHECKING
 
 import torch
-from coola.validation import validate_ge
+from coola.validation import validate_ge, validate_in
 from torch import nn
 
 from sonnix.modules.numerical._utils import prepare_tensor_param
@@ -39,7 +39,17 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
             than two bins: a segment of zero width is a step function
             (``0`` when the input is not above the edge, ``1``
             otherwise). With only two bins (a single segment), the
-            width is set to ``1``.
+            width is set to ``1``. Integer bins are converted to the
+            default floating point dtype.
+        on_duplicate: The behaviour when ``bins`` contain duplicate
+            edges: ``'warn'`` emits a ``UserWarning`` and ``'ignore'``
+            is silent. The duplicate edges are step functions in both
+            cases.
+
+    Raises:
+        ValueError: if ``bins`` is not a 1d or 2d tensor, if it has no
+            bin, if it contains a ``NaN`` or an infinite value, or if
+            ``on_duplicate`` is not valid.
 
     Shape:
         - Input: ``(*, n_features)``, where ``*`` means any number of
@@ -87,23 +97,30 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
     lower: Tensor
     upper: Tensor
 
-    def __init__(self, bins: Tensor) -> None:
+    def __init__(self, bins: Tensor, *, on_duplicate: str = "warn") -> None:
         super().__init__()
-        bins = prepare_tensor_param(bins, name="bins").sort(dim=1)[0]
+        validate_in(on_duplicate, ("warn", "ignore"), name="on_duplicate")
+        bins = prepare_tensor_param(bins, name="bins")
+        if not bins.is_floating_point():
+            bins = bins.to(torch.get_default_dtype())
+        bins = bins.sort(dim=1)[0]
         n_bins = bins.shape[1]
+        validate_ge(n_bins, 1, name="n_bins")
+        if not bins.isfinite().all():
+            msg = "bins must contain only finite values"
+            raise ValueError(msg)
         self.register_buffer("edges", bins[:, :-1] if n_bins > 1 else bins)
         width = bins.diff() if n_bins > 1 else torch.ones_like(bins)
-        is_duplicate = width == 0
-        if n_bins > 2 and is_duplicate.any():
+        # With a single segment, a zero width is replaced by 1 instead of a step.
+        is_step = (width == 0) & (n_bins > 2)
+        if on_duplicate == "warn" and is_step.any():
             warnings.warn(
                 "The bins contain duplicate edges. The corresponding segments are step functions.",
                 UserWarning,
                 stacklevel=2,
             )
-        else:
-            is_duplicate = torch.zeros_like(is_duplicate)
-        width[width == 0] = 1.0
-        self.register_buffer("is_step", is_duplicate, persistent=False)
+        width = torch.where(width == 0, 1.0, width)
+        self.register_buffer("is_step", is_step, persistent=False)
         self.register_buffer("width", width)
         # The first segment is only clamped above and the last segment only
         # below, the other segments are clamped to ``[0, 1]``. A single
@@ -122,7 +139,7 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         self.register_buffer("upper", upper, persistent=False)
 
     @classmethod
-    def from_quantiles(cls, x: Tensor, n_bins: int) -> Self:
+    def from_quantiles(cls, x: Tensor, n_bins: int, *, on_duplicate: str = "warn") -> Self:
         r"""Create an encoder where the bins are the quantiles of the
         data.
 
@@ -137,14 +154,20 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
             n_bins: The number of bins, which has to be greater than
                 or equal to 2. The edges are the quantiles
                 ``0, 1 / (n_bins - 1), ..., 1`` of each feature.
+            on_duplicate: The behaviour when some quantiles are equal,
+                which is common for discrete or skewed features:
+                ``'warn'`` emits a ``UserWarning`` and ``'ignore'`` is
+                silent. The equal quantiles give step segments in both
+                cases.
 
         Returns:
             An instantiated encoder with ``n_bins - 1`` segments per
                 feature.
 
         Raises:
-            ValueError: if ``n_bins`` is lower than 2 or if ``x`` is
-                not a 1d or 2d tensor.
+            ValueError: if ``n_bins`` is lower than 2, if ``x`` is
+                not a 1d or 2d tensor, or if ``on_duplicate`` is not
+                valid.
 
         Example:
             ```pycon
@@ -163,7 +186,7 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         validate_ge(n_bins, 2, name="n_bins")
         x = prepare_tensor_param(x.view(-1, 1) if x.ndim == 1 else x, name="x")
         probabilities = torch.linspace(0.0, 1.0, n_bins, dtype=x.dtype, device=x.device)
-        return cls(torch.quantile(x, probabilities, dim=0).t())
+        return cls(torch.quantile(x, probabilities, dim=0).t(), on_duplicate=on_duplicate)
 
     @property
     def n_features(self) -> int:
