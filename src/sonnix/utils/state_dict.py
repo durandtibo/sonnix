@@ -63,14 +63,14 @@ def find_module_state_dict(
         if set(state_dict.keys()) == module_keys:
             return state_dict
         for value in state_dict.values():
-            state_dict = find_module_state_dict(value, module_keys)
-            if state_dict:
-                return state_dict
+            found = find_module_state_dict(value, module_keys)
+            if found:
+                return found
     elif isinstance(state_dict, (list, tuple, set)):
         for value in state_dict:
-            state_dict = find_module_state_dict(value, module_keys)
-            if state_dict:
-                return state_dict
+            found = find_module_state_dict(value, module_keys)
+            if found:
+                return found
     return {}
 
 
@@ -80,7 +80,10 @@ def load_state_dict_to_module(
     r"""Load a state dict into a given module.
 
     This function will automatically try to find the module state dict
-    in the given state dict.
+    in the given state dict. With ``strict=False``, torch does not raise
+    when keys are missing, so the search is run when none of the module
+    keys is found in the given state dict. If the module has no state,
+    nothing is searched.
 
     Args:
         state_dict: The state dict.
@@ -112,20 +115,43 @@ def load_state_dict_to_module(
 
         ```
     """
+    module_keys = set(module.state_dict().keys())
     try:
-        module.load_state_dict(state_dict, strict)
+        result = module.load_state_dict(state_dict, strict)
     except RuntimeError:
         logger.warning(
             "Could not load the state dict. Try to find automatically the part of the state dict "
             "that matches with the module."
         )
-        state_dict = find_module_state_dict(state_dict, set(module.state_dict().keys()))
-        if not state_dict:
+        found = find_module_state_dict(state_dict, module_keys)
+        if not found:
             logger.info("Could not find a part of the state dict that matches with the module.")
             raise
         logger.info(
             "Found a part of the state dict that matches with the module. Try to load it in the "
             "module."
         )
-        module.load_state_dict(state_dict, strict)
+        module.load_state_dict(found, strict)
+    else:
+        if not strict and module_keys and set(result.missing_keys) == module_keys:
+            logger.warning(
+                "No key of the module was found in the state dict. Try to find automatically the "
+                "part of the state dict that matches with the module."
+            )
+            found = find_module_state_dict(state_dict, module_keys)
+            if not found:
+                logger.warning(
+                    "Could not find a part of the state dict that matches with the module. "
+                    "No weight was loaded. Missing keys: %s. Unexpected keys: %s.",
+                    result.missing_keys,
+                    result.unexpected_keys,
+                )
+                return
+            result = module.load_state_dict(found, strict)
+        if result.missing_keys or result.unexpected_keys:
+            logger.warning(
+                "Missing keys: %s. Unexpected keys: %s.",
+                result.missing_keys,
+                result.unexpected_keys,
+            )
     logger.info("The weights are loaded in the module.")

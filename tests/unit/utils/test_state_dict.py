@@ -74,3 +74,45 @@ def test_load_state_dict_to_module_dict_strict_false_partial_state() -> None:
         5,
     )  # The bias is randomly initialized so it is not possible to know the exact value.
     assert module.weight.equal(torch.ones(5, 4))
+
+
+@pytest.mark.parametrize("state_dict", STATE_DICTS)
+def test_load_state_dict_to_module_find_module_strict_false(state_dict: dict) -> None:
+    module = nn.Linear(4, 5)
+    load_state_dict_to_module(state_dict, module, strict=False)
+    assert objects_are_equal(module(torch.ones(2, 4)), torch.full((2, 5), fill_value=6.0))
+
+
+def test_load_state_dict_to_module_strict_false_no_match_loads_nothing() -> None:
+    module = nn.Linear(4, 5)
+    weight = module.weight.detach().clone()
+    load_state_dict_to_module({"model": {"other": torch.ones(3)}}, module, strict=False)
+    assert module.weight.equal(weight)
+
+
+def test_load_state_dict_to_module_strict_false_no_match_warns(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    with caplog.at_level("WARNING"):
+        load_state_dict_to_module({"model": {"other": 1}}, nn.Linear(4, 5), strict=False)
+    assert "No weight was loaded" in caplog.text
+
+
+def test_load_state_dict_to_module_strict_false_no_match_does_not_log_loaded(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    with caplog.at_level("INFO"):
+        load_state_dict_to_module({"model": {"other": 1}}, nn.Linear(4, 5), strict=False)
+    assert "The weights are loaded in the module." not in caplog.text
+
+
+def test_load_state_dict_to_module_strict_false_logs_missing_keys(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    with caplog.at_level("WARNING"):
+        load_state_dict_to_module({"weight": torch.ones(5, 4)}, nn.Linear(4, 5), strict=False)
+    assert "Missing keys: ['bias']. Unexpected keys: []." in caplog.text
+
+
+def test_load_state_dict_to_module_module_without_state() -> None:
+    load_state_dict_to_module({"model": {"weight": 1}}, nn.ReLU(), strict=False)
