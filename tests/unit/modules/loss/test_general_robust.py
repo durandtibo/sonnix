@@ -41,6 +41,18 @@ def test_general_robust_regression_loss_incorrect_scale() -> None:
         GeneralRobustRegressionLoss(scale=0)
 
 
+@pytest.mark.parametrize("alpha", [float("nan"), float("inf")])
+def test_general_robust_regression_loss_incorrect_alpha(alpha: float) -> None:
+    with pytest.raises(ValueError, match=r"alpha cannot be NaN or \+inf"):
+        GeneralRobustRegressionLoss(alpha=alpha)
+
+
+@pytest.mark.parametrize("max_val", [0.0, -1.0])
+def test_general_robust_regression_loss_incorrect_max_val(max_val: float) -> None:
+    with pytest.raises(ValueError, match=r"max_val must be greater than 0"):
+        GeneralRobustRegressionLoss(max_val=max_val)
+
+
 @pytest.mark.parametrize("reduction", VALID_REDUCTIONS)
 def test_general_robust_regression_loss_reduction(reduction: str) -> None:
     assert GeneralRobustRegressionLoss(reduction=reduction).reduction == reduction

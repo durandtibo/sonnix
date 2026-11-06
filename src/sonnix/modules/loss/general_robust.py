@@ -7,12 +7,9 @@ __all__ = ["GeneralRobustRegressionLoss"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_gt
-
-from sonnix.functional import (
-    general_robust_regression_loss,
-)
+from sonnix.functional import general_robust_regression_loss
 from sonnix.modules.loss.base import BaseLoss
+from sonnix.validation import validate_general_robust_params
 
 if TYPE_CHECKING:
     import torch
@@ -37,15 +34,20 @@ class GeneralRobustRegressionLoss(BaseLoss):
     Args:
         alpha: The shape parameter that controls the robustness of the
             loss. It is a Python float, not a tensor. ``-inf`` is
-            supported (Welsch loss). The limit cases ``alpha=2``
+            supported (Welsch loss), ``NaN`` and ``+inf`` are not. The limit cases ``alpha=2``
             (``x^2``) and ``alpha=0`` (``log(0.5 * x^2 + 1)``) are used
             when ``alpha`` is within ``1e-5`` of 2 or 0.
         scale: The scale parameter that controls the size of the loss's
             quadratic bowl near 0.
         max_val: The max value to clip the loss before to compute the
-            reduction. ``None`` means no clipping is used.
+            reduction. It has to be strictly positive.
+            ``None`` means no clipping is used.
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
+
+    Raises:
+        ValueError: if ``alpha`` is ``NaN`` or ``+inf``, or if ``scale`` or
+            ``max_val`` is not strictly positive.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -80,7 +82,7 @@ class GeneralRobustRegressionLoss(BaseLoss):
     ) -> None:
         super().__init__(reduction=reduction)
         self.alpha = float(alpha)
-        validate_gt(scale, 0, name="scale")
+        validate_general_robust_params(alpha, scale, max_val)
         self.scale = float(scale)
         self.max_val = max_val
 

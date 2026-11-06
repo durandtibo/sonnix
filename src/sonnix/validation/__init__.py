@@ -13,6 +13,7 @@ __all__ = [
     "validate_abs_range",
     "validate_focal_params",
     "validate_frequency",
+    "validate_general_robust_params",
     "validate_loss_reduction_strategy",
     "validate_moment_order",
     "validate_same_shape",
@@ -20,6 +21,7 @@ __all__ = [
 
 from sonnix.validation.loss import (
     validate_focal_params,
+    validate_general_robust_params,
     validate_loss_reduction_strategy,
     validate_moment_order,
 )

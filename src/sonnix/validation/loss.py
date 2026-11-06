@@ -5,11 +5,14 @@ from __future__ import annotations
 __all__ = [
     "VALID_REDUCTIONS",
     "validate_focal_params",
+    "validate_general_robust_params",
     "validate_loss_reduction_strategy",
     "validate_moment_order",
 ]
 
-from coola.validation import validate_ge, validate_in, validate_range
+import math
+
+from coola.validation import validate_ge, validate_gt, validate_in, validate_range
 
 VALID_REDUCTIONS: tuple[str, ...] = ("none", "mean", "sum", "batchmean")
 r"""The valid loss reduction strategies."""
@@ -36,6 +39,34 @@ def validate_focal_params(alpha: float | None, gamma: float) -> None:
     if alpha is not None:
         validate_range(alpha, 0, 1, name="alpha")
     validate_ge(gamma, 0, name="gamma")
+
+
+def validate_general_robust_params(alpha: float, scale: float, max_val: float | None) -> None:
+    r"""Validate the parameters of the general robust regression loss.
+
+    Args:
+        alpha: The shape parameter. It cannot be ``NaN`` or ``+inf``
+            (``-inf`` is the Welsch limit).
+        scale: The scale parameter. It has to be strictly positive.
+        max_val: The max value to clip the loss, or ``None`` to
+            disable the clipping. It has to be strictly positive.
+
+    Raises:
+        ValueError: if one of the parameters is invalid.
+
+    Example:
+        ```pycon
+        >>> from sonnix.validation import validate_general_robust_params
+        >>> validate_general_robust_params(alpha=1.0, scale=1.0, max_val=None)
+
+        ```
+    """
+    if math.isnan(alpha) or alpha == math.inf:
+        msg = f"alpha cannot be NaN or +inf (received: {alpha})"
+        raise ValueError(msg)
+    validate_gt(scale, 0, name="scale")
+    if max_val is not None:
+        validate_gt(max_val, 0, name="max_val")
 
 
 def validate_loss_reduction_strategy(reduction: str) -> None:
