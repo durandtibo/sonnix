@@ -62,8 +62,6 @@
 
 ### ::: sonnix.functional.power.safe_pow
 
-### ::: sonnix.functional.check_loss_reduction_strategy
-
 ## All
 
 ### ::: sonnix.functional

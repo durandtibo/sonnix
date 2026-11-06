@@ -3,8 +3,8 @@ from __future__ import annotations
 import pytest
 import torch
 
-from sonnix.functional.reduction import VALID_REDUCTIONS
 from sonnix.modules.loss import BaseLoss
+from sonnix.validation.loss import VALID_REDUCTIONS
 
 
 class MyLoss(BaseLoss):

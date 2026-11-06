@@ -19,7 +19,6 @@ __all__ = [
     "binary_focal_loss_with_logits",
     "binary_poly1_loss",
     "binary_poly1_loss_with_logits",
-    "check_loss_reduction_strategy",
     "classical_relative_indicator",
     "general_robust_regression_loss",
     "geometric_mean_indicator",
@@ -65,4 +64,4 @@ from sonnix.functional.loss.relative import (
     relative_loss,
     reversed_relative_indicator,
 )
-from sonnix.functional.reduction import Reduction, check_loss_reduction_strategy, reduce_loss
+from sonnix.functional.reduction import Reduction, reduce_loss

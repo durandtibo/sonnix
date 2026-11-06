@@ -5,24 +5,9 @@ import torch
 from coola.equality import objects_are_equal
 from coola.utils.tensor import get_available_devices
 
-from sonnix.functional import check_loss_reduction_strategy, reduce_loss
+from sonnix.functional import reduce_loss
 
 SHAPES = [(2,), (2, 3), (2, 3, 4), (2, 3, 4, 5)]
-
-###################################################
-#     Tests for check_loss_reduction_strategy     #
-###################################################
-
-
-@pytest.mark.parametrize("reduction", ["none", "mean", "sum", "batchmean"])
-def test_check_loss_reduction_strategy_valid(reduction: str) -> None:
-    check_loss_reduction_strategy(reduction)
-
-
-def test_check_loss_reduction_strategy_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"reduction must be one of"):
-        check_loss_reduction_strategy("incorrect")
-
 
 #################################
 #     Tests for reduce_loss     #

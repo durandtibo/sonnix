@@ -16,12 +16,10 @@ from coola.validation import validate_in
 from torch import nn
 
 from sonnix.modules.numerical._utils import (
-    check_abs_range,
-    check_frequency,
     prepare_tensor_param,
 )
 from sonnix.utils.random import resolve_torch_generator
-from sonnix.validation import validate_same_shape
+from sonnix.validation import validate_abs_range, validate_frequency, validate_same_shape
 
 if TYPE_CHECKING:
     from typing import Self
@@ -218,11 +216,11 @@ class CosSinNumericalEncoder(nn.Module):
         if frequency_range is not None:
             min_frequency, max_frequency = frequency_range
         elif value_range is not None:
-            check_abs_range(min_abs_value=value_range[0], max_abs_value=value_range[1])
+            validate_abs_range(min_abs_value=value_range[0], max_abs_value=value_range[1])
             min_frequency, max_frequency = 1 / value_range[1], 1 / value_range[0]
         else:
             raise ValueError(msg)
-        check_frequency(
+        validate_frequency(
             num_frequencies=num_frequencies,
             min_frequency=min_frequency,
             max_frequency=max_frequency,
