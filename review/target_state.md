@@ -585,3 +585,18 @@ Estimated from the current file sizes; docstrings and examples included.
 8. `extra_repr` and public attributes named like the arguments (P11).
 9. One registry entry: export, compile, dtype and parity tests come for free (P10).
 10. Export it from the flat `__init__.py` only; document it in the matching `docs/docs/refs` page (P12).
+
+## Appendix C: status
+
+| Step | Pull request | Notes                                                                                                         |
+| ---- | ------------ | ------------------------------------------------------------------------------------------------------------- |
+| 1    | #413         | merged                                                                                                        |
+| 2    | #414         | merged                                                                                                        |
+| 3    | #415         | merged                                                                                                        |
+| 4    | #417         | open                                                                                                          |
+| 5    | #418         | open, stacked on #417. D4 is not applied (`# noqa: A002` kept)                                                |
+| 6    | #419         | open, stacked on #418                                                                                         |
+| 7    | #420         | open, stacked on #419. `resolve_range` does not check `0 < min <= max` (the callers do)                       |
+| 8    | #422         | open, stacked on #420. Sub-package `__init__.py` files are docstring-only (ruff F401 without `__all__`)        |
+| 9    | #423         | open, stacked on #422. Helpers named `probability_of_target` / `class_weight` (public names). F19 not done     |
+| 10   | this PR      | migration table in `CHANGELOG.md`, conventions updated                                                        |
