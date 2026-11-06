@@ -86,7 +86,7 @@ notebook = [
 Homepage = "https://github.com/durandtibo/sonnix"
 Repository = "https://github.com/durandtibo/sonnix"
 Documentation = "https://durandtibo.github.io/sonnix/"
-Changelog = "https://github.com/durandtibo/sonnix/releases"
+Changelog = "https://github.com/durandtibo/sonnix/blob/main/CHANGELOG.md"
 Issues = "https://github.com/durandtibo/sonnix/issues"
 
 [tool.uv.pip]
