@@ -46,12 +46,6 @@ class AsinhMSELoss(BaseLoss):
         ```
     """
 
-    def __init__(self, *, reduction: Reduction = "mean") -> None:
-        super().__init__(reduction=reduction)
-
-    def extra_repr(self) -> str:
-        return f"reduction={self.reduction}"
-
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         return asinh_mse_loss(prediction, target, reduction=self.reduction)
 

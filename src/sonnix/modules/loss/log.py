@@ -92,8 +92,5 @@ class MSLELoss(BaseLoss):
         ```
     """
 
-    def __init__(self, *, reduction: Reduction = "mean") -> None:
-        super().__init__(reduction=reduction)
-
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         return msle_loss(prediction, target, reduction=self.reduction)

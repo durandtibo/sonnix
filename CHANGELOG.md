@@ -7,6 +7,9 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- `BaseLoss(reduction)` is keyword-only like all the losses: `BaseLoss("sum")` is a `TypeError`. The
+  redundant `__init__` of `MSLELoss` and `AsinhMSELoss`, and the copy of `extra_repr` of `AsinhMSELoss`, are
+  removed (review 3.1, #PR).
 - The hyperparameters of the modules are public attributes named like the constructor arguments
   (`ReLUn.max_val`, `Clamp.min_val`/`max_val`, `Snake.frequency`, `Pow.exponent`,
   `SafeExp.max_val`/`preserve_gradient`, `SafeLog.min_val`/`preserve_gradient`, `Squeeze.dim`,
