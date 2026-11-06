@@ -48,7 +48,7 @@
 helpers for training and testing, listed at the end. It contains:
 
 - **Losses**: robust and asymmetric regression losses (general robust, quantile, Poisson, relative
-  and asinh losses), binary focal and Poly-1 losses, and `TransformedLoss`. They share the same
+  losses), binary focal and Poly-1 losses, and `TransformedLoss`. They share the same
   `reduction` options (`none`, `mean`, `sum`, `batchmean`).
 - **Activations**: parametric activations (`Snake`, `Gaussian`, `Laplacian`, `Quadratic`,
   `MultiQuadratic`, `ExpSin`), `ReLUn`, `SquaredReLU`, `Asinh` and safe `exp`/`log` modules.

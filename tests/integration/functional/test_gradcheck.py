@@ -34,8 +34,6 @@ def _probability() -> tuple[torch.Tensor, torch.Tensor]:
 # the first input (the prediction). The inputs are random, so none of them is
 # at a non-differentiable point.
 LOSSES: dict[str, tuple[Callable[..., torch.Tensor], Callable[[], tuple[torch.Tensor, ...]]]] = {
-    "asinh_mse_loss": (F.asinh_mse_loss, _normal),
-    "asinh_smooth_l1_loss": (F.asinh_smooth_l1_loss, _normal),
     "binary_focal_loss": (F.binary_focal_loss, _probability),
     "binary_focal_loss_with_logits": (F.binary_focal_loss_with_logits, _normal_target),
     "binary_poly1_loss": (F.binary_poly1_loss, _probability),
@@ -46,7 +44,6 @@ LOSSES: dict[str, tuple[Callable[..., torch.Tensor], Callable[[], tuple[torch.Te
         _normal,
     ),
     "log_cosh_loss": (F.log_cosh_loss, _normal),
-    "msle_loss": (F.msle_loss, _positive),
     "poisson_regression_loss": (F.poisson_regression_loss, _positive),
     "quantile_regression_loss": (F.quantile_regression_loss, _normal),
     "relative_loss": (F.relative_loss, _positive),

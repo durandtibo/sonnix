@@ -5,8 +5,8 @@ import torch
 from coola.equality import objects_are_allclose
 from coola.utils.tensor import get_available_devices
 
-from sonnix.functional import log_cosh_loss, msle_loss
-from sonnix.modules import LogCoshLoss, MSLELoss
+from sonnix.functional import log_cosh_loss
+from sonnix.modules import LogCoshLoss
 from tests.helpers import make_generator
 
 #################################
@@ -82,45 +82,3 @@ def test_log_cosh_loss_scale_incorrect(scale: float) -> None:
 def test_log_cosh_loss_scale_keyword_reduction() -> None:
     with pytest.raises(TypeError, match=r"positional argument"):
         LogCoshLoss(1.0, "sum")
-
-
-################################
-#     Tests for MSLELoss      #
-################################
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-def test_msle_loss_correct(device: str) -> None:
-    device = torch.device(device)
-    criterion = MSLELoss().to(device=device)
-    loss = criterion(torch.ones(2, 3, device=device), torch.ones(2, 3, device=device))
-    assert objects_are_allclose(loss, torch.tensor(0.0, device=device))
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-def test_msle_loss_incorrect(device: str) -> None:
-    device = torch.device(device)
-    criterion = MSLELoss().to(device=device)
-    loss = criterion(torch.ones(2, 3, device=device), torch.zeros(2, 3, device=device))
-    assert objects_are_allclose(loss, torch.tensor(0.4804530139182014, device=device))
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-def test_msle_loss_reduction_none(device: str) -> None:
-    device = torch.device(device)
-    criterion = MSLELoss(reduction="none").to(device=device)
-    loss = criterion(torch.ones(1, 2, device=device), torch.zeros(1, 2, device=device))
-    assert objects_are_allclose(loss, torch.full((1, 2), 0.4804530139182014, device=device))
-
-
-def test_msle_loss_same_as_function() -> None:
-    generator = make_generator(1)
-    prediction = torch.rand(4, 5, generator=generator)
-    target = torch.rand(4, 5, generator=generator)
-    assert MSLELoss()(prediction, target).equal(msle_loss(prediction, target))
-
-
-def test_msle_loss_backward_finite() -> None:
-    prediction = torch.rand(2, 3, requires_grad=True)
-    MSLELoss()(prediction, torch.rand(2, 3)).backward()
-    assert prediction.grad.isfinite().all()
