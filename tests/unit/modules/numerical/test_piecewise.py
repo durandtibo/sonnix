@@ -213,7 +213,9 @@ def test_piecewise_linear_numerical_encoder_forward_bins_2_features() -> None:
 
 
 def test_piecewise_linear_numerical_encoder_forward_bins_2_features_same_bins() -> None:
-    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 1.0, 2.0, 4.0]]))
+    module = PiecewiseLinearNumericalEncoder(
+        bins=torch.tensor([[0.0, 1.0, 2.0, 4.0], [0.0, 1.0, 2.0, 4.0]])
+    )
     assert objects_are_equal(
         module(
             torch.tensor(
@@ -247,7 +249,7 @@ def test_piecewise_linear_numerical_encoder_forward_bins_2_features_same_bins() 
 
 
 def test_piecewise_linear_numerical_encoder_forward_1_bin() -> None:
-    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0]]))
+    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0], [0.0]]))
     assert objects_are_equal(
         module(
             torch.tensor(
@@ -281,7 +283,7 @@ def test_piecewise_linear_numerical_encoder_forward_1_bin() -> None:
 
 
 def test_piecewise_linear_numerical_encoder_forward_same_bin() -> None:
-    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0]]))
+    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0], [0.0, 0.0]]))
     assert objects_are_equal(
         module(
             torch.tensor(
@@ -316,7 +318,9 @@ def test_piecewise_linear_numerical_encoder_forward_same_bin() -> None:
 
 def test_piecewise_linear_numerical_encoder_forward_same_bins() -> None:
     with pytest.warns(UserWarning, match=r"duplicate edges"):
-        module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0, 1.0, 1.0]]))
+        module = PiecewiseLinearNumericalEncoder(
+            bins=torch.tensor([[0.0, 0.0, 1.0, 1.0], [0.0, 0.0, 1.0, 1.0]])
+        )
     assert objects_are_equal(
         module(
             torch.tensor(

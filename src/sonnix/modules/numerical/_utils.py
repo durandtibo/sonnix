@@ -2,15 +2,18 @@ r"""Contain helper functions shared by the numerical encoders."""
 
 from __future__ import annotations
 
-__all__ = ["create_spaced_values", "prepare_tensor_param"]
+__all__ = ["NumericalEncoder", "create_spaced_values", "prepare_tensor_param", "resolve_range"]
 
 import math
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Literal
 
 import torch
 from coola.validation import validate_ge, validate_in, validate_int
+from torch import nn
 
 from sonnix.utils.random import resolve_torch_generator
+from sonnix.validation import validate_abs_range
 
 if TYPE_CHECKING:
     from torch import Tensor
@@ -123,3 +126,89 @@ def create_spaced_values(
             dtype=dtype,
         )
     return values.view(1, -1).repeat(n_features, 1)
+
+
+def resolve_range(
+    name: str,
+    range_: tuple[float, float] | None,
+    value_range: tuple[float, float] | None,
+) -> tuple[float, float]:
+    r"""Return the ``(min, max)`` range of a parameter of an encoder.
+
+    The range is given either by the range of the parameter itself or
+    by the range of the absolute values to encode, which is converted
+    to ``(1 / max_abs_value, 1 / min_abs_value)``.
+
+    Args:
+        name: The name of the parameter (used in the error message),
+            e.g. ``"scale"`` for the argument ``scale_range``.
+        range_: The ``(min, max)`` range of the parameter.
+        value_range: The ``(min_abs_value, max_abs_value)`` range of
+            the absolute values to encode.
+
+    Returns:
+        The ``(min, max)`` range of the parameter. The values of
+            ``range_`` are not validated.
+
+    Raises:
+        ValueError: if both or none of ``range_`` and ``value_range``
+            are given, or if ``value_range`` is not valid.
+
+    Example:
+        ```pycon
+        >>> from sonnix.modules.numerical._utils import resolve_range
+        >>> resolve_range("scale", None, (0.5, 4.0))
+        (0.25, 2.0)
+        >>> resolve_range("scale", (1.0, 3.0), None)
+        (1.0, 3.0)
+
+        ```
+    """
+    if range_ is not None and value_range is None:
+        return range_
+    if range_ is None and value_range is not None:
+        validate_abs_range(min_abs_value=value_range[0], max_abs_value=value_range[1])
+        return 1 / value_range[1], 1 / value_range[0]
+    msg = f"Exactly one of '{name}_range' and 'value_range' has to be provided"
+    raise ValueError(msg)
+
+
+class NumericalEncoder(nn.Module, ABC):
+    r"""Define the base class of the numerical encoders.
+
+    The input has the shape ``(*, n_features)``. The last dimension
+    has to be ``n_features``: a size of 1 is not broadcast.
+    """
+
+    @property
+    @abstractmethod
+    def n_features(self) -> int:
+        r"""Return the input feature size."""
+
+    @abstractmethod
+    def _encode(self, input: Tensor) -> Tensor:  # noqa: A002
+        r"""Encode an input of shape ``(*, n_features)``."""
+
+    def _check(self, input: Tensor) -> Tensor:  # noqa: A002
+        r"""Check the last dimension of the input.
+
+        Args:
+            input: The input tensor.
+
+        Returns:
+            The input tensor.
+
+        Raises:
+            ValueError: if the input has no dimension or if its last
+                dimension is not ``n_features``.
+        """
+        if input.ndim < 1 or input.shape[-1] != self.n_features:
+            msg = (
+                f"Expected an input of shape (*, n_features={self.n_features}) "
+                f"but received {tuple(input.shape)}"
+            )
+            raise ValueError(msg)
+        return input
+
+    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
+        return self._encode(self._check(input))

@@ -270,8 +270,8 @@ def test_cos_sin_numerical_encoder_forward_2_features() -> None:
 
 def test_cos_sin_numerical_encoder_forward_2_features_same() -> None:
     module = CosSinNumericalEncoder(
-        frequency=torch.tensor([[1.0, 2.0, 3.0]]),
-        phase_shift=torch.tensor([[0.0, 0.0, 0.0]]),
+        frequency=torch.tensor([[1.0, 2.0, 3.0], [1.0, 2.0, 3.0]]),
+        phase_shift=torch.zeros(2, 3),
     )
     assert objects_are_allclose(
         module(torch.tensor([[-1, -2], [0, 0], [1, 2]])),
@@ -703,8 +703,8 @@ def test_asinh_cos_sin_numerical_encoder_forward_2_features() -> None:
 
 def test_asinh_cos_sin_numerical_encoder_forward_2_features_same() -> None:
     module = AsinhCosSinNumericalEncoder(
-        frequency=torch.tensor([[1.0, 2.0, 3.0]]),
-        phase_shift=torch.tensor([[0.0, 0.0, 0.0]]),
+        frequency=torch.tensor([[1.0, 2.0, 3.0], [1.0, 2.0, 3.0]]),
+        phase_shift=torch.zeros(2, 3),
     )
     assert objects_are_allclose(
         module(torch.tensor([[-1, -2], [0, 0], [1, 2]])),

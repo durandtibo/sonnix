@@ -7,6 +7,12 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- The numerical encoders (`AsinhNumericalEncoder`, `CosSinNumericalEncoder`, `AsinhCosSinNumericalEncoder`,
+  `PiecewiseLinearNumericalEncoder`) check that the last dimension of the input is `n_features` and raise a
+  `ValueError` naming it, instead of a torch broadcast `RuntimeError`. An encoder with `n_features == 1` does not
+  broadcast over the last dimension anymore: build `n_features=k` explicitly with `create(..., n_features=k)`.
+  The range logic of the two `create` methods is shared (`resolve_range`), the encoders share a private base class,
+  and `on_duplicate` is typed `Literal["warn", "ignore"]` (target state step 7, #420).
 - `BaseDynamicNorm` (and so `DynamicTanh` and `DynamicAsinh`) does not inherit from `ScaleAndShift` anymore: it
   owns one as `affine`. The parameters are `affine.weight` and `affine.bias` (were `weight` and `bias`), so the
   keys of the `state_dict` change, and a checkpoint of an older version does not load. Subclasses implement

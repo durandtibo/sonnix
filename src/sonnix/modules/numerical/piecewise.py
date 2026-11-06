@@ -6,13 +6,12 @@ from __future__ import annotations
 __all__ = ["PiecewiseLinearNumericalEncoder"]
 
 import warnings
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import torch
 from coola.validation import validate_ge, validate_in
-from torch import nn
 
-from sonnix.modules.numerical._utils import prepare_tensor_param
+from sonnix.modules.numerical._utils import NumericalEncoder, prepare_tensor_param
 
 if TYPE_CHECKING:
     from typing import Self
@@ -20,7 +19,7 @@ if TYPE_CHECKING:
     from torch import Tensor
 
 
-class PiecewiseLinearNumericalEncoder(nn.Module):
+class PiecewiseLinearNumericalEncoder(NumericalEncoder):
     r"""Implement a numerical encoder using piecewise linear functions.
 
     This layer was proposed in the following paper:
@@ -97,7 +96,7 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
     lower: Tensor
     upper: Tensor
 
-    def __init__(self, bins: Tensor, *, on_duplicate: str = "warn") -> None:
+    def __init__(self, bins: Tensor, *, on_duplicate: Literal["warn", "ignore"] = "warn") -> None:
         super().__init__()
         validate_in(on_duplicate, ("warn", "ignore"), name="on_duplicate")
         bins = prepare_tensor_param(bins, name="bins")
@@ -139,7 +138,9 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         self.register_buffer("upper", upper, persistent=False)
 
     @classmethod
-    def from_quantiles(cls, x: Tensor, n_bins: int, *, on_duplicate: str = "warn") -> Self:
+    def from_quantiles(
+        cls, x: Tensor, n_bins: int, *, on_duplicate: Literal["warn", "ignore"] = "warn"
+    ) -> Self:
         r"""Create an encoder where the bins are the quantiles of the
         data.
 
@@ -190,8 +191,6 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
 
     @property
     def n_features(self) -> int:
-        r"""Return the input feature size i.e. the number of scalar
-        values."""
         return self.edges.shape[0]
 
     @property
@@ -203,7 +202,7 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
     def extra_repr(self) -> str:
         return f"n_features={self.n_features}, feature_size={self.feature_size}"
 
-    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
+    def _encode(self, input: Tensor) -> Tensor:  # noqa: A002
         delta = input[..., None] - self.edges
         x = torch.where(self.is_step, (delta > 0).to(delta.dtype), delta / self.width)
         return x.clamp(min=self.lower, max=self.upper)

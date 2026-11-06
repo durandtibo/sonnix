@@ -4,7 +4,18 @@ import pytest
 import torch
 from coola.equality import objects_are_equal
 
-from sonnix.modules.numerical._utils import create_spaced_values, prepare_tensor_param
+from sonnix.modules import (
+    AsinhCosSinNumericalEncoder,
+    AsinhNumericalEncoder,
+    CosSinNumericalEncoder,
+    PiecewiseLinearNumericalEncoder,
+)
+from sonnix.modules.numerical._utils import (
+    NumericalEncoder,
+    create_spaced_values,
+    prepare_tensor_param,
+    resolve_range,
+)
 
 ##########################################
 #     Tests for prepare_tensor_param     #
@@ -93,3 +104,91 @@ def test_create_spaced_values_invalid_n_features(n_features: int) -> None:
 def test_create_spaced_values_invalid_n_features_type() -> None:
     with pytest.raises(TypeError, match=r"n_features must be an int"):
         create_spaced_values("linspace", 3, low=1.0, high=3.0, n_features=1.5)
+
+
+####################################
+#     Tests for resolve_range      #
+####################################
+
+
+def test_resolve_range_range() -> None:
+    assert resolve_range("scale", (1.0, 3.0), None) == (1.0, 3.0)
+
+
+def test_resolve_range_value_range() -> None:
+    assert resolve_range("scale", None, (0.5, 4.0)) == (0.25, 2.0)
+
+
+def test_resolve_range_both() -> None:
+    with pytest.raises(
+        ValueError, match=r"Exactly one of 'scale_range' and 'value_range' has to be provided"
+    ):
+        resolve_range("scale", (1.0, 3.0), (0.5, 4.0))
+
+
+def test_resolve_range_none() -> None:
+    with pytest.raises(
+        ValueError, match=r"Exactly one of 'frequency_range' and 'value_range' has to be provided"
+    ):
+        resolve_range("frequency", None, None)
+
+
+def test_resolve_range_invalid_value_range() -> None:
+    with pytest.raises(ValueError, match=r"'max_abs_value'"):
+        resolve_range("scale", None, (4.0, 0.5))
+
+
+def test_resolve_range_does_not_validate_range() -> None:
+    assert resolve_range("scale", (-1.0, -2.0), None) == (-1.0, -2.0)
+
+
+#########################################
+#     Tests for NumericalEncoder        #
+#########################################
+
+ENCODERS = [
+    AsinhNumericalEncoder(torch.ones(3, 2)),
+    CosSinNumericalEncoder(torch.ones(3, 2), torch.zeros(3, 2)),
+    AsinhCosSinNumericalEncoder(torch.ones(3, 2), torch.zeros(3, 2)),
+    PiecewiseLinearNumericalEncoder(torch.tensor([[0.0, 1.0, 2.0]] * 3)),
+]
+SINGLE_FEATURE_ENCODERS = [
+    AsinhNumericalEncoder(torch.ones(1, 2)),
+    CosSinNumericalEncoder(torch.ones(1, 2), torch.zeros(1, 2)),
+    AsinhCosSinNumericalEncoder(torch.ones(1, 2), torch.zeros(1, 2)),
+    PiecewiseLinearNumericalEncoder(torch.tensor([[0.0, 1.0, 2.0]])),
+]
+
+
+def test_numerical_encoder_abstract() -> None:
+    with pytest.raises(TypeError, match=r"abstract"):
+        NumericalEncoder()
+
+
+@pytest.mark.parametrize("encoder", ENCODERS, ids=lambda e: type(e).__name__)
+def test_numerical_encoder_input_incorrect_last_dimension(encoder: NumericalEncoder) -> None:
+    with pytest.raises(
+        ValueError, match=r"Expected an input of shape \(\*, n_features=3\) but received \(5, 4\)"
+    ):
+        encoder(torch.ones(5, 4))
+
+
+@pytest.mark.parametrize("encoder", ENCODERS, ids=lambda e: type(e).__name__)
+def test_numerical_encoder_input_scalar(encoder: NumericalEncoder) -> None:
+    with pytest.raises(ValueError, match=r"but received \(\)"):
+        encoder(torch.tensor(1.0))
+
+
+@pytest.mark.parametrize("encoder", SINGLE_FEATURE_ENCODERS, ids=lambda e: type(e).__name__)
+def test_numerical_encoder_single_feature_does_not_broadcast(encoder: NumericalEncoder) -> None:
+    with pytest.raises(
+        ValueError, match=r"Expected an input of shape \(\*, n_features=1\) but received \(5, 4\)"
+    ):
+        encoder(torch.ones(5, 4))
+
+
+@pytest.mark.parametrize("encoder", SINGLE_FEATURE_ENCODERS, ids=lambda e: type(e).__name__)
+def test_numerical_encoder_single_feature_accepts_last_dimension_1(
+    encoder: NumericalEncoder,
+) -> None:
+    assert encoder(torch.ones(5, 1)).shape[:2] == (5, 1)
