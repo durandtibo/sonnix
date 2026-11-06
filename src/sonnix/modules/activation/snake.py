@@ -32,6 +32,9 @@ class Snake(BaseAlphaActivation):
             different from 0.
         learnable: If ``True``, the parameters are learnt during the
             training, otherwise they are fixed.
+        channel_dim: The dimension of the input that ``alpha`` is
+            broadcast over when ``num_parameters`` is greater than 1.
+            The default ``-1`` is the last dimension.
         device: The device of the parameters.
         dtype: The data type of the parameters. ``None`` uses the
             default floating point type.
@@ -59,25 +62,8 @@ class Snake(BaseAlphaActivation):
         ```
     """
 
-    def __init__(
-        self,
-        num_parameters: int = 1,
-        init: float = 1.0,
-        *,
-        learnable: bool = True,
-        device: torch.device | None = None,
-        dtype: torch.dtype | None = None,
-    ) -> None:
-        if init == 0:
-            msg = f"'init' has to be different from 0 (received {init})"
-            raise ValueError(msg)
-        super().__init__(
-            num_parameters=num_parameters,
-            init=init,
-            learnable=learnable,
-            device=device,
-            dtype=dtype,
-        )
+    allow_zero_init = False
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input + input.mul(self.alpha).sin().square().div(self.alpha)
+        alpha = self.broadcast_alpha(input)
+        return input + input.mul(alpha).sin().square().div(alpha)

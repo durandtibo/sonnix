@@ -48,6 +48,7 @@ if TYPE_CHECKING:
         (DynamicTanh, "dtype"),
         (ExpSin, "learnable"),
         (ExpSin, "device"),
+        (ExpSin, "channel_dim"),
         (Gaussian, "dtype"),
         (AsinhNumericalEncoder, "learnable"),
         (CosSinNumericalEncoder, "learnable"),

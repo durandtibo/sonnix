@@ -109,3 +109,12 @@ All notable changes to this project are documented in this file. The package is 
   the global random number generator.
 - Add `PiecewiseLinearNumericalEncoder.from_quantiles(x, n_bins)`: the bins are the empirical
   quantiles of the data of each feature.
+
+### Alpha activations
+
+- The alpha activations (`ExpSin`, `Gaussian`, `Laplacian`, `MultiQuadratic`, `Quadratic`,
+  `Snake`) have a `channel_dim` argument (default `-1`, the previous behaviour): the dimension of the
+  input that a per-channel `alpha` is broadcast over. `channel_dim=1` matches `torch.nn.PReLU` for an
+  `(N, C, L)` input. It is shown in the representation when `num_parameters > 1`.
+- `Gaussian`, `Laplacian` and `Snake` reject `init=0` (they divide by `alpha`).
+- The docstrings document `device`, `dtype` and `channel_dim`.

@@ -64,7 +64,8 @@ def test_snake_zero_init() -> None:
 
 def test_snake_extra_repr() -> None:
     assert (
-        Snake(num_parameters=3, learnable=False).extra_repr() == "num_parameters=3, learnable=False"
+        Snake(num_parameters=3, learnable=False).extra_repr()
+        == "num_parameters=3, learnable=False, channel_dim=-1"
     )
 
 
