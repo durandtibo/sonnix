@@ -11,7 +11,7 @@ from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_
 from sonnix.functional.reduction import reduce_loss
 
 
-def check_focal_params(alpha: float, gamma: float) -> None:
+def validate_focal_params(alpha: float, gamma: float) -> None:
     r"""Check the parameters of the focal loss.
 
     Args:
@@ -84,7 +84,7 @@ def binary_focal_loss(
 
         ```
     """
-    check_focal_params(alpha=alpha, gamma=gamma)
+    validate_focal_params(alpha=alpha, gamma=gamma)
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
     p_t = prediction * target + (1 - prediction) * (1 - target)
     loss = ce_loss * ((1 - p_t) ** gamma)
@@ -146,7 +146,7 @@ def binary_focal_loss_with_logits(
 
         ```
     """
-    check_focal_params(alpha=alpha, gamma=gamma)
+    validate_focal_params(alpha=alpha, gamma=gamma)
     p = torch.sigmoid(prediction)
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
     p_t = p * target + (1 - p) * (1 - target)
