@@ -213,8 +213,6 @@ lint.select = [
 lint.ignore = [
   "A003",    # Class attribute `{name}` is shadowing a python builtin
   "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed.
-  "E501",    # Line lengths are recommended to be no greater than 79 characters.
-  "W505",    # Doc line too long
   "PLR0913", # Too many arguments in function definition (8 > 5)
   "PLR0917", # Too many positional arguments
   "G004",    # Logging statement uses f-string
@@ -247,9 +245,6 @@ max-complexity = 10
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
-
-[tool.ruff.lint.pycodestyle]
-max-doc-length = 72
 
 [tool.ruff.lint.isort]
 force-sort-within-sections = false
