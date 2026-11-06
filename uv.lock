@@ -9,10 +9,10 @@ resolution-markers = [
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.11.5' and sys_platform == 'win32'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
@@ -505,10 +505,10 @@ version = "1.3.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.11.5' and sys_platform == 'win32'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
@@ -679,11 +679,11 @@ wheels = [
 
 [[package]]
 name = "coola"
-version = "2.0.0a0"
+version = "2.0.0a1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/93/08/f0f4417144036a501aa7753281021ff0a9caca7f00e2dc4bac682c53ea0f/coola-2.0.0a0.tar.gz", hash = "sha256:d5e0cd8b9bcf9277d1c07076f84537e6ed7336a72f8e2231a2ae0eec9e39fec8", size = 253689, upload-time = "2026-10-30T17:03:37.336Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/61/a8/52b46ec26956484e7d2a005e70d7d570e31fbd547b933732661df3c437c3/coola-2.0.0a1.tar.gz", hash = "sha256:4891812dcb8109365e2e99683d89774aa1efb356f16136962892b6407e6324f0", size = 648637, upload-time = "2026-11-06T01:19:30.516Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ff/97/2b855d88bcc4f6810702adb58f11ba50ca1122fdfa3e336d63735f040c8f/coola-2.0.0a0-py3-none-any.whl", hash = "sha256:bf73423fd18bca72185f88c8970cbba429556382ba05ae97130cc275a3c84420", size = 381710, upload-time = "2026-10-30T17:03:35.749Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/d9/d233d87f1243a4b5a349c72ceffedef6e4547f25bf2f10a1e2ac5b97df40/coola-2.0.0a1-py3-none-any.whl", hash = "sha256:d3798fd167fd507efe7c9d849dca45c72987f25f15af7d06fa5358a1dba66579", size = 399258, upload-time = "2026-11-06T01:19:28.996Z" },
 ]
 
 [[package]]
@@ -2438,10 +2438,10 @@ version = "3.6.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.11.5' and sys_platform == 'win32'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6a/51/63fe664f3908c97be9d2e4f1158eb633317598cfa6e1fc14af5383f17512/networkx-3.6.1.tar.gz", hash = "sha256:26b7c357accc0c8cde558ad486283728b65b6a95d85ee1cd66bafab4c8168509", size = 2517025, upload-time = "2025-12-08T17:02:39.908Z" }
@@ -2493,10 +2493,10 @@ version = "2.4.6"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.11.5' and sys_platform == 'win32'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d0/ad/fed0499ce6a338d2a03ebae59cd15093910c8875328855781952abf6c2fe/numpy-2.4.6.tar.gz", hash = "sha256:f3a3570c4a2a16746ac2c31a7c7c7b0c186b95ce902e33db6f28094ed7387dda", size = 20735807, upload-time = "2026-05-18T23:37:14.07Z" }
@@ -3798,7 +3798,7 @@ property = [
 
 [package.metadata]
 requires-dist = [
-    { name = "coola", specifier = ">=2.0.0a0,<3.0" },
+    { name = "coola", specifier = ">=2.0.0a1,<3.0" },
     { name = "numpy", marker = "extra == 'numpy'", specifier = ">=1.24,<3.0" },
     { name = "objectory", marker = "extra == 'objectory'", specifier = ">=0.3.0,<1.0" },
     { name = "torch", specifier = ">=2.4,<3.0" },
