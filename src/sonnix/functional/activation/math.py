@@ -22,7 +22,8 @@ def safe_exp(
 
     The values that are higher than the specified maximum value are
     set to this maximum value. Using a not too large positive value
-    leads to an output tensor without Inf.
+    leads to an output tensor without Inf. A ``NaN`` input stays
+    ``NaN``.
 
     Note:
         ``clamp`` has a zero gradient for the values outside of the
@@ -64,12 +65,18 @@ def safe_log(
 
     The values that are lower than the specified minimum value are set
     to this minimum value. Using a small positive value leads to an
-    output tensor without NaN or Inf.
+    output tensor without NaN or Inf. A ``NaN`` input stays ``NaN``.
 
     Note:
         ``clamp`` has a zero gradient for the values outside of the
         range. Set ``preserve_gradient=True`` to keep the gradient of
         the unclamped input (straight-through estimator).
+
+    Note:
+        With ``preserve_gradient=True``, the gradient is the one of the
+        logarithm at the clamped value, ``1 / min_val`` for an input
+        lower than ``min_val`` (``1e8`` at ``0`` with the default
+        ``min_val``), not a finite or zero gradient.
 
     Args:
         input: The input tensor.

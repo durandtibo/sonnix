@@ -107,3 +107,17 @@ def test_safe_log_preserve_gradient() -> None:
 def test_safe_log_invalid_min_val(min_val: float) -> None:
     with pytest.raises(ValueError, match=r"min_val must be greater than 0"):
         safe_log(torch.ones(2, 3), min_val=min_val)
+
+
+def test_safe_log_preserve_gradient_below_min_val_is_inverse_of_min_val() -> None:
+    x = torch.tensor([0.0], requires_grad=True)
+    safe_log(x, min_val=1e-2, preserve_gradient=True).backward()
+    assert x.grad.allclose(torch.tensor([100.0]))
+
+
+def test_safe_log_nan_stays_nan() -> None:
+    assert safe_log(torch.tensor([float("nan")])).isnan().all()
+
+
+def test_safe_exp_nan_stays_nan() -> None:
+    assert safe_exp(torch.tensor([float("nan")])).isnan().all()
