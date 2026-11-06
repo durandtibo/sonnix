@@ -4,7 +4,19 @@ from __future__ import annotations
 
 from coola.validation import validate_gt
 
-__all__ = ["Asinh", "Exp", "Expm1", "Log", "Log1p", "SafeExp", "SafeLog", "Sin", "Sinh"]
+__all__ = [
+    "Asinh",
+    "Exp",
+    "Expm1",
+    "Log",
+    "Log1p",
+    "Pow",
+    "SafeExp",
+    "SafeLog",
+    "Sin",
+    "Sinh",
+    "Square",
+]
 
 import torch
 from torch import nn
@@ -346,8 +358,11 @@ class Sinh(nn.Module):
         return input.sinh()
 
 
-class Square(nn.Module):
+class Square(Pow):
     r"""Implement the square activation.
+
+    It is ``Pow(exponent=2)`` with a name that is easier to use in a
+    configuration.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -368,5 +383,8 @@ class Square(nn.Module):
         ```
     """
 
-    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input * input
+    def __init__(self) -> None:
+        super().__init__(exponent=2)
+
+    def extra_repr(self) -> str:
+        return ""

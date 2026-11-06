@@ -68,6 +68,7 @@ __all__ = [
     "SumFusion",
     "ToBinaryLabel",
     "ToCategoricalLabel",
+    "ToDtype",
     "ToFloat",
     "ToLong",
     "TransformedLoss",
@@ -100,7 +101,7 @@ from sonnix.modules.activation import (
     SquaredReLU,
 )
 from sonnix.modules.classification import ToBinaryLabel, ToCategoricalLabel
-from sonnix.modules.dtype import ToFloat, ToLong
+from sonnix.modules.dtype import ToDtype, ToFloat, ToLong
 from sonnix.modules.exu import ExU
 from sonnix.modules.fusion import (
     AverageFusion,
