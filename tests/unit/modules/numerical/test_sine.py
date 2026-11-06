@@ -94,7 +94,7 @@ def test_cos_sin_numerical_encoder_output_size() -> None:
 @pytest.mark.parametrize("n_features", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_cos_sin_numerical_encoder_forward_2d(
+def test_cos_sin_numerical_encoder_forward_2d_shape(
     device: str, batch_size: int, n_features: int, feature_size: int, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -105,7 +105,41 @@ def test_cos_sin_numerical_encoder_forward_2d(
     module.train(mode)
     out = module(torch.rand(batch_size, n_features, device=device))
     assert out.shape == (batch_size, n_features, feature_size * 2)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_cos_sin_numerical_encoder_forward_2d_device(
+    device: str, batch_size: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = CosSinNumericalEncoder(
+        frequency=torch.rand(n_features, feature_size),
+        phase_shift=torch.rand(n_features, feature_size),
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, n_features, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_cos_sin_numerical_encoder_forward_2d_dtype(
+    device: str, batch_size: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = CosSinNumericalEncoder(
+        frequency=torch.rand(n_features, feature_size),
+        phase_shift=torch.rand(n_features, feature_size),
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, n_features, device=device))
     assert out.dtype == torch.float
 
 
@@ -115,7 +149,7 @@ def test_cos_sin_numerical_encoder_forward_2d(
 @pytest.mark.parametrize("n_features", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_cos_sin_numerical_encoder_forward_3d(
+def test_cos_sin_numerical_encoder_forward_3d_shape(
     device: str, d1: int, d2: int, n_features: int, feature_size: int, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -126,7 +160,43 @@ def test_cos_sin_numerical_encoder_forward_3d(
     module.train(mode)
     out = module(torch.rand(d1, d2, n_features, device=device))
     assert out.shape == (d1, d2, n_features, feature_size * 2)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("d1", SIZES)
+@pytest.mark.parametrize("d2", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_cos_sin_numerical_encoder_forward_3d_device(
+    device: str, d1: int, d2: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = CosSinNumericalEncoder(
+        frequency=torch.rand(n_features, feature_size),
+        phase_shift=torch.rand(n_features, feature_size),
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(d1, d2, n_features, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("d1", SIZES)
+@pytest.mark.parametrize("d2", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_cos_sin_numerical_encoder_forward_3d_dtype(
+    device: str, d1: int, d2: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = CosSinNumericalEncoder(
+        frequency=torch.rand(n_features, feature_size),
+        phase_shift=torch.rand(n_features, feature_size),
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(d1, d2, n_features, device=device))
     assert out.dtype == torch.float
 
 
@@ -134,7 +204,7 @@ def test_cos_sin_numerical_encoder_forward_3d(
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("learnable", [True, False])
 @pytest.mark.parametrize("mode", [True, False])
-def test_cos_sin_numerical_encoder_backward(
+def test_cos_sin_numerical_encoder_backward_shape(
     device: str, batch_size: int, learnable: bool, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -145,16 +215,55 @@ def test_cos_sin_numerical_encoder_backward(
     out = module(torch.rand(batch_size, 3, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == (batch_size, 3, 12)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("learnable", [True, False])
+@pytest.mark.parametrize("mode", [True, False])
+def test_cos_sin_numerical_encoder_backward_device(
+    device: str, batch_size: int, learnable: bool, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = CosSinNumericalEncoder(
+        frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, 3, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("learnable", [True, False])
+@pytest.mark.parametrize("mode", [True, False])
+def test_cos_sin_numerical_encoder_backward_dtype(
+    device: str, batch_size: int, learnable: bool, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = CosSinNumericalEncoder(
+        frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, 3, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
 
 
 @pytest.mark.parametrize("learnable", [True, False])
-def test_cos_sin_numerical_encoder_learnable(learnable: bool) -> None:
+def test_cos_sin_numerical_encoder_learnable_frequency_requires_grad(learnable: bool) -> None:
     module = CosSinNumericalEncoder(
         frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
     )
     assert module.frequency.requires_grad == learnable
+
+
+@pytest.mark.parametrize("learnable", [True, False])
+def test_cos_sin_numerical_encoder_learnable_phase_shift_requires_grad(learnable: bool) -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
+    )
     assert module.phase_shift.requires_grad == learnable
 
 
@@ -335,10 +444,15 @@ def test_cos_sin_numerical_encoder_create_rand_shape() -> None:
     assert module.frequency.shape == (1, 4)
 
 
-def test_cos_sin_numerical_encoder_create_rand_in_range() -> None:
+def test_cos_sin_numerical_encoder_create_rand_in_range_frequency() -> None:
     torch.manual_seed(1)
     module = CosSinNumericalEncoder.create("rand", 100, frequency_range=(0.2, 1))
     assert module.frequency.min() >= 0.2
+
+
+def test_cos_sin_numerical_encoder_create_rand_in_range_frequency_2() -> None:
+    torch.manual_seed(1)
+    module = CosSinNumericalEncoder.create("rand", 100, frequency_range=(0.2, 1))
     assert module.frequency.max() <= 1.0
 
 
@@ -505,7 +619,7 @@ def test_asinh_cos_sin_numerical_encoder_output_size() -> None:
 @pytest.mark.parametrize("n_features", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_asinh_cos_sin_numerical_encoder_forward_2d(
+def test_asinh_cos_sin_numerical_encoder_forward_2d_shape(
     device: str, batch_size: int, n_features: int, feature_size: int, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -516,7 +630,41 @@ def test_asinh_cos_sin_numerical_encoder_forward_2d(
     module.train(mode)
     out = module(torch.rand(batch_size, n_features, device=device))
     assert out.shape == (batch_size, n_features, feature_size * 2 + 1)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_asinh_cos_sin_numerical_encoder_forward_2d_device(
+    device: str, batch_size: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = AsinhCosSinNumericalEncoder(
+        frequency=torch.rand(n_features, feature_size),
+        phase_shift=torch.rand(n_features, feature_size),
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, n_features, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_asinh_cos_sin_numerical_encoder_forward_2d_dtype(
+    device: str, batch_size: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = AsinhCosSinNumericalEncoder(
+        frequency=torch.rand(n_features, feature_size),
+        phase_shift=torch.rand(n_features, feature_size),
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, n_features, device=device))
     assert out.dtype == torch.float
 
 
@@ -526,7 +674,7 @@ def test_asinh_cos_sin_numerical_encoder_forward_2d(
 @pytest.mark.parametrize("n_features", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_asinh_cos_sin_numerical_encoder_forward_4d(
+def test_asinh_cos_sin_numerical_encoder_forward_4d_shape(
     device: str, d1: int, d2: int, n_features: int, feature_size: int, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -537,7 +685,43 @@ def test_asinh_cos_sin_numerical_encoder_forward_4d(
     module.train(mode)
     out = module(torch.rand(d1, d2, n_features, device=device))
     assert out.shape == (d1, d2, n_features, feature_size * 2 + 1)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("d1", SIZES)
+@pytest.mark.parametrize("d2", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_asinh_cos_sin_numerical_encoder_forward_4d_device(
+    device: str, d1: int, d2: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = AsinhCosSinNumericalEncoder(
+        frequency=torch.rand(n_features, feature_size),
+        phase_shift=torch.rand(n_features, feature_size),
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(d1, d2, n_features, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("d1", SIZES)
+@pytest.mark.parametrize("d2", SIZES)
+@pytest.mark.parametrize("n_features", SIZES)
+@pytest.mark.parametrize("feature_size", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_asinh_cos_sin_numerical_encoder_forward_4d_dtype(
+    device: str, d1: int, d2: int, n_features: int, feature_size: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = AsinhCosSinNumericalEncoder(
+        frequency=torch.rand(n_features, feature_size),
+        phase_shift=torch.rand(n_features, feature_size),
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(d1, d2, n_features, device=device))
     assert out.dtype == torch.float
 
 
@@ -545,7 +729,7 @@ def test_asinh_cos_sin_numerical_encoder_forward_4d(
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("learnable", [True, False])
 @pytest.mark.parametrize("mode", [True, False])
-def test_asinh_cos_sin_numerical_encoder_backward(
+def test_asinh_cos_sin_numerical_encoder_backward_shape(
     device: str, batch_size: int, learnable: bool, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -556,16 +740,57 @@ def test_asinh_cos_sin_numerical_encoder_backward(
     out = module(torch.rand(batch_size, 3, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == (batch_size, 3, 13)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("learnable", [True, False])
+@pytest.mark.parametrize("mode", [True, False])
+def test_asinh_cos_sin_numerical_encoder_backward_device(
+    device: str, batch_size: int, learnable: bool, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = AsinhCosSinNumericalEncoder(
+        frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, 3, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("learnable", [True, False])
+@pytest.mark.parametrize("mode", [True, False])
+def test_asinh_cos_sin_numerical_encoder_backward_dtype(
+    device: str, batch_size: int, learnable: bool, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = AsinhCosSinNumericalEncoder(
+        frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
+    ).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(batch_size, 3, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
 
 
 @pytest.mark.parametrize("learnable", [True, False])
-def test_asinh_cos_sin_numerical_encoder_learnable(learnable: bool) -> None:
+def test_asinh_cos_sin_numerical_encoder_learnable_frequency_requires_grad(learnable: bool) -> None:
     module = AsinhCosSinNumericalEncoder(
         frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
     )
     assert module.frequency.requires_grad == learnable
+
+
+@pytest.mark.parametrize("learnable", [True, False])
+def test_asinh_cos_sin_numerical_encoder_learnable_phase_shift_requires_grad(
+    learnable: bool,
+) -> None:
+    module = AsinhCosSinNumericalEncoder(
+        frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
+    )
     assert module.phase_shift.requires_grad == learnable
 
 
@@ -738,13 +963,31 @@ def test_asinh_cos_sin_numerical_encoder_forward_2_features_same() -> None:
     )
 
 
-def test_cos_sin_numerical_encoder_sin_cos_share_parameters() -> None:
+def test_cos_sin_numerical_encoder_sin_cos_share_parameters_frequency_shape() -> None:
     module = CosSinNumericalEncoder(
         frequency=torch.tensor([[1.0, 2.0, 4.0]]), phase_shift=torch.zeros(1, 3), learnable=True
     )
     assert module.frequency.shape == (1, 3)
+
+
+def test_cos_sin_numerical_encoder_sin_cos_share_parameters_phase_shift_shape() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.tensor([[1.0, 2.0, 4.0]]), phase_shift=torch.zeros(1, 3), learnable=True
+    )
     assert module.phase_shift.shape == (1, 3)
+
+
+def test_cos_sin_numerical_encoder_sin_cos_share_parameters_feature_size() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.tensor([[1.0, 2.0, 4.0]]), phase_shift=torch.zeros(1, 3), learnable=True
+    )
     assert module.feature_size == 6
+
+
+def test_cos_sin_numerical_encoder_sin_cos_share_parameters_check4() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.tensor([[1.0, 2.0, 4.0]]), phase_shift=torch.zeros(1, 3), learnable=True
+    )
     assert sum(p.numel() for p in module.parameters()) == 6
 
 
@@ -759,18 +1002,32 @@ def test_cos_sin_numerical_encoder_sin_cos_stay_consistent_after_update() -> Non
     assert out[..., :2].pow(2).add(out[..., 2:].pow(2)).allclose(torch.ones(1, 1, 2))
 
 
-def test_cos_sin_numerical_encoder_frozen_is_buffer() -> None:
+def test_cos_sin_numerical_encoder_frozen_is_buffer_learnable() -> None:
     module = CosSinNumericalEncoder(frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3))
     assert not module.learnable
+
+
+def test_cos_sin_numerical_encoder_frozen_is_buffer_check2() -> None:
+    module = CosSinNumericalEncoder(frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3))
     assert len(list(module.parameters())) == 0
+
+
+def test_cos_sin_numerical_encoder_frozen_is_buffer_state_dict() -> None:
+    module = CosSinNumericalEncoder(frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3))
     assert set(module.state_dict()) == {"frequency", "phase_shift"}
 
 
-def test_cos_sin_numerical_encoder_learnable_is_parameter() -> None:
+def test_cos_sin_numerical_encoder_learnable_is_parameter_learnable() -> None:
     module = CosSinNumericalEncoder(
         frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3), learnable=True
     )
     assert module.learnable
+
+
+def test_cos_sin_numerical_encoder_learnable_is_parameter_check2() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3), learnable=True
+    )
     assert {n for n, _ in module.named_parameters()} == {"frequency", "phase_shift"}
 
 
@@ -823,9 +1080,19 @@ def test_cos_sin_numerical_encoder_create_rand_global_rng_without_generator() ->
 
 @pytest.mark.parametrize("spacing", ["rand", "linspace", "logspace"])
 @pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
-def test_cos_sin_numerical_encoder_create_dtype(spacing: str, dtype: torch.dtype) -> None:
+def test_cos_sin_numerical_encoder_create_dtype_frequency_dtype(
+    spacing: str, dtype: torch.dtype
+) -> None:
     module = CosSinNumericalEncoder.create(spacing, 3, frequency_range=(0.2, 1), dtype=dtype)
     assert module.frequency.dtype == dtype
+
+
+@pytest.mark.parametrize("spacing", ["rand", "linspace", "logspace"])
+@pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
+def test_cos_sin_numerical_encoder_create_dtype_phase_shift_dtype(
+    spacing: str, dtype: torch.dtype
+) -> None:
+    module = CosSinNumericalEncoder.create(spacing, 3, frequency_range=(0.2, 1), dtype=dtype)
     assert module.phase_shift.dtype == dtype
 
 
@@ -837,11 +1104,23 @@ def test_cos_sin_numerical_encoder_create_dtype_default(spacing: str) -> None:
 
 @pytest.mark.parametrize("spacing", ["rand", "linspace", "logspace"])
 @pytest.mark.parametrize("device", get_available_devices())
-def test_cos_sin_numerical_encoder_create_device(spacing: str, device: str) -> None:
+def test_cos_sin_numerical_encoder_create_device_frequency_device(
+    spacing: str, device: str
+) -> None:
     module = CosSinNumericalEncoder.create(
         spacing, 3, frequency_range=(0.2, 1), device=torch.device(device)
     )
     assert module.frequency.device == torch.device(device)
+
+
+@pytest.mark.parametrize("spacing", ["rand", "linspace", "logspace"])
+@pytest.mark.parametrize("device", get_available_devices())
+def test_cos_sin_numerical_encoder_create_device_phase_shift_device(
+    spacing: str, device: str
+) -> None:
+    module = CosSinNumericalEncoder.create(
+        spacing, 3, frequency_range=(0.2, 1), device=torch.device(device)
+    )
     assert module.phase_shift.device == torch.device(device)
 
 
