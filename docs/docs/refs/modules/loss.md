@@ -18,6 +18,8 @@ Loss modules, the relative loss indicators and the shared base classes. See also
 | [`ClassicalRelativeIndicator`](#sonnix.modules.ClassicalRelativeIndicator) |
 | [`GeneralRobustRegressionLoss`](#sonnix.modules.GeneralRobustRegressionLoss) |
 | [`GeometricMeanIndicator`](#sonnix.modules.GeometricMeanIndicator) |
+| [`LogCoshLoss`](#sonnix.modules.LogCoshLoss) |
+| [`MSLELoss`](#sonnix.modules.MSLELoss) |
 | [`MaximumMeanIndicator`](#sonnix.modules.MaximumMeanIndicator) |
 | [`MinimumMeanIndicator`](#sonnix.modules.MinimumMeanIndicator) |
 | [`MomentMeanIndicator`](#sonnix.modules.MomentMeanIndicator) |
@@ -56,6 +58,10 @@ Loss modules, the relative loss indicators and the shared base classes. See also
 ## ::: sonnix.modules.GeneralRobustRegressionLoss
 
 ## ::: sonnix.modules.GeometricMeanIndicator
+
+## ::: sonnix.modules.LogCoshLoss
+
+## ::: sonnix.modules.MSLELoss
 
 ## ::: sonnix.modules.MaximumMeanIndicator
 
