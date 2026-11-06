@@ -110,6 +110,16 @@ def _case(
     )
 
 
+def _lazy_case(
+    cls: type[nn.Module],
+    make_inputs: Callable[[], tuple[torch.Tensor, ...]],
+    make_args: Callable[[], tuple[object, ...]],
+) -> ModuleCase:
+    # The arguments are built for every module: a submodule shared between
+    # two modules would be modified in place (for example by ``.to(dtype)``).
+    return ModuleCase(name=cls.__name__, build=lambda: cls(*make_args()), make_inputs=make_inputs)
+
+
 _BINS = torch.tensor([[0.0, 1.0, 2.0, 3.0], [-1.0, 0.0, 1.0, 5.0], [0.0, 2.0, 4.0, 6.0]])
 
 MODULE_CASES: tuple[ModuleCase, ...] = (
@@ -140,7 +150,7 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
     # layers
     _case(sm.ExU, _normal(5, 3), 3, 4),
     _case(sm.NLinear, _normal(5, 2, 3), 2, 3, 4),
-    _case(sm.ResidualBlock, _normal(4, 3), nn.Linear(3, 3)),
+    _lazy_case(sm.ResidualBlock, _normal(4, 3), lambda: (nn.Linear(3, 3),)),
     _case(sm.ScaleAndShift, _normal(4, 3), 3),
     _case(sm.Squeeze, _normal(4, 1, 3), 1),
     _case(sm.View, _normal(4, 3), (2, 6)),
@@ -190,8 +200,8 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
     _case(sm.MSLELoss, _pair_positive),
     _case(sm.PoissonRegressionLoss, _pair_positive),
     _case(sm.QuantileRegressionLoss, _pair_normal),
-    _case(sm.RelativeLoss, _pair_positive, nn.MSELoss(reduction="none")),
+    _lazy_case(sm.RelativeLoss, _pair_positive, lambda: (nn.MSELoss(reduction="none"),)),
     _case(sm.RelativeMSELoss, _pair_positive),
     _case(sm.RelativeSmoothL1Loss, _pair_positive),
-    _case(sm.TransformedLoss, _pair_normal, nn.MSELoss(), sm.Asinh(), sm.Asinh()),
+    _lazy_case(sm.TransformedLoss, _pair_normal, lambda: (nn.MSELoss(), sm.Asinh(), sm.Asinh())),
 )
