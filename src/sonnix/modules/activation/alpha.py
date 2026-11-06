@@ -2,7 +2,7 @@ r"""Contain activation modules with a learnable parameter ``alpha``."""
 
 from __future__ import annotations
 
-from coola.validation import validate_ge, validate_int
+from coola.validation import validate_finite, validate_ge, validate_int
 
 __all__ = [
     "BaseAlphaActivation",
@@ -51,8 +51,12 @@ class BaseAlphaActivation(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Raises:
-        ValueError: if ``num_parameters`` is lower than 1, or if
-            ``init`` is 0 for a module that does not allow it.
+        TypeError: if ``num_parameters`` or ``channel_dim`` is not an
+            integer.
+        ValueError: if ``num_parameters`` is lower than 1, if ``init``
+            is not finite, if ``init`` is 0 for a module that does not
+            allow it, or if ``init`` is negative for a module that
+            does not allow it.
 
     Example:
         ```pycon
@@ -70,6 +74,7 @@ class BaseAlphaActivation(nn.Module):
     """
 
     allow_zero_init: bool = True
+    allow_negative_init: bool = True
 
     def __init__(
         self,
@@ -82,10 +87,15 @@ class BaseAlphaActivation(nn.Module):
         dtype: torch.dtype | None = None,
     ) -> None:
         super().__init__()
+        validate_int(num_parameters, name="num_parameters")
         validate_ge(num_parameters, 1, name="num_parameters")
+        validate_finite(init, name="init")
         validate_int(channel_dim, name="channel_dim")
         if init == 0 and not self.allow_zero_init:
             msg = f"'init' has to be different from 0 (received {init})"
+            raise ValueError(msg)
+        if init < 0 and not self.allow_negative_init:
+            msg = f"'init' has to be positive (received {init})"
             raise ValueError(msg)
         self.channel_dim = channel_dim
         self.alpha: Tensor
@@ -291,6 +301,7 @@ class Laplacian(BaseAlphaActivation):
     """
 
     allow_zero_init = False
+    allow_negative_init = False
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return input.abs().mul(-1).div(self.broadcast_alpha(input)).exp()

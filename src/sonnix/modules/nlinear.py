@@ -8,6 +8,7 @@ import math
 from typing import TYPE_CHECKING
 
 import torch
+from coola.validation import validate_ge, validate_int
 from torch import nn
 from torch.nn import init
 
@@ -29,6 +30,12 @@ class NLinear(nn.Module):
             additive bias.
         device: The device of the parameters.
         dtype: The data type of the parameters.
+
+    Raises:
+        TypeError: if ``n``, ``in_features`` or ``out_features`` is
+            not an integer.
+        ValueError: if ``n``, ``in_features`` or ``out_features`` is
+            lower than 1.
 
     Shape:
         - Input: ``(*, n, in_features)``, where ``*`` means any number of
@@ -64,6 +71,9 @@ class NLinear(nn.Module):
         dtype: torch.dtype | None = None,
     ) -> None:
         super().__init__()
+        for name, value in (("n", n), ("in_features", in_features), ("out_features", out_features)):
+            validate_int(value, name=name)
+            validate_ge(value, 1, name=name)
         self.weight: nn.Parameter = nn.Parameter(
             torch.empty((n, in_features, out_features), device=device, dtype=dtype)
         )
@@ -96,6 +106,12 @@ class NLinear(nn.Module):
             init.uniform_(self.bias, -bound, bound)
 
     def forward(self, x: Tensor) -> Tensor:
+        if x.ndim < 2 or x.shape[-2] != self.n:
+            msg = (
+                f"Expected an input of shape (*, n={self.n}, in_features={self.in_features}) "
+                f"but received {tuple(x.shape)}"
+            )
+            raise ValueError(msg)
         shape = x.shape
         x = x.reshape(-1, shape[-2], shape[-1]).transpose(0, 1)  # (n, batch, in)
         x = torch.bmm(x, self.weight).transpose(0, 1)  # (batch, n, out)

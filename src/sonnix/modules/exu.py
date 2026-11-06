@@ -6,6 +6,7 @@ __all__ = ["ExU"]
 
 
 import torch
+from coola.validation import validate_ge, validate_int
 from torch import Tensor, nn
 from torch.nn import functional
 from torch.nn.init import trunc_normal_, zeros_
@@ -41,6 +42,12 @@ class ExU(nn.Module):
         device: The device where to initialize the layer's parameters.
         dtype: The data type of the layer's parameters.
 
+    Raises:
+        TypeError: if ``in_features`` or ``out_features`` is not an
+            integer.
+        ValueError: if ``in_features`` or ``out_features`` is lower
+            than 1.
+
     Shape:
         - Input: ``(*, in_features)``, where ``*`` means any number of
             dimensions, including none.
@@ -71,6 +78,9 @@ class ExU(nn.Module):
         dtype: torch.dtype | None = None,
     ) -> None:
         super().__init__()
+        for name, value in (("in_features", in_features), ("out_features", out_features)):
+            validate_int(value, name=name)
+            validate_ge(value, 1, name=name)
         self.in_features = in_features
         self.out_features = out_features
         self.weight: nn.Parameter = nn.Parameter(

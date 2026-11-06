@@ -42,6 +42,12 @@ def test_validate_moment_order_valid(k: int) -> None:
     assert validate_moment_order(k) is None
 
 
+@pytest.mark.parametrize("k", [1.5, True])
+def test_validate_moment_order_incorrect_type(k: object) -> None:
+    with pytest.raises(TypeError, match=r"k must be an int"):
+        validate_moment_order(k)
+
+
 @pytest.mark.parametrize("k", [0, -1])
 def test_validate_moment_order_invalid(k: int) -> None:
     with pytest.raises(ValueError, match=r"k must be greater than or equal to 1"):

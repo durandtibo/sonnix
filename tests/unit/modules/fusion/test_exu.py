@@ -105,3 +105,21 @@ def test_exu_bias_is_subtracted() -> None:
         module.bias.copy_(torch.tensor([1.0, 2.0]))
     # y = exp(W) (x - b) = (3 - 1) + (5 - 2) = 5
     assert module(torch.tensor([[3.0, 5.0]])).allclose(torch.tensor([[5.0]]))
+
+
+#####################################
+#     Tests for the size checks     #
+#####################################
+
+
+@pytest.mark.parametrize("value", [0, -1])
+@pytest.mark.parametrize("argument", ["in_features", "out_features"])
+def test_exu_incorrect_size(argument: str, value: int) -> None:
+    kwargs = {"in_features": 4, "out_features": 5, argument: value}
+    with pytest.raises(ValueError, match=rf"{argument} must be greater than or equal to 1"):
+        ExU(**kwargs)
+
+
+def test_exu_incorrect_size_type() -> None:
+    with pytest.raises(TypeError, match=r"in_features must be an int"):
+        ExU(in_features=2.5, out_features=5)

@@ -236,3 +236,37 @@ def test_nlinear_forward_non_contiguous() -> None:
     x = torch.randn(4, 3, 2).transpose(0, 2)  # (2, 3, 4), non-contiguous
     assert not x.is_contiguous()
     assert module(x).equal(module(x.contiguous()))
+
+
+######################################
+#     Tests for the input checks     #
+######################################
+
+
+@pytest.mark.parametrize("value", [0, -1])
+@pytest.mark.parametrize("argument", ["n", "in_features", "out_features"])
+def test_nlinear_incorrect_size(argument: str, value: int) -> None:
+    kwargs = {"n": 3, "in_features": 4, "out_features": 5, argument: value}
+    with pytest.raises(ValueError, match=rf"{argument} must be greater than or equal to 1"):
+        NLinear(**kwargs)
+
+
+@pytest.mark.parametrize("value", [2.5, True])
+def test_nlinear_incorrect_size_type(value: object) -> None:
+    with pytest.raises(TypeError, match=r"n must be an int"):
+        NLinear(n=value, in_features=4, out_features=5)
+
+
+def test_nlinear_forward_0d_input() -> None:
+    with pytest.raises(ValueError, match=r"Expected an input of shape \(\*, n=3, in_features=4\)"):
+        NLinear(3, 4, 5)(torch.ones(4))
+
+
+def test_nlinear_forward_1d_input() -> None:
+    with pytest.raises(ValueError, match=r"received \(4,\)"):
+        NLinear(3, 4, 5)(torch.ones(4))
+
+
+def test_nlinear_forward_incorrect_n() -> None:
+    with pytest.raises(ValueError, match=r"n=3.*received \(2, 2, 4\)"):
+        NLinear(3, 4, 5)(torch.ones(2, 2, 4))
