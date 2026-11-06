@@ -64,6 +64,7 @@ class BaseRelativeIndicator(nn.Module):
         Returns:
             The indicator values.
         """
+        raise NotImplementedError
 
 
 class ArithmeticalMeanIndicator(BaseRelativeIndicator):

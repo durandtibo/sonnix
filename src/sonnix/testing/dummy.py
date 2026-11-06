@@ -45,8 +45,8 @@ class DummyDataset(Dataset[dict[str, torch.Tensor]]):
         )
         self._target = 0.6 * self._features[:, :1] + 0.4 * self._features[:, -1:]
 
-    def __getitem__(self, item: int) -> dict[str, torch.Tensor]:
-        return {"feature": self._features[item], "target": self._target[item]}
+    def __getitem__(self, index: int) -> dict[str, torch.Tensor]:
+        return {"feature": self._features[index], "target": self._target[index]}
 
     def __len__(self) -> int:
         return self._num_examples

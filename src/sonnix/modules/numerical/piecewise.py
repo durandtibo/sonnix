@@ -72,6 +72,9 @@ class PiecewiseLinearNumericalEncoder(nn.Module):
         ```
     """
 
+    edges: Tensor
+    width: Tensor
+
     def __init__(self, bins: Tensor) -> None:
         super().__init__()
         bins = prepare_tensor_param(bins, name="bins").sort(dim=1)[0]

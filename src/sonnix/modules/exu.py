@@ -58,15 +58,16 @@ class ExU(nn.Module):
         device: torch.device | None = None,
         dtype: torch.dtype | None = None,
     ) -> None:
-        factory_kwargs = {"device": device, "dtype": dtype}
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.weight: nn.Parameter = nn.Parameter(
-            torch.empty((out_features, in_features), **factory_kwargs)
+            torch.empty((out_features, in_features), device=device, dtype=dtype)
         )
         if bias:
-            self.bias: nn.Parameter = nn.Parameter(torch.empty(in_features, **factory_kwargs))
+            self.bias: nn.Parameter = nn.Parameter(
+                torch.empty(in_features, device=device, dtype=dtype)
+            )
         else:
             self.register_parameter("bias", None)
         self.reset_parameters()
