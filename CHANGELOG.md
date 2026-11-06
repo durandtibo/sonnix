@@ -53,6 +53,8 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Changed
 
+- The README and the documentation home page state that `sonnix` also ships training and testing helpers
+  (`sonnix.factory`, `sonnix.utils`, `sonnix.testing`) (review 3.6, #369).
 - The documentation of `sonnix.factory` and of every `Module | dict` argument states that a configuration
   calls its `_target_` and must come from a trusted source (review 2.8, #363).
 - `PiecewiseLinearNumericalEncoder` and `from_quantiles` have a keyword-only
