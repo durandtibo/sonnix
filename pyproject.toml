@@ -45,7 +45,7 @@ dynamic = ["maintainers"]
 requires-python = ">=3.11"
 
 dependencies = [
-    "coola>=1.1.10,<2.0",
+    "coola>=2.0.0a0,<3.0",
     "torch>=2.4,<3.0",
 ]
 
@@ -55,18 +55,22 @@ objectory = [ "objectory >=0.3.0,<1.0" ]
 
 [dependency-groups]
 dev = [
-    "coverage[toml]>=7.15.2,<8.0",
+    "codespell>=2.4,<3.0",
+    "coverage[toml]>=7.17.0,<8.0",
     "docformatter>=1.7.8,<2.0",
     "feu[all]>=0.8.4,<1.0",
-    "invoke-tasklib>=0.0.8,<1.0",
+    "import-linter>=2.0,<3.0; python_full_version >= '3.14'",
+    "invoke-tasklib>=0.1.0a0,<1.0",
     "invoke>=3.0,<4.0",
     "pre-commit>=4.6,<5.0",
     "pygments>=2.20,<3.0",
+    "pyright>=1.1.414,<2.0",
+    "pytest-benchmark>=5.1,<6.0",
     "pytest-cov>=7.1,<8.0",
     "pytest-timeout>=2.4,<3.0",
     "pytest>=9.1,<10.0",
     "ruff>=0.16,<1.0",
-    "ty>=0.0.90,<1.0",
+    "ty>=0.0.97,<1.0",
     "xdoctest>=1.3,<2.0",
 ]
 
@@ -240,5 +244,14 @@ polars = "pl"
 pyarrow = "pa"
 xarray = "xr"
 
+[tool.pyright]
+include = ["src"]
+pythonVersion = "3.11"
+venvPath = "."
+venv = ".venv"
+
 [tool.ty.src]
 include = ["src", "tests", "dev"]
+
+[tool.ty.environment]
+python-version = "3.11"
