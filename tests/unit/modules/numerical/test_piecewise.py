@@ -486,3 +486,61 @@ def test_piecewise_linear_numerical_encoder_forward_matches_reference() -> None:
         dim=-1,
     )
     assert PiecewiseLinearNumericalEncoder(bins)(x).allclose(expected)
+
+
+####################################
+#     Tests for the bins input     #
+####################################
+
+
+def test_piecewise_linear_numerical_encoder_integer_bins_dtype() -> None:
+    assert PiecewiseLinearNumericalEncoder(
+        bins=torch.tensor([[1, 2, 4, 8]])
+    ).edges.is_floating_point()
+
+
+def test_piecewise_linear_numerical_encoder_integer_bins_forward() -> None:
+    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[1, 2, 4, 8]]))
+    assert module(torch.tensor([[3.0]])).allclose(torch.tensor([[[1.0, 0.5, 0.0]]]))
+
+
+def test_piecewise_linear_numerical_encoder_empty_bins() -> None:
+    with pytest.raises(ValueError, match=r"n_bins must be greater than or equal to 1"):
+        PiecewiseLinearNumericalEncoder(bins=torch.zeros(1, 0))
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_piecewise_linear_numerical_encoder_non_finite_bins(value: float) -> None:
+    with pytest.raises(ValueError, match=r"bins must contain only finite values"):
+        PiecewiseLinearNumericalEncoder(bins=torch.tensor([[1.0, value, 4.0]]))
+
+
+def test_piecewise_linear_numerical_encoder_single_bin() -> None:
+    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[1.0]]))
+    assert module(torch.tensor([[3.0]])).allclose(torch.tensor([[[2.0]]]))
+
+
+def test_piecewise_linear_numerical_encoder_on_duplicate_ignore_is_silent() -> None:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        PiecewiseLinearNumericalEncoder(bins=torch.tensor([[1.0, 1.0, 2.0]]), on_duplicate="ignore")
+
+
+def test_piecewise_linear_numerical_encoder_on_duplicate_ignore_keeps_step() -> None:
+    module = PiecewiseLinearNumericalEncoder(
+        bins=torch.tensor([[1.0, 1.0, 2.0]]), on_duplicate="ignore"
+    )
+    assert module.is_step.equal(torch.tensor([[True, False]]))
+
+
+def test_piecewise_linear_numerical_encoder_on_duplicate_incorrect() -> None:
+    with pytest.raises(ValueError, match=r"on_duplicate"):
+        PiecewiseLinearNumericalEncoder(bins=torch.tensor([[1.0, 2.0]]), on_duplicate="incorrect")
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_on_duplicate_ignore_is_silent() -> None:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        PiecewiseLinearNumericalEncoder.from_quantiles(
+            torch.zeros(10, 1), n_bins=4, on_duplicate="ignore"
+        )

@@ -17,6 +17,8 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Fixed
 
+- `PiecewiseLinearNumericalEncoder` accepts integer bins (converted to the default float dtype) and raises
+  a `ValueError` for empty bins and for non-finite bins (review 2.5, #360).
 - `poisson_regression_loss` clamps the prediction in the linear term too, so the loss is bounded below for
   negative predictions (review 2.4, #359).
 - `log_cosh_loss` validates `scale` like `LogCoshLoss` does: `scale <= 0` raises a `ValueError` instead
@@ -31,6 +33,8 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Changed
 
+- `PiecewiseLinearNumericalEncoder` and `from_quantiles` have a keyword-only
+  `on_duplicate="warn" | "ignore"` option for the duplicate-edge warning (review 2.5, #360).
 - `PoissonRegressionLoss` and `poisson_regression_loss` have a keyword-only `log_input` option, and the
   representation of the module shows `log_input` (review 2.4, #359).
 - `BaseLoss.extra_repr` returns `reduction=...` and the losses extend it, so the representation of
