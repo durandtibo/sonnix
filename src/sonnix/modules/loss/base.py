@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from torch import nn
 
-from sonnix.functional.reduction import check_loss_reduction_strategy
+from sonnix.validation import validate_loss_reduction_strategy
 
 if TYPE_CHECKING:
     from sonnix.functional.reduction import Reduction
@@ -50,7 +50,7 @@ class BaseLoss(nn.Module):
 
     def __init__(self, reduction: Reduction = "mean") -> None:
         super().__init__()
-        check_loss_reduction_strategy(reduction)
+        validate_loss_reduction_strategy(reduction)
         self.reduction: Reduction = reduction
 
     def extra_repr(self) -> str:

@@ -16,11 +16,11 @@ __all__ = [
 from typing import TYPE_CHECKING
 
 import torch
-from coola.validation import validate_ge, validate_gt
+from coola.validation import validate_gt
 
 from sonnix.functional.power import safe_pow
 from sonnix.functional.reduction import reduce_loss
-from sonnix.validation import validate_same_shape
+from sonnix.validation import validate_moment_order, validate_same_shape
 
 if TYPE_CHECKING:
     from sonnix.functional.reduction import Reduction
@@ -222,18 +222,6 @@ def minimum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
     return torch.minimum(target.abs(), prediction.abs())
 
 
-def check_moment_order(k: int) -> None:
-    r"""Check the order of the moment mean indicator.
-
-    Args:
-        k: The order.
-
-    Raises:
-        ValueError: if the order is not a positive integer.
-    """
-    validate_ge(k, 1, name="k")
-
-
 def moment_mean_indicator(
     prediction: torch.Tensor, target: torch.Tensor, k: int = 1
 ) -> torch.Tensor:
@@ -260,7 +248,7 @@ def moment_mean_indicator(
 
         ```
     """
-    check_moment_order(k)
+    validate_moment_order(k)
     mean = target.abs().pow(k).add(prediction.abs().pow(k)).mul(0.5)
     return safe_pow(mean, 1 / k)
 

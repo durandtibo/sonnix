@@ -26,6 +26,12 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Renamed
 
+- The `check_*` validation functions move to `sonnix.validation` and are renamed `validate_*`:
+  `sonnix.functional.check_loss_reduction_strategy` is `validate_loss_reduction_strategy`,
+  `check_moment_order` (`sonnix.functional.loss.relative`) is `validate_moment_order`, and
+  `check_abs_range`/`check_frequency` (`sonnix.modules.numerical._utils`) are `validate_abs_range`
+  and `validate_frequency`. `VALID_REDUCTIONS` moves to `sonnix.validation.loss`.
+
 - The `input_size` and `output_size` properties of the numerical encoders are now `n_features` and
   `feature_size`, like their representation.
 - The `prediction` and `target` arguments (and attributes) of `TransformedLoss` are now

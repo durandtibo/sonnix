@@ -2,41 +2,17 @@ r"""Contain loss reduction functions."""
 
 from __future__ import annotations
 
-__all__ = ["Reduction", "check_loss_reduction_strategy", "reduce_loss"]
+__all__ = ["Reduction", "reduce_loss"]
 
-from typing import TYPE_CHECKING, Literal, get_args
+from typing import TYPE_CHECKING, Literal
 
-from coola.validation import validate_in
+from sonnix.validation.loss import validate_loss_reduction_strategy
 
 if TYPE_CHECKING:
     from torch import Tensor
 
 Reduction = Literal["none", "mean", "sum", "batchmean"]
 r"""The valid loss reduction strategies."""
-
-VALID_REDUCTIONS: tuple[str, ...] = get_args(Reduction)
-
-
-def check_loss_reduction_strategy(reduction: str) -> None:
-    r"""Check if the provided reduction ia a valid loss reduction.
-
-    The valid reduction values are ``'mean'``, ``'none'``,  ``'sum'``,
-    and ``'batchmean'``.
-
-    Args:
-        reduction: The reduction strategy to check.
-
-    Raises:
-        ValueError: if the provided reduction is not valid.
-
-    Example:
-        ```pycon
-        >>> from sonnix.functional import check_loss_reduction_strategy
-        >>> check_loss_reduction_strategy("mean")
-
-        ```
-    """
-    validate_in(reduction, VALID_REDUCTIONS, name="reduction")
 
 
 def reduce_loss(tensor: Tensor, reduction: Reduction) -> Tensor:
@@ -76,7 +52,7 @@ def reduce_loss(tensor: Tensor, reduction: Reduction) -> Tensor:
 
         ```
     """
-    check_loss_reduction_strategy(reduction)
+    validate_loss_reduction_strategy(reduction)
     if reduction == "mean":
         return tensor.mean()
     if reduction == "sum":

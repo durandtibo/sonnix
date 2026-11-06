@@ -7,8 +7,8 @@ import torch
 from coola.equality import objects_are_allclose, objects_are_equal
 from coola.utils.tensor import get_available_devices
 
-from sonnix.functional.reduction import VALID_REDUCTIONS
 from sonnix.modules import GeneralRobustRegressionLoss
+from sonnix.validation.loss import VALID_REDUCTIONS
 
 SIZES = (1, 2, 3)
 
