@@ -22,10 +22,9 @@ class BinaryPoly1Loss(nn.Module):
     (https://arxiv.org/pdf/2204.12511)
 
     Args:
-        alpha: The weighting factor, which must be in the range
-            ``[0, 1]``. This parameter is ignored if negative.
-        gamma: The focusing parameter, which must be positive
-            (``>=0``).
+        alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
+            probability of the target class. The loss is
+            ``cross_entropy + alpha * (1 - p_t)``.
         reduction: The reduction to apply to the output:
             ``'none'`` | ``'mean'`` | ``'sum'`` | ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
@@ -100,10 +99,9 @@ class BinaryPoly1LossWithLogits(nn.Module):
     (https://arxiv.org/pdf/2204.12511)
 
     Args:
-        alpha: The weighting factor, which must be in the range
-            ``[0, 1]``. This parameter is ignored if negative.
-        gamma: The focusing parameter, which must be positive
-            (``>=0``).
+        alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
+            probability of the target class. The loss is
+            ``cross_entropy + alpha * (1 - p_t)``.
         reduction: The reduction to apply to the output:
             ``'none'`` | ``'mean'`` | ``'sum'`` | ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the

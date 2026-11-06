@@ -218,3 +218,21 @@ def test_nlinear_forward_predefined_weights_4d(nlinear_fixed_weights: NLinear) -
             ]
         ),
     )
+
+
+def test_nlinear_init_matches_linear_scale() -> None:
+    torch.manual_seed(0)
+    module = NLinear(n=3, in_features=16, out_features=64)
+    reference = torch.nn.Linear(16, 64)
+    assert module.weight.std().item() == pytest.approx(reference.weight.std().item(), rel=0.1)
+    bound = 1 / 16**0.5
+    assert module.weight.abs().max().item() <= bound
+    assert module.bias.abs().max().item() <= bound
+    assert module.bias.abs().max().item() > bound / 2
+
+
+def test_nlinear_forward_non_contiguous() -> None:
+    module = NLinear(n=3, in_features=4, out_features=6)
+    x = torch.randn(4, 3, 2).transpose(0, 2)  # (2, 3, 4), non-contiguous
+    assert not x.is_contiguous()
+    assert module(x).equal(module(x.contiguous()))

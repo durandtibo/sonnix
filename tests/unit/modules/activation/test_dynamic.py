@@ -338,3 +338,11 @@ def test_dynamic_tanh_reset_parameters() -> None:
     assert module.alpha.equal(torch.tensor([0.5]))
     assert module.weight.equal(torch.ones(5))
     assert module.bias.equal(torch.zeros(5))
+
+
+@pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
+def test_dynamic_tanh_dtype(dtype: torch.dtype) -> None:
+    module = DynamicTanh(4, dtype=dtype)
+    assert module.alpha.dtype == dtype
+    assert module.weight.dtype == dtype
+    assert module.bias.dtype == dtype
