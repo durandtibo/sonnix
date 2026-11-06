@@ -176,3 +176,19 @@ def test_scale_and_shift_reset_parameters_with_bias() -> None:
         module.bias.fill_(2.0)
     module.reset_parameters()
     assert module.bias.equal(torch.zeros(3))
+
+
+######################################
+#     Tests for the shape checks     #
+######################################
+
+
+@pytest.mark.parametrize("normalized_shape", [-1, 0, (3, 0), [2, -1]])
+def test_scale_and_shift_incorrect_normalized_shape(normalized_shape: object) -> None:
+    with pytest.raises(ValueError, match=r"normalized_shape must be greater than or equal to 1"):
+        ScaleAndShift(normalized_shape=normalized_shape)
+
+
+def test_scale_and_shift_incorrect_normalized_shape_type() -> None:
+    with pytest.raises(TypeError, match=r"normalized_shape must be an int"):
+        ScaleAndShift(normalized_shape=(2.5,))

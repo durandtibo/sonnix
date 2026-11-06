@@ -485,3 +485,34 @@ def test_alpha_activation_broadcast_alpha_channel_dim_last() -> None:
 def test_alpha_activation_broadcast_alpha_1d_input() -> None:
     module = Gaussian(num_parameters=4)
     assert module.broadcast_alpha(torch.ones(4)).shape == (4,)
+
+
+##############################################
+#     Tests for the init and size checks     #
+##############################################
+
+
+def test_laplacian_negative_init() -> None:
+    with pytest.raises(ValueError, match=r"'init' has to be positive"):
+        Laplacian(init=-1.0)
+
+
+def test_laplacian_positive_init() -> None:
+    assert Laplacian(init=0.5).alpha.item() == 0.5
+
+
+@pytest.mark.parametrize("module", [ExpSin, Gaussian, MultiQuadratic, Quadratic, Snake])
+def test_negative_init_is_allowed(module: type) -> None:
+    assert module(init=-1.0).alpha.item() == -1.0
+
+
+@pytest.mark.parametrize("init", [float("nan"), float("inf"), float("-inf")])
+def test_gaussian_non_finite_init(init: float) -> None:
+    with pytest.raises(ValueError, match=r"init must be finite"):
+        Gaussian(init=init)
+
+
+@pytest.mark.parametrize("num_parameters", [2.5, True])
+def test_gaussian_incorrect_num_parameters_type(num_parameters: object) -> None:
+    with pytest.raises(TypeError, match=r"num_parameters must be an int"):
+        Gaussian(num_parameters=num_parameters)

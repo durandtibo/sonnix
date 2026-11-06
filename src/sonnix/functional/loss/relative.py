@@ -225,10 +225,15 @@ def moment_mean_indicator(
     Args:
         prediction: The predictions.
         target: The target values.
-        k:  The order.
+        k: The order, which has to be an integer greater than or
+            equal to 1.
 
     Returns:
         The indicator values.
+
+    Raises:
+        TypeError: if ``k`` is not an integer.
+        ValueError: if ``k`` is lower than 1.
 
     Example:
         ```pycon

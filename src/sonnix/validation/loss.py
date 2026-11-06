@@ -12,7 +12,7 @@ __all__ = [
 
 import math
 
-from coola.validation import validate_ge, validate_gt, validate_in, validate_range
+from coola.validation import validate_ge, validate_gt, validate_in, validate_int, validate_range
 
 VALID_REDUCTIONS: tuple[str, ...] = ("none", "mean", "sum", "batchmean")
 r"""The valid loss reduction strategies."""
@@ -98,7 +98,8 @@ def validate_moment_order(k: int) -> None:
         k: The order.
 
     Raises:
-        ValueError: if the order is not a positive integer.
+        TypeError: if the order is not an integer.
+        ValueError: if the order is lower than 1.
 
     Example:
         ```pycon
@@ -107,4 +108,5 @@ def validate_moment_order(k: int) -> None:
 
         ```
     """
+    validate_int(k, name="k")
     validate_ge(k, 1, name="k")
