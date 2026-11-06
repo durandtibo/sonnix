@@ -6,6 +6,7 @@ Activation functions and element-wise math modules. See also the [`sonnix.module
 | --- |
 | [`Asinh`](#sonnix.modules.Asinh) |
 | [`BaseAlphaActivation`](#sonnix.modules.BaseAlphaActivation) |
+| [`BaseDynamicNorm`](#sonnix.modules.BaseDynamicNorm) |
 | [`Clamp`](#sonnix.modules.Clamp) |
 | [`DynamicAsinh`](#sonnix.modules.DynamicAsinh) |
 | [`DynamicTanh`](#sonnix.modules.DynamicTanh) |
@@ -32,6 +33,8 @@ Activation functions and element-wise math modules. See also the [`sonnix.module
 ## ::: sonnix.modules.Asinh
 
 ## ::: sonnix.modules.BaseAlphaActivation
+
+## ::: sonnix.modules.BaseDynamicNorm
 
 ## ::: sonnix.modules.Clamp
 
