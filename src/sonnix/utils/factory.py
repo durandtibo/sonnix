@@ -19,20 +19,13 @@ __all__ = [
 import logging
 from typing import TYPE_CHECKING, Any, TypeVar
 
+from coola.factory import OBJECT_TARGET, factory, is_object_config
 from torch.nn import Module, Sequential
 from torch.optim import Optimizer
 from torch.utils.data import Dataset
 
-from sonnix.utils.imports import is_objectory_available
-
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-if is_objectory_available():
-    from objectory import OBJECT_TARGET, factory
-    from objectory.utils import is_object_config
-else:  # pragma: no cover
-    from sonnix.utils.fallback.objectory import OBJECT_TARGET, factory, is_object_config
 
 T = TypeVar("T")
 
@@ -70,7 +63,7 @@ def is_dataset_config(config: dict[Any, Any]) -> bool:
 
         ```
     """
-    return is_object_config(config, Dataset)
+    return is_object_config(config, Dataset, import_target=True)
 
 
 def is_module_config(config: dict[Any, Any]) -> bool:
@@ -97,7 +90,7 @@ def is_module_config(config: dict[Any, Any]) -> bool:
 
         ```
     """
-    return is_object_config(config, Module)
+    return is_object_config(config, Module, import_target=True)
 
 
 def is_optimizer_config(config: dict[Any, Any]) -> bool:
@@ -126,7 +119,7 @@ def is_optimizer_config(config: dict[Any, Any]) -> bool:
 
         ```
     """
-    return is_object_config(config, Optimizer)
+    return is_object_config(config, Optimizer, import_target=True)
 
 
 def setup_dataset(dataset: Dataset[T] | dict[Any, Any]) -> Dataset[T]:
@@ -253,9 +246,6 @@ def setup_object(obj_or_config: T | dict[Any, Any]) -> T:
     Returns:
         The instantiated object.
 
-    Raises:
-        RuntimeError: if the ``objectory`` package is not installed.
-
     Example:
         ```pycon
         >>> from sonnix.utils.factory import setup_object
@@ -288,9 +278,6 @@ def setup_object_typed(obj_or_config: T | dict[Any, Any], cls: type, name: str |
     Returns:
         The instantiated object.
 
-    Raises:
-        RuntimeError: if the ``objectory`` package is not installed.
-
     Example:
         ```pycon
         >>> import torch
@@ -310,6 +297,7 @@ def setup_object_typed(obj_or_config: T | dict[Any, Any], cls: type, name: str |
     """
     if name is None:
         name = cls.__qualname__
+    obj: Any
     if isinstance(obj_or_config, dict):
         logger.info(f"Initializing a '{name}' from its configuration... ")
         obj = factory(**obj_or_config)
@@ -324,7 +312,7 @@ def str_target_object(config: dict[Any, Any]) -> str:
     r"""Get a string that indicates the target object in the config.
 
     Args:
-        config: A config using the ``objectory`` library.
+        config: A config using the ``coola.factory`` convention.
             This dict is expected to have a key ``'_target_'`` to
             indicate the target object.
 
