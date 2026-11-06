@@ -56,9 +56,14 @@ def test_nlinear_str() -> None:
 
 
 @pytest.mark.parametrize("n", SIZES)
-def test_nlinear_init_n(n: int) -> None:
+def test_nlinear_init_n_weight_shape(n: int) -> None:
     module = NLinear(n=n, in_features=4, out_features=6)
     assert module.weight.shape[0] == n
+
+
+@pytest.mark.parametrize("n", SIZES)
+def test_nlinear_init_n_bias_shape(n: int) -> None:
+    module = NLinear(n=n, in_features=4, out_features=6)
     assert module.bias.shape[0] == n
 
 
@@ -69,9 +74,14 @@ def test_nlinear_init_in_features(in_features: int) -> None:
 
 
 @pytest.mark.parametrize("out_features", SIZES)
-def test_nlinear_init_out_features(out_features: int) -> None:
+def test_nlinear_init_out_features_weight_shape(out_features: int) -> None:
     module = NLinear(n=3, in_features=4, out_features=out_features)
     assert module.weight.shape[2] == out_features
+
+
+@pytest.mark.parametrize("out_features", SIZES)
+def test_nlinear_init_out_features_bias_shape(out_features: int) -> None:
+    module = NLinear(n=3, in_features=4, out_features=out_features)
     assert module.bias.shape[1] == out_features
 
 
@@ -220,21 +230,46 @@ def test_nlinear_forward_predefined_weights_4d(nlinear_fixed_weights: NLinear) -
     )
 
 
-def test_nlinear_init_matches_linear_scale() -> None:
+def test_nlinear_init_matches_linear_scale_weight_std() -> None:
     torch.manual_seed(0)
     module = NLinear(n=3, in_features=16, out_features=64)
     reference = torch.nn.Linear(16, 64)
     assert module.weight.std().item() == pytest.approx(reference.weight.std().item(), rel=0.1)
+
+
+def test_nlinear_init_matches_linear_scale_weight_abs_max() -> None:
+    torch.manual_seed(0)
+    module = NLinear(n=3, in_features=16, out_features=64)
+    torch.nn.Linear(16, 64)
     bound = 1 / 16**0.5
     assert module.weight.abs().max().item() <= bound
+
+
+def test_nlinear_init_matches_linear_scale_bias_abs_max() -> None:
+    torch.manual_seed(0)
+    module = NLinear(n=3, in_features=16, out_features=64)
+    torch.nn.Linear(16, 64)
+    bound = 1 / 16**0.5
     assert module.bias.abs().max().item() <= bound
+
+
+def test_nlinear_init_matches_linear_scale_bias_abs_max_2() -> None:
+    torch.manual_seed(0)
+    module = NLinear(n=3, in_features=16, out_features=64)
+    torch.nn.Linear(16, 64)
+    bound = 1 / 16**0.5
     assert module.bias.abs().max().item() > bound / 2
 
 
-def test_nlinear_forward_non_contiguous() -> None:
-    module = NLinear(n=3, in_features=4, out_features=6)
+def test_nlinear_forward_non_contiguous_check1() -> None:
+    NLinear(n=3, in_features=4, out_features=6)
     x = torch.randn(4, 3, 2).transpose(0, 2)  # (2, 3, 4), non-contiguous
     assert not x.is_contiguous()
+
+
+def test_nlinear_forward_non_contiguous_check2() -> None:
+    module = NLinear(n=3, in_features=4, out_features=6)
+    x = torch.randn(4, 3, 2).transpose(0, 2)  # (2, 3, 4), non-contiguous
     assert module(x).equal(module(x.contiguous()))
 
 
