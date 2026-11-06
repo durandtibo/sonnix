@@ -42,5 +42,5 @@ class ConcatFusion(nn.Module):
     def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
         if not inputs:
             msg = f"{self.__class__.__qualname__} needs at least one tensor as input"
-            raise RuntimeError(msg)
+            raise ValueError(msg)
         return torch.cat(inputs, dim=self._dim)

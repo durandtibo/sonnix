@@ -93,7 +93,7 @@ class CosSinNumericalEncoder(nn.Module):
                 f"'frequency' and 'phase_shift' shapes do not match: {self.frequency.shape} "
                 f"vs {self.phase_shift.shape}"
             )
-            raise RuntimeError(msg)
+            raise ValueError(msg)
 
     @property
     def learnable(self) -> bool:
@@ -482,13 +482,13 @@ def prepare_tensor_param(tensor: Tensor, name: str) -> Tensor:
         The prepared tensor.
 
     Raises:
-        RuntimeError: if the input tensor is not a 1d or 2d tensor.
+        ValueError: if the input tensor is not a 1d or 2d tensor.
     """
     if tensor.ndim == 1:
         tensor = tensor.view(1, -1)
     if tensor.ndim != 2:
         msg = f"Incorrect shape for '{name}': {tensor.shape}"
-        raise RuntimeError(msg)
+        raise ValueError(msg)
     return tensor
 
 
@@ -500,17 +500,17 @@ def check_abs_range(min_abs_value: float, max_abs_value: float) -> None:
         max_abs_value: The maximum absolute value to encode.
 
     Raises:
-        RuntimeError: if one of the parameters is invalid.
+        ValueError: if one of the parameters is invalid.
     """
     if min_abs_value <= 0:
         msg = f"'min_abs_value' has to be greater than 0 (received: {min_abs_value})"
-        raise RuntimeError(msg)
+        raise ValueError(msg)
     if max_abs_value < min_abs_value:
         msg = (
             f"'max_abs_value' (received: {max_abs_value}) has to be greater than "
             f"'min_abs_value' (received: {min_abs_value})"
         )
-        raise RuntimeError(msg)
+        raise ValueError(msg)
 
 
 def check_frequency(
@@ -526,17 +526,17 @@ def check_frequency(
         max_frequency: The maximum frequency.
 
     Raises:
-        RuntimeError: if one of the parameters is invalid.
+        ValueError: if one of the parameters is invalid.
     """
     if num_frequencies < 1:
         msg = f"'num_frequencies' has to be greater or equal to 1 (received: {num_frequencies})"
-        raise RuntimeError(msg)
+        raise ValueError(msg)
     if min_frequency <= 0:
         msg = f"'min_frequency' has to be greater than 0 (received: {min_frequency})"
-        raise RuntimeError(msg)
+        raise ValueError(msg)
     if max_frequency < min_frequency:
         msg = (
             f"'max_frequency' (received: {max_frequency}) has to be greater than "
             f"'min_frequency' (received: {min_frequency})"
         )
-        raise RuntimeError(msg)
+        raise ValueError(msg)

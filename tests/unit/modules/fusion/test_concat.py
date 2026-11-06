@@ -20,7 +20,7 @@ def test_concat_fusion_str() -> None:
 
 def test_concat_fusion_forward_0_input() -> None:
     module = ConcatFusion()
-    with pytest.raises(RuntimeError, match=r"ConcatFusion needs at least one tensor as input"):
+    with pytest.raises(ValueError, match=r"ConcatFusion needs at least one tensor as input"):
         module()
 
 

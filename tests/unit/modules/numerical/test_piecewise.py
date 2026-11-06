@@ -54,7 +54,7 @@ def test_piecewise_linear_numerical_encoder_bins_sort() -> None:
 
 
 def test_piecewise_linear_numerical_encoder_bins_incorrect_shape() -> None:
-    with pytest.raises(RuntimeError, match=r"Incorrect shape for 'bins':"):
+    with pytest.raises(ValueError, match=r"Incorrect shape for 'bins':"):
         PiecewiseLinearNumericalEncoder(torch.ones(2, 3, 4))
 
 
