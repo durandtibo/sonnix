@@ -43,11 +43,11 @@ class Clamp(torch.nn.Module):
         if min_val is not None and max_val is not None and min_val > max_val:
             msg = f"min_val ({min_val}) must be lower than or equal to max_val ({max_val})"
             raise ValueError(msg)
-        self._min = min_val
-        self._max = max_val
+        self.min_val = min_val
+        self.max_val = max_val
 
     def extra_repr(self) -> str:
-        return f"min_val={self._min}, max_val={self._max}"
+        return f"min_val={self.min_val}, max_val={self.max_val}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.clamp(min=self._min, max=self._max)
+        return input.clamp(min=self.min_val, max=self.max_val)

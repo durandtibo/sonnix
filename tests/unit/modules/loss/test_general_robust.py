@@ -24,20 +24,20 @@ def test_general_robust_regression_loss_str() -> None:
 
 @pytest.mark.parametrize("alpha", [-1, 0, 1, 2])
 def test_general_robust_regression_loss_alpha(alpha: float) -> None:
-    assert GeneralRobustRegressionLoss(alpha=alpha)._alpha == alpha
+    assert GeneralRobustRegressionLoss(alpha=alpha).alpha == alpha
 
 
 def test_general_robust_regression_loss_alpha_default() -> None:
-    assert GeneralRobustRegressionLoss()._alpha == 2.0
+    assert GeneralRobustRegressionLoss().alpha == 2.0
 
 
 @pytest.mark.parametrize("scale", [1, 2])
 def test_general_robust_regression_loss_scale(scale: float) -> None:
-    assert GeneralRobustRegressionLoss(scale=scale)._scale == scale
+    assert GeneralRobustRegressionLoss(scale=scale).scale == scale
 
 
 def test_general_robust_regression_loss_scale_default() -> None:
-    assert GeneralRobustRegressionLoss()._scale == 1.0
+    assert GeneralRobustRegressionLoss().scale == 1.0
 
 
 def test_general_robust_regression_loss_incorrect_scale() -> None:

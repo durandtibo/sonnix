@@ -103,10 +103,10 @@ class AsinhSmoothL1Loss(BaseLoss):
     def __init__(self, beta: float = 1.0, *, reduction: Reduction = "mean") -> None:
         super().__init__(reduction=reduction)
         validate_ge(beta, 0, name="beta")
-        self._beta = float(beta)
+        self.beta = float(beta)
 
     def extra_repr(self) -> str:
-        return f"reduction={self.reduction}, beta={self._beta}"
+        return f"reduction={self.reduction}, beta={self.beta}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        return asinh_smooth_l1_loss(prediction, target, reduction=self.reduction, beta=self._beta)
+        return asinh_smooth_l1_loss(prediction, target, reduction=self.reduction, beta=self.beta)

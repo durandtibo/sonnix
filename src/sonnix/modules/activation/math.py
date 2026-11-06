@@ -188,13 +188,13 @@ class Pow(nn.Module):
 
     def __init__(self, exponent: float) -> None:
         super().__init__()
-        self._exponent = float(exponent)
+        self.exponent = float(exponent)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.pow(self._exponent)
+        return input.pow(self.exponent)
 
     def extra_repr(self) -> str:
-        return f"exponent={self._exponent}"
+        return f"exponent={self.exponent}"
 
 
 class SafeExp(nn.Module):
@@ -232,15 +232,15 @@ class SafeExp(nn.Module):
 
     def __init__(self, max_val: float = 20.0, preserve_gradient: bool = False) -> None:
         super().__init__()
-        self._max = float(max_val)
-        self._preserve_gradient = preserve_gradient
+        self.max_val = float(max_val)
+        self.preserve_gradient = preserve_gradient
 
     def extra_repr(self) -> str:
-        extra = ", preserve_gradient=True" if self._preserve_gradient else ""
-        return f"max_val={self._max}{extra}"
+        extra = ", preserve_gradient=True" if self.preserve_gradient else ""
+        return f"max_val={self.max_val}{extra}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return safe_exp(input, self._max, preserve_gradient=self._preserve_gradient)
+        return safe_exp(input, self.max_val, preserve_gradient=self.preserve_gradient)
 
 
 class SafeLog(nn.Module):
@@ -282,15 +282,15 @@ class SafeLog(nn.Module):
     def __init__(self, min_val: float = 1e-8, preserve_gradient: bool = False) -> None:
         super().__init__()
         validate_gt(min_val, 0, name="min_val")
-        self._min = float(min_val)
-        self._preserve_gradient = preserve_gradient
+        self.min_val = float(min_val)
+        self.preserve_gradient = preserve_gradient
 
     def extra_repr(self) -> str:
-        extra = ", preserve_gradient=True" if self._preserve_gradient else ""
-        return f"min_val={self._min}{extra}"
+        extra = ", preserve_gradient=True" if self.preserve_gradient else ""
+        return f"min_val={self.min_val}{extra}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return safe_log(input, self._min, preserve_gradient=self._preserve_gradient)
+        return safe_log(input, self.min_val, preserve_gradient=self.preserve_gradient)
 
 
 class Sin(nn.Module):

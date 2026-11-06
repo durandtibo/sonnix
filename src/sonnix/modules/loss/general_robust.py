@@ -82,20 +82,20 @@ class GeneralRobustRegressionLoss(BaseLoss):
         reduction: Reduction = "mean",
     ) -> None:
         super().__init__(reduction=reduction)
-        self._alpha = float(alpha)
+        self.alpha = float(alpha)
         validate_gt(scale, 0, name="scale")
-        self._scale = float(scale)
-        self._max = max_val
+        self.scale = float(scale)
+        self.max_val = max_val
 
     def extra_repr(self) -> str:
-        return f"alpha={self._alpha}, scale={self._scale}, max_val={self._max}, reduction={self.reduction}"
+        return f"alpha={self.alpha}, scale={self.scale}, max_val={self.max_val}, reduction={self.reduction}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         return general_robust_regression_loss(
             prediction=prediction,
             target=target,
-            alpha=self._alpha,
-            scale=self._scale,
-            max_val=self._max,
+            alpha=self.alpha,
+            scale=self.scale,
+            max_val=self.max_val,
             reduction=self.reduction,
         )

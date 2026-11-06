@@ -56,10 +56,10 @@ class QuantileRegressionLoss(BaseLoss):
     def __init__(self, q: float = 0.5, *, reduction: Reduction = "mean") -> None:
         super().__init__(reduction=reduction)
         validate_range(q, 0.0, 1.0, name="q")
-        self._q = float(q)
+        self.q = float(q)
 
     def extra_repr(self) -> str:
-        return f"reduction={self.reduction}, q={self._q}"
+        return f"reduction={self.reduction}, q={self.q}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        return quantile_regression_loss(prediction, target, reduction=self.reduction, q=self._q)
+        return quantile_regression_loss(prediction, target, reduction=self.reduction, q=self.q)

@@ -24,7 +24,7 @@ def test_binary_focal_loss_str() -> None:
 
 @pytest.mark.parametrize("alpha", [-1.0, 0.0, 0.5, 1])
 def test_binary_focal_loss_alpha(alpha: float) -> None:
-    assert BinaryPoly1Loss(alpha=alpha)._alpha == alpha
+    assert BinaryPoly1Loss(alpha=alpha).alpha == alpha
 
 
 @pytest.mark.parametrize("device", get_available_devices())
@@ -138,7 +138,7 @@ def test_binary_focal_loss_with_logits_str() -> None:
 
 @pytest.mark.parametrize("alpha", [-1.0, 0.0, 0.5, 1])
 def test_binary_focal_loss_with_logits_alpha(alpha: float) -> None:
-    assert BinaryPoly1LossWithLogits(alpha=alpha)._alpha == alpha
+    assert BinaryPoly1LossWithLogits(alpha=alpha).alpha == alpha
 
 
 @pytest.mark.parametrize("device", get_available_devices())

@@ -57,23 +57,23 @@ class BaseDynamicNorm(nn.Module):
         super().__init__()
         if isinstance(normalized_shape, int):
             normalized_shape = (normalized_shape,)
-        self._normalized_shape = tuple(normalized_shape)
-        self._alpha_init_value = alpha_init_value
+        self.normalized_shape = tuple(normalized_shape)
+        self.alpha_init_value = alpha_init_value
 
         self.alpha: nn.Parameter = nn.Parameter(torch.empty(1, device=device, dtype=dtype))
         self.weight: nn.Parameter = nn.Parameter(
-            torch.empty(self._normalized_shape, device=device, dtype=dtype)
+            torch.empty(self.normalized_shape, device=device, dtype=dtype)
         )
         self.bias: nn.Parameter = nn.Parameter(
-            torch.empty(self._normalized_shape, device=device, dtype=dtype)
+            torch.empty(self.normalized_shape, device=device, dtype=dtype)
         )
         self.reset_parameters()
 
     def extra_repr(self) -> str:
-        return f"normalized_shape={self._normalized_shape}"
+        return f"normalized_shape={self.normalized_shape}"
 
     def reset_parameters(self) -> None:
-        init.constant_(self.alpha, self._alpha_init_value)
+        init.constant_(self.alpha, self.alpha_init_value)
         init.ones_(self.weight)
         init.zeros_(self.bias)
 

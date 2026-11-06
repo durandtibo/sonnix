@@ -76,15 +76,15 @@ class Squeeze(nn.Module):
 
     def __init__(self, dim: int | None = None) -> None:
         super().__init__()
-        self._dim = dim
+        self.dim = dim
 
     def extra_repr(self) -> str:
-        return f"dim={self._dim}"
+        return f"dim={self.dim}"
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        if self._dim is None:
+        if self.dim is None:
             return input.squeeze()
-        return input.squeeze(self._dim)
+        return input.squeeze(self.dim)
 
 
 class View(nn.Module):
@@ -110,10 +110,10 @@ class View(nn.Module):
 
     def __init__(self, shape: tuple[int, ...] | list[int]) -> None:
         super().__init__()
-        self._shape = tuple(shape)
+        self.shape = tuple(shape)
 
     def extra_repr(self) -> str:
-        return f"shape={self._shape}"
+        return f"shape={self.shape}"
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return x.view(*self._shape)
+        return x.view(*self.shape)

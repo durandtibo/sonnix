@@ -65,10 +65,10 @@ class SumFusion(nn.Module):
 
     def __init__(self, normalized: bool = False) -> None:
         super().__init__()
-        self._normalized = bool(normalized)
+        self.normalized = bool(normalized)
 
     def extra_repr(self) -> str:
-        return f"normalized={self._normalized}"
+        return f"normalized={self.normalized}"
 
     def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
         if not inputs:
@@ -79,7 +79,7 @@ class SumFusion(nn.Module):
         for x in inputs[1:]:
             output = output.add(x)
 
-        if self._normalized:
+        if self.normalized:
             output = output.div(len(inputs))
         return output
 

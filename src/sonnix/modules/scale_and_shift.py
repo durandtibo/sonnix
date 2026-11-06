@@ -55,13 +55,13 @@ class ScaleAndShift(nn.Module):
         super().__init__()
         if isinstance(normalized_shape, int):
             normalized_shape = (normalized_shape,)
-        self._normalized_shape = tuple(normalized_shape)
+        self.normalized_shape = tuple(normalized_shape)
 
         self.weight: nn.Parameter = nn.Parameter(
-            torch.empty(self._normalized_shape, device=device, dtype=dtype)
+            torch.empty(self.normalized_shape, device=device, dtype=dtype)
         )
         self.bias: nn.Parameter = nn.Parameter(
-            torch.empty(self._normalized_shape, device=device, dtype=dtype)
+            torch.empty(self.normalized_shape, device=device, dtype=dtype)
         )
         self.reset_parameters()
 
@@ -69,7 +69,7 @@ class ScaleAndShift(nn.Module):
         return x * self.weight + self.bias
 
     def extra_repr(self) -> str:
-        return f"normalized_shape={self._normalized_shape}"
+        return f"normalized_shape={self.normalized_shape}"
 
     def reset_parameters(self) -> None:
         init.ones_(self.weight)

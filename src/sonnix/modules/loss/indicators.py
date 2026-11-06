@@ -230,13 +230,13 @@ class MomentMeanIndicator(BaseRelativeIndicator):
     def __init__(self, k: int = 1) -> None:
         super().__init__()
         check_moment_order(k)
-        self._k = k
+        self.k = k
 
     def extra_repr(self) -> str:
-        return f"k={self._k}"
+        return f"k={self.k}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        return moment_mean_indicator(prediction, target, k=self._k)
+        return moment_mean_indicator(prediction, target, k=self.k)
 
 
 class ReversedRelativeIndicator(BaseRelativeIndicator):

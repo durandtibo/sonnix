@@ -58,10 +58,10 @@ class PoissonRegressionLoss(BaseLoss):
     def __init__(self, eps: float = 1e-8, *, reduction: Reduction = "mean") -> None:
         super().__init__(reduction=reduction)
         validate_gt(eps, 0, name="eps")
-        self._eps = float(eps)
+        self.eps = float(eps)
 
     def extra_repr(self) -> str:
-        return f"reduction={self.reduction}, eps={self._eps}"
+        return f"reduction={self.reduction}, eps={self.eps}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        return poisson_regression_loss(prediction, target, reduction=self.reduction, eps=self._eps)
+        return poisson_regression_loss(prediction, target, reduction=self.reduction, eps=self.eps)
