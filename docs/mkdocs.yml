@@ -25,6 +25,11 @@ nav:
   - Home: index.md
   - get_started.md
   - conventions.md
+  - User guide:
+      - Losses: guide/losses.md
+      - Numerical encoders: guide/numerical_embeddings.md
+      - Configurations: guide/configurations.md
+      - Numerical stability: guide/numerical_stability.md
   - Reference:
       - sonnix: refs/root.md
       - sonnix.factory: refs/factory.md
