@@ -53,3 +53,8 @@ def test_snake_forward_shape(shape: tuple[int, ...], device: str) -> None:
     assert out.shape == shape
     assert out.dtype == torch.float
     assert out.device == device
+
+
+def test_snake_zero_frequency() -> None:
+    with pytest.raises(ValueError, match="'frequency' has to be different from 0"):
+        Snake(frequency=0)

@@ -80,6 +80,9 @@ def reduce_loss(tensor: Tensor, reduction: str) -> Tensor:
     if reduction == "none":
         return tensor
     if reduction == "batchmean":
+        if tensor.ndim == 0:
+            msg = "'batchmean' reduction requires a tensor with at least one dimension"
+            raise ValueError(msg)
         return tensor.sum() / tensor.size(0)
     msg = f"Incorrect reduction: {reduction}. The valid reductions are {VALID_REDUCTIONS}"
     raise ValueError(msg)

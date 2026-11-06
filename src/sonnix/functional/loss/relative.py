@@ -205,6 +205,20 @@ def minimum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> to
     return torch.minimum(target.abs(), prediction.abs())
 
 
+def check_moment_order(k: int) -> None:
+    r"""Check the order of the moment mean indicator.
+
+    Args:
+        k: The order.
+
+    Raises:
+        ValueError: if the order is not a positive integer.
+    """
+    if k < 1:
+        msg = f"Incorrect parameter k ({k}). k has to be greater or equal to 1."
+        raise ValueError(msg)
+
+
 def moment_mean_indicator(
     prediction: torch.Tensor, target: torch.Tensor, k: int = 1
 ) -> torch.Tensor:
@@ -231,6 +245,7 @@ def moment_mean_indicator(
 
         ```
     """
+    check_moment_order(k)
     return target.abs().pow(k).add(prediction.abs().pow(k)).mul(0.5).pow(1 / k)
 
 

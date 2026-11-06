@@ -49,6 +49,9 @@ def quantile_regression_loss(
 
         ```
     """
+    if not 0.0 <= q <= 1.0:
+        msg = f"Incorrect parameter q ({q}). q has to be in the range [0, 1]."
+        raise ValueError(msg)
     diff = target - prediction
     loss = q * diff.clamp_min(0.0) + (1.0 - q) * (diff.neg().clamp_min(0.0))
     return reduce_loss(loss, reduction)
