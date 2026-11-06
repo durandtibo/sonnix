@@ -72,7 +72,6 @@ docs = [
   "mike >=2.2,<3.0",
   "mkdocs-material >=9.7,<10.0",
   "mkdocstrings[python]>=1.0.8,<2.0",
-  "mkdocs-include-markdown-plugin >=7.3,<8.0",
 ]
 
 # Hypothesis has no wheels for free-threaded Python, so it is not in the dev group.
