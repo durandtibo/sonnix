@@ -26,7 +26,7 @@ class BinaryPoly1Loss(nn.Module):
             probability of the target class. The loss is
             ``cross_entropy + alpha * (1 - p_t)``.
         reduction: The reduction to apply to the output:
-            ``'none'`` | ``'mean'`` | ``'sum'``.
+            ``'none'`` | ``'mean'`` | ``'sum'`` | ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum of the output will be divided by the number of
             elements in the output, ``'sum'``: the output will be
@@ -103,7 +103,7 @@ class BinaryPoly1LossWithLogits(nn.Module):
             probability of the target class. The loss is
             ``cross_entropy + alpha * (1 - p_t)``.
         reduction: The reduction to apply to the output:
-            ``'none'`` | ``'mean'`` | ``'sum'``.
+            ``'none'`` | ``'mean'`` | ``'sum'`` | ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum of the output will be divided by the number of
             elements in the output, ``'sum'``: the output will be

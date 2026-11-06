@@ -29,10 +29,13 @@ class RelativeLoss(nn.Module):
             implementation. If ``None``, ``ClassicalRelativeIndicator``
             is instantiated.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
 
@@ -100,10 +103,13 @@ class RelativeMSELoss(RelativeLoss):
             implementation. If ``None``, ``ClassicalRelativeIndicator``
             is instantiated.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
 
@@ -151,10 +157,13 @@ class RelativeSmoothL1Loss(RelativeLoss):
             implementation. If ``None``, ``ClassicalRelativeIndicator``
             is instantiated.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
 

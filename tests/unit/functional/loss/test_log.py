@@ -158,7 +158,7 @@ def test_msle_loss_reduction_none(device: str) -> None:
 
 
 def test_msle_loss_reduction_incorrect() -> None:
-    with pytest.raises(ValueError, match=r"incorrect is not a valid value for reduction"):
+    with pytest.raises(ValueError, match=r"Incorrect reduction: incorrect"):
         msle_loss(torch.ones(2, 2), torch.eye(2), reduction="incorrect")
 
 
@@ -168,6 +168,13 @@ def test_msle_loss_shape(device: str, shape: tuple[int, ...]) -> None:
     device = torch.device(device)
     assert msle_loss(torch.ones(*shape, device=device), torch.ones(*shape, device=device)).equal(
         torch.tensor(0.0, device=device)
+    )
+
+
+def test_msle_loss_batchmean() -> None:
+    prediction, target = torch.rand(4, 3), torch.rand(4, 3)
+    assert msle_loss(prediction, target, reduction="batchmean").allclose(
+        msle_loss(prediction, target, reduction="sum") / 4
     )
 
 
@@ -186,3 +193,7 @@ def test_log_cosh_loss_matches_naive_formula() -> None:
     prediction, target = torch.randn(4, 5, dtype=torch.float64), torch.randn(4, 5)
     expected = target.double().sub(prediction).cosh().log().mean()
     assert log_cosh_loss(prediction, target.double()).allclose(expected)
+
+
+def test_msle_loss_below_minus_one_is_nan() -> None:
+    assert msle_loss(torch.tensor([-2.0]), torch.tensor([1.0])).isnan()

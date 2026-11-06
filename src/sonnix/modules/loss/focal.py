@@ -27,7 +27,7 @@ class BinaryFocalLoss(nn.Module):
         gamma: The focusing parameter, which must be positive
             (``>=0``).
         reduction: The reduction to apply to the output:
-            ``'none'`` | ``'mean'`` | ``'sum'``.
+            ``'none'`` | ``'mean'`` | ``'sum'`` | ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum of the output will be divided by the number of
             elements in the output, ``'sum'``: the output will be
@@ -107,7 +107,7 @@ class BinaryFocalLossWithLogits(nn.Module):
         gamma: The focusing parameter, which must be positive
             (``>=0``).
         reduction: The reduction to apply to the output:
-            ``'none'`` | ``'mean'`` | ``'sum'``.
+            ``'none'`` | ``'mean'`` | ``'sum'`` | ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum of the output will be divided by the number of
             elements in the output, ``'sum'``: the output will be

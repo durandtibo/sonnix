@@ -29,10 +29,13 @@ def log_cosh_loss(
         prediction: The predictions.
         target: The target values.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
         scale: The scale factor. The error is divided by ``scale``
             and the loss is multiplied by ``scale``, so the loss is
             ``scale * log(cosh(error / scale))``. Its magnitude is
@@ -69,16 +72,22 @@ def msle_loss(
     span of years etc. Note that this loss penalizes an
     under-predicted estimate greater than an over-predicted estimate.
 
-    Note: this loss only works with positive values (0 included).
+    Note: this loss only works with values greater or equal to ``-1``
+    (``log1p`` is undefined below). For inputs lower than ``-1``, the
+    result is ``nan`` and no error is raised. Clamp or shift the inputs
+    if they can be negative.
 
     Args:
         prediction: The predictions.
         target: The target values.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  and ``'sum'``.
+            ``'mean'``, ``'none'``, ``'sum'``,
+            and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed.
+            input, ``'sum'``: the output will be summed,
+            ``'batchmean'``: the sum will be divided by the size of the
+            first dimension.
 
     Returns:
         The mean squared logarithmic error. The shape of
@@ -90,9 +99,9 @@ def msle_loss(
         >>> from sonnix.functional import msle_loss
         >>> loss = msle_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
         >>> loss
-        tensor(..., grad_fn=<MseLossBackward0>)
+        tensor(..., grad_fn=<MeanBackward0>)
         >>> loss.backward()
 
         ```
     """
-    return mse_loss(prediction.log1p(), target.log1p(), reduction=reduction)
+    return reduce_loss(mse_loss(prediction.log1p(), target.log1p(), reduction="none"), reduction)
