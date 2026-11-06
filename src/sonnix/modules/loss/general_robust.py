@@ -74,6 +74,7 @@ class GeneralRobustRegressionLoss(nn.Module):
         alpha: float = 2.0,
         scale: float = 1.0,
         max: float | None = None,  # noqa: A002
+        *,
         reduction: str = "mean",
     ) -> None:
         super().__init__()

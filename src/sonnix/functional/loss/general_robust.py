@@ -19,6 +19,7 @@ def general_robust_regression_loss(
     alpha: float = 2.0,
     scale: float = 1.0,
     max: float | None = None,  # noqa: A002
+    *,
     reduction: str = "mean",
 ) -> torch.Tensor:
     r"""Compute the general robust regression loss a.k.a. Barron robust

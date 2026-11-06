@@ -46,7 +46,7 @@ class AsinhMSELoss(nn.Module):
         ```
     """
 
-    def __init__(self, reduction: str = "mean") -> None:
+    def __init__(self, *, reduction: str = "mean") -> None:
         super().__init__()
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction
@@ -67,6 +67,8 @@ class AsinhSmoothL1Loss(nn.Module):
     instead of ``log1p`` because ``asinh`` works on negative values.
 
     Args:
+        beta: The threshold at which to change between L1 and L2 loss.
+            The value must be non-negative.
         reduction: The reduction strategy. The valid values are
             ``'mean'``, ``'none'``, ``'sum'``,
             and ``'batchmean'``.
@@ -75,8 +77,6 @@ class AsinhSmoothL1Loss(nn.Module):
             input, ``'sum'``: the output will be summed,
             ``'batchmean'``: the sum will be divided by the size of the
             first dimension.
-        beta: The threshold at which to change between L1 and L2 loss.
-            The value must be non-negative.
 
     Example:
         ```pycon
@@ -93,7 +93,7 @@ class AsinhSmoothL1Loss(nn.Module):
         ```
     """
 
-    def __init__(self, reduction: str = "mean", beta: float = 1.0) -> None:
+    def __init__(self, beta: float = 1.0, *, reduction: str = "mean") -> None:
         super().__init__()
         check_loss_reduction_strategy(reduction)
         self.reduction = reduction

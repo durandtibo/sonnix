@@ -36,6 +36,7 @@ def binary_focal_loss(
     target: torch.Tensor,
     alpha: float = 0.25,
     gamma: float = 2.0,
+    *,
     reduction: str = "mean",
 ) -> torch.Tensor:
     r"""Compute the binary focal loss.
@@ -103,6 +104,7 @@ def binary_focal_loss_with_logits(
     target: torch.Tensor,
     alpha: float = 0.25,
     gamma: float = 2.0,
+    *,
     reduction: str = "mean",
 ) -> torch.Tensor:
     r"""Compute the binary focal loss.
