@@ -72,7 +72,10 @@ def msle_loss(
     span of years etc. Note that this loss penalizes an
     under-predicted estimate greater than an over-predicted estimate.
 
-    Note: this loss only works with positive values (0 included).
+    Note: this loss only works with values greater or equal to ``-1``
+    (``log1p`` is undefined below). For inputs lower than ``-1``, the
+    result is ``nan`` and no error is raised. Clamp or shift the inputs
+    if they can be negative.
 
     Args:
         prediction: The predictions.

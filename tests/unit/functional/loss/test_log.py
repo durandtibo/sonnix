@@ -193,3 +193,7 @@ def test_log_cosh_loss_matches_naive_formula() -> None:
     prediction, target = torch.randn(4, 5, dtype=torch.float64), torch.randn(4, 5)
     expected = target.double().sub(prediction).cosh().log().mean()
     assert log_cosh_loss(prediction, target.double()).allclose(expected)
+
+
+def test_msle_loss_below_minus_one_is_nan() -> None:
+    assert msle_loss(torch.tensor([-2.0]), torch.tensor([1.0])).isnan()
