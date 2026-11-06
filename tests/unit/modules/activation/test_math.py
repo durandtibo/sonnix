@@ -202,13 +202,33 @@ def test_pow_3_forward(device: str) -> None:
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("shape", SHAPES)
 @pytest.mark.parametrize("exponent", [-2.0, -1.0, 0.0, 1.0, 2.0])
-def test_pow_forward_shape(device: str, shape: tuple[int, ...], exponent: float) -> None:
+def test_pow_forward_shape_value(device: str, shape: tuple[int, ...], exponent: float) -> None:
     device = torch.device(device)
     module = Pow(exponent).to(device=device)
     out = module(torch.randn(*shape, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == shape
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+@pytest.mark.parametrize("exponent", [-2.0, -1.0, 0.0, 1.0, 2.0])
+def test_pow_forward_shape_dtype(device: str, shape: tuple[int, ...], exponent: float) -> None:
+    device = torch.device(device)
+    module = Pow(exponent).to(device=device)
+    out = module(torch.randn(*shape, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+@pytest.mark.parametrize("exponent", [-2.0, -1.0, 0.0, 1.0, 2.0])
+def test_pow_forward_shape_device(device: str, shape: tuple[int, ...], exponent: float) -> None:
+    device = torch.device(device)
+    module = Pow(exponent).to(device=device)
+    out = module(torch.randn(*shape, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
 
 
@@ -360,13 +380,31 @@ def test_sin_forward(device: str) -> None:
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("shape", SHAPES)
-def test_sin_forward_shape(device: str, shape: tuple[int, ...]) -> None:
+def test_sin_forward_shape_value(device: str, shape: tuple[int, ...]) -> None:
     device = torch.device(device)
     module = Sin().to(device=device)
     out = module(torch.randn(*shape, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == shape
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_sin_forward_shape_dtype(device: str, shape: tuple[int, ...]) -> None:
+    device = torch.device(device)
+    module = Sin().to(device=device)
+    out = module(torch.randn(*shape, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_sin_forward_shape_device(device: str, shape: tuple[int, ...]) -> None:
+    device = torch.device(device)
+    module = Sin().to(device=device)
+    out = module(torch.randn(*shape, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
 
 
@@ -396,27 +434,53 @@ def test_square_forward(device: str) -> None:
 
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("shape", SHAPES)
-def test_square_forward_shape(device: str, shape: tuple[int, ...]) -> None:
+def test_square_forward_shape_value(device: str, shape: tuple[int, ...]) -> None:
     device = torch.device(device)
     module = Square().to(device=device)
     out = module(torch.randn(*shape, device=device, requires_grad=True))
     out.mean().backward()
     assert out.shape == shape
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_square_forward_shape_dtype(device: str, shape: tuple[int, ...]) -> None:
+    device = torch.device(device)
+    module = Square().to(device=device)
+    out = module(torch.randn(*shape, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.dtype == torch.float
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_square_forward_shape_device(device: str, shape: tuple[int, ...]) -> None:
+    device = torch.device(device)
+    module = Square().to(device=device)
+    out = module(torch.randn(*shape, device=device, requires_grad=True))
+    out.mean().backward()
     assert out.device == device
 
 
-def test_safe_exp_module_preserve_gradient() -> None:
+def test_safe_exp_module_preserve_gradient_check1() -> None:
     module = SafeExp(max_val=20.0, preserve_gradient=True)
     assert repr(module) == "SafeExp(max_val=20.0, preserve_gradient=True)"
+
+
+def test_safe_exp_module_preserve_gradient_grad() -> None:
+    module = SafeExp(max_val=20.0, preserve_gradient=True)
     x = torch.tensor([100.0], requires_grad=True)
     module(x).backward()
     assert x.grad.item() > 0
 
 
-def test_safe_log_module_preserve_gradient() -> None:
+def test_safe_log_module_preserve_gradient_check1() -> None:
     module = SafeLog(min_val=1e-8, preserve_gradient=True)
     assert repr(module) == "SafeLog(min_val=1e-08, preserve_gradient=True)"
+
+
+def test_safe_log_module_preserve_gradient_grad() -> None:
+    module = SafeLog(min_val=1e-8, preserve_gradient=True)
     x = torch.tensor([1e-10], requires_grad=True)
     module(x).backward()
     assert x.grad.item() > 0
