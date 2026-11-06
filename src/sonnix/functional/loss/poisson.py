@@ -40,8 +40,8 @@ def poisson_regression_loss(
     Args:
         prediction: The count predictions. The values must be
             positive: the loss is not meaningful for negative values.
-        target: The count target values. The values must be positive
-            (zero is allowed).
+        target: The count target values. The values must be
+            non-negative (zero is allowed).
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the count is zero.
         reduction: The reduction strategy. The valid values are

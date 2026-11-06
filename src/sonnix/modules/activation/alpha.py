@@ -33,10 +33,10 @@ class BaseAlphaActivation(nn.Module):
 
     Args:
         num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, there is only two values are
+            it takes an integer as input, only two values are
             legitimate: ``1``, or the number of channels at input.
         init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learnt during the
+        learnable: If ``True``, the parameters are learned during the
             training, otherwise they are fixed.
         channel_dim: The dimension of the input that ``alpha`` is
             broadcast over when ``num_parameters`` is greater than 1.
@@ -144,10 +144,10 @@ class ExpSin(BaseAlphaActivation):
 
     Args:
         num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, there is only two values are
+            it takes an integer as input, only two values are
             legitimate: ``1``, or the number of channels at input.
         init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learnt during the
+        learnable: If ``True``, the parameters are learned during the
             training, otherwise they are fixed.
         channel_dim: The dimension of the input that ``alpha`` is
             broadcast over when ``num_parameters`` is greater than 1.
@@ -196,10 +196,10 @@ class Gaussian(BaseAlphaActivation):
 
     Args:
         num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, there is only two values are
+            it takes an integer as input, only two values are
             legitimate: ``1``, or the number of channels at input.
         init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learnt during the
+        learnable: If ``True``, the parameters are learned during the
             training, otherwise they are fixed.
         channel_dim: The dimension of the input that ``alpha`` is
             broadcast over when ``num_parameters`` is greater than 1.
@@ -254,10 +254,10 @@ class Laplacian(BaseAlphaActivation):
 
     Args:
         num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, there is only two values are
+            it takes an integer as input, only two values are
             legitimate: ``1``, or the number of channels at input.
         init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learnt during the
+        learnable: If ``True``, the parameters are learned during the
             training, otherwise they are fixed.
         channel_dim: The dimension of the input that ``alpha`` is
             broadcast over when ``num_parameters`` is greater than 1.
@@ -309,10 +309,10 @@ class MultiQuadratic(BaseAlphaActivation):
 
     Args:
         num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, there is only two values are
+            it takes an integer as input, only two values are
             legitimate: ``1``, or the number of channels at input.
         init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learnt during the
+        learnable: If ``True``, the parameters are learned during the
             training, otherwise they are fixed.
         channel_dim: The dimension of the input that ``alpha`` is
             broadcast over when ``num_parameters`` is greater than 1.
@@ -358,10 +358,10 @@ class Quadratic(BaseAlphaActivation):
 
     Args:
         num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, there is only two values are
+            it takes an integer as input, only two values are
             legitimate: ``1``, or the number of channels at input.
         init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learnt during the
+        learnable: If ``True``, the parameters are learned during the
             training, otherwise they are fixed.
         channel_dim: The dimension of the input that ``alpha`` is
             broadcast over when ``num_parameters`` is greater than 1.

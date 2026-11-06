@@ -40,18 +40,18 @@ def general_robust_regression_loss(
         CVPR 2019 (https://arxiv.org/abs/1701.03077)
 
     Note:
-        The "adaptative" part of the loss is not implemented in this
-            function.
+        The "adaptive" part of the loss is not implemented in this
+        function.
 
     Note:
-        If ``max`` is set, the loss is clamped, so the gradient is zero
-        for the elements whose loss is larger than ``max``.
+        If ``max_val`` is set, the loss is clamped, so the gradient is
+        zero for the elements whose loss is larger than ``max_val``.
 
     Args:
         prediction: The predictions.
         target: The target values.
         alpha: The shape parameter that controls the robustness of the
-            loss. ``-inf`` is supported (Welsch loss). The limit
+            loss. It is a Python float, not a tensor. ``-inf`` is supported (Welsch loss). The limit
             cases ``alpha=2``
             (``x^2``), ``alpha=0`` (``log(0.5 * x^2 + 1)``) are
             used when ``alpha`` is within ``1e-5`` of 0 or 2.

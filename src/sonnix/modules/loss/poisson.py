@@ -25,6 +25,10 @@ class PoissonRegressionLoss(BaseLoss):
     Loss Functions and Metrics in Deep Learning
     https://arxiv.org/pdf/2307.02694
 
+    The predictions must be positive and the targets must be
+    non-negative counts (zero is allowed): the loss is not meaningful
+    for negative predictions.
+
     Args:
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the count is zero.
@@ -47,7 +51,9 @@ class PoissonRegressionLoss(BaseLoss):
         >>> criterion = PoissonRegressionLoss()
         >>> criterion
         PoissonRegressionLoss(reduction=mean, eps=1e-08)
-        >>> loss = criterion(torch.randn(2, 4, requires_grad=True), torch.randint(0, 5, (2, 4)).float())
+        >>> loss = criterion(
+        ...     torch.rand(2, 4, requires_grad=True), torch.randint(0, 5, (2, 4)).float()
+        ... )
         >>> loss
         tensor(..., grad_fn=<MeanBackward0>)
         >>> loss.backward()
