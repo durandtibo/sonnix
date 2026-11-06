@@ -150,11 +150,18 @@ def test_cos_sin_numerical_encoder_backward(
 
 
 @pytest.mark.parametrize("learnable", [True, False])
-def test_cos_sin_numerical_encoder_learnable(learnable: bool) -> None:
+def test_cos_sin_numerical_encoder_learnable_frequency_requires_grad(learnable: bool) -> None:
     module = CosSinNumericalEncoder(
         frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
     )
     assert module.frequency.requires_grad == learnable
+
+
+@pytest.mark.parametrize("learnable", [True, False])
+def test_cos_sin_numerical_encoder_learnable_phase_shift_requires_grad(learnable: bool) -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
+    )
     assert module.phase_shift.requires_grad == learnable
 
 
@@ -335,10 +342,15 @@ def test_cos_sin_numerical_encoder_create_rand_shape() -> None:
     assert module.frequency.shape == (1, 4)
 
 
-def test_cos_sin_numerical_encoder_create_rand_in_range() -> None:
+def test_cos_sin_numerical_encoder_create_rand_in_range_frequency() -> None:
     torch.manual_seed(1)
     module = CosSinNumericalEncoder.create("rand", 100, frequency_range=(0.2, 1))
     assert module.frequency.min() >= 0.2
+
+
+def test_cos_sin_numerical_encoder_create_rand_in_range_frequency_2() -> None:
+    torch.manual_seed(1)
+    module = CosSinNumericalEncoder.create("rand", 100, frequency_range=(0.2, 1))
     assert module.frequency.max() <= 1.0
 
 
@@ -561,11 +573,20 @@ def test_asinh_cos_sin_numerical_encoder_backward(
 
 
 @pytest.mark.parametrize("learnable", [True, False])
-def test_asinh_cos_sin_numerical_encoder_learnable(learnable: bool) -> None:
+def test_asinh_cos_sin_numerical_encoder_learnable_frequency_requires_grad(learnable: bool) -> None:
     module = AsinhCosSinNumericalEncoder(
         frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
     )
     assert module.frequency.requires_grad == learnable
+
+
+@pytest.mark.parametrize("learnable", [True, False])
+def test_asinh_cos_sin_numerical_encoder_learnable_phase_shift_requires_grad(
+    learnable: bool,
+) -> None:
+    module = AsinhCosSinNumericalEncoder(
+        frequency=torch.rand(3, 6), phase_shift=torch.rand(3, 6), learnable=learnable
+    )
     assert module.phase_shift.requires_grad == learnable
 
 
@@ -738,13 +759,25 @@ def test_asinh_cos_sin_numerical_encoder_forward_2_features_same() -> None:
     )
 
 
-def test_cos_sin_numerical_encoder_sin_cos_share_parameters() -> None:
+def test_cos_sin_numerical_encoder_sin_cos_share_parameters_shape() -> None:
     module = CosSinNumericalEncoder(
         frequency=torch.tensor([[1.0, 2.0, 4.0]]), phase_shift=torch.zeros(1, 3), learnable=True
     )
     assert module.frequency.shape == (1, 3)
     assert module.phase_shift.shape == (1, 3)
+
+
+def test_cos_sin_numerical_encoder_sin_cos_share_parameters_feature_size() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.tensor([[1.0, 2.0, 4.0]]), phase_shift=torch.zeros(1, 3), learnable=True
+    )
     assert module.feature_size == 6
+
+
+def test_cos_sin_numerical_encoder_sin_cos_share_parameters_check3() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.tensor([[1.0, 2.0, 4.0]]), phase_shift=torch.zeros(1, 3), learnable=True
+    )
     assert sum(p.numel() for p in module.parameters()) == 6
 
 
@@ -759,18 +792,32 @@ def test_cos_sin_numerical_encoder_sin_cos_stay_consistent_after_update() -> Non
     assert out[..., :2].pow(2).add(out[..., 2:].pow(2)).allclose(torch.ones(1, 1, 2))
 
 
-def test_cos_sin_numerical_encoder_frozen_is_buffer() -> None:
+def test_cos_sin_numerical_encoder_frozen_is_buffer_learnable() -> None:
     module = CosSinNumericalEncoder(frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3))
     assert not module.learnable
+
+
+def test_cos_sin_numerical_encoder_frozen_is_buffer_check2() -> None:
+    module = CosSinNumericalEncoder(frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3))
     assert len(list(module.parameters())) == 0
+
+
+def test_cos_sin_numerical_encoder_frozen_is_buffer_state_dict() -> None:
+    module = CosSinNumericalEncoder(frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3))
     assert set(module.state_dict()) == {"frequency", "phase_shift"}
 
 
-def test_cos_sin_numerical_encoder_learnable_is_parameter() -> None:
+def test_cos_sin_numerical_encoder_learnable_is_parameter_learnable() -> None:
     module = CosSinNumericalEncoder(
         frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3), learnable=True
     )
     assert module.learnable
+
+
+def test_cos_sin_numerical_encoder_learnable_is_parameter_check2() -> None:
+    module = CosSinNumericalEncoder(
+        frequency=torch.ones(1, 3), phase_shift=torch.zeros(1, 3), learnable=True
+    )
     assert {n for n, _ in module.named_parameters()} == {"frequency", "phase_shift"}
 
 
