@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from coola.validation import validate_finite
 from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_logits
 
+from sonnix.functional.loss._binary import probability_of_target
 from sonnix.functional.reduction import reduce_loss
 from sonnix.validation import validate_same_shape
 
@@ -73,7 +74,7 @@ def binary_poly1_loss(
     validate_finite(alpha, name="alpha")
     validate_same_shape(prediction, target, name1="prediction", name2="target")
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
-    p_t = prediction * target + (1 - prediction) * (1 - target)
+    p_t = probability_of_target(prediction, target)
     loss = ce_loss + alpha * (1 - p_t)
     return reduce_loss(loss, reduction)
 
@@ -133,9 +134,6 @@ def binary_poly1_loss_with_logits(
     validate_finite(alpha, name="alpha")
     validate_same_shape(prediction, target, name1="prediction", name2="target")
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
-    # ``exp(-ce) = p_t`` only holds for binary targets, so ``p_t`` is computed
-    # from the probabilities to support soft targets (label smoothing, mixup).
-    probs = prediction.sigmoid()
-    p_t = probs * target + (1 - probs) * (1 - target)
+    p_t = probability_of_target(prediction.sigmoid(), target)
     loss = ce_loss + alpha * (1 - p_t)
     return reduce_loss(loss, reduction)

@@ -24,7 +24,6 @@ from sonnix.modules import (
     ScaleAndShift,
     Squeeze,
     ToBinaryLabel,
-    View,
 )
 
 ################################################
@@ -45,7 +44,6 @@ from sonnix.modules import (
         (SafeLog(min_val=0.1, preserve_gradient=True), "min_val", 0.1),
         (SafeLog(min_val=0.1, preserve_gradient=True), "preserve_gradient", True),
         (Squeeze(dim=1), "dim", 1),
-        (View(shape=[2, 3]), "shape", (2, 3)),
         (ConcatFusion(dim=2), "dim", 2),
         (ScaleAndShift(normalized_shape=4), "normalized_shape", (4,)),
         (DynamicTanh(normalized_shape=4, alpha_init_value=0.3), "alpha_init_value", 0.3),

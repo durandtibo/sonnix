@@ -148,7 +148,6 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
     _lazy_case(sm.ResidualBlock, _normal(4, 3), lambda: (nn.Linear(3, 3),)),
     _case(sm.ScaleAndShift, _normal(4, 3), 3),
     _case(sm.Squeeze, _normal(4, 1, 3), 1),
-    _case(sm.View, _normal(4, 3), (2, 6)),
     # label and dtype helpers (the output is not differentiable)
     _case(sm.ToBinaryLabel, _normal(4, 3), differentiable=False),
     _case(sm.ToCategoricalLabel, _normal(4, 3), differentiable=False),

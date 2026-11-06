@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_logits
 
+from sonnix.functional.loss._binary import class_weight, probability_of_target
 from sonnix.functional.power import safe_pow
 from sonnix.functional.reduction import reduce_loss
 from sonnix.validation import validate_focal_params, validate_same_shape
@@ -75,12 +76,11 @@ def binary_focal_loss(
     validate_focal_params(alpha=alpha, gamma=gamma)
     validate_same_shape(prediction, target, name1="prediction", name2="target")
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
-    p_t = prediction * target + (1 - prediction) * (1 - target)
+    p_t = probability_of_target(prediction, target)
     loss = ce_loss * safe_pow(1 - p_t, gamma)
 
     if alpha is not None:
-        alpha_t = alpha * target + (1 - alpha) * (1 - target)
-        loss = alpha_t * loss
+        loss = class_weight(alpha, target) * loss
     return reduce_loss(loss, reduction)
 
 
@@ -141,13 +141,9 @@ def binary_focal_loss_with_logits(
     validate_focal_params(alpha=alpha, gamma=gamma)
     validate_same_shape(prediction, target, name1="prediction", name2="target")
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
-    # ``exp(-ce) = p_t`` only holds for binary targets, so ``p_t`` is computed
-    # from the probabilities to support soft targets (label smoothing, mixup).
-    probs = prediction.sigmoid()
-    p_t = probs * target + (1 - probs) * (1 - target)
+    p_t = probability_of_target(prediction.sigmoid(), target)
     loss = ce_loss * safe_pow(1 - p_t, gamma)
 
     if alpha is not None:
-        alpha_t = alpha * target + (1 - alpha) * (1 - target)
-        loss = alpha_t * loss
+        loss = class_weight(alpha, target) * loss
     return reduce_loss(loss, reduction)

@@ -53,9 +53,9 @@ class BaseAlphaActivation(nn.Module):
         TypeError: if ``num_parameters`` or ``channel_dim`` is not an
             integer.
         ValueError: if ``num_parameters`` is lower than 1, if ``init``
-            is not finite, if ``init`` is 0 for a module that does not
-            allow it, or if ``init`` is negative for a module that
-            does not allow it.
+            is not finite, or if ``init`` is a value that the subclass
+            rejects (``Gaussian``, ``Laplacian`` and ``Snake`` reject
+            ``0`` and ``Laplacian`` rejects negative values).
 
     Example:
         ```pycon
@@ -72,9 +72,6 @@ class BaseAlphaActivation(nn.Module):
         ```
     """
 
-    allow_zero_init: bool = True
-    allow_negative_init: bool = True
-
     def __init__(
         self,
         num_parameters: int = 1,
@@ -88,14 +85,8 @@ class BaseAlphaActivation(nn.Module):
         super().__init__()
         validate_int(num_parameters, name="num_parameters")
         validate_ge(num_parameters, 1, name="num_parameters")
-        validate_finite(init, name="init")
+        self._validate_init(init)
         validate_int(channel_dim, name="channel_dim")
-        if init == 0 and not self.allow_zero_init:
-            msg = f"'init' has to be different from 0 (received {init})"
-            raise ValueError(msg)
-        if init < 0 and not self.allow_negative_init:
-            msg = f"'init' has to be positive (received {init})"
-            raise ValueError(msg)
         self.channel_dim = channel_dim
         self.alpha: Tensor
         alpha = torch.full(
@@ -110,6 +101,21 @@ class BaseAlphaActivation(nn.Module):
             # Frozen values are buffers: they are saved in the state dict and moved with
             # the module, but they are not returned by ``parameters()``.
             self.register_buffer("alpha", alpha)
+
+    def _validate_init(self, init: float) -> None:
+        r"""Validate the initial value of ``alpha``.
+
+        The subclasses override this method to reject the values that
+        make the activation undefined.
+
+        Args:
+            init: The initial value of ``alpha``.
+
+        Raises:
+            TypeError: if ``init`` is not a number.
+            ValueError: if ``init`` is not finite.
+        """
+        validate_finite(init, name="init")
 
     @property
     def learnable(self) -> bool:
@@ -241,7 +247,11 @@ class Gaussian(BaseAlphaActivation):
         ```
     """
 
-    allow_zero_init = False
+    def _validate_init(self, init: float) -> None:
+        super()._validate_init(init)
+        if init == 0:
+            msg = f"'init' has to be different from 0 (received {init})"
+            raise ValueError(msg)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return input.pow(2).mul(-0.5).div(self._broadcast_alpha(input).pow(2)).exp()
@@ -299,8 +309,14 @@ class Laplacian(BaseAlphaActivation):
         ```
     """
 
-    allow_zero_init = False
-    allow_negative_init = False
+    def _validate_init(self, init: float) -> None:
+        super()._validate_init(init)
+        if init == 0:
+            msg = f"'init' has to be different from 0 (received {init})"
+            raise ValueError(msg)
+        if init < 0:
+            msg = f"'init' has to be positive (received {init})"
+            raise ValueError(msg)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return input.abs().mul(-1).div(self._broadcast_alpha(input)).exp()
