@@ -56,9 +56,14 @@ def test_nlinear_str() -> None:
 
 
 @pytest.mark.parametrize("n", SIZES)
-def test_nlinear_init_n(n: int) -> None:
+def test_nlinear_init_n_weight_shape(n: int) -> None:
     module = NLinear(n=n, in_features=4, out_features=6)
     assert module.weight.shape[0] == n
+
+
+@pytest.mark.parametrize("n", SIZES)
+def test_nlinear_init_n_bias_shape(n: int) -> None:
+    module = NLinear(n=n, in_features=4, out_features=6)
     assert module.bias.shape[0] == n
 
 
@@ -69,9 +74,14 @@ def test_nlinear_init_in_features(in_features: int) -> None:
 
 
 @pytest.mark.parametrize("out_features", SIZES)
-def test_nlinear_init_out_features(out_features: int) -> None:
+def test_nlinear_init_out_features_weight_shape(out_features: int) -> None:
     module = NLinear(n=3, in_features=4, out_features=out_features)
     assert module.weight.shape[2] == out_features
+
+
+@pytest.mark.parametrize("out_features", SIZES)
+def test_nlinear_init_out_features_bias_shape(out_features: int) -> None:
+    module = NLinear(n=3, in_features=4, out_features=out_features)
     assert module.bias.shape[1] == out_features
 
 
@@ -87,7 +97,7 @@ def test_nlinear_init_no_bias() -> None:
 @pytest.mark.parametrize("out_features", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
 @pytest.mark.parametrize("bias", [True, False])
-def test_nlinear_forward_3d(
+def test_nlinear_forward_3d_shape(
     device: str,
     batch_size: int,
     n: int,
@@ -103,7 +113,55 @@ def test_nlinear_forward_3d(
     module.train(mode)
     out = module(torch.rand(batch_size, n, in_features, device=device))
     assert out.shape == (batch_size, n, out_features)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("n", SIZES)
+@pytest.mark.parametrize("in_features", SIZES)
+@pytest.mark.parametrize("out_features", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+@pytest.mark.parametrize("bias", [True, False])
+def test_nlinear_forward_3d_device(
+    device: str,
+    batch_size: int,
+    n: int,
+    in_features: int,
+    out_features: int,
+    mode: bool,
+    bias: bool,
+) -> None:
+    device = torch.device(device)
+    module = NLinear(n=n, in_features=in_features, out_features=out_features, bias=bias).to(
+        device=device
+    )
+    module.train(mode)
+    out = module(torch.rand(batch_size, n, in_features, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("batch_size", SIZES)
+@pytest.mark.parametrize("n", SIZES)
+@pytest.mark.parametrize("in_features", SIZES)
+@pytest.mark.parametrize("out_features", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+@pytest.mark.parametrize("bias", [True, False])
+def test_nlinear_forward_3d_dtype(
+    device: str,
+    batch_size: int,
+    n: int,
+    in_features: int,
+    out_features: int,
+    mode: bool,
+    bias: bool,
+) -> None:
+    device = torch.device(device)
+    module = NLinear(n=n, in_features=in_features, out_features=out_features, bias=bias).to(
+        device=device
+    )
+    module.train(mode)
+    out = module(torch.rand(batch_size, n, in_features, device=device))
     assert out.dtype == torch.float
 
 
@@ -114,7 +172,7 @@ def test_nlinear_forward_3d(
 @pytest.mark.parametrize("in_features", SIZES)
 @pytest.mark.parametrize("out_features", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_nlinear_forward_4d(
+def test_nlinear_forward_4d_shape(
     device: str, d1: int, d2: int, n: int, in_features: int, out_features: int, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -122,7 +180,39 @@ def test_nlinear_forward_4d(
     module.train(mode)
     out = module(torch.rand(d1, d2, n, in_features, device=device))
     assert out.shape == (d1, d2, n, out_features)
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("d1", SIZES)
+@pytest.mark.parametrize("d2", SIZES)
+@pytest.mark.parametrize("n", SIZES)
+@pytest.mark.parametrize("in_features", SIZES)
+@pytest.mark.parametrize("out_features", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_nlinear_forward_4d_device(
+    device: str, d1: int, d2: int, n: int, in_features: int, out_features: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = NLinear(n=n, in_features=in_features, out_features=out_features).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(d1, d2, n, in_features, device=device))
     assert out.device == device
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("d1", SIZES)
+@pytest.mark.parametrize("d2", SIZES)
+@pytest.mark.parametrize("n", SIZES)
+@pytest.mark.parametrize("in_features", SIZES)
+@pytest.mark.parametrize("out_features", SIZES)
+@pytest.mark.parametrize("mode", [True, False])
+def test_nlinear_forward_4d_dtype(
+    device: str, d1: int, d2: int, n: int, in_features: int, out_features: int, mode: bool
+) -> None:
+    device = torch.device(device)
+    module = NLinear(n=n, in_features=in_features, out_features=out_features).to(device=device)
+    module.train(mode)
+    out = module(torch.rand(d1, d2, n, in_features, device=device))
     assert out.dtype == torch.float
 
 
@@ -220,21 +310,46 @@ def test_nlinear_forward_predefined_weights_4d(nlinear_fixed_weights: NLinear) -
     )
 
 
-def test_nlinear_init_matches_linear_scale() -> None:
+def test_nlinear_init_matches_linear_scale_weight_std() -> None:
     torch.manual_seed(0)
     module = NLinear(n=3, in_features=16, out_features=64)
     reference = torch.nn.Linear(16, 64)
     assert module.weight.std().item() == pytest.approx(reference.weight.std().item(), rel=0.1)
+
+
+def test_nlinear_init_matches_linear_scale_weight_abs_max() -> None:
+    torch.manual_seed(0)
+    module = NLinear(n=3, in_features=16, out_features=64)
+    torch.nn.Linear(16, 64)
     bound = 1 / 16**0.5
     assert module.weight.abs().max().item() <= bound
+
+
+def test_nlinear_init_matches_linear_scale_bias_abs_max() -> None:
+    torch.manual_seed(0)
+    module = NLinear(n=3, in_features=16, out_features=64)
+    torch.nn.Linear(16, 64)
+    bound = 1 / 16**0.5
     assert module.bias.abs().max().item() <= bound
+
+
+def test_nlinear_init_matches_linear_scale_bias_abs_max_2() -> None:
+    torch.manual_seed(0)
+    module = NLinear(n=3, in_features=16, out_features=64)
+    torch.nn.Linear(16, 64)
+    bound = 1 / 16**0.5
     assert module.bias.abs().max().item() > bound / 2
 
 
-def test_nlinear_forward_non_contiguous() -> None:
-    module = NLinear(n=3, in_features=4, out_features=6)
+def test_nlinear_forward_non_contiguous_check1() -> None:
+    NLinear(n=3, in_features=4, out_features=6)
     x = torch.randn(4, 3, 2).transpose(0, 2)  # (2, 3, 4), non-contiguous
     assert not x.is_contiguous()
+
+
+def test_nlinear_forward_non_contiguous_check2() -> None:
+    module = NLinear(n=3, in_features=4, out_features=6)
+    x = torch.randn(4, 3, 2).transpose(0, 2)  # (2, 3, 4), non-contiguous
     assert module(x).equal(module(x.contiguous()))
 
 
