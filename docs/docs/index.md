@@ -4,9 +4,6 @@
     <a href="https://github.com/durandtibo/sonnix/actions/workflows/ci.yaml">
         <img alt="CI" src="https://github.com/durandtibo/sonnix/actions/workflows/ci.yaml/badge.svg">
     </a>
-    <a href="https://github.com/durandtibo/sonnix/actions/workflows/nightly-tests.yaml">
-        <img alt="Nightly Tests" src="https://github.com/durandtibo/sonnix/actions/workflows/nightly-tests.yaml/badge.svg">
-    </a>
     <a href="https://github.com/durandtibo/sonnix/actions/workflows/nightly-package.yaml">
         <img alt="Nightly Package Tests" src="https://github.com/durandtibo/sonnix/actions/workflows/nightly-package.yaml/badge.svg">
     </a>
@@ -14,16 +11,6 @@
         <img alt="Codecov" src="https://codecov.io/gh/durandtibo/sonnix/branch/main/graph/badge.svg">
     </a>
     <br/>
-    <a href="https://durandtibo.github.io/sonnix/">
-        <img alt="Documentation" src="https://github.com/durandtibo/sonnix/actions/workflows/docs.yaml/badge.svg">
-    </a>
-    <a href="https://durandtibo.github.io/sonnix/dev/">
-        <img alt="Documentation" src="https://github.com/durandtibo/sonnix/actions/workflows/docs-dev.yaml/badge.svg">
-    </a>
-    <br/>
-    <a href="https://github.com/psf/black">
-        <img  alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg">
-    </a>
     <a href="https://google.github.io/styleguide/pyguide.html#s3.8-comments-and-docstrings">
         <img  alt="Doc style: google" src="https://img.shields.io/badge/%20style-google-3666d6.svg">
     </a>
@@ -55,11 +42,77 @@
 
 ## Overview
 
-TODO
+`sonnix` is a library of [PyTorch](https://pytorch.org/) building blocks that are missing from
+`torch.nn`. It has three layers: `sonnix.functional` (stateless operations), `sonnix.modules` (the
+`torch.nn.Module` wrappers) and `sonnix.utils` (helpers to inspect and train modules). It contains:
+
+- **Losses**: robust and asymmetric regression losses (general robust, quantile, Poisson, relative
+  and asinh losses), binary focal and Poly-1 losses, and `TransformedLoss`. They share the same
+  `reduction` options (`none`, `mean`, `sum`, `batchmean`).
+- **Activations**: parametric activations (`Snake`, `Gaussian`, `Laplacian`, `Quadratic`,
+  `MultiQuadratic`, `ExpSin`), `ReLUn`, `SquaredReLU`, `Asinh` and safe `exp`/`log` modules.
+- **Numerical encoders**: `CosSinNumericalEncoder`, `AsinhCosSinNumericalEncoder`,
+  `AsinhNumericalEncoder` and `PiecewiseLinearNumericalEncoder` to embed numerical features.
+- **Layers**: `NLinear`, `ExU`, `ResidualBlock`, `ScaleAndShift`, `DynamicTanh`, `DynamicAsinh`,
+  the fusion modules and the shape and dtype helpers.
+
+## Installation
+
+```shell
+pip install sonnix
+```
+
+`sonnix` requires Python 3.11+ and PyTorch.
+
+## Quick start
+
+A loss:
+
+```pycon
+>>> import torch
+>>> from sonnix.modules import QuantileRegressionLoss
+>>> loss = QuantileRegressionLoss(q=0.9)
+>>> loss
+QuantileRegressionLoss(reduction=mean, q=0.9)
+>>> loss(torch.tensor([[1.0], [2.0]]), torch.tensor([[2.0], [1.0]]))
+tensor(0.5000)
+
+```
+
+A module:
+
+```pycon
+>>> import torch
+>>> from sonnix.modules import Snake
+>>> m = Snake()
+>>> m(torch.zeros(2, 3)).shape
+torch.Size([2, 3])
+
+```
+
+A numerical encoder, which maps each feature to a vector:
+
+```pycon
+>>> import torch
+>>> from sonnix.modules import CosSinNumericalEncoder
+>>> m = CosSinNumericalEncoder.create("linspace", num_frequencies=5, frequency_range=(0.1, 1.0))
+>>> m(torch.randn(4, 1)).shape
+torch.Size([4, 1, 10])
+
+```
 
 ## Motivation
 
-TODO
+`torch.nn` covers the standard layers. Research code keeps re-implementing the same extras (a
+robust loss, a periodic activation, a numerical embedding), often with a different handling of the
+reduction, the numerical stability or the device. `sonnix` provides them once, with a consistent
+API:
+
+- the same `reduction` options for every loss;
+- validated arguments and readable hyperparameters (`repr` shows them);
+- numerically stable implementations, tested for overflow and finite gradients;
+- `device` and `dtype` support, and frozen tensors stored as buffers so `module.to(...)` and
+  `state_dict` work as expected.
 
 ## API stability
 
