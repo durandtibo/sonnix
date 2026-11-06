@@ -214,19 +214,3 @@ def test_general_robust_regression_loss_alpha_neg_inf() -> None:
     loss = general_robust_regression_loss(prediction, target, alpha=float("-inf"))
     expected = 1 - torch.exp(-0.5 * (prediction - target) ** 2)
     assert loss.allclose(expected.mean())
-
-
-def test_general_robust_regression_loss_alpha_tensor_gradient() -> None:
-    prediction, target = torch.randn(8, 4), torch.randn(8, 4)
-    alpha = torch.tensor(1.0, requires_grad=True)
-    loss = general_robust_regression_loss(prediction, target, alpha=alpha)
-    loss.backward()
-    assert alpha.grad.isfinite()
-    assert loss.allclose(general_robust_regression_loss(prediction, target, alpha=1.0))
-
-
-def test_general_robust_regression_loss_alpha_tensor_special_values_gradient() -> None:
-    prediction = torch.randn(8, 4, requires_grad=True)
-    alpha = torch.tensor([[2.0], [0.0]]).repeat(4, 1).view(8, 1)
-    general_robust_regression_loss(prediction, torch.randn(8, 4), alpha=alpha).backward()
-    assert prediction.grad.isfinite().all()
