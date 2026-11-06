@@ -5,9 +5,10 @@ from __future__ import annotations
 
 __all__ = ["log_cosh_loss", "msle_loss"]
 
+import math
 from typing import TYPE_CHECKING
 
-from torch.nn.functional import mse_loss
+from torch.nn.functional import mse_loss, softplus
 
 from sonnix.functional.reduction import reduce_loss
 
@@ -32,7 +33,10 @@ def log_cosh_loss(
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
             input, ``'sum'``: the output will be summed.
-        scale: The scale factor.
+        scale: The scale factor. The error is divided by ``scale``
+            and the loss is multiplied by ``scale``, so the loss is
+            ``scale * log(cosh(error / scale))``. Its magnitude is
+            comparable to the Huber loss for any ``scale``.
 
     Returns:
         The logarithm of the hyperbolic cosine of the prediction error.
@@ -48,10 +52,10 @@ def log_cosh_loss(
 
         ```
     """
-    return reduce_loss(
-        target.sub(prediction).div(scale).cosh().log(),
-        reduction=reduction,
-    )
+    error = target.sub(prediction).div(scale).abs()
+    # Numerically stable form of log(cosh(x)): it does not overflow for large |x|.
+    loss = error + softplus(-2.0 * error) - math.log(2.0)
+    return reduce_loss(loss.mul(scale), reduction=reduction)
 
 
 def msle_loss(
