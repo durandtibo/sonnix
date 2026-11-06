@@ -116,3 +116,73 @@ def test_load_state_dict_to_module_strict_false_logs_missing_keys(
 
 def test_load_state_dict_to_module_module_without_state() -> None:
     load_state_dict_to_module({"model": {"weight": 1}}, nn.ReLU(), strict=False)
+
+
+######################################
+#     Tests for the prefix strip     #
+######################################
+
+PREFIXED_STATE_DICTS = [
+    {"module.weight": torch.ones(5, 4), "module.bias": 2 * torch.ones(5)},
+    {"_orig_mod.weight": torch.ones(5, 4), "_orig_mod.bias": 2 * torch.ones(5)},
+    {"_orig_mod.module.weight": torch.ones(5, 4), "_orig_mod.module.bias": 2 * torch.ones(5)},
+]
+
+
+@pytest.mark.parametrize("state_dict", PREFIXED_STATE_DICTS)
+def test_find_module_state_dict_strips_prefix(state_dict: dict) -> None:
+    assert objects_are_equal(
+        find_module_state_dict(state_dict, {"weight", "bias"}), LINEAR_STATE_DICT
+    )
+
+
+def test_find_module_state_dict_strips_prefix_nested() -> None:
+    state_dict = {"model": PREFIXED_STATE_DICTS[0]}
+    assert objects_are_equal(
+        find_module_state_dict(state_dict, {"weight", "bias"}), LINEAR_STATE_DICT
+    )
+
+
+def test_find_module_state_dict_prefix_must_be_shared_by_all_keys() -> None:
+    state_dict = {"module.weight": torch.ones(5, 4), "bias": 2 * torch.ones(5)}
+    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+
+
+def test_find_module_state_dict_prefix_must_end_with_a_dot() -> None:
+    state_dict = {"xweight": torch.ones(5, 4), "xbias": 2 * torch.ones(5)}
+    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+
+
+def test_find_module_state_dict_prefix_with_different_keys() -> None:
+    state_dict = {"module.weight": torch.ones(5, 4), "module.other": 2 * torch.ones(5)}
+    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+
+
+def test_find_module_state_dict_prefix_differs_between_keys() -> None:
+    state_dict = {"a.weight": torch.ones(5, 4), "b.bias": 2 * torch.ones(5)}
+    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+
+
+def test_find_module_state_dict_prefix_with_extra_key() -> None:
+    state_dict = {"module.bias": 2 * torch.ones(5), "module.other": 1}
+    assert find_module_state_dict(state_dict, {"weight", "bias"}) == {}
+
+
+def test_find_module_state_dict_prefix_empty_module_keys() -> None:
+    assert find_module_state_dict({"module.weight": 1}, set()) == {}
+
+
+def test_find_module_state_dict_prefix_non_string_keys() -> None:
+    assert find_module_state_dict({1: 1, 2: 2}, {"weight"}) == {}
+
+
+@pytest.mark.parametrize("state_dict", PREFIXED_STATE_DICTS)
+def test_load_state_dict_to_module_prefixed(state_dict: dict) -> None:
+    module = nn.Linear(4, 5)
+    load_state_dict_to_module(state_dict, module)
+    assert module.weight.equal(torch.ones(5, 4))
+
+
+def test_load_state_dict_to_module_strict_is_keyword_only() -> None:
+    with pytest.raises(TypeError, match=r"takes 2 positional arguments but 3 were given"):
+        load_state_dict_to_module(LINEAR_STATE_DICT, nn.Linear(4, 5), False)

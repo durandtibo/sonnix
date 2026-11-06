@@ -26,6 +26,12 @@ def find_module_state_dict(
     If the set of keys exists at several locations in the state dict,
     only the first one is returned.
 
+    A state dict saved from a wrapped module (``torch.nn.DataParallel``
+    adds the prefix ``module.``, ``torch.compile`` adds ``_orig_mod.``)
+    has the same keys with a common prefix. This prefix is stripped
+    before comparing the keys, and the returned dict has the stripped
+    keys, so it can be loaded in the module.
+
     Args:
         state_dict: The state dict. This function is called recursively
             on this input to find the queried state dict.
@@ -62,6 +68,9 @@ def find_module_state_dict(
     if isinstance(state_dict, dict):
         if set(state_dict.keys()) == module_keys:
             return state_dict
+        stripped = _strip_prefix(state_dict, module_keys)
+        if stripped:
+            return stripped
         for value in state_dict.values():
             found = find_module_state_dict(value, module_keys)
             if found:
@@ -74,8 +83,46 @@ def find_module_state_dict(
     return {}
 
 
+def _strip_prefix(state_dict: dict[Any, Any], module_keys: set[Any]) -> dict[Any, Any]:
+    r"""Strip the common prefix of the keys of a state dict.
+
+    Args:
+        state_dict: The state dict.
+        module_keys: The set of module keys. It must contain only
+            strings to find a prefix.
+
+    Returns:
+        The state dict without the prefix if all the keys start with
+            the same prefix, which ends with a dot, and if the keys
+            without the prefix are the module keys, otherwise an empty
+            dict.
+
+    Example:
+        ```pycon
+        >>> from sonnix.utils.state_dict import _strip_prefix
+        >>> _strip_prefix({"module.weight": 1, "module.bias": 2}, {"weight", "bias"})
+        {'weight': 1, 'bias': 2}
+
+        ```
+    """
+    if not module_keys or not all(isinstance(key, str) for key in module_keys):
+        return {}
+    if not all(isinstance(key, str) for key in state_dict):
+        return {}
+    anchor = min(module_keys)
+    for key in state_dict:
+        prefix = key[: len(key) - len(anchor)]
+        if not (key.endswith(anchor) and prefix.endswith(".")):
+            continue
+        if all(k.startswith(prefix) for k in state_dict):
+            candidate = {k[len(prefix) :]: v for k, v in state_dict.items()}
+            if set(candidate) == module_keys:
+                return candidate
+    return {}
+
+
 def load_state_dict_to_module(
-    state_dict: dict[Any, Any], module: nn.Module, strict: bool = True
+    state_dict: dict[Any, Any], module: nn.Module, *, strict: bool = True
 ) -> None:
     r"""Load a state dict into a given module.
 
@@ -83,7 +130,9 @@ def load_state_dict_to_module(
     in the given state dict. With ``strict=False``, torch does not raise
     when keys are missing, so the search is run when none of the module
     keys is found in the given state dict. If the module has no state,
-    nothing is searched.
+    nothing is searched. A common prefix of the keys (``module.`` from
+    ``torch.nn.DataParallel``, ``_orig_mod.`` from ``torch.compile``)
+    is ignored when the state dict is searched.
 
     Args:
         state_dict: The state dict.
@@ -117,7 +166,7 @@ def load_state_dict_to_module(
     """
     module_keys = set(module.state_dict().keys())
     try:
-        result = module.load_state_dict(state_dict, strict)
+        result = module.load_state_dict(state_dict, strict=strict)
     except RuntimeError:
         logger.warning(
             "Could not load the state dict. Try to find automatically the part of the state dict "
@@ -131,7 +180,7 @@ def load_state_dict_to_module(
             "Found a part of the state dict that matches with the module. Try to load it in the "
             "module."
         )
-        module.load_state_dict(found, strict)
+        module.load_state_dict(found, strict=strict)
     else:
         if not strict and module_keys and set(result.missing_keys) == module_keys:
             logger.warning(
@@ -147,7 +196,7 @@ def load_state_dict_to_module(
                     result.unexpected_keys,
                 )
                 return
-            result = module.load_state_dict(found, strict)
+            result = module.load_state_dict(found, strict=strict)
         if result.missing_keys or result.unexpected_keys:
             logger.warning(
                 "Missing keys: %s. Unexpected keys: %s.",
