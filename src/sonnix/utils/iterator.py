@@ -18,7 +18,9 @@ def get_named_modules(module: nn.Module, depth: int = 0) -> Generator[tuple[str,
 
     Args:
         module: The input module.
-        depth: The maximum depth of module to yield.
+        depth: The maximum depth of module to yield. ``0`` yields only
+            the root module, ``1`` adds its children, ``2`` adds the
+            children of its children, and so on.
 
     Returns:
         The iterator over the modules and their names.
@@ -54,9 +56,6 @@ def get_named_modules(module: nn.Module, depth: int = 0) -> Generator[tuple[str,
         ```
     """
     yield ("[root]", module)
-    if depth == 1:
-        yield from module.named_children()
-    elif depth > 1:
-        for name, layer in list(module.named_modules())[1:]:
-            if name.count(".") <= depth - 1:
-                yield (name, layer)
+    for name, layer in module.named_modules():
+        if name and name.count(".") < depth:
+            yield (name, layer)

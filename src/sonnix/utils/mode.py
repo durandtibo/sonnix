@@ -45,14 +45,15 @@ def module_mode(module: nn.Module) -> Generator[None]:
 
         ```
     """
-    modes = {}
-    for name, submodule in module.named_modules():
-        modes[name] = submodule.training
+    # The modes are saved by module and not by name, so a module that is shared under
+    # several names is restored once, and a module added or renamed in the context
+    # does not break the restoration.
+    modes = [(submodule, submodule.training) for submodule in module.modules()]
     try:
         yield
     finally:
-        for name, submodule in module.named_modules():
-            submodule.train(modes[name])
+        for submodule, mode in modes:
+            submodule.train(mode)
 
 
 @contextmanager

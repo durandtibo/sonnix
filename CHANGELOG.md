@@ -79,3 +79,11 @@ All notable changes to this project are documented in this file. The package is 
 
 - `View` uses `reshape`, so it works with non-contiguous inputs (it was `Tensor.view`, which raised).
 - `Squeeze` accepts a tuple of dimensions as `torch.Tensor.squeeze` does.
+
+### Utils
+
+- `sonnix.utils` stays a documented toolbox (every module has a page in the API reference).
+- `get_named_modules` uses a single traversal for every `depth`.
+- `module_mode` restores the mode by module and not by name: a module added, replaced or shared
+  under several names in the context no longer breaks the restoration (it raised a `KeyError` for an
+  added module).

@@ -59,3 +59,49 @@ def test_get_named_modules_depth_2_sequential(nested_module: nn.Module) -> None:
         ("2.2", nested_module[2][2]),
         ("2.3", nested_module[2][3]),
     ]
+
+
+def test_get_named_modules_depth_3_sequential(nested_module: nn.Module) -> None:
+    assert [name for name, _ in get_named_modules(nested_module, depth=3)] == [
+        "[root]",
+        "0",
+        "1",
+        "2",
+        "2.0",
+        "2.1",
+        "2.2",
+        "2.2.0",
+        "2.2.1",
+        "2.3",
+    ]
+
+
+def test_get_named_modules_depth_large_sequential(nested_module: nn.Module) -> None:
+    assert [name for name, _ in get_named_modules(nested_module, depth=10)] == [
+        "[root]",
+        "0",
+        "1",
+        "2",
+        "2.0",
+        "2.1",
+        "2.2",
+        "2.2.0",
+        "2.2.1",
+        "2.3",
+    ]
+
+
+def test_get_named_modules_depth_negative_sequential(nested_module: nn.Module) -> None:
+    assert [name for name, _ in get_named_modules(nested_module, depth=-1)] == ["[root]"]
+
+
+def test_get_named_modules_depth_1_matches_named_children(nested_module: nn.Module) -> None:
+    assert list(get_named_modules(nested_module, depth=1))[1:] == list(
+        nested_module.named_children()
+    )
+
+
+def test_get_named_modules_shared_module_is_yielded_once() -> None:
+    shared = nn.Linear(2, 2)
+    module = nn.ModuleDict({"a": shared, "b": shared})
+    assert [name for name, _ in get_named_modules(module, depth=1)] == ["[root]", "a"]
