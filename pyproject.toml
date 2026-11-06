@@ -142,12 +142,12 @@ root_package = "sonnix"
 [[tool.importlinter.contracts]]
 name = "Layers"
 type = "layers"
-layers = ["sonnix.modules", "sonnix.functional", "sonnix.utils"]
+layers = ["sonnix.modules", "sonnix.functional", "sonnix.utils", "sonnix.validation"]
 
 [[tool.importlinter.contracts]]
 name = "Testing is independent"
 type = "forbidden"
-source_modules = ["sonnix.modules", "sonnix.functional", "sonnix.utils"]
+source_modules = ["sonnix.modules", "sonnix.functional", "sonnix.utils", "sonnix.validation"]
 forbidden_modules = ["sonnix.testing"]
 
 [tool.ruff]
