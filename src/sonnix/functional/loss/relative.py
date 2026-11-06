@@ -156,12 +156,13 @@ def geometric_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> 
         >>> indicator = geometric_mean_indicator(prediction, target)
         >>> indicator
         tensor([[0.0000, 1.0000, 0.0000],
-                [3.0000, 2.2361, 1.0000]], grad_fn=<WhereBackward0>)
+                [3.0000, 2.2361, 1.0000]], grad_fn=<MulBackward0>)
 
         ```
     """
-    product = target.abs().mul(prediction.abs())
-    return safe_pow(product, 0.5)
+    # The product of the two square roots does not overflow when
+    # ``|target| * |prediction|`` does.
+    return safe_pow(target.abs(), 0.5).mul(safe_pow(prediction.abs(), 0.5))
 
 
 def maximum_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -238,13 +239,17 @@ def moment_mean_indicator(
         >>> indicator = moment_mean_indicator(prediction, target)
         >>> indicator
         tensor([[1.0000, 1.0000, 0.5000],
-                [3.0000, 3.0000, 1.0000]], grad_fn=<WhereBackward0>)
+                [3.0000, 3.0000, 1.0000]], grad_fn=<MulBackward0>)
 
         ```
     """
     validate_moment_order(k)
-    mean = target.abs().pow(k).add(prediction.abs().pow(k)).mul(0.5)
-    return safe_pow(mean, 1 / k)
+    # Scale by the largest magnitude so ``|x| ** k`` cannot overflow.
+    target, prediction = target.abs(), prediction.abs()
+    scale = torch.maximum(target, prediction)
+    safe_scale = torch.where(scale > 0, scale, 1.0)
+    mean = (target / safe_scale).pow(k).add((prediction / safe_scale).pow(k)).mul(0.5)
+    return scale.mul(safe_pow(mean, 1 / k))
 
 
 def reversed_relative_indicator(

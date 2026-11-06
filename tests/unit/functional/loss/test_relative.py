@@ -306,7 +306,7 @@ def test_moment_mean_indicator_incorrect_k(k: int) -> None:
 def test_geometric_mean_indicator_gradient_zero_prediction() -> None:
     prediction = torch.tensor([0.0, 2.0], requires_grad=True)
     geometric_mean_indicator(prediction, torch.tensor([3.0, 2.0])).sum().backward()
-    assert objects_are_equal(prediction.grad, torch.tensor([0.0, 0.5]))
+    assert objects_are_allclose(prediction.grad, torch.tensor([0.0, 0.5]))
 
 
 def test_geometric_mean_indicator_gradient_zero_target() -> None:
@@ -361,3 +361,57 @@ def test_relative_loss_geometric_mean_indicator_gradient_zero_prediction() -> No
 def test_relative_loss_invalid_eps(eps: float) -> None:
     with pytest.raises(ValueError, match=r"eps must be greater than 0"):
         relative_loss(torch.ones(2, 3), torch.ones(2, 3), eps=eps)
+
+
+##################################################
+#     Tests for the overflow of the indicators   #
+##################################################
+
+
+@pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16])
+def test_geometric_mean_indicator_half_precision_large_values(dtype: torch.dtype) -> None:
+    out = geometric_mean_indicator(
+        torch.tensor([300.0], dtype=dtype), torch.tensor([400.0], dtype=dtype)
+    )
+    assert out.float().allclose(torch.tensor([346.41]), rtol=2e-2)
+
+
+@pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16])
+def test_moment_mean_indicator_half_precision_large_values(dtype: torch.dtype) -> None:
+    out = moment_mean_indicator(
+        torch.tensor([300.0], dtype=dtype), torch.tensor([400.0], dtype=dtype), k=2
+    )
+    assert out.float().allclose(torch.tensor([353.55]), rtol=2e-2)
+
+
+def test_geometric_mean_indicator_float32_large_values() -> None:
+    out = geometric_mean_indicator(torch.tensor([3e19]), torch.tensor([3e19]))
+    assert out.allclose(torch.tensor([3e19]))
+
+
+def test_moment_mean_indicator_float32_large_values() -> None:
+    out = moment_mean_indicator(torch.tensor([3e19]), torch.tensor([3e19]), k=2)
+    assert out.allclose(torch.tensor([3e19]))
+
+
+def test_moment_mean_indicator_large_order() -> None:
+    out = moment_mean_indicator(torch.tensor([50.0]), torch.tensor([60.0]), k=100)
+    assert out.allclose(torch.tensor([59.5855]), rtol=1e-4)
+
+
+def test_moment_mean_indicator_zeros() -> None:
+    out = moment_mean_indicator(torch.zeros(2), torch.zeros(2), k=2)
+    assert out.equal(torch.zeros(2))
+
+
+def test_moment_mean_indicator_gradient_zeros_is_finite() -> None:
+    prediction = torch.zeros(2, requires_grad=True)
+    moment_mean_indicator(prediction, torch.zeros(2), k=2).sum().backward()
+    assert prediction.grad.isfinite().all()
+
+
+def test_moment_mean_indicator_gradient_matches_unscaled_formula() -> None:
+    prediction = torch.tensor([1.0, -2.0], requires_grad=True)
+    moment_mean_indicator(prediction, torch.tensor([3.0, 1.0]), k=2).sum().backward()
+    # d/dp sqrt((t^2 + p^2) / 2) = p / (2 * sqrt((t^2 + p^2) / 2))
+    assert prediction.grad.allclose(torch.tensor([0.223606797749979, -0.6324555320336759]))
