@@ -3,8 +3,7 @@ from __future__ import annotations
 import torch
 from coola.factory import OBJECT_TARGET
 
-from sonnix.testing.dummy import DummyDataset
-from sonnix.utils.factory import (
+from sonnix.factory import (
     is_dataset_config,
     is_module_config,
     is_optimizer_config,
@@ -12,6 +11,7 @@ from sonnix.utils.factory import (
     resolve_module,
     resolve_optimizer,
 )
+from sonnix.testing.dummy import DummyDataset
 
 #######################################
 #     Tests for is_dataset_config     #

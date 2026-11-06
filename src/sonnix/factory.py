@@ -44,7 +44,7 @@ def is_dataset_config(config: dict[Any, Any]) -> bool:
 
     Example:
         ```pycon
-        >>> from sonnix.utils.factory import is_dataset_config
+        >>> from sonnix.factory import is_dataset_config
         >>> is_dataset_config(
         ...     {
         ...         "_target_": "sonnix.testing.dummy.DummyDataset",
@@ -77,7 +77,7 @@ def is_module_config(config: dict[Any, Any]) -> bool:
 
     Example:
         ```pycon
-        >>> from sonnix.utils.factory import is_module_config
+        >>> from sonnix.factory import is_module_config
         >>> is_module_config({"_target_": "torch.nn.Identity"})
         True
 
@@ -105,7 +105,7 @@ def is_optimizer_config(config: dict[Any, Any]) -> bool:
     Example:
         ```pycon
         >>> from torch import nn
-        >>> from sonnix.utils.factory import is_optimizer_config
+        >>> from sonnix.factory import is_optimizer_config
         >>> linear = nn.Linear(4, 6)
         >>> is_optimizer_config({"_target_": "torch.optim.SGD", "params": linear.parameters()})
         True
@@ -126,7 +126,7 @@ def resolve_dataset(dataset: Dataset[T] | dict[Any, Any]) -> Dataset[T]:
 
     Example:
         ```pycon
-        >>> from sonnix.utils.factory import resolve_dataset
+        >>> from sonnix.factory import resolve_dataset
         >>> dataset = resolve_dataset(
         ...     {
         ...         "_target_": "sonnix.testing.dummy.DummyDataset",
@@ -153,7 +153,7 @@ def resolve_module(module: Module | dict[Any, Any]) -> Module:
 
     Example:
         ```pycon
-        >>> from sonnix.utils.factory import resolve_module
+        >>> from sonnix.factory import resolve_module
         >>> linear = resolve_module(
         ...     {"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 6}
         ... )
@@ -177,7 +177,7 @@ def resolve_optimizer(optimizer: Optimizer | dict[Any, Any]) -> Optimizer:
     Example:
         ```pycon
         >>> from torch import nn
-        >>> from sonnix.utils.factory import resolve_optimizer
+        >>> from sonnix.factory import resolve_optimizer
         >>> linear = nn.Linear(4, 6)
         >>> sgd = resolve_optimizer({"_target_": "torch.optim.SGD", "params": linear.parameters()})
         >>> sgd
@@ -210,7 +210,7 @@ def create_sequential(modules: Sequence[Module | dict[Any, Any]]) -> Sequential:
 
     Example:
         ```pycon
-        >>> from sonnix.utils.factory import create_sequential
+        >>> from sonnix.factory import create_sequential
         >>> seq = create_sequential(
         ...     [
         ...         {"_target_": "torch.nn.Linear", "in_features": 4, "out_features": 6},

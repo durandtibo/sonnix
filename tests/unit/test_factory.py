@@ -7,8 +7,7 @@ import torch
 from coola.factory import OBJECT_TARGET
 from torch import nn
 
-from sonnix.testing.dummy import DummyDataset
-from sonnix.utils.factory import (
+from sonnix.factory import (
     create_sequential,
     is_dataset_config,
     is_module_config,
@@ -17,6 +16,7 @@ from sonnix.utils.factory import (
     resolve_module,
     resolve_optimizer,
 )
+from sonnix.testing.dummy import DummyDataset
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
