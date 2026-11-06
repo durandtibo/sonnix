@@ -97,7 +97,7 @@ def test_nlinear_init_no_bias() -> None:
 @pytest.mark.parametrize("out_features", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
 @pytest.mark.parametrize("bias", [True, False])
-def test_nlinear_forward_3d_shape(
+def test_nlinear_forward_3d(
     device: str,
     batch_size: int,
     n: int,
@@ -113,55 +113,7 @@ def test_nlinear_forward_3d_shape(
     module.train(mode)
     out = module(torch.rand(batch_size, n, in_features, device=device))
     assert out.shape == (batch_size, n, out_features)
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("n", SIZES)
-@pytest.mark.parametrize("in_features", SIZES)
-@pytest.mark.parametrize("out_features", SIZES)
-@pytest.mark.parametrize("mode", [True, False])
-@pytest.mark.parametrize("bias", [True, False])
-def test_nlinear_forward_3d_device(
-    device: str,
-    batch_size: int,
-    n: int,
-    in_features: int,
-    out_features: int,
-    mode: bool,
-    bias: bool,
-) -> None:
-    device = torch.device(device)
-    module = NLinear(n=n, in_features=in_features, out_features=out_features, bias=bias).to(
-        device=device
-    )
-    module.train(mode)
-    out = module(torch.rand(batch_size, n, in_features, device=device))
     assert out.device == device
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("n", SIZES)
-@pytest.mark.parametrize("in_features", SIZES)
-@pytest.mark.parametrize("out_features", SIZES)
-@pytest.mark.parametrize("mode", [True, False])
-@pytest.mark.parametrize("bias", [True, False])
-def test_nlinear_forward_3d_dtype(
-    device: str,
-    batch_size: int,
-    n: int,
-    in_features: int,
-    out_features: int,
-    mode: bool,
-    bias: bool,
-) -> None:
-    device = torch.device(device)
-    module = NLinear(n=n, in_features=in_features, out_features=out_features, bias=bias).to(
-        device=device
-    )
-    module.train(mode)
-    out = module(torch.rand(batch_size, n, in_features, device=device))
     assert out.dtype == torch.float
 
 
@@ -172,7 +124,7 @@ def test_nlinear_forward_3d_dtype(
 @pytest.mark.parametrize("in_features", SIZES)
 @pytest.mark.parametrize("out_features", SIZES)
 @pytest.mark.parametrize("mode", [True, False])
-def test_nlinear_forward_4d_shape(
+def test_nlinear_forward_4d(
     device: str, d1: int, d2: int, n: int, in_features: int, out_features: int, mode: bool
 ) -> None:
     device = torch.device(device)
@@ -180,39 +132,7 @@ def test_nlinear_forward_4d_shape(
     module.train(mode)
     out = module(torch.rand(d1, d2, n, in_features, device=device))
     assert out.shape == (d1, d2, n, out_features)
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("d1", SIZES)
-@pytest.mark.parametrize("d2", SIZES)
-@pytest.mark.parametrize("n", SIZES)
-@pytest.mark.parametrize("in_features", SIZES)
-@pytest.mark.parametrize("out_features", SIZES)
-@pytest.mark.parametrize("mode", [True, False])
-def test_nlinear_forward_4d_device(
-    device: str, d1: int, d2: int, n: int, in_features: int, out_features: int, mode: bool
-) -> None:
-    device = torch.device(device)
-    module = NLinear(n=n, in_features=in_features, out_features=out_features).to(device=device)
-    module.train(mode)
-    out = module(torch.rand(d1, d2, n, in_features, device=device))
     assert out.device == device
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("d1", SIZES)
-@pytest.mark.parametrize("d2", SIZES)
-@pytest.mark.parametrize("n", SIZES)
-@pytest.mark.parametrize("in_features", SIZES)
-@pytest.mark.parametrize("out_features", SIZES)
-@pytest.mark.parametrize("mode", [True, False])
-def test_nlinear_forward_4d_dtype(
-    device: str, d1: int, d2: int, n: int, in_features: int, out_features: int, mode: bool
-) -> None:
-    device = torch.device(device)
-    module = NLinear(n=n, in_features=in_features, out_features=out_features).to(device=device)
-    module.train(mode)
-    out = module(torch.rand(d1, d2, n, in_features, device=device))
     assert out.dtype == torch.float
 
 
