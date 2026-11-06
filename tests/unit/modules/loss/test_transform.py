@@ -20,9 +20,13 @@ def test_transformed_loss_str() -> None:
     assert str(TransformedLoss(criterion=nn.MSELoss())).startswith("TransformedLoss(")
 
 
-def test_transformed_loss_default() -> None:
+def test_transformed_loss_default_prediction_transform() -> None:
     criterion = TransformedLoss(criterion=nn.MSELoss())
     assert isinstance(criterion.prediction_transform, nn.Identity)
+
+
+def test_transformed_loss_default_target_transform() -> None:
+    criterion = TransformedLoss(criterion=nn.MSELoss())
     assert isinstance(criterion.target_transform, nn.Identity)
 
 
@@ -64,10 +68,17 @@ def test_transformed_loss_shape(device: str, shape: tuple[int, ...]) -> None:
     assert objects_are_equal(loss, torch.tensor(0.0, device=device))
 
 
-def test_transformed_loss_empty_sequential_is_kept() -> None:
+def test_transformed_loss_empty_sequential_is_kept_prediction_transform() -> None:
     prediction, target = nn.Sequential(), nn.Sequential()
     module = TransformedLoss(
         criterion=nn.MSELoss(), prediction_transform=prediction, target_transform=target
     )
     assert module.prediction_transform is prediction
+
+
+def test_transformed_loss_empty_sequential_is_kept_target_transform() -> None:
+    prediction, target = nn.Sequential(), nn.Sequential()
+    module = TransformedLoss(
+        criterion=nn.MSELoss(), prediction_transform=prediction, target_transform=target
+    )
     assert module.target_transform is target
