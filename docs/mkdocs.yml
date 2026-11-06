@@ -1,5 +1,5 @@
 site_name: sonnix
-site_url: 'https://durandtibo.github.io/sonnix/'
+site_url: "https://durandtibo.github.io/sonnix/"
 theme:
   name: material
   features:
@@ -24,10 +24,10 @@ theme:
 nav:
   - Home: index.md
   - get_started.md
-#  - User Guide:
-#      - quickstart.md
-#      - types.md
-#      - customization.md
+  #  - User Guide:
+  #      - quickstart.md
+  #      - types.md
+  #      - customization.md
   - Reference:
       - sonnix: refs/root.md
       - sonnix.functional: refs/functional.md
@@ -61,7 +61,7 @@ plugins:
       default_handler: python
       handlers:
         python:
-          paths: [ ../src ]
+          paths: [../src]
           options:
             allow_inspection: true
             docstring_style: google
