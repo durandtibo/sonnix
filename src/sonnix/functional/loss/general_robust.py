@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 import torch
 
 from sonnix.functional.reduction import reduce_loss
-from sonnix.validation import validate_general_robust_params
+from sonnix.validation import validate_general_robust_params, validate_same_shape
 
 # ``alpha`` values closer than ``_ALPHA_EPS`` to 0 or 2 use the limit formulas.
 _ALPHA_EPS = 1e-5
@@ -71,6 +71,7 @@ def general_robust_regression_loss(
         ValueError: if the reduction is not valid.
         ValueError: if ``alpha`` is ``NaN`` or ``+inf``, or if ``scale`` or
             ``max_val`` is not strictly positive.
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
     Example:
         ```pycon
@@ -86,6 +87,7 @@ def general_robust_regression_loss(
         ```
     """
     validate_general_robust_params(alpha, scale, max_val)
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     squared_error = prediction.sub(target).div(scale).pow(2)
     if abs(alpha - 2) < _ALPHA_EPS:
         loss = squared_error

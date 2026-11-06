@@ -7,6 +7,12 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- Functions of two tensors of the same role (`log_cosh_loss`, `quantile_regression_loss`, `poisson_regression_loss`,
+  the focal, Poly-1, general robust, asinh and MSLE losses, and the relative indicators) raise a `ValueError`
+  when the shapes differ, instead of a torch error, a warning or a silent broadcast (`quantile_regression_loss`
+  returned a scalar for `(4, 3)` vs `(1, 3)`). `BinaryPoly1Loss*(alpha)`, `SafeExp(max_val)`, `Pow(exponent)` and
+  `ToBinaryLabel(threshold)` reject non-finite values, and `Squeeze(dim)` rejects non-integer dimensions
+  (target state step 2, #414).
 - `load_state_dict_to_module(strict=...)`, and `num_iterations`, `random_seed` and `lr` of `is_loss_decreasing*` are
   keyword-only. `random_seed` of `is_loss_decreasing*` also seeds the optimization steps, so the functions are
   deterministic for a module with randomness (review 3.5, #368).

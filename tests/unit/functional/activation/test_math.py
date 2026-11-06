@@ -133,3 +133,9 @@ def test_safe_log_nan_stays_nan() -> None:
 
 def test_safe_exp_nan_stays_nan() -> None:
     assert safe_exp(torch.tensor([float("nan")])).isnan().all()
+
+
+@pytest.mark.parametrize("max_val", [float("nan"), float("inf")])
+def test_safe_exp_invalid_max_val(max_val: float) -> None:
+    with pytest.raises(ValueError, match=r"max_val must be finite"):
+        safe_exp(torch.ones(2, 3), max_val=max_val)

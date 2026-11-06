@@ -7,6 +7,7 @@ __all__ = ["MulticlassFlatten", "Squeeze", "View"]
 from typing import Any
 
 import torch
+from coola.validation import validate_int
 from torch import nn
 
 from sonnix.factory import resolve_module
@@ -65,6 +66,9 @@ class Squeeze(nn.Module):
             an integer or a tuple of integers. If ``None``, all the
             dimensions of the input tensor of size 1 are removed.
 
+    Raises:
+        TypeError: If ``dim`` is not an integer, a tuple of integers or ``None``.
+
     Example:
         ```pycon
         >>> import torch
@@ -83,6 +87,9 @@ class Squeeze(nn.Module):
 
     def __init__(self, dim: int | tuple[int, ...] | list[int] | None = None) -> None:
         super().__init__()
+        if dim is not None:
+            for d in dim if isinstance(dim, (tuple, list)) else (dim,):
+                validate_int(d, name="dim")
         self.dim: int | tuple[int, ...] | None = (
             tuple(dim) if isinstance(dim, (tuple, list)) else dim
         )

@@ -6,6 +6,8 @@ __all__ = ["BaseBinaryPoly1Loss", "BinaryPoly1Loss", "BinaryPoly1LossWithLogits"
 
 from typing import TYPE_CHECKING
 
+from coola.validation import validate_finite
+
 from sonnix.functional import (
     binary_poly1_loss,
     binary_poly1_loss_with_logits,
@@ -33,6 +35,7 @@ class BaseBinaryPoly1Loss(BaseLoss):
 
     def __init__(self, alpha: float = 1.0, *, reduction: Reduction = "mean") -> None:
         super().__init__(reduction=reduction)
+        validate_finite(alpha, name="alpha")
         self.alpha = float(alpha)
 
     def extra_repr(self) -> str:
@@ -58,6 +61,9 @@ class BinaryPoly1Loss(BaseBinaryPoly1Loss):
         - Target: ``(*)``, same shape as the input.
         - Output: scalar. If ``reduction`` is ``'none'``, then ``(*)``,
             same shape as input.
+
+    Raises:
+        ValueError: If ``alpha`` is not finite.
 
     Example:
         ```pycon
@@ -121,6 +127,9 @@ class BinaryPoly1LossWithLogits(BaseBinaryPoly1Loss):
         - Target: ``(*)``, same shape as the input.
         - Output: scalar. If ``reduction`` is ``'none'``, then ``(*)``,
             same shape as input.
+
+    Raises:
+        ValueError: If ``alpha`` is not finite.
 
     Example:
         ```pycon

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from coola.validation import validate_range
 
 from sonnix.functional.reduction import reduce_loss
+from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:
     import torch
@@ -38,6 +39,9 @@ def quantile_regression_loss(
         The quantile regression loss. The shape of the tensor depends
             on the reduction strategy.
 
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
+
     Example:
         ```pycon
         >>> import torch
@@ -52,6 +56,7 @@ def quantile_regression_loss(
         ```
     """
     validate_range(q, 0.0, 1.0, name="q")
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     diff = target - prediction
     loss = q * diff.clamp_min(0.0) + (1.0 - q) * (diff.neg().clamp_min(0.0))
     return reduce_loss(loss, reduction)

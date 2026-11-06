@@ -10,7 +10,7 @@ from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_
 
 from sonnix.functional.power import safe_pow
 from sonnix.functional.reduction import reduce_loss
-from sonnix.validation import validate_focal_params
+from sonnix.validation import validate_focal_params, validate_same_shape
 
 if TYPE_CHECKING:
     import torch
@@ -55,6 +55,9 @@ def binary_focal_loss(
         The computed binary focal loss. The shape of the tensor depends
             on the reduction strategy.
 
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
+
     Example:
         ```pycon
         >>> import torch
@@ -70,6 +73,7 @@ def binary_focal_loss(
         ```
     """
     validate_focal_params(alpha=alpha, gamma=gamma)
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
     p_t = prediction * target + (1 - prediction) * (1 - target)
     loss = ce_loss * safe_pow(1 - p_t, gamma)
@@ -117,6 +121,9 @@ def binary_focal_loss_with_logits(
         The computed binary focal loss. The shape of the tensor depends
             on the reduction strategy.
 
+    Raises:
+        ValueError: If ``prediction`` and ``target`` do not have the same shape.
+
     Example:
         ```pycon
         >>> import torch
@@ -132,6 +139,7 @@ def binary_focal_loss_with_logits(
         ```
     """
     validate_focal_params(alpha=alpha, gamma=gamma)
+    validate_same_shape(prediction, target, name1="prediction", name2="target")
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
     # ``exp(-ce) = p_t`` only holds for binary targets, so ``p_t`` is computed
     # from the probabilities to support soft targets (label smoothing, mixup).

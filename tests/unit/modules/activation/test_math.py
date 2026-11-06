@@ -441,3 +441,20 @@ def test_square_is_not_a_pow() -> None:
 def test_square_forward_equals_pow() -> None:
     x = torch.tensor([-2.0, -0.5, 0.0, 3.0])
     assert Square()(x).equal(Pow(exponent=2)(x))
+
+
+@pytest.mark.parametrize("max_val", [float("nan"), float("inf")])
+def test_safe_exp_invalid_max_val(max_val: float) -> None:
+    with pytest.raises(ValueError, match=r"max_val must be finite"):
+        SafeExp(max_val=max_val)
+
+
+@pytest.mark.parametrize("exponent", [float("nan"), float("inf")])
+def test_pow_invalid_exponent(exponent: float) -> None:
+    with pytest.raises(ValueError, match=r"exponent must be finite"):
+        Pow(exponent)
+
+
+def test_pow_exponent_not_a_number() -> None:
+    with pytest.raises(TypeError, match=r"exponent must be a real number"):
+        Pow("a")

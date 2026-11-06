@@ -6,7 +6,7 @@ __all__ = ["safe_exp", "safe_log"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_gt
+from coola.validation import validate_finite, validate_gt
 
 if TYPE_CHECKING:
     import torch
@@ -39,6 +39,9 @@ def safe_exp(
     Returns:
         A tensor with the exponential of the elements.
 
+    Raises:
+        ValueError: If ``max_val`` is not finite.
+
     Example:
         ```pycon
         >>> import torch
@@ -49,6 +52,7 @@ def safe_exp(
 
         ```
     """
+    validate_finite(max_val, name="max_val")
     clamped = input.clamp(max=max_val)
     if preserve_gradient:
         clamped = input + (clamped - input).detach()
