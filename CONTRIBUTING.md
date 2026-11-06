@@ -27,6 +27,11 @@ We actively welcome your pull requests.
    ```
 
    `inv test.all` runs all the tests, and `inv --list` lists the available tasks.
+
+   The CI runners have no GPU: the tests that need CUDA or MPS (`torch_cuda_available`, and the
+   tests parametrized with `get_available_devices()`) only run on the CPU there. If your change
+   touches device handling, run the tests on a machine with a GPU (CUDA or MPS) before opening the
+   pull request, and run the CUDA tests locally before a release.
 5. Make sure your code lints. The following commands can help you to format the code:
    ```shell
    inv format.fix-python
