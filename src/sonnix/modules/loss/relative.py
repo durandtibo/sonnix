@@ -211,7 +211,7 @@ class RelativeSmoothL1Loss(RelativeLoss):
         >>> criterion = RelativeSmoothL1Loss(indicator=ClassicalRelativeIndicator())
         >>> criterion
         RelativeSmoothL1Loss(
-          eps=1e-08, reduction=mean, detach_indicator=False
+          eps=1e-08, reduction=mean, detach_indicator=False, beta=1.0
           (criterion): SmoothL1Loss()
           (indicator): ClassicalRelativeIndicator()
         )
@@ -242,3 +242,7 @@ class RelativeSmoothL1Loss(RelativeLoss):
             eps=eps,
             detach_indicator=detach_indicator,
         )
+        self.beta = float(beta)
+
+    def extra_repr(self) -> str:
+        return f"{super().extra_repr()}, beta={self.beta}"
