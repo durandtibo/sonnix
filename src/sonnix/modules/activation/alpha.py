@@ -11,8 +11,13 @@ __all__ = [
     "Quadratic",
 ]
 
+from typing import TYPE_CHECKING
+
 import torch
 from torch import nn
+
+if TYPE_CHECKING:
+    from torch import Tensor
 
 
 class BaseAlphaActivation(nn.Module):
@@ -53,12 +58,22 @@ class BaseAlphaActivation(nn.Module):
 
     def __init__(self, num_parameters: int = 1, init: float = 1.0, learnable: bool = True) -> None:
         super().__init__()
-        self.alpha: nn.Parameter = nn.Parameter(
-            torch.full((num_parameters,), init, dtype=torch.float), requires_grad=learnable
-        )
+        self.alpha: Tensor
+        alpha = torch.full((num_parameters,), init, dtype=torch.float)
+        if learnable:
+            self.alpha = nn.Parameter(alpha)
+        else:
+            # Frozen values are buffers: they are saved in the state dict and moved with
+            # the module, but they are not returned by ``parameters()``.
+            self.register_buffer("alpha", alpha)
+
+    @property
+    def learnable(self) -> bool:
+        r"""Indicate if ``alpha`` is learnable."""
+        return isinstance(self.alpha, nn.Parameter)
 
     def extra_repr(self) -> str:
-        return f"num_parameters={self.alpha.numel()}, learnable={self.alpha.requires_grad}"
+        return f"num_parameters={self.alpha.numel()}, learnable={self.learnable}"
 
 
 class ExpSin(BaseAlphaActivation):

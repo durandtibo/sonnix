@@ -82,16 +82,31 @@ class CosSinNumericalEncoder(nn.Module):
     def __init__(self, frequency: Tensor, phase_shift: Tensor, learnable: bool = False) -> None:
         super().__init__()
         frequency = prepare_tensor_param(frequency, name="frequency")
-        self.frequency: nn.Parameter = nn.Parameter(frequency.clone(), requires_grad=learnable)
+        self.frequency: Tensor
+        self.phase_shift: Tensor
+        self._register_tensor("frequency", frequency, learnable)
 
         phase_shift = prepare_tensor_param(phase_shift, name="phase_shift")
-        self.phase_shift: nn.Parameter = nn.Parameter(phase_shift.clone(), requires_grad=learnable)
+        self._register_tensor("phase_shift", phase_shift, learnable)
         if self.frequency.shape != self.phase_shift.shape:
             msg = (
                 f"'frequency' and 'phase_shift' shapes do not match: {self.frequency.shape} "
                 f"vs {self.phase_shift.shape}"
             )
             raise RuntimeError(msg)
+
+    @property
+    def learnable(self) -> bool:
+        r"""Indicate if the frequencies and phase-shifts are learnable."""
+        return isinstance(self.frequency, nn.Parameter)
+
+    def _register_tensor(self, name: str, value: Tensor, learnable: bool) -> None:
+        # Frozen values are buffers: they are saved in the state dict and moved with
+        # the module, but they are not returned by ``parameters()``.
+        if learnable:
+            self.register_parameter(name, nn.Parameter(value.detach().clone()))
+        else:
+            self.register_buffer(name, value.detach().clone())
 
     @property
     def input_size(self) -> int:
@@ -107,7 +122,7 @@ class CosSinNumericalEncoder(nn.Module):
         return (
             f"frequency={tuple(self.frequency.shape)}, "
             f"phase_shift={tuple(self.phase_shift.shape)}, "
-            f"learnable={self.frequency.requires_grad}"
+            f"learnable={self.learnable}"
         )
 
     def forward(self, scalar: Tensor) -> Tensor:
