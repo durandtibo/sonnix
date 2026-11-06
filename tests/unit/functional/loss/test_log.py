@@ -197,3 +197,9 @@ def test_log_cosh_loss_matches_naive_formula() -> None:
 
 def test_msle_loss_below_minus_one_is_nan() -> None:
     assert msle_loss(torch.tensor([-2.0]), torch.tensor([1.0])).isnan()
+
+
+@pytest.mark.parametrize("scale", [0.0, -1.0])
+def test_log_cosh_loss_invalid_scale(scale: float) -> None:
+    with pytest.raises(ValueError, match=r"scale must be greater than 0"):
+        log_cosh_loss(torch.ones(2, 3), torch.ones(2, 3), scale=scale)
