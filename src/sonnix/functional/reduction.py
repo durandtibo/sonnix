@@ -9,14 +9,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from torch import Tensor
 
-VALID_REDUCTIONS = ("none", "mean", "sum", "batchmean")
+VALID_REDUCTIONS = ("none", "mean", "sum")
 
 
 def check_loss_reduction_strategy(reduction: str) -> None:
     r"""Check if the provided reduction ia a valid loss reduction.
 
-    The valid reduction values are ``'mean'``, ``'none'``,  ``'sum'``,
-    and ``'batchmean'``.
+    The valid reduction values are ``'mean'``, ``'none'``,
+    and ``'sum'``.
 
     Args:
         reduction: The reduction strategy to check.
@@ -44,12 +44,10 @@ def reduce_loss(tensor: Tensor, reduction: str) -> Tensor:
     Args:
         tensor: The input tensor to reduce.
         reduction: The reduction strategy. The valid values are
-            ``'mean'``, ``'none'``,  ``'sum'``, and ``'batchmean'``.
+            ``'mean'``, ``'none'``, and ``'sum'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
-            input, ``'sum'``: the output will be summed,
-            ``'batchmean'``: the sum will be divided by the size of the
-            first dimension.
+            input, ``'sum'``: the output will be summed.
 
     Returns:
         The reduced tensor. The shape of the tensor depends on the
@@ -79,10 +77,5 @@ def reduce_loss(tensor: Tensor, reduction: str) -> Tensor:
         return tensor.sum()
     if reduction == "none":
         return tensor
-    if reduction == "batchmean":
-        if tensor.ndim == 0:
-            msg = "'batchmean' reduction requires a tensor with at least one dimension"
-            raise ValueError(msg)
-        return tensor.sum() / tensor.size(0)
     msg = f"Incorrect reduction: {reduction}. The valid reductions are {VALID_REDUCTIONS}"
     raise ValueError(msg)
