@@ -145,22 +145,26 @@ root_package = "sonnix"
 name = "Layers"
 type = "layers"
 layers = [
+  "sonnix.testing",
   "sonnix.modules",
   "sonnix.functional",
-  "sonnix.utils",
   "sonnix.validation",
 ]
 
 [[tool.importlinter.contracts]]
-name = "Testing is independent"
-type = "forbidden"
-source_modules = [
-  "sonnix.modules",
-  "sonnix.functional",
+name = "Independent packages"
+type = "independence"
+modules = [
   "sonnix.utils",
+  "sonnix.factory",
   "sonnix.validation",
 ]
-forbidden_modules = ["sonnix.testing"]
+
+[[tool.importlinter.contracts]]
+name = "Functional does not import modules or factory"
+type = "forbidden"
+source_modules = ["sonnix.functional"]
+forbidden_modules = ["sonnix.modules", "sonnix.factory"]
 
 [tool.ruff]
 # List of rules: https://docs.astral.sh/ruff/rules/
