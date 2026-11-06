@@ -9,7 +9,7 @@ __all__ = ["PoissonRegressionLoss"]
 
 from typing import TYPE_CHECKING
 
-from sonnix.functional.loss import poisson_regression_loss
+from sonnix.functional import poisson_regression_loss
 from sonnix.modules.loss.base import BaseLoss
 
 if TYPE_CHECKING:

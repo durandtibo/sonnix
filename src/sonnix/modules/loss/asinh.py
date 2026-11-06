@@ -9,7 +9,7 @@ __all__ = ["AsinhMSELoss", "AsinhSmoothL1Loss"]
 
 from typing import TYPE_CHECKING
 
-from sonnix.functional.loss.asinh import asinh_mse_loss, asinh_smooth_l1_loss
+from sonnix.functional import asinh_mse_loss, asinh_smooth_l1_loss
 from sonnix.modules.loss.base import BaseLoss
 
 if TYPE_CHECKING:

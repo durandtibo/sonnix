@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 from coola.validation import validate_range
 
-from sonnix.functional.loss import quantile_regression_loss
+from sonnix.functional import quantile_regression_loss
 from sonnix.modules.loss.base import BaseLoss
 
 if TYPE_CHECKING:
