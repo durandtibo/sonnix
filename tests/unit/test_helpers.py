@@ -33,13 +33,9 @@ def test_make_generator_default_seed() -> None:
 ##############################
 
 
-def test_normal_pair_shape_and_dtype_shape() -> None:
+def test_normal_pair_shape_and_dtype() -> None:
     first, second = normal_pair(2, 3, dtype=torch.float64)
     assert first.shape == second.shape == (2, 3)
-
-
-def test_normal_pair_shape_and_dtype_value() -> None:
-    first, second = normal_pair(2, 3, dtype=torch.float64)
     assert first.dtype == second.dtype == torch.float64
 
 
