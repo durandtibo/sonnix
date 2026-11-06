@@ -124,3 +124,9 @@ All notable changes to this project are documented in this file. The package is 
   `(N, C, L)` input. It is shown in the representation when `num_parameters > 1`.
 - `Gaussian`, `Laplacian` and `Snake` reject `init=0` (they divide by `alpha`).
 - The docstrings document `device`, `dtype` and `channel_dim`.
+
+### Structure
+
+- `Clamp` moves from `sonnix.modules.fusion.clamp` to `sonnix.modules.activation.clamp` (next to
+  `ReLUn`; it has a single input, so it is not a fusion module). `sonnix.modules.Clamp` and
+  `sonnix.modules.activation.Clamp` still work.
