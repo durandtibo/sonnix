@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 import torch
 from coola.equality import objects_are_allclose
+from coola.random import get_torch_generator
 from coola.utils.tensor import get_available_devices
 
 from sonnix.modules import AsinhCosSinNumericalEncoder, CosSinNumericalEncoder
@@ -771,3 +772,74 @@ def test_cos_sin_numerical_encoder_learnable_is_parameter() -> None:
     )
     assert module.learnable
     assert {n for n, _ in module.named_parameters()} == {"frequency", "phase_shift"}
+
+
+def test_cos_sin_numerical_encoder_create_rand_same_seed() -> None:
+    module1 = CosSinNumericalEncoder.create("rand", 5, frequency_range=(0.2, 1), generator=42)
+    module2 = CosSinNumericalEncoder.create("rand", 5, frequency_range=(0.2, 1), generator=42)
+    assert module1.frequency.equal(module2.frequency)
+
+
+def test_cos_sin_numerical_encoder_create_rand_different_seeds() -> None:
+    module1 = CosSinNumericalEncoder.create("rand", 5, frequency_range=(0.2, 1), generator=1)
+    module2 = CosSinNumericalEncoder.create("rand", 5, frequency_range=(0.2, 1), generator=2)
+    assert not module1.frequency.equal(module2.frequency)
+
+
+def test_cos_sin_numerical_encoder_create_rand_generator_object() -> None:
+    module1 = CosSinNumericalEncoder.create(
+        "rand", 5, frequency_range=(0.2, 1), generator=get_torch_generator(7)
+    )
+    module2 = CosSinNumericalEncoder.create("rand", 5, frequency_range=(0.2, 1), generator=7)
+    assert module1.frequency.equal(module2.frequency)
+
+
+def test_cos_sin_numerical_encoder_create_rand_generator_state_advances() -> None:
+    generator = get_torch_generator(7)
+    module1 = CosSinNumericalEncoder.create(
+        "rand", 5, frequency_range=(0.2, 1), generator=generator
+    )
+    module2 = CosSinNumericalEncoder.create(
+        "rand", 5, frequency_range=(0.2, 1), generator=generator
+    )
+    assert not module1.frequency.equal(module2.frequency)
+
+
+def test_cos_sin_numerical_encoder_create_rand_seed_does_not_change_global_rng() -> None:
+    torch.manual_seed(0)
+    expected = torch.rand(3)
+    torch.manual_seed(0)
+    CosSinNumericalEncoder.create("rand", 5, frequency_range=(0.2, 1), generator=42)
+    assert torch.rand(3).equal(expected)
+
+
+def test_cos_sin_numerical_encoder_create_rand_global_rng_without_generator() -> None:
+    torch.manual_seed(0)
+    module1 = CosSinNumericalEncoder.create("rand", 5, frequency_range=(0.2, 1))
+    torch.manual_seed(0)
+    module2 = CosSinNumericalEncoder.create("rand", 5, frequency_range=(0.2, 1))
+    assert module1.frequency.equal(module2.frequency)
+
+
+@pytest.mark.parametrize("spacing", ["rand", "linspace", "logspace"])
+@pytest.mark.parametrize("dtype", [torch.float64, torch.bfloat16])
+def test_cos_sin_numerical_encoder_create_dtype(spacing: str, dtype: torch.dtype) -> None:
+    module = CosSinNumericalEncoder.create(spacing, 3, frequency_range=(0.2, 1), dtype=dtype)
+    assert module.frequency.dtype == dtype
+    assert module.phase_shift.dtype == dtype
+
+
+@pytest.mark.parametrize("spacing", ["rand", "linspace", "logspace"])
+def test_cos_sin_numerical_encoder_create_dtype_default(spacing: str) -> None:
+    module = CosSinNumericalEncoder.create(spacing, 3, frequency_range=(0.2, 1))
+    assert module.frequency.dtype == torch.get_default_dtype()
+
+
+@pytest.mark.parametrize("spacing", ["rand", "linspace", "logspace"])
+@pytest.mark.parametrize("device", get_available_devices())
+def test_cos_sin_numerical_encoder_create_device(spacing: str, device: str) -> None:
+    module = CosSinNumericalEncoder.create(
+        spacing, 3, frequency_range=(0.2, 1), device=torch.device(device)
+    )
+    assert module.frequency.device == torch.device(device)
+    assert module.phase_shift.device == torch.device(device)
