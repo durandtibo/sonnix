@@ -10,7 +10,7 @@ from typing import Any
 import torch
 from torch import nn
 
-from sonnix.utils.factory import setup_module
+from sonnix.utils.factory import resolve_module
 
 
 class TransformedLoss(nn.Module):
@@ -51,11 +51,11 @@ class TransformedLoss(nn.Module):
         target: nn.Module | dict[Any, Any] | None = None,
     ) -> None:
         super().__init__()
-        self.criterion: nn.Module = setup_module(criterion)
-        self.prediction: nn.Module = setup_module(
+        self.criterion: nn.Module = resolve_module(criterion)
+        self.prediction: nn.Module = resolve_module(
             nn.Identity() if prediction is None else prediction
         )
-        self.target: nn.Module = setup_module(nn.Identity() if target is None else target)
+        self.target: nn.Module = resolve_module(nn.Identity() if target is None else target)
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         prediction = self.prediction(prediction)

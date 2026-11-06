@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING
 
 import pytest
 import torch
 from coola.factory import OBJECT_TARGET
 from torch import nn
-from torch.nn import Module, ReLU
 
 from sonnix.testing.dummy import DummyDataset
 from sonnix.utils.factory import (
@@ -15,12 +13,9 @@ from sonnix.utils.factory import (
     is_dataset_config,
     is_module_config,
     is_optimizer_config,
-    setup_dataset,
-    setup_module,
-    setup_object,
-    setup_object_typed,
-    setup_optimizer,
-    str_target_object,
+    resolve_dataset,
+    resolve_module,
+    resolve_optimizer,
 )
 
 if TYPE_CHECKING:
@@ -75,7 +70,7 @@ def test_is_optimizer_config_false() -> None:
 
 
 ###################################
-#     Tests for setup_dataset     #
+#     Tests for resolve_dataset     #
 ###################################
 
 
@@ -90,46 +85,42 @@ def test_is_optimizer_config_false() -> None:
         },
     ],
 )
-def test_setup_dataset(dataset: DummyDataset | dict) -> None:
-    assert isinstance(setup_dataset(dataset), DummyDataset)
+def test_resolve_dataset(dataset: DummyDataset | dict) -> None:
+    assert isinstance(resolve_dataset(dataset), DummyDataset)
 
 
-def test_setup_dataset_object() -> None:
+def test_resolve_dataset_object() -> None:
     dataset = DummyDataset(num_examples=10, feature_size=4)
-    assert setup_dataset(dataset) is dataset
+    assert resolve_dataset(dataset) is dataset
 
 
-def test_setup_dataset_incorrect_type(caplog: pytest.LogCaptureFixture) -> None:
-    with caplog.at_level(level=logging.WARNING):
-        assert isinstance(setup_dataset({OBJECT_TARGET: "torch.nn.Identity"}), nn.Identity)
-        assert caplog.messages
+def test_resolve_dataset_incorrect_type() -> None:
+    with pytest.raises(TypeError, match=r"Dataset"):
+        resolve_dataset({OBJECT_TARGET: "torch.nn.Identity"})
 
 
 ##################################
-#     Tests for setup_module     #
+#     Tests for resolve_module     #
 ##################################
 
 
 @pytest.mark.parametrize("module", [torch.nn.ReLU(), {OBJECT_TARGET: "torch.nn.ReLU"}])
-def test_setup_module(module: torch.nn.Module | dict) -> None:
-    assert isinstance(setup_module(module), torch.nn.ReLU)
+def test_resolve_module(module: torch.nn.Module | dict) -> None:
+    assert isinstance(resolve_module(module), torch.nn.ReLU)
 
 
-def test_setup_module_object() -> None:
+def test_resolve_module_object() -> None:
     module = torch.nn.ReLU()
-    assert setup_module(module) is module
+    assert resolve_module(module) is module
 
 
-def test_setup_module_incorrect_type(caplog: pytest.LogCaptureFixture) -> None:
-    with caplog.at_level(level=logging.WARNING):
-        assert isinstance(
-            setup_module({OBJECT_TARGET: "torch.device", "type": "cpu"}), torch.device
-        )
-        assert caplog.messages
+def test_resolve_module_incorrect_type() -> None:
+    with pytest.raises(TypeError, match=r"Module"):
+        resolve_module({OBJECT_TARGET: "torch.device", "type": "cpu"})
 
 
 #####################################
-#     Tests for setup_optimizer     #
+#     Tests for resolve_optimizer     #
 #####################################
 
 
@@ -140,19 +131,18 @@ def test_setup_module_incorrect_type(caplog: pytest.LogCaptureFixture) -> None:
         {OBJECT_TARGET: "torch.optim.SGD", "params": [torch.ones(2, 4, requires_grad=True)]},
     ],
 )
-def test_setup_optimizer(optimizer: torch.optim.Optimizer | dict) -> None:
-    assert isinstance(setup_optimizer(optimizer), torch.optim.SGD)
+def test_resolve_optimizer(optimizer: torch.optim.Optimizer | dict) -> None:
+    assert isinstance(resolve_optimizer(optimizer), torch.optim.SGD)
 
 
-def test_setup_optimizer_object() -> None:
+def test_resolve_optimizer_object() -> None:
     optimizer = torch.optim.SGD([torch.ones(2, 4, requires_grad=True)])
-    assert setup_optimizer(optimizer) is optimizer
+    assert resolve_optimizer(optimizer) is optimizer
 
 
-def test_setup_optimizer_incorrect_type(caplog: pytest.LogCaptureFixture) -> None:
-    with caplog.at_level(level=logging.WARNING):
-        assert isinstance(setup_optimizer({OBJECT_TARGET: "torch.nn.ReLU"}), torch.nn.ReLU)
-        assert caplog.messages
+def test_resolve_optimizer_incorrect_type() -> None:
+    with pytest.raises(TypeError, match=r"Optimizer"):
+        resolve_optimizer({OBJECT_TARGET: "torch.nn.ReLU"})
 
 
 #######################################
@@ -181,58 +171,4 @@ def test_create_sequential_empty() -> None:
     assert len(module) == 0
 
 
-##################################
-#     Tests for setup_object     #
-##################################
-
-
-@pytest.mark.parametrize("module", [ReLU(), {OBJECT_TARGET: "torch.nn.ReLU"}])
-def test_setup_object(module: Module | dict) -> None:
-    assert isinstance(setup_object(module), ReLU)
-
-
-def test_setup_object_object() -> None:
-    module = ReLU()
-    assert setup_object(module) is module
-
-
-########################################
-#     Tests for setup_object_typed     #
-########################################
-
-
-@pytest.mark.parametrize("module", [ReLU(), {OBJECT_TARGET: "torch.nn.ReLU"}])
-def test_setup_object_typed(module: Module | dict) -> None:
-    assert isinstance(setup_object_typed(module, cls=torch.nn.Module), ReLU)
-
-
-@pytest.mark.parametrize("module", [ReLU(), {OBJECT_TARGET: "torch.nn.ReLU"}])
-def test_setup_object_typed_with_name(module: Module | dict) -> None:
-    assert isinstance(setup_object_typed(module, cls=torch.nn.Module, name="torch.nn.Module"), ReLU)
-
-
-def test_setup_object_typed_object() -> None:
-    module = ReLU()
-    assert setup_object_typed(module, cls=torch.nn.Module) is module
-
-
-def test_setup_object_typed_incorrect_type(caplog: pytest.LogCaptureFixture) -> None:
-    with caplog.at_level(level=logging.WARNING):
-        assert isinstance(
-            setup_object_typed({OBJECT_TARGET: "torch.device", "type": "cpu"}, cls=torch.nn.Module),
-            torch.device,
-        )
-        assert caplog.messages
-
-
-#######################################
-#     Tests for str_target_object     #
-#######################################
-
-
-def test_str_target_object_with_target() -> None:
-    assert str_target_object({OBJECT_TARGET: "something.MyClass"}) == "something.MyClass"
-
-
-def test_str_target_object_without_target() -> None:
-    assert str_target_object({}) == "N/A"
+#######

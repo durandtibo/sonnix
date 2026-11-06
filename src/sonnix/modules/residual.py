@@ -9,7 +9,7 @@ from typing import Any
 import torch
 from torch import nn
 
-from sonnix.utils.factory import setup_module
+from sonnix.utils.factory import resolve_module
 
 
 class ResidualBlock(nn.Module):
@@ -49,8 +49,8 @@ class ResidualBlock(nn.Module):
         skip: nn.Module | dict[Any, Any] | None = None,
     ) -> None:
         super().__init__()
-        self.residual: nn.Module = setup_module(residual)
-        self.skip: nn.Module = setup_module(nn.Identity() if skip is None else skip)
+        self.residual: nn.Module = resolve_module(residual)
+        self.skip: nn.Module = resolve_module(nn.Identity() if skip is None else skip)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return self.skip(input) + self.residual(input)

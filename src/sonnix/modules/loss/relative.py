@@ -11,7 +11,7 @@ from torch import nn
 
 from sonnix.functional import check_loss_reduction_strategy, relative_loss
 from sonnix.modules.loss.indicators import ClassicalRelativeIndicator
-from sonnix.utils.factory import setup_module
+from sonnix.utils.factory import resolve_module
 
 if TYPE_CHECKING:
     from sonnix.modules.loss import BaseRelativeIndicator
@@ -72,8 +72,8 @@ class RelativeLoss(nn.Module):
         eps: float = 1e-8,
     ) -> None:
         super().__init__()
-        self.criterion: nn.Module = setup_module(criterion)
-        self.indicator: nn.Module = setup_module(
+        self.criterion: nn.Module = resolve_module(criterion)
+        self.indicator: nn.Module = resolve_module(
             ClassicalRelativeIndicator() if indicator is None else indicator
         )
 

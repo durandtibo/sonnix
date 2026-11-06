@@ -2,18 +2,15 @@ from __future__ import annotations
 
 import torch
 from coola.factory import OBJECT_TARGET
-from torch.nn import ReLU
 
 from sonnix.testing.dummy import DummyDataset
 from sonnix.utils.factory import (
     is_dataset_config,
     is_module_config,
     is_optimizer_config,
-    setup_dataset,
-    setup_module,
-    setup_object,
-    setup_object_typed,
-    setup_optimizer,
+    resolve_dataset,
+    resolve_module,
+    resolve_optimizer,
 )
 
 #######################################
@@ -52,13 +49,13 @@ def test_is_optimizer_config() -> None:
 
 
 ###################################
-#     Tests for setup_dataset     #
+#     Tests for resolve_dataset     #
 ###################################
 
 
-def test_setup_dataset() -> None:
+def test_resolve_dataset() -> None:
     assert isinstance(
-        setup_dataset(
+        resolve_dataset(
             {
                 OBJECT_TARGET: "sonnix.testing.dummy.DummyDataset",
                 "num_examples": 10,
@@ -70,43 +67,23 @@ def test_setup_dataset() -> None:
 
 
 ##################################
-#     Tests for setup_module     #
+#     Tests for resolve_module     #
 ##################################
 
 
-def test_setup_module() -> None:
-    assert isinstance(setup_module({OBJECT_TARGET: "torch.nn.ReLU"}), torch.nn.ReLU)
+def test_resolve_module() -> None:
+    assert isinstance(resolve_module({OBJECT_TARGET: "torch.nn.ReLU"}), torch.nn.ReLU)
 
 
 #####################################
-#     Tests for setup_optimizer     #
+#     Tests for resolve_optimizer     #
 #####################################
 
 
-def test_setup_optimizer() -> None:
+def test_resolve_optimizer() -> None:
     assert isinstance(
-        setup_optimizer(
+        resolve_optimizer(
             {OBJECT_TARGET: "torch.optim.SGD", "params": [torch.ones(2, 4, requires_grad=True)]}
         ),
         torch.optim.SGD,
-    )
-
-
-##################################
-#     Tests for setup_object     #
-##################################
-
-
-def test_setup_object() -> None:
-    assert isinstance(setup_object({OBJECT_TARGET: "torch.nn.ReLU"}), ReLU)
-
-
-########################################
-#     Tests for setup_object_typed     #
-########################################
-
-
-def test_setup_object_typed() -> None:
-    assert isinstance(
-        setup_object_typed({OBJECT_TARGET: "torch.nn.ReLU"}, cls=torch.nn.Module), ReLU
     )

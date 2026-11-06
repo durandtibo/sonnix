@@ -11,9 +11,8 @@ from __future__ import annotations
 __all__ = ["DummyDataset"]
 
 import torch
+from coola.random import get_torch_generator
 from torch.utils.data import Dataset
-
-from sonnix.utils.random import get_torch_generator
 
 
 class DummyDataset(Dataset[dict[str, torch.Tensor]]):
@@ -34,7 +33,7 @@ class DummyDataset(Dataset[dict[str, torch.Tensor]]):
     """
 
     def __init__(
-        self, feature_size: int = 4, num_examples: int = 8, rng_seed: int = 14700295087918620795
+        self, feature_size: int = 4, num_examples: int = 8, rng_seed: int = 5476923051063844987
     ) -> None:
         self._feature_size = int(feature_size)
         self._num_examples = int(num_examples)

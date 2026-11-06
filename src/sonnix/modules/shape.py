@@ -9,7 +9,7 @@ from typing import Any
 import torch
 from torch import nn
 
-from sonnix.utils.factory import setup_module
+from sonnix.utils.factory import resolve_module
 
 
 class MulticlassFlatten(nn.Module):
@@ -39,7 +39,7 @@ class MulticlassFlatten(nn.Module):
 
     def __init__(self, module: nn.Module | dict[Any, Any]) -> None:
         super().__init__()
-        self.module: nn.Module = setup_module(module)
+        self.module: nn.Module = resolve_module(module)
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> Any:
         target = torch.flatten(target)
