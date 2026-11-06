@@ -42,7 +42,9 @@ dynamic = ["maintainers"]
 
 requires-python = ">=3.11"
 
-dependencies = ["coola>=2.0.0a1,<3.0", "torch>=2.4,<3.0"]
+dependencies = ["coola>=2.0.0a2,<3.0", "torch>=2.4,<3.0"]
+
+[project.optional-dependencies]
 
 [dependency-groups]
 dev = [
@@ -61,7 +63,7 @@ dev = [
   "pytest-timeout>=2.4,<3.0",
   "pytest>=9.1,<10.0",
   "ruff>=0.16,<1.0",
-  "ty>=0.0.97,<1.0",
+  "ty>=0.0.99,<1.0",
   "xdoctest>=1.3,<2.0",
 ]
 
@@ -142,12 +144,22 @@ root_package = "sonnix"
 [[tool.importlinter.contracts]]
 name = "Layers"
 type = "layers"
-layers = ["sonnix.modules", "sonnix.functional", "sonnix.utils", "sonnix.validation"]
+layers = [
+  "sonnix.modules",
+  "sonnix.functional",
+  "sonnix.utils",
+  "sonnix.validation",
+]
 
 [[tool.importlinter.contracts]]
 name = "Testing is independent"
 type = "forbidden"
-source_modules = ["sonnix.modules", "sonnix.functional", "sonnix.utils", "sonnix.validation"]
+source_modules = [
+  "sonnix.modules",
+  "sonnix.functional",
+  "sonnix.utils",
+  "sonnix.validation",
+]
 forbidden_modules = ["sonnix.testing"]
 
 [tool.ruff]
