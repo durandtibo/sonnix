@@ -107,3 +107,5 @@ All notable changes to this project are documented in this file. The package is 
 - `CosSinNumericalEncoder.create` accepts `generator` (a `torch.Generator` or a seed, used by
   `spacing="rand"`), `device` and `dtype`, so the initialization can be reproduced without touching
   the global random number generator.
+- Add `PiecewiseLinearNumericalEncoder.from_quantiles(x, n_bins)`: the bins are the empirical
+  quantiles of the data of each feature.

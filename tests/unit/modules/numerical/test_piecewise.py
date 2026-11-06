@@ -361,3 +361,85 @@ def test_piecewise_linear_numerical_encoder_duplicate_edges_values_are_bounded()
 def test_piecewise_linear_numerical_encoder_is_step_not_in_state_dict() -> None:
     module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 1.0, 2.0]]))
     assert sorted(module.state_dict().keys()) == ["edges", "width"]
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_edges() -> None:
+    module = PiecewiseLinearNumericalEncoder.from_quantiles(
+        torch.arange(11, dtype=torch.float).view(11, 1), n_bins=3
+    )
+    assert objects_are_equal(module.edges, torch.tensor([[0.0, 5.0]]))
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_width() -> None:
+    module = PiecewiseLinearNumericalEncoder.from_quantiles(
+        torch.arange(11, dtype=torch.float).view(11, 1), n_bins=3
+    )
+    assert objects_are_equal(module.width, torch.tensor([[5.0, 5.0]]))
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_1d() -> None:
+    module = PiecewiseLinearNumericalEncoder.from_quantiles(
+        torch.arange(11, dtype=torch.float), n_bins=3
+    )
+    assert objects_are_equal(module.edges, torch.tensor([[0.0, 5.0]]))
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_two_features() -> None:
+    x = torch.stack(
+        [torch.arange(11, dtype=torch.float), 2 * torch.arange(11, dtype=torch.float)], 1
+    )
+    module = PiecewiseLinearNumericalEncoder.from_quantiles(x, n_bins=5)
+    assert objects_are_equal(
+        module.edges, torch.tensor([[0.0, 2.5, 5.0, 7.5], [0.0, 5.0, 10.0, 15.0]])
+    )
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_shape() -> None:
+    module = PiecewiseLinearNumericalEncoder.from_quantiles(torch.randn(50, 3), n_bins=4)
+    assert (module.n_features, module.feature_size) == (3, 3)
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_equals_constructor() -> None:
+    torch.manual_seed(0)
+    x = torch.randn(100, 2)
+    module = PiecewiseLinearNumericalEncoder.from_quantiles(x, n_bins=5)
+    expected = PiecewiseLinearNumericalEncoder(
+        torch.quantile(x, torch.linspace(0.0, 1.0, 5), dim=0).t()
+    )
+    assert objects_are_equal(module(x), expected(x))
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_encodes_the_range() -> None:
+    torch.manual_seed(0)
+    x = torch.randn(100, 2)
+    module = PiecewiseLinearNumericalEncoder.from_quantiles(x, n_bins=5)
+    assert module(x.amax(dim=0, keepdim=True)).eq(1.0).all()
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_float64() -> None:
+    module = PiecewiseLinearNumericalEncoder.from_quantiles(
+        torch.arange(11, dtype=torch.float64), n_bins=3
+    )
+    assert module.edges.dtype == torch.float64
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_duplicates_warn() -> None:
+    with pytest.warns(UserWarning, match=r"duplicate edges"):
+        PiecewiseLinearNumericalEncoder.from_quantiles(torch.zeros(10, 1), n_bins=4)
+
+
+@pytest.mark.parametrize("n_bins", [1, 0, -2])
+def test_piecewise_linear_numerical_encoder_from_quantiles_invalid_n_bins(n_bins: int) -> None:
+    with pytest.raises(ValueError, match=r"n_bins must be greater than or equal to 2"):
+        PiecewiseLinearNumericalEncoder.from_quantiles(torch.randn(10, 1), n_bins=n_bins)
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_invalid_shape() -> None:
+    with pytest.raises(ValueError, match=r"Incorrect shape for 'x':"):
+        PiecewiseLinearNumericalEncoder.from_quantiles(torch.randn(10, 2, 3), n_bins=3)
+
+
+def test_piecewise_linear_numerical_encoder_from_quantiles_does_not_modify_the_input() -> None:
+    x = torch.tensor([[3.0], [1.0], [2.0]])
+    PiecewiseLinearNumericalEncoder.from_quantiles(x, n_bins=3)
+    assert objects_are_equal(x, torch.tensor([[3.0], [1.0], [2.0]]))
