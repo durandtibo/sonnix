@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 import pytest
 import torch
 from coola.equality import objects_are_equal
@@ -290,7 +292,8 @@ def test_piecewise_linear_numerical_encoder_forward_same_bin() -> None:
 
 
 def test_piecewise_linear_numerical_encoder_forward_same_bins() -> None:
-    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0, 1.0, 1.0]]))
+    with pytest.warns(UserWarning, match=r"duplicate edges"):
+        module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0, 1.0, 1.0]]))
     assert objects_are_equal(
         module(
             torch.tensor(
@@ -305,11 +308,56 @@ def test_piecewise_linear_numerical_encoder_forward_same_bins() -> None:
         ),
         torch.tensor(
             [
-                [[-1.0, 0.0, 0.0], [1.0, 1.0, 1.0]],
+                [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]],
                 [[0.0, 0.0, 0.0], [1.0, 1.0, 0.0]],
-                [[0.5, 0.5, 0.0], [0.5, 0.5, 0.0]],
+                [[1.0, 0.5, 0.0], [1.0, 0.5, 0.0]],
                 [[1.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-                [[1.0, 1.0, 1.0], [-1.0, 0.0, 0.0]],
+                [[1.0, 1.0, 1.0], [0.0, 0.0, 0.0]],
             ]
         ),
     )
+
+
+def test_piecewise_linear_numerical_encoder_duplicate_edges_width() -> None:
+    with pytest.warns(UserWarning, match=r"duplicate edges"):
+        module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0, 1.0]]))
+    assert module.width.equal(torch.tensor([[1.0, 1.0]]))
+
+
+def test_piecewise_linear_numerical_encoder_duplicate_edges_saturate() -> None:
+    with pytest.warns(UserWarning, match=r"duplicate edges"):
+        module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0, 1.0]]))
+    assert module(torch.tensor([[0.5]])).allclose(torch.tensor([[[1.0, 0.5]]]))
+
+
+def test_piecewise_linear_numerical_encoder_single_segment_duplicate_width() -> None:
+    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0]]))
+    assert module.width.equal(torch.tensor([[1.0]]))
+
+
+def test_piecewise_linear_numerical_encoder_no_warning_without_duplicate() -> None:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 1.0, 2.0]]))
+
+
+def test_piecewise_linear_numerical_encoder_duplicate_edges_is_step() -> None:
+    with pytest.warns(UserWarning, match=r"duplicate edges"):
+        module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0, 1.0]]))
+    assert module.is_step.equal(torch.tensor([[True, False]]))
+
+
+def test_piecewise_linear_numerical_encoder_single_segment_is_not_step() -> None:
+    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0]]))
+    assert module.is_step.equal(torch.tensor([[False]]))
+
+
+def test_piecewise_linear_numerical_encoder_duplicate_edges_values_are_bounded() -> None:
+    with pytest.warns(UserWarning, match=r"duplicate edges"):
+        module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 0.0, 1.0, 1.0]]))
+    assert module(torch.tensor([[-100.0], [100.0]])).abs().max() <= 1.0
+
+
+def test_piecewise_linear_numerical_encoder_is_step_not_in_state_dict() -> None:
+    module = PiecewiseLinearNumericalEncoder(bins=torch.tensor([[0.0, 1.0, 2.0]]))
+    assert sorted(module.state_dict().keys()) == ["edges", "width"]

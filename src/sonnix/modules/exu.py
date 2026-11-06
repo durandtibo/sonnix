@@ -17,6 +17,14 @@ class ExU(nn.Module):
     It computes ``y = exp(W) (x - b)``, where ``b`` is the bias, as in
     the paper (note that the bias is subtracted, not added).
 
+    Note:
+        ``exp(W)`` is computed in the dtype of the weights. In
+        ``float16`` it overflows when a weight is larger than about
+        ``11``. The initialization (``N(4, 0.5)``) is far from this
+        value, but nothing bounds the weights during training, so use
+        ``float32`` or ``bfloat16`` for the weights, or a weight
+        regularization.
+
     This layer was proposed in the following paper:
 
         Neural Additive Models: Interpretable Machine Learning with

@@ -158,6 +158,13 @@ class Pow(nn.Module):
 
     This module is equivalent to  ``pow(input, exponent)``
 
+    Note:
+        The result is ``nan`` for a negative input and a non-integer
+        exponent (for example ``Pow(exponent=0.5)`` on negative inputs),
+        and no error is raised. Clamp or shift the inputs if they can be
+        negative. The gradient of a power with an exponent in ``(0, 1)``
+        is infinite at ``0``.
+
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.
