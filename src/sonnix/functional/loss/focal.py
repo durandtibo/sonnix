@@ -5,10 +5,14 @@ from __future__ import annotations
 __all__ = ["binary_focal_loss", "binary_focal_loss_with_logits"]
 
 
-import torch
+from typing import TYPE_CHECKING
+
 from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_logits
 
 from sonnix.functional.reduction import reduce_loss
+
+if TYPE_CHECKING:
+    import torch
 
 
 def check_focal_params(alpha: float, gamma: float) -> None:
@@ -46,6 +50,11 @@ def binary_focal_loss(
     (https://arxiv.org/pdf/1708.02002.pdf)
     Implementation is based on
     https://pytorch.org/vision/main/_modules/torchvision/ops/focal_loss.html
+
+    Note:
+        ``torch.nn.functional.binary_cross_entropy`` raises an error under
+        ``torch.autocast``. Use the ``*_with_logits`` variant for mixed
+        precision training.
 
     Args:
         prediction: The float tensor with predictions as probabilities
@@ -109,6 +118,10 @@ def binary_focal_loss_with_logits(
     Implementation is based on
     https://pytorch.org/vision/main/_modules/torchvision/ops/focal_loss.html
 
+    Note:
+        Targets are expected to be binary (0 or 1). This variant is safe to
+        use with ``torch.autocast``.
+
     Args:
         prediction: The float tensor with predictions as unnormalized
             scores (often referred to as logits) for each example.
@@ -147,9 +160,9 @@ def binary_focal_loss_with_logits(
         ```
     """
     check_focal_params(alpha=alpha, gamma=gamma)
-    p = torch.sigmoid(prediction)
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
-    p_t = p * target + (1 - p) * (1 - target)
+    # For binary targets, ``exp(-ce) = p_t``: no need to compute the sigmoid.
+    p_t = ce_loss.neg().exp()
     loss = ce_loss * ((1 - p_t) ** gamma)
 
     if alpha >= 0:
