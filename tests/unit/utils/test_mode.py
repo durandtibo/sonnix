@@ -89,3 +89,26 @@ def test_top_module_mode_with_exception() -> None:
         msg = "Exception"
         raise RuntimeError(msg)
     assert module.training
+
+
+def test_module_mode_shared_module() -> None:
+    shared = nn.Linear(2, 2).eval()
+    module = nn.ModuleDict({"a": shared, "b": shared})
+    with module_mode(module):
+        module.train()
+    assert not shared.training
+
+
+def test_module_mode_module_added_in_context() -> None:
+    module = nn.Sequential(nn.Linear(2, 2))
+    with module_mode(module):
+        module.append(nn.Dropout(0.1))
+    assert module.training
+
+
+def test_module_mode_module_replaced_in_context() -> None:
+    module = nn.Sequential(nn.Linear(2, 2).eval(), nn.Linear(2, 2))
+    with module_mode(module):
+        module[0] = nn.Linear(2, 2)
+        module.train()
+    assert module.training
