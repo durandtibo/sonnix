@@ -1,7 +1,7 @@
 tasklib:
   package:
     name: sonnix
-    python_version: "3.13"
+    python_version: "3.14"
   groups:
     install: dev,docs
-    update: dev,docs
+    update: dev,docs,property,notebook

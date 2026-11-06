@@ -9,9 +9,10 @@ __all__ = [
     "raise_error_objectory_missing",
 ]
 
+from functools import wraps
 from typing import TYPE_CHECKING, Any, Never
 
-from coola.utils.imports import decorator_package_available, package_available
+from coola.utils.imports import package_available
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -77,7 +78,14 @@ def objectory_available(fn: Callable[..., Any]) -> Callable[..., Any]:
 
         ```
     """
-    return decorator_package_available(fn, is_objectory_available)
+
+    @wraps(fn)
+    def inner_decorator(*args: Any, **kwargs: Any) -> Any:
+        if not is_objectory_available():
+            return None
+        return fn(*args, **kwargs)
+
+    return inner_decorator
 
 
 def raise_error_objectory_missing() -> Never:
