@@ -2,8 +2,6 @@
 
 ### ::: sonnix.utils.device
 
-### ::: sonnix.utils.factory
-
 ### ::: sonnix.utils.iterator
 
 ### ::: sonnix.utils.loss

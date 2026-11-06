@@ -10,7 +10,7 @@ from typing import Any
 import torch
 from torch import nn
 
-from sonnix.utils.factory import resolve_module
+from sonnix.factory import resolve_module
 
 
 class TransformedLoss(nn.Module):

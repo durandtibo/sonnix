@@ -10,10 +10,10 @@ import torch
 from coola.validation import validate_ge, validate_gt
 from torch import nn
 
+from sonnix.factory import resolve_module
 from sonnix.functional import relative_loss
 from sonnix.modules.loss.base import BaseLoss
 from sonnix.modules.loss.indicators import ClassicalRelativeIndicator
-from sonnix.utils.factory import resolve_module
 
 if TYPE_CHECKING:
     from sonnix.functional.reduction import Reduction
