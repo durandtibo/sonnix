@@ -405,5 +405,12 @@ def test_relative_smooth_l1_loss_beta_attribute() -> None:
 def test_relative_smooth_l1_loss_extra_repr() -> None:
     assert (
         RelativeSmoothL1Loss(beta=4.0).extra_repr()
-        == "eps=1e-08, reduction=mean, detach_indicator=False, beta=4.0"
+        == "reduction=mean, eps=1e-08, detach_indicator=False, beta=4.0"
+    )
+
+
+def test_relative_loss_extra_repr() -> None:
+    assert (
+        RelativeLoss(nn.MSELoss(), eps=1e-3, reduction="sum", detach_indicator=True).extra_repr()
+        == "reduction=sum, eps=0.001, detach_indicator=True"
     )

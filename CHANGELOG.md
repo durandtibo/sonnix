@@ -18,3 +18,8 @@ All notable changes to this project are documented in this file. The package is 
 ### Fixed
 
 - `RelativeSmoothL1Loss` stores `beta` and shows it in its representation.
+
+### Changed
+
+- `BaseLoss.extra_repr` returns `reduction=...` and the losses extend it, so the representation of
+  every loss starts with `reduction=...` followed by its hyperparameters.

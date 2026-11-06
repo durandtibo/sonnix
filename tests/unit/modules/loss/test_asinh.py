@@ -140,3 +140,7 @@ def test_asinh_smooth_l1_loss_shape(device: str, shape: tuple[int, ...]) -> None
 def test_asinh_smooth_l1_loss_invalid_beta() -> None:
     with pytest.raises(ValueError, match=r"beta must be greater than or equal to 0"):
         AsinhSmoothL1Loss(beta=-1.0)
+
+
+def test_asinh_smooth_l1_loss_extra_repr() -> None:
+    assert AsinhSmoothL1Loss(beta=2.0).extra_repr() == "reduction=mean, beta=2.0"

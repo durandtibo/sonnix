@@ -100,3 +100,7 @@ def test_poisson_regression_loss_target_zero(device: str) -> None:
 def test_poisson_regression_loss_invalid_eps(eps: float) -> None:
     with pytest.raises(ValueError, match=r"eps must be greater than 0"):
         PoissonRegressionLoss(eps=eps)
+
+
+def test_poisson_regression_loss_extra_repr() -> None:
+    assert PoissonRegressionLoss(eps=0.001).extra_repr() == "reduction=mean, eps=0.001"

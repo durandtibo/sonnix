@@ -52,3 +52,6 @@ class BaseLoss(nn.Module):
         super().__init__()
         check_loss_reduction_strategy(reduction)
         self.reduction: Reduction = reduction
+
+    def extra_repr(self) -> str:
+        return f"reduction={self.reduction}"

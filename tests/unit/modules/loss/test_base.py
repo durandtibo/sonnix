@@ -33,3 +33,8 @@ def test_base_loss_reduction_incorrect() -> None:
 
 def test_base_loss_is_module() -> None:
     assert isinstance(MyLoss(), torch.nn.Module)
+
+
+@pytest.mark.parametrize("reduction", VALID_REDUCTIONS)
+def test_base_loss_extra_repr(reduction: str) -> None:
+    assert MyLoss(reduction=reduction).extra_repr() == f"reduction={reduction}"

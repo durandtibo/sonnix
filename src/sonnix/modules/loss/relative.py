@@ -60,7 +60,7 @@ class RelativeLoss(BaseLoss):
         ... )
         >>> criterion
         RelativeLoss(
-          eps=1e-08, reduction=mean, detach_indicator=False
+          reduction=mean, eps=1e-08, detach_indicator=False
           (criterion): MSELoss()
           (indicator): ClassicalRelativeIndicator()
         )
@@ -94,9 +94,7 @@ class RelativeLoss(BaseLoss):
         self.detach_indicator = bool(detach_indicator)
 
     def extra_repr(self) -> str:
-        return (
-            f"eps={self.eps}, reduction={self.reduction}, detach_indicator={self.detach_indicator}"
-        )
+        return f"{super().extra_repr()}, eps={self.eps}, detach_indicator={self.detach_indicator}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = self.criterion(prediction, target)
@@ -144,7 +142,7 @@ class RelativeMSELoss(RelativeLoss):
         >>> criterion = RelativeMSELoss(indicator=ClassicalRelativeIndicator())
         >>> criterion
         RelativeMSELoss(
-          eps=1e-08, reduction=mean, detach_indicator=False
+          reduction=mean, eps=1e-08, detach_indicator=False
           (criterion): MSELoss()
           (indicator): ClassicalRelativeIndicator()
         )
@@ -211,7 +209,7 @@ class RelativeSmoothL1Loss(RelativeLoss):
         >>> criterion = RelativeSmoothL1Loss(indicator=ClassicalRelativeIndicator())
         >>> criterion
         RelativeSmoothL1Loss(
-          eps=1e-08, reduction=mean, detach_indicator=False, beta=1.0
+          reduction=mean, eps=1e-08, detach_indicator=False, beta=1.0
           (criterion): SmoothL1Loss()
           (indicator): ClassicalRelativeIndicator()
         )

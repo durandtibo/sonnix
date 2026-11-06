@@ -61,7 +61,7 @@ class PoissonRegressionLoss(BaseLoss):
         self.eps = float(eps)
 
     def extra_repr(self) -> str:
-        return f"reduction={self.reduction}, eps={self.eps}"
+        return f"{super().extra_repr()}, eps={self.eps}"
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         return poisson_regression_loss(prediction, target, reduction=self.reduction, eps=self.eps)
