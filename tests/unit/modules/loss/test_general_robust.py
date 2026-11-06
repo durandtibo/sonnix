@@ -86,7 +86,7 @@ def test_general_robust_regression_loss_forward_1d_check1(
 @pytest.mark.parametrize("device", get_available_devices())
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("alpha", [0, 1, 2])
-def test_general_robust_regression_loss_forward_1d_dtype(
+def test_general_robust_regression_loss_forward_1d_dtype_device(
     device: str, batch_size: int, alpha: float
 ) -> None:
     device = torch.device(device)
@@ -97,21 +97,6 @@ def test_general_robust_regression_loss_forward_1d_dtype(
     )
     out.backward()
     assert out.dtype == torch.float
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("alpha", [0, 1, 2])
-def test_general_robust_regression_loss_forward_1d_device(
-    device: str, batch_size: int, alpha: float
-) -> None:
-    device = torch.device(device)
-    criterion = GeneralRobustRegressionLoss(alpha=alpha)
-    out = criterion(
-        prediction=torch.randn(batch_size, dtype=torch.float, device=device, requires_grad=True),
-        target=torch.randn(batch_size, dtype=torch.float, device=device),
-    )
-    out.backward()
     assert out.device == device
 
 
@@ -138,7 +123,7 @@ def test_general_robust_regression_loss_forward_2d_check1(
 @pytest.mark.parametrize("batch_size", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
 @pytest.mark.parametrize("alpha", [0, 1, 2])
-def test_general_robust_regression_loss_forward_2d_dtype(
+def test_general_robust_regression_loss_forward_2d_dtype_device(
     device: str, batch_size: int, feature_size: int, alpha: float
 ) -> None:
     device = torch.device(device)
@@ -151,24 +136,6 @@ def test_general_robust_regression_loss_forward_2d_dtype(
     )
     out.backward()
     assert out.dtype == torch.float
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("feature_size", SIZES)
-@pytest.mark.parametrize("alpha", [0, 1, 2])
-def test_general_robust_regression_loss_forward_2d_device(
-    device: str, batch_size: int, feature_size: int, alpha: float
-) -> None:
-    device = torch.device(device)
-    criterion = GeneralRobustRegressionLoss(alpha=alpha)
-    out = criterion(
-        prediction=torch.randn(
-            batch_size, feature_size, dtype=torch.float, device=device, requires_grad=True
-        ),
-        target=torch.randn(batch_size, feature_size, dtype=torch.float, device=device),
-    )
-    out.backward()
     assert out.device == device
 
 
@@ -197,7 +164,7 @@ def test_general_robust_regression_loss_forward_3d_check1(
 @pytest.mark.parametrize("seq_len", SIZES)
 @pytest.mark.parametrize("feature_size", SIZES)
 @pytest.mark.parametrize("alpha", [0, 1, 2])
-def test_general_robust_regression_loss_forward_3d_dtype(
+def test_general_robust_regression_loss_forward_3d_dtype_device(
     device: str, batch_size: int, seq_len: int, feature_size: int, alpha: float
 ) -> None:
     device = torch.device(device)
@@ -210,25 +177,6 @@ def test_general_robust_regression_loss_forward_3d_dtype(
     )
     out.backward()
     assert out.dtype == torch.float
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("batch_size", SIZES)
-@pytest.mark.parametrize("seq_len", SIZES)
-@pytest.mark.parametrize("feature_size", SIZES)
-@pytest.mark.parametrize("alpha", [0, 1, 2])
-def test_general_robust_regression_loss_forward_3d_device(
-    device: str, batch_size: int, seq_len: int, feature_size: int, alpha: float
-) -> None:
-    device = torch.device(device)
-    criterion = GeneralRobustRegressionLoss(alpha=alpha)
-    out = criterion(
-        prediction=torch.randn(
-            batch_size, seq_len, feature_size, dtype=torch.float, device=device, requires_grad=True
-        ),
-        target=torch.randn(batch_size, seq_len, feature_size, dtype=torch.float, device=device),
-    )
-    out.backward()
     assert out.device == device
 
 
