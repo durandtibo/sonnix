@@ -81,11 +81,17 @@ def test_safe_exp_clamp_has_zero_gradient() -> None:
     assert x.grad.item() == 0.0
 
 
-def test_safe_exp_preserve_gradient() -> None:
+def test_safe_exp_preserve_gradient_check1() -> None:
     x = torch.tensor([100.0], requires_grad=True)
     out = safe_exp(x, max_val=20.0, preserve_gradient=True)
     out.backward()
     assert out.allclose(torch.tensor(20.0).exp())
+
+
+def test_safe_exp_preserve_gradient_grad() -> None:
+    x = torch.tensor([100.0], requires_grad=True)
+    out = safe_exp(x, max_val=20.0, preserve_gradient=True)
+    out.backward()
     assert x.grad.allclose(torch.tensor(20.0).exp())
 
 
@@ -95,11 +101,17 @@ def test_safe_log_clamp_has_zero_gradient() -> None:
     assert x.grad.item() == 0.0
 
 
-def test_safe_log_preserve_gradient() -> None:
+def test_safe_log_preserve_gradient_check1() -> None:
     x = torch.tensor([1e-10], requires_grad=True)
     out = safe_log(x, min_val=1e-8, preserve_gradient=True)
     out.backward()
     assert out.allclose(torch.tensor(1e-8).log())
+
+
+def test_safe_log_preserve_gradient_grad() -> None:
+    x = torch.tensor([1e-10], requires_grad=True)
+    out = safe_log(x, min_val=1e-8, preserve_gradient=True)
+    out.backward()
     assert x.grad.allclose(torch.tensor(1e8))
 
 
