@@ -15,77 +15,72 @@ name = "sonnix"
 version = "0.0.1a0"
 description = "A library of PyTorch modules"
 readme = "README.md"
-authors = [
-    { name = "Thibaut Durand", email = "durand.tibo+gh@gmail.com" },
-]
+authors = [{ name = "Thibaut Durand", email = "durand.tibo+gh@gmail.com" }]
 keywords = ["torch", "module", "layer", "nn"]
 license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Information Technology",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
-    "Operating System :: POSIX :: Linux",
-    "Operating System :: MacOS",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Software Development :: Libraries",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Typing :: Typed",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Typing :: Typed",
 ]
 
 dynamic = ["maintainers"]
 
 requires-python = ">=3.11"
 
-dependencies = [
-    "coola>=2.0.0a0,<3.0",
-    "torch>=2.4,<3.0",
-]
+dependencies = ["coola>=2.0.0a0,<3.0", "torch>=2.4,<3.0"]
 
 [project.optional-dependencies]
-numpy = [ "numpy >=1.24,<3.0" ]
-objectory = [ "objectory >=0.3.0,<1.0" ]
+numpy = ["numpy >=1.24,<3.0"]
+objectory = ["objectory >=0.3.0,<1.0"]
 
 [dependency-groups]
 dev = [
-    "codespell>=2.4,<3.0",
-    "coverage[toml]>=7.17.0,<8.0",
-    "docformatter>=1.7.8,<2.0",
-    "feu[all]>=0.8.4,<1.0",
-    "import-linter>=2.0,<3.0; python_full_version >= '3.14'",
-    "invoke-tasklib>=0.1.0a0,<1.0",
-    "invoke>=3.0,<4.0",
-    "pre-commit>=4.6,<5.0",
-    "pygments>=2.20,<3.0",
-    "pyright>=1.1.414,<2.0",
-    "pytest-benchmark>=5.1,<6.0",
-    "pytest-cov>=7.1,<8.0",
-    "pytest-timeout>=2.4,<3.0",
-    "pytest>=9.1,<10.0",
-    "ruff>=0.16,<1.0",
-    "ty>=0.0.97,<1.0",
-    "xdoctest>=1.3,<2.0",
+  "codespell>=2.4,<3.0",
+  "coverage[toml]>=7.17.0,<8.0",
+  "docformatter>=1.7.8,<2.0",
+  "feu[all]>=0.8.4,<1.0",
+  "import-linter>=2.0,<3.0; python_full_version >= '3.14'",
+  "invoke-tasklib>=0.1.0a0,<1.0",
+  "invoke>=3.0,<4.0",
+  "pre-commit>=4.6,<5.0",
+  "pygments>=2.20,<3.0",
+  "pyright>=1.1.414,<2.0",
+  "pytest-benchmark>=5.1,<6.0",
+  "pytest-cov>=7.1,<8.0",
+  "pytest-timeout>=2.4,<3.0",
+  "pytest>=9.1,<10.0",
+  "ruff>=0.16,<1.0",
+  "ty>=0.0.97,<1.0",
+  "xdoctest>=1.3,<2.0",
 ]
 
 docs = [
-    "griffe-inherited-docstrings >=1.1,<2.0",
-    "mike >=2.2,<3.0",
-    "mkdocs-material >=9.7,<10.0",
-    "mkdocstrings[python]>=1.0.6,<2.0",
-    "mkdocs-include-markdown-plugin >=7.3,<8.0",
+  "griffe-inherited-docstrings >=1.1,<2.0",
+  "mike >=2.2,<3.0",
+  "mkdocs-material >=9.7,<10.0",
+  "mkdocstrings[python]>=1.0.6,<2.0",
+  "mkdocs-include-markdown-plugin >=7.3,<8.0",
 ]
 
 notebook = [
-    "jupyterlab>=4.6.2,<5.0",
-    "matplotlib >=3.10,<4.0",
-    "seaborn >=0.13,<1.0",
+  "jupyterlab>=4.6.2,<5.0",
+  "matplotlib >=3.10,<4.0",
+  "seaborn >=0.13,<1.0",
 ]
 
 [project.urls]
