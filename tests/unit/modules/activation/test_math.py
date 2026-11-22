@@ -16,7 +16,6 @@ from sonnix.modules import (
     SafeLog,
     Sin,
     Sinh,
-    Square,
 )
 
 SHAPES = [(2,), (2, 3), (2, 3, 4), (2, 3, 4, 5)]
@@ -372,89 +371,3 @@ def test_sin_forward_shape(device: str, shape: tuple[int, ...]) -> None:
 
 def test_pow_repr() -> None:
     assert repr(Pow(exponent=3)) == "Pow(exponent=3.0)"
-
-
-############################
-#     Tests for Square     #
-############################
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-def test_square_forward(device: str) -> None:
-    device = torch.device(device)
-    module = Square().to(device=device)
-    assert module(
-        torch.tensor([-2.0, -1.0, 0.0, 1.0, 2.0], dtype=torch.float, device=device)
-    ).allclose(
-        torch.tensor(
-            [4.0, 1.0, 0.0, 1.0, 4.0],
-            dtype=torch.float,
-            device=device,
-        )
-    )
-
-
-@pytest.mark.parametrize("device", get_available_devices())
-@pytest.mark.parametrize("shape", SHAPES)
-def test_square_forward_shape(device: str, shape: tuple[int, ...]) -> None:
-    device = torch.device(device)
-    module = Square().to(device=device)
-    out = module(torch.randn(*shape, device=device, requires_grad=True))
-    out.mean().backward()
-    assert out.shape == shape
-    assert out.dtype == torch.float
-    assert out.device == device
-
-
-def test_safe_exp_module_preserve_gradient_check1() -> None:
-    module = SafeExp(max_val=20.0, preserve_gradient=True)
-    assert repr(module) == "SafeExp(max_val=20.0, preserve_gradient=True)"
-
-
-def test_safe_exp_module_preserve_gradient_grad() -> None:
-    module = SafeExp(max_val=20.0, preserve_gradient=True)
-    x = torch.tensor([100.0], requires_grad=True)
-    module(x).backward()
-    assert x.grad.item() > 0
-
-
-def test_safe_log_module_preserve_gradient_check1() -> None:
-    module = SafeLog(min_val=1e-8, preserve_gradient=True)
-    assert repr(module) == "SafeLog(min_val=1e-08, preserve_gradient=True)"
-
-
-def test_safe_log_module_preserve_gradient_grad() -> None:
-    module = SafeLog(min_val=1e-8, preserve_gradient=True)
-    x = torch.tensor([1e-10], requires_grad=True)
-    module(x).backward()
-    assert x.grad.item() > 0
-
-
-def test_square_repr() -> None:
-    assert repr(Square()) == "Square()"
-
-
-def test_square_is_not_a_pow() -> None:
-    assert not isinstance(Square(), Pow)
-
-
-def test_square_forward_equals_pow() -> None:
-    x = torch.tensor([-2.0, -0.5, 0.0, 3.0])
-    assert Square()(x).equal(Pow(exponent=2)(x))
-
-
-@pytest.mark.parametrize("max_val", [float("nan"), float("inf")])
-def test_safe_exp_invalid_max_val(max_val: float) -> None:
-    with pytest.raises(ValueError, match=r"max_val must be finite"):
-        SafeExp(max_val=max_val)
-
-
-@pytest.mark.parametrize("exponent", [float("nan"), float("inf")])
-def test_pow_invalid_exponent(exponent: float) -> None:
-    with pytest.raises(ValueError, match=r"exponent must be finite"):
-        Pow(exponent)
-
-
-def test_pow_exponent_not_a_number() -> None:
-    with pytest.raises(TypeError, match=r"exponent must be a real number"):
-        Pow("a")

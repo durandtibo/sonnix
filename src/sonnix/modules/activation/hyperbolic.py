@@ -7,8 +7,6 @@ __all__ = ["RectifierAsinhUnit"]
 import torch
 from torch import nn
 
-from sonnix.functional import rectifier_asinh_unit
-
 
 class RectifierAsinhUnit(nn.Module):
     r"""Implement a ``torch.nn.Module`` to compute the inverse hyperbolic
@@ -35,4 +33,4 @@ class RectifierAsinhUnit(nn.Module):
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return rectifier_asinh_unit(input)
+        return input.clamp(min=0).asinh()

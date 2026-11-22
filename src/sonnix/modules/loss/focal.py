@@ -2,7 +2,7 @@ r"""Contain the focal loss implementation."""
 
 from __future__ import annotations
 
-__all__ = ["BaseBinaryFocalLoss", "BinaryFocalLoss", "BinaryFocalLossWithLogits"]
+__all__ = ["BinaryFocalLoss", "BinaryFocalLossWithLogits"]
 
 from typing import TYPE_CHECKING
 
@@ -19,11 +19,12 @@ if TYPE_CHECKING:
     from sonnix.functional.reduction import Reduction
 
 
-class BaseBinaryFocalLoss(BaseLoss):
+class _BinaryFocalLoss(BaseLoss):
     r"""Define the base class of the binary focal losses.
 
     It validates and stores the hyperparameters shared by
-    ``BinaryFocalLoss`` and ``BinaryFocalLossWithLogits``.
+    ``BinaryFocalLoss`` and ``BinaryFocalLossWithLogits``. It is
+    private: the public classes document their arguments.
 
     Args:
         alpha: The weighting factor, which must be in the range
@@ -46,14 +47,24 @@ class BaseBinaryFocalLoss(BaseLoss):
         return f"{super().extra_repr()}, alpha={self.alpha}, gamma={self.gamma}"
 
 
-class BinaryFocalLoss(BaseBinaryFocalLoss):
+class BinaryFocalLoss(_BinaryFocalLoss):
     r"""Implementation of the binary focal loss.
 
     Based on "focal loss for Dense Object Detection"
     (https://arxiv.org/pdf/1708.02002.pdf)
 
-    The constructor arguments (``alpha``, ``gamma`` and ``reduction``) are the ones of
-    ``BaseBinaryFocalLoss``.
+    Args:
+        alpha: The weighting factor, which must be in the range
+            ``[0, 1]``. ``None`` disables the weighting.
+        gamma: The focusing parameter, which must be finite and
+            non-negative (``>=0``).
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
+
+    Raises:
+        TypeError: if ``alpha`` or ``gamma`` is not a number.
+        ValueError: if ``alpha`` is not in ``[0, 1]``, if ``gamma`` is
+            negative or not finite, or if the reduction is not valid.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -105,14 +116,24 @@ class BinaryFocalLoss(BaseBinaryFocalLoss):
         )
 
 
-class BinaryFocalLossWithLogits(BaseBinaryFocalLoss):
+class BinaryFocalLossWithLogits(_BinaryFocalLoss):
     r"""Implementation of the binary focal loss.
 
     Based on "focal loss for Dense Object Detection"
     (https://arxiv.org/pdf/1708.02002.pdf)
 
-    The constructor arguments (``alpha``, ``gamma`` and ``reduction``) are the ones of
-    ``BaseBinaryFocalLoss``.
+    Args:
+        alpha: The weighting factor, which must be in the range
+            ``[0, 1]``. ``None`` disables the weighting.
+        gamma: The focusing parameter, which must be finite and
+            non-negative (``>=0``).
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
+
+    Raises:
+        TypeError: if ``alpha`` or ``gamma`` is not a number.
+        ValueError: if ``alpha`` is not in ``[0, 1]``, if ``gamma`` is
+            negative or not finite, or if the reduction is not valid.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.

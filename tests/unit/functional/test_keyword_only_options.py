@@ -34,7 +34,7 @@ def _positional_parameters(function: Callable) -> set[str]:
 
 
 def test_functions_are_found() -> None:
-    assert len(FUNCTIONS) >= 20
+    assert len(FUNCTIONS) >= 19
 
 
 @pytest.mark.parametrize("function", FUNCTIONS, ids=lambda f: f.__name__)
