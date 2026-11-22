@@ -4,6 +4,8 @@
 
 ### ::: sonnix.functional.safe_exp
 
+### ::: sonnix.functional.rectifier_asinh_unit
+
 ### ::: sonnix.functional.safe_log
 
 ## Loss functions
@@ -30,19 +32,19 @@
 
 ### Relative loss indicators
 
-#### ::: sonnix.functional.loss.arithmetical_mean_indicator
+#### ::: sonnix.functional.arithmetical_mean_indicator
 
-#### ::: sonnix.functional.loss.classical_relative_indicator
+#### ::: sonnix.functional.classical_relative_indicator
 
-#### ::: sonnix.functional.loss.geometric_mean_indicator
+#### ::: sonnix.functional.geometric_mean_indicator
 
-#### ::: sonnix.functional.loss.maximum_mean_indicator
+#### ::: sonnix.functional.maximum_mean_indicator
 
-#### ::: sonnix.functional.loss.minimum_mean_indicator
+#### ::: sonnix.functional.minimum_mean_indicator
 
-#### ::: sonnix.functional.loss.moment_mean_indicator
+#### ::: sonnix.functional.moment_mean_indicator
 
-#### ::: sonnix.functional.loss.reversed_relative_indicator
+#### ::: sonnix.functional.reversed_relative_indicator
 
 ## Errors
 

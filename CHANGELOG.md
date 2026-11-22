@@ -137,6 +137,12 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
   `modules`/`factory`, `testing` on top of the layers); tests that every
   argument accepting a configuration documents the trust warning and that no
   registered module mutates its inputs (target state step 1, #413).
+- Second revision of the design rules (P1-P16) in `docs/docs/conventions.md`,
+  and a test that every name exported by a public package is listed in
+  `docs/docs/refs`. The reference pages list the `validation` and `factory`
+  names one by one, document `rectifier_asinh_unit` and the relative loss
+  indicators as `sonnix.functional.<name>`, and `utils.md` no longer renders
+  `sonnix.testing.loss` (revised target state step 1, #446).
 
 ### Fixed
 
