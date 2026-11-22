@@ -16,7 +16,6 @@ from sonnix.modules import (
     Quadratic,
     Snake,
 )
-from sonnix.modules.activation.alpha import _validate_non_zero
 
 SIZES = (1, 2, 3)
 SHAPES = [(2,), (2, 3), (2, 3, 4), (2, 3, 4, 5)]
@@ -426,7 +425,7 @@ ALPHA_ACTIVATIONS = [ExpSin, Gaussian, Laplacian, MultiQuadratic, Quadratic, Sna
 
 @pytest.mark.parametrize("module", [Gaussian, Snake])
 def test_alpha_activation_zero_init_is_rejected(module: type[torch.nn.Module]) -> None:
-    with pytest.raises(ValueError, match=r"'init' has to be different from 0 \(received 0\)"):
+    with pytest.raises(ValueError, match=r"init must be different from 0, got 0"):
         module(init=0)
 
 
@@ -614,7 +613,7 @@ def test_snake_forward_shape(shape: tuple[int, ...], device: str) -> None:
 
 
 def test_snake_zero_init() -> None:
-    with pytest.raises(ValueError, match=r"'init' has to be different from 0 \(received 0\)"):
+    with pytest.raises(ValueError, match=r"init must be different from 0, got 0"):
         Snake(init=0)
 
 
@@ -651,19 +650,3 @@ def test_snake_forward_equals_paper_formula(x: float) -> None:
     module = Snake(init=1.5)
     expected = x + math.sin(1.5 * x) ** 2 / 1.5
     assert module(torch.tensor([x], dtype=torch.float64)).item() == pytest.approx(expected)
-
-
-#######################################
-#     Tests for _validate_non_zero    #
-#######################################
-
-
-@pytest.mark.parametrize("init", [-1.0, 0.5, 2, 1e-30])
-def test_validate_non_zero_valid(init: float) -> None:
-    assert _validate_non_zero(init) is None
-
-
-@pytest.mark.parametrize("init", [0, 0.0, -0.0])
-def test_validate_non_zero_zero(init: float) -> None:
-    with pytest.raises(ValueError, match=r"'init' has to be different from 0"):
-        _validate_non_zero(init)
