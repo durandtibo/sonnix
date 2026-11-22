@@ -21,6 +21,7 @@ from coola.validation import (
     validate_gt,
     validate_int,
     validate_isinstance,
+    validate_non_zero,
 )
 from torch import nn
 
@@ -28,22 +29,6 @@ from sonnix.utils.tensor import register_tensor
 
 if TYPE_CHECKING:
     from torch import Tensor
-
-
-def _validate_non_zero(init: float) -> None:
-    r"""Validate that the initial value of ``alpha`` is not zero.
-
-    ``Gaussian`` and ``Snake`` divide by ``alpha``, so they reject ``0``.
-
-    Args:
-        init: The initial value of ``alpha``.
-
-    Raises:
-        ValueError: if ``init`` is 0.
-    """
-    if init == 0:
-        msg = f"'init' has to be different from 0 (received {init})"
-        raise ValueError(msg)
 
 
 class BaseAlphaActivation(nn.Module):
@@ -248,7 +233,7 @@ class Gaussian(BaseAlphaActivation):
 
     def _validate_init(self, init: float) -> None:
         super()._validate_init(init)
-        _validate_non_zero(init)
+        validate_non_zero(init, name="init")
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return input.pow(2).mul(-0.5).div(self._broadcast_alpha(input).pow(2)).exp()
@@ -419,7 +404,7 @@ class Snake(BaseAlphaActivation):
 
     def _validate_init(self, init: float) -> None:
         super()._validate_init(init)
-        _validate_non_zero(init)
+        validate_non_zero(init, name="init")
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         alpha = self._broadcast_alpha(input)
