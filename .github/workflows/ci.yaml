@@ -4,9 +4,13 @@
 # Coverage is uploaded from the "all" job of ci-test.yaml rather than a
 # separate full test run.
 #
-# Deliberately NOT called from here:
+# Deliberately NOT called from here, each standalone with its own trigger:
+#   - ci-benchmark.yaml: runs nightly on its own schedule instead of gating
+#     every PR/push, since a benchmark regression isn't a merge blocker.
 #   - ci-verify-workflows.yaml: lints .github/workflows/* itself, so it has its
 #     own trigger instead of being part of this workflow.
+# See .github/GUIDELINES.md for the naming/prefix and runs-on/timeout
+# conventions shared across every workflow in this directory.
 #
 # The individual check jobs below call out to per-check reusable workflows
 # (ci-build.yaml, ci-format.yaml, ...) instead of inlining their steps here,
@@ -27,18 +31,21 @@ on:
   workflow_dispatch: # to trigger manually
   workflow_call: # the release workflows run the CI before publishing
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   # Load the shared python-version/OS matrix from the default config of
   # durandtibo/workflow-config-action
   # once, and pass it down to every job below that needs it.
   get-matrix:
+    permissions:
+      contents: read
     uses: ./.github/workflows/lib-get-test-matrix.yaml
 
   # Validate package can be built and installed correctly
   build:
+    permissions:
+      contents: read
     needs: get-matrix
     uses: ./.github/workflows/ci-build.yaml
     with:
@@ -46,40 +53,65 @@ jobs:
 
   # Check for circular import dependencies
   cyclic-imports:
+    permissions:
+      contents: read
     uses: ./.github/workflows/ci-cyclic-imports.yaml
 
   # Run doctests on code examples
   doctest:
+    permissions:
+      contents: read
     uses: ./.github/workflows/ci-doctest.yaml
     secrets: inherit
 
   # Execute the notebooks
   notebooks:
+    permissions:
+      contents: read
     uses: ./.github/workflows/ci-notebooks.yaml
 
   # Verify code formatting and linting
   format:
+    permissions:
+      contents: read
     uses: ./.github/workflows/ci-format.yaml
 
-  # Check type annotations with pyright
+  # Check type annotations with ty and pyright
   type-checking:
+    permissions:
+      contents: read
     uses: ./.github/workflows/ci-type-checking.yaml
 
   # Run pre-commit hooks for code quality
   pre-commit:
+    permissions:
+      contents: read
     uses: ./.github/workflows/ci-pre-commit.yaml
 
   # Run unit and integration tests across multiple Python versions and OS.
   # secrets: inherit is required so the "all" job can upload coverage to Codecov.
   test:
+    permissions:
+      contents: read
     needs: get-matrix
     uses: ./.github/workflows/ci-test.yaml
     with:
       test-matrix: ${{ needs.get-matrix.outputs.test_matrix }}
     secrets: inherit
 
+  # Run the property-based tests (Hypothesis) on ubuntu-latest for all the Python versions
+  test-properties:
+    permissions:
+      contents: read
+    needs: get-matrix
+    uses: ./.github/workflows/ci-test-properties.yaml
+    with:
+      test-matrix: ${{ needs.get-matrix.outputs.test_matrix }}
+
   # Test compatibility with different dependency versions
   test-deps:
+    permissions:
+      contents: read
     needs: get-matrix
     uses: ./.github/workflows/ci-test-deps.yaml
     with:

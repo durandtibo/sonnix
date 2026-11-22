@@ -163,27 +163,37 @@ failure points at the specific behavior that broke.
 ## GitHub Actions workflows
 
 The workflows are in `.github/workflows/`; the composite actions are in `.github/actions/`.
+`.github/GUIDELINES.md` has the full table of workflows, triggers and conventions: read it
+and keep it up to date when you add, rename or remove a workflow.
 
 - The file name starts with a prefix that gives the role of the workflow:
-  - `ci-`: quality and test checks of the repository source. They are reusable workflows
-    (`workflow_call`, plus `workflow_dispatch` to run one alone) called from `ci.yaml`, except
-    `ci-verify-workflows.yaml`, which is standalone.
+  - `ci-`: quality and test checks of the repository source. Most are reusable workflows
+    (`workflow_call`, plus `workflow_dispatch` to run one alone) called from `ci.yaml`.
+    `ci-benchmark.yaml` (scheduled) and `ci-verify-workflows.yaml` (every PR) are standalone
+    and not called from `ci.yaml`.
   - `lib-`: reusable helpers that compute an output for other workflows (test matrix, package
     dependencies, extras, versions).
   - `nightly-`: scheduled tests of the _published_ PyPI package, not of the source.
     `nightly-package.yaml` is the entry point; the other `nightly-test-*` are called by it.
-  - `bot-`: scheduled automation that opens pull requests (dependency updates, pre-commit
-    updates, package versions) or maintains runs.
+  - `bot-`: scheduled automation that opens pull requests (dependency updates, pinning
+    actions, formatting, shared Makefile, ...) with the `ci-bot` GitHub App token.
   - `release-`: publishing to PyPI and the documentation, triggered by version tags
     (`v*.*.*`) or manually; they run `ci.yaml` before publishing.
-  - `security-`: dependency review of PRs.
-- `ci.yaml` is the single entry point of the checks (pull request, push to `main`, nightly). To
-  add a check, create a `ci-<name>.yaml` reusable workflow and add a job in `ci.yaml`.
-- Conventions: a header comment that says what the workflow does and when it runs; the minimum
-  `permissions`; `timeout-minutes` on every job; actions pinned to a commit SHA with a
-  `# ratchet:` comment.
+  - `security-`: dependency review of PRs, scheduled dependency audit and scorecard.
+- `ci.yaml` is the single entry point of the checks (pull request, push to `main`, nightly).
+  It calls `lib-get-test-matrix.yaml` once (it reads the Python versions and the operating systems
+  from `durandtibo/workflow-config-action`) and passes the matrix (`test-matrix` input) to the
+  test workflows, so they are defined in one place. The metadata of the package (extras) comes
+  from `durandtibo/extract-pyproject-metadata-action`. To add a check, create a
+  `ci-<name>.yaml` reusable workflow and add a job in `ci.yaml`.
+- Conventions: a header comment that says what the workflow does and when it runs;
+  `permissions: {}` at the workflow level and the minimum permissions per job; `timeout-minutes`
+  on every job; actions pinned to a commit SHA with a `# ratchet:` comment (`bot-pin-action.yaml`
+  maintains them).
 - `ci-verify-workflows.yaml` lints the workflows: check your changes with `actionlint` when
   available.
+- Set `permissions` on every job (including jobs that call a reusable workflow). Every workflow
+  has `permissions: {}` at the workflow level (it grants nothing), never a grant.
 
 ## Releases
 
