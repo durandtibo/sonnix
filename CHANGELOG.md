@@ -45,8 +45,8 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 - One public path for every package (revised target state step 6, #452):
   `sonnix.utils` and `sonnix.testing` export their API (`from sonnix.utils
-  import module_mode, register_tensor, ...`, `from sonnix.testing import
-  is_loss_decreasing, ...`); the `__init__.py` of the folders
+import module_mode, register_tensor, ...`, `from sonnix.testing import
+is_loss_decreasing, ...`); the `__init__.py` of the folders
   `sonnix.functional.loss` and `sonnix.functional.activation` no longer export
   anything (use `sonnix.functional`); the module paths still work as they were
   (`sonnix.utils.mode`, ...) but they are not public. `NumericalEncoder`
@@ -64,7 +64,7 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
   `sonnix/modules/activation/alpha.py`, `AverageFusion` and `SumFusion` share
   `BaseFusion._sum`, and `Gaussian` and `Snake` check `init` with `coola.validation.validate_non_zero`.
   `Laplacian` rejects `init <= 0` with one message (`init must be greater than
-  0`). `ToFloat`, `ToLong`, `ReLUn`, `Square`, the three error functions and
+0`). `ToFloat`, `ToLong`, `ReLUn`, `Square`, the three error functions and
   `rectifier_asinh_unit` are kept: a named wrapper that users look for is
   allowed (P16).
 - Uniform call signatures (revised target state step 4, #450).
@@ -72,7 +72,7 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
   positionally (`gamma` is keyword-only); `GeneralRobustRegressionLoss` takes
   only `alpha` (`scale`, `max_val` are keyword-only); `RelativeLoss` takes only
   `criterion` (`indicator`, `eps` are keyword-only). `reduce_loss(loss, *,
-  reduction="mean")`: the operand is named `loss` and `reduction` is
+reduction="mean")`: the operand is named `loss` and `reduction` is
   keyword-only with a default. `safe_pow(input, exponent)`: the first argument
   is named `input`. `Clamp(min_val, max_val)` keeps two positional arguments,
   like `torch.nn.Hardtanh`. The positional arguments of every registered module

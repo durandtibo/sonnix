@@ -9,7 +9,8 @@ from coola.validation import validate_in, validate_isinstance
 from torch import nn
 
 _DTYPE_NAMES = tuple(name for name in dir(torch) if isinstance(getattr(torch, name), torch.dtype))
-r"""The names of the ``torch.dtype`` objects, as ``torch`` exposes them."""
+r"""The names of the ``torch.dtype`` objects, as ``torch`` exposes
+them."""
 
 
 class ToDtype(nn.Module):
