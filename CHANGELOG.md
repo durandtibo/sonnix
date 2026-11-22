@@ -30,7 +30,7 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 ### Breaking changes
 
 - Make the state of the encoders and the activations complete by
-  construction (revised target state step 3, #448). New
+  construction (revised target state step 3, #449). New
   `sonnix.utils.register_tensor`, used by the alpha activations and the
   numerical encoders (it replaces three copies of "parameter or buffer").
   `PiecewiseLinearNumericalEncoder` keeps a single persistent buffer,
