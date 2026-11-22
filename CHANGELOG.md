@@ -5,6 +5,28 @@ All notable changes to this project are documented in this file. The package is 
 
 ## Unreleased
 
+### Migration
+
+| Before                                                           | After                                                                                   |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `log_cosh_loss(p, t, 2.0)`                                       | `log_cosh_loss(p, t, scale=2.0)` (every function option is keyword-only)                |
+| `AsinhMSELoss()`                                                 | `TransformedLoss(nn.MSELoss(), prediction_transform=Asinh(), target_transform=Asinh())` |
+| `AsinhSmoothL1Loss(beta=0.5)`                                    | the same with `nn.SmoothL1Loss(beta=0.5)`                                               |
+| `MSLELoss()`                                                     | the same with `Log1p()`                                                                 |
+| `RelativeMSELoss(indicator=GeometricMeanIndicator())`            | `RelativeLoss(nn.MSELoss(reduction="none"), indicator=geometric_mean_indicator)`        |
+| `MomentMeanIndicator(k=2)`                                       | `partial(moment_mean_indicator, k=2)`                                                   |
+| `sonnix.modules.loss.X` (and `.activation`, `.fusion`, ...)      | `sonnix.modules.X`                                                                      |
+| `DynamicTanh(...).weight` / state dict key `weight`              | `.affine.weight` / key `affine.weight`                                                  |
+| `forward(x=...)` / `forward(scalar=...)` / `forward(scores=...)` | `forward(input=...)` (positional calls are unchanged)                                   |
+| `View(shape)`                                                    | `nn.Flatten`, `nn.Unflatten`, or `x.reshape` in the model's `forward`                   |
+| `sonnix.utils.loss.is_loss_decreasing*`                          | `sonnix.testing.loss.is_loss_decreasing*`                                               |
+| `sonnix.factory.resolve_dataset` / `resolve_optimizer`           | `coola.factory.resolve_object(config, Dataset)` / `(config, Optimizer)`                 |
+| `utils.iterator.get_named_modules`, `top_module_mode`            | removed (`module.named_modules()`, `module_mode`)                                       |
+| `utils.random.resolve_torch_generator`                           | `coola.random.make_torch_generator`                                                     |
+| `BinaryPoly1Loss(alpha=nan)`, `SafeExp(max_val=-1)`, ...         | `ValueError`                                                                            |
+| `quantile_regression_loss(p[4,3], t[1,3])`                       | `ValueError` (shapes differ); broadcast explicitly with `expand`                        |
+| `AsinhNumericalEncoder(ones(1, 3))(x[5, 4])` (broadcast)         | `AsinhNumericalEncoder.create(..., n_features=4)(x)`                                    |
+
 ### Breaking changes
 
 - Remove `View` (it reshaped the batch dimension too, so it only worked for one batch size): use `nn.Flatten`,
