@@ -16,8 +16,9 @@ if TYPE_CHECKING:
 
 TENSOR_PARAMETERS = {"prediction", "target", "loss", "indicator", "input"}
 
-# ``exponent`` and ``reduction`` are required operands, not options.
-EXCEPTIONS = {"Reduction", "reduce_loss", "safe_pow"}
+# ``Reduction`` is a type, and ``safe_pow`` has its own test: ``exponent`` is the second
+# operand of a binary op, as in ``torch.pow(input, exponent)``.
+EXCEPTIONS = {"Reduction", "safe_pow"}
 
 FUNCTIONS = [
     getattr(sf, name) for name in sf.__all__ if name not in EXCEPTIONS and name != "Reduction"
@@ -44,3 +45,7 @@ def test_only_tensors_are_positional(function: Callable) -> None:
 def test_log_cosh_loss_scale_is_not_positional() -> None:
     with pytest.raises(TypeError, match=r"positional argument"):
         sf.log_cosh_loss(torch.ones(2), torch.ones(2), 2.0)
+
+
+def test_safe_pow_positional_parameters() -> None:
+    assert _positional_parameters(sf.safe_pow) == {"input", "exponent"}

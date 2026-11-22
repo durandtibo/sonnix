@@ -81,7 +81,7 @@ def binary_focal_loss(
 
     if alpha is not None:
         loss = class_weight(alpha, target) * loss
-    return reduce_loss(loss, reduction)
+    return reduce_loss(loss, reduction=reduction)
 
 
 def binary_focal_loss_with_logits(
@@ -146,4 +146,4 @@ def binary_focal_loss_with_logits(
 
     if alpha is not None:
         loss = class_weight(alpha, target) * loss
-    return reduce_loss(loss, reduction)
+    return reduce_loss(loss, reduction=reduction)

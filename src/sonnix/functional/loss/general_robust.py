@@ -102,4 +102,4 @@ def general_robust_regression_loss(
         loss = (alpha / 2 * squared_error.div(b).log1p()).expm1().mul(b / alpha)
     if max_val is not None:
         loss = loss.clamp(max=max_val)
-    return reduce_loss(loss, reduction)
+    return reduce_loss(loss, reduction=reduction)

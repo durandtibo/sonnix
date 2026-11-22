@@ -35,7 +35,7 @@ class BaseBinaryFocalLoss(BaseLoss):
     """
 
     def __init__(
-        self, alpha: float | None = 0.25, gamma: float = 2.0, *, reduction: Reduction = "mean"
+        self, alpha: float | None = 0.25, *, gamma: float = 2.0, reduction: Reduction = "mean"
     ) -> None:
         super().__init__(reduction=reduction)
         validate_focal_params(alpha=alpha, gamma=gamma)

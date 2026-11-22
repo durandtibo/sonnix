@@ -46,3 +46,7 @@ def test_safe_pow_exponent_zero() -> None:
 def test_safe_pow_negative_exponent() -> None:
     with pytest.raises(ValueError, match=r"exponent"):
         safe_pow(torch.ones(2), -1.0)
+
+
+def test_safe_pow_input_keyword() -> None:
+    assert objects_are_equal(safe_pow(input=torch.tensor([4.0]), exponent=0.5), torch.tensor([2.0]))

@@ -12,14 +12,15 @@ if TYPE_CHECKING:
     from torch import Tensor
 
 
-def reduce_loss(tensor: Tensor, reduction: Reduction) -> Tensor:
+def reduce_loss(loss: Tensor, *, reduction: Reduction = "mean") -> Tensor:
     r"""Return the reduced loss.
 
     This function is designed to be used with loss functions.
 
     Args:
-        tensor: The input tensor to reduce.
-        reduction: The reduction strategy. The valid values are
+        loss: The loss tensor to reduce.
+        reduction: The reduction strategy. The default is ``'mean'``.
+            The valid values are
             ``'mean'``, ``'none'``,  ``'sum'``, and ``'batchmean'``.
             ``'none'``: no reduction will be applied, ``'mean'``: the
             sum will be divided by the number of elements in the
@@ -39,25 +40,25 @@ def reduce_loss(tensor: Tensor, reduction: Reduction) -> Tensor:
         >>> import torch
         >>> from sonnix.functional import reduce_loss
         >>> tensor = torch.tensor([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]])
-        >>> reduce_loss(tensor, "none")
+        >>> reduce_loss(tensor, reduction="none")
         tensor([[0., 1., 2.],
                 [3., 4., 5.]])
-        >>> reduce_loss(tensor, "sum")
+        >>> reduce_loss(tensor, reduction="sum")
         tensor(15.)
-        >>> reduce_loss(tensor, "mean")
+        >>> reduce_loss(tensor)
         tensor(2.5000)
 
         ```
     """
     validate_loss_reduction_strategy(reduction)
     if reduction == "mean":
-        return tensor.mean()
+        return loss.mean()
     if reduction == "sum":
-        return tensor.sum()
+        return loss.sum()
     if reduction == "none":
-        return tensor
+        return loss
     # reduction == "batchmean"
-    if tensor.ndim == 0:
+    if loss.ndim == 0:
         msg = "'batchmean' reduction requires a tensor with at least one dimension"
         raise ValueError(msg)
-    return tensor.sum() / tensor.size(0)
+    return loss.sum() / loss.size(0)

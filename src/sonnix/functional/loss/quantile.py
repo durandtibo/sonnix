@@ -60,4 +60,4 @@ def quantile_regression_loss(
     validate_same_shape(prediction, target, name1="prediction", name2="target")
     diff = target - prediction
     loss = q * diff.clamp_min(0.0) + (1.0 - q) * (diff.neg().clamp_min(0.0))
-    return reduce_loss(loss, reduction)
+    return reduce_loss(loss, reduction=reduction)

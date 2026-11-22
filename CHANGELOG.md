@@ -29,6 +29,17 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- Uniform call signatures (revised target state step 4, #450).
+  `BinaryFocalLoss`, `BinaryFocalLossWithLogits` take only `alpha`
+  positionally (`gamma` is keyword-only); `GeneralRobustRegressionLoss` takes
+  only `alpha` (`scale`, `max_val` are keyword-only); `RelativeLoss` takes only
+  `criterion` (`indicator`, `eps` are keyword-only). `reduce_loss(loss, *,
+  reduction="mean")`: the operand is named `loss` and `reduction` is
+  keyword-only with a default. `safe_pow(input, exponent)`: the first argument
+  is named `input`. `Clamp(min_val, max_val)` keeps two positional arguments,
+  like `torch.nn.Hardtanh`. The positional arguments of every registered module
+  are listed in `tests/registry.py` and compared with the signature, so a new
+  class is checked (the hand-picked `test_option_is_keyword_only` is removed).
 - Make the state of the encoders and the activations complete by
   construction (revised target state step 3, #449). New
   `sonnix.utils.register_tensor`, used by the alpha activations and the
