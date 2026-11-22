@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Literal
 
 import torch
 from coola.random import make_torch_generator
-from coola.validation import validate_ge, validate_in, validate_int
+from coola.validation import validate_ge, validate_gt, validate_in, validate_int
 from torch import nn
 
 from sonnix.validation import validate_abs_range
@@ -171,12 +171,13 @@ def resolve_range(
             the absolute values to encode.
 
     Returns:
-        The ``(min, max)`` range of the parameter. The values of
-            ``range_`` are not validated.
+        The ``(min, max)`` range of the parameter, with
+            ``0 < min <= max``.
 
     Raises:
         ValueError: if both or none of ``range_`` and ``value_range``
-            are given, or if ``value_range`` is not valid.
+            are given, if ``value_range`` is not valid, or if the
+            range of the parameter is not ``0 < min <= max``.
 
     Example:
         ```pycon
@@ -189,12 +190,21 @@ def resolve_range(
         ```
     """
     if range_ is not None and value_range is None:
-        return range_
-    if range_ is None and value_range is not None:
+        min_value, max_value = range_
+    elif range_ is None and value_range is not None:
         validate_abs_range(min_abs_value=value_range[0], max_abs_value=value_range[1])
-        return 1 / value_range[1], 1 / value_range[0]
-    msg = f"Exactly one of '{name}_range' and 'value_range' has to be provided"
-    raise ValueError(msg)
+        min_value, max_value = 1 / value_range[1], 1 / value_range[0]
+    else:
+        msg = f"Exactly one of '{name}_range' and 'value_range' has to be provided"
+        raise ValueError(msg)
+    validate_gt(min_value, 0, name=f"min_{name}")
+    if max_value < min_value:
+        msg = (
+            f"'max_{name}' (received: {max_value}) has to be greater than "
+            f"'min_{name}' (received: {min_value})"
+        )
+        raise ValueError(msg)
+    return min_value, max_value
 
 
 class NumericalEncoder(nn.Module, ABC):
