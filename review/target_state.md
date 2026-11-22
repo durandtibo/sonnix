@@ -1,569 +1,499 @@
 # `sonnix`: target state and the changes to reach it
 
-Date: 2026-11-22, on `main` at `5003fc7`. This is the second revision. The first
-one (twelve steps, #413-#440) is fully merged; its history is in
-[Appendix C](#appendix-c-history-of-the-first-plan) and in `CHANGELOG.md`.
+Date: 2026-11-22, on `main` at `55919a9`. This is the third revision. The first one (twelve steps,
+#413-#440) and the second one (nine steps, #446-#455) are merged; their history is in
+[Appendix C](#appendix-c-history-of-the-previous-revisions) and in `CHANGELOG.md`.
 
-This document describes the design `sonnix` should have and the steps to get
-there from `main`. It follows the format of
+This document describes the design `sonnix` should have and the steps to get there from `main`. It
+follows the format of
 [`coola/review/recursive.md`](https://github.com/durandtibo/coola/blob/main/review/recursive.md):
-properties, constraints, findings, architecture, public API, dependents,
-evidence, plan, tests, decisions. The properties come first: every choice below
-exists to make one of them true **by construction** (one helper, one registry)
-instead of by the discipline of each class.
+properties, constraints, findings, design, public API, dependents, evidence, plan, tests,
+decisions. The properties come first: every choice below exists to make one of them true **by
+construction** (one helper, one registry test) instead of by the discipline of each class.
 
-Scope: all of `src/` (6.8k lines, read in full), `tests/` layout and registry,
-`docs/`, `README.md`, `CLAUDE.md`, `pyproject.toml` (import-linter). Items marked
-**[probe]** were reproduced by running code today; **[reading]** comes from the
-source. Nothing in the repository was changed except this file.
+What this revision is about. The first two revisions fixed the structure: shapes, validation,
+signatures, state, public paths. What is left is not visible by reading the code. It appears when
+the properties are **run** on edge inputs (zeros, tiny and large values, `float16`) and when the
+documentation is compared with the code. Of the sixteen properties in `docs/docs/conventions.md`,
+four are stated and **not true** (P1, P4, P6, P12), one is imprecise (P9), and one is missing
+(P17: the documentation says what the code does).
+
+Scope: all of `src/` (7.1k lines, read in full), the test registry and the meta-tests, `docs/`,
+`README.md`, `CLAUDE.md`, `pyproject.toml` (import-linter), `review/`. Items marked **[probe]** were
+reproduced today by running code in the scratchpad (outside the repository); **[prototype]** means
+the proposed fix was run in a throw-away script and gave the stated result; **[reading]** comes from
+the source. Nothing in the repository was changed except this file.
+
+Baseline on `main`: `ruff check` clean; `inv types.check --complete` clean (`ty` and `pyright`, 0
+errors); `lint-imports` 3 contracts kept; `xdoctest` 121/121; `pytest tests` 9,882 passed, 3
+skipped, in 20 s. `mkdocs build --strict` was not run.
 
 ## 1. Properties of the package
 
-`sonnix` is a library of PyTorch building blocks that `torch.nn` does not
-provide: losses, activations, numerical-feature encoders and a few layers. Its
-public API has three tiers: `sonnix.functional` (stateless operations),
-`sonnix.modules` (the `torch.nn.Module` wrappers and layers) and the support
-packages (`validation`, `factory`, `utils`, `testing`) that the first two use.
+`sonnix` is a library of PyTorch building blocks that `torch.nn` does not provide: losses,
+parametric activations, numerical-feature encoders and a few layers. It is used by other codebases
+(decision #453), so a public name is useful if a user needs it, not only if `sonnix` calls it. The
+API has three tiers: `sonnix.functional` (stateless operations), `sonnix.modules` (the
+`torch.nn.Module` wrappers and layers) and the support packages (`validation`, `factory`, `utils`,
+`testing`).
 
-Each property is a rule that holds for **every** public object, with the
-mechanism that makes it true and the test that proves it. A property without a
-test is a wish. P1-P15 exist in `docs/docs/conventions.md`; the revision
-sharpens P2, P3, P8, P11 and P12 (the evidence of section 3 shows that they were
-not true as written) and adds P16.
+Each property is a rule that holds for **every** public object, with the mechanism that makes it
+true and the test that proves it. A property without a test is a wish. The column "Today" is the
+result of this review.
 
-| #   | Property                            | Rule                                                                                                                                                                                                                                                                                                                                                                                          | Enforced by                                                                                  |
-| --- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| P1  | **Function/module duality**         | Every loss, and every op that needs numerical care (`safe_exp`, `safe_log`, `safe_pow`), is a stateless function in `sonnix.functional` **and** a module (when it has hyperparameters) in `sonnix.modules` that stores the hyperparameters and calls the function. A module with learnable state or without numerical care (an activation, a layer) has no function. A `forward` is one call. | registry parity test: module output equals function output (exists)                          |
-| P2  | **Validate early and completely**   | Every hyperparameter is checked for **type** (a `bool` is not an `int`), **finiteness** and **range**, before it is stored or converted, with `coola.validation` or a `sonnix.validation` helper. A float is finite unless its docstring says otherwise (`alpha=-inf`, `max_val=None`). The function checks at call time; the module checks in `__init__` with the same helper and message.   | `test_loss_validation` parity (exists), extended by a registry table of invalid values (new) |
-| P3  | **Uniform call signature**          | Losses: `(prediction, target, *, <options>, reduction)`. Single-tensor ops: `(input, *, <options>)`. Options of a function are keyword-only. A module takes **positionally** its structural arguments (sizes, wrapped modules, tensors) and at most **one** hyperparameter (the defining one, like `nn.LeakyReLU(0.1)`); the rest is keyword-only. The tensor of a `forward` is `input`.      | `ModuleCase.positional` test over the registry (new); `inspect.signature` test on functions  |
-| P4  | **Strict shapes**                   | Two tensors of the same role must have the same shape (`ValueError` naming both). A layer or an encoder checks the dimension it consumes and names the argument (`n`, `n_features`). Nothing broadcasts silently.                                                                                                                                                                             | `validate_same_shape`; parametrised shape tests (exist)                                      |
-| P5  | **One reduction contract**          | Every loss accepts `none`/`mean`/`sum`/`batchmean`, validated by `reduce_loss`; default `mean`; `none` keeps the shape of the elementwise loss; `reduction` is keyword-only.                                                                                                                                                                                                                  | `reduce_loss`; registry test over all losses                                                 |
-| P6  | **Numerically safe**                | Outputs and gradients are finite for finite inputs the dtype can represent, in `float16`/`bfloat16`/`float32`, and for every **valid** hyperparameter. Exceptions are documented in the docstring.                                                                                                                                                                                            | half-precision, `gradcheck` and finite-gradient tests (exist)                                |
-| P7  | **Pure**                            | A function or a `forward` never mutates its inputs and keeps no hidden state.                                                                                                                                                                                                                                                                                                                 | in-place-mutation registry test (exists)                                                     |
-| P8  | **Complete state, by construction** | The `state_dict` holds the parameters and buffers that define the behaviour, and **nothing derived**. A tensor derived from persistent state is non-persistent and recomputed after `load_state_dict`. A frozen tensor is a buffer with the same name as the learnable one (`register_tensor`). Round trip: `m2.load_state_dict(m1.state_dict())` makes `m2` behave as `m1`.                  | `register_tensor`; round-trip registry test with a second, different build (new)             |
-| P9  | **Device and dtype**                | A module that creates tensors takes `device` and `dtype`, follows `.to()`/`.half()`, and the output dtype is the input dtype.                                                                                                                                                                                                                                                                 | dtype/device registry tests (exist)                                                          |
-| P10 | **Export and compile**              | Every registered module passes `torch.export` and `torch.compile(fullgraph=True)` on CPU: no `.item()`, no data-dependent Python branch in a `forward`.                                                                                                                                                                                                                                       | registry tests (exist)                                                                       |
-| P11 | **Introspectable**                  | Every hyperparameter, **including a callable or a submodule**, is a public attribute named like the constructor argument and is shown by `repr`.                                                                                                                                                                                                                                              | `test_hyperparameters` (exists), extended to `repr` (new)                                    |
-| P12 | **One public path**                 | `sonnix.{functional,modules,validation,factory,utils,testing}` each export their API from `__init__.py` (`__all__`), and nothing else is public. The sub-folders (`functional.loss`, `modules.loss`, ...) have no `__all__`. Docs, docstrings and examples import from the flat path. Every exported name is in `docs/docs/refs` and has an `Example` that runs.                              | `test_imports`, docs-coverage test (new), `xdoctest`                                         |
-| P13 | **Layered imports**                 | `testing → modules → functional → validation`; `utils`, `factory` and `validation` import no other sonnix package; no cycle.                                                                                                                                                                                                                                                                  | import-linter contracts (exist)                                                              |
-| P14 | **Configuration is trusted input**  | `sonnix.factory` imports and **calls** a `_target_` before it checks the type of the result. An argument typed `Module \| dict` says so in a `Warning`.                                                                                                                                                                                                                                       | docstring test (exists)                                                                      |
-| P15 | **Optional means lazy**             | Only `torch` and `coola` are imported at module level.                                                                                                                                                                                                                                                                                                                                        | `package_checks` job (exists)                                                                |
-| P16 | **Earned names**                    | A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use, that tests them, or that users of the library need. An object that is a fixed-argument composition of other public objects or of a `torch.nn` object is a **recipe** in the guide, not a class, unless users look for it by name (`ReLUn`, `Square`, `ToFloat`): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.                                             | review checklist (Appendix B); a class without a registry entry fails                        |
+| #   | Property                            | Rule                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Enforced by                                                                                                  | Today                         |
+| --- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------- |
+| P1  | **Function/module duality**         | Every loss, and every op that needs numerical care, is a stateless function in `sonnix.functional` **and** a module in `sonnix.modules` that stores the hyperparameters and calls the function: the losses, `safe_exp`/`SafeExp`, `safe_log`/`SafeLog`, `safe_pow`/`SafePow`. A module with learnable state or without numerical care (an activation, a layer) has no function. A function that users look for by name (`rectifier_asinh_unit`, the errors, the indicators) may have no module (P16). A `forward` is one call.      | parity registry test: module output equals function output (exists for the losses; new for `SafePow`)        | **not true** (F7)             |
+| P2  | **Validate early and completely**   | Every hyperparameter is checked for **type** (a `bool` is not an `int`), **finiteness** and **range**, before it is stored or converted, with `coola.validation` or a `sonnix.validation` helper. A float is finite unless its docstring says otherwise. The function checks at call time; the module checks in `__init__` with the same helper and message.                                                                                                                                                                        | `tests/integration/test_invalid_arguments.py` (exists)                                                       | true [probe]                  |
+| P3  | **Uniform call signature**          | Losses: `(prediction, target, *, <options>, reduction)`. Single-tensor ops: `(input, *, <options>)`. Options of a function are keyword-only. A module takes positionally its structural arguments (sizes, wrapped modules, tensors) and at most one hyperparameter; the rest is keyword-only. The tensor of a `forward` is `input`.                                                                                                                                                                                                 | `ModuleCase.positional` compared with `inspect.signature` (exists)                                           | true                          |
+| P4  | **Strict shapes**                   | Two tensors of the same role must have the same shape (`ValueError` naming both): the prediction and the target, the inputs of a sum, average or product fusion, the two branches of a residual block. A layer or an encoder checks the dimension it consumes and names the argument (`n`, `n_features`, `normalized_shape`, `channel_dim`). Nothing broadcasts silently: a size-1 dimension is not expanded. A wrapper of an arbitrary criterion (`TransformedLoss`, `MulticlassFlatten`) leaves the policy to the wrapped module. | `validate_same_shape`; parametrised shape tests (exist); registry test `wrong_inputs` for every module (new) | **not true** (F5)             |
+| P5  | **One reduction contract**          | Every loss accepts `none`/`mean`/`sum`/`batchmean`, validated by `reduce_loss`; default `mean`; `none` keeps the shape of the elementwise loss; `reduction` is keyword-only.                                                                                                                                                                                                                                                                                                                                                        | `reduce_loss`; registry test over all losses (exists)                                                        | true                          |
+| P6  | **Numerically safe**                | For `float16`, `bfloat16`, `float32` and `float64`: wherever the `float32` result and its gradient are representable in the dtype, the output and the gradient are finite. A **default** hyperparameter is valid in every dtype (a guard `eps` or `min_val` is raised to the smallest normal number of the dtype; the `max_val` of `safe_exp` is lowered so that `exp` is finite). An unbounded input is squared or exponentiated in at least `float32`. A hyperparameter that can still overflow (an exponent) is documented.      | registry test `test_finite_wherever_float32_fits` on zeros, tiny, large and negative-large inputs (new)      | **not true** (F1-F4)          |
+| P7  | **Pure**                            | A function or a `forward` never mutates its inputs and keeps no hidden state.                                                                                                                                                                                                                                                                                                                                                                                                                                                       | in-place-mutation registry test (exists)                                                                     | true                          |
+| P8  | **Complete state, by construction** | The `state_dict` holds the parameters and buffers that define the behaviour, and **nothing derived**. A tensor derived from persistent state is non-persistent and recomputed after `load_state_dict`. A frozen tensor is a buffer with the same name as the learnable one (`register_tensor`). Round trip: `m2.load_state_dict(m1.state_dict())` makes `m2` behave as `m1`.                                                                                                                                                        | `register_tensor`; round-trip registry test with a second build (exists)                                     | true                          |
+| P9  | **Device and dtype**                | A module that creates tensors takes `device` and `dtype`. After `module.to(dtype)` every floating tensor of the module has `dtype` and the output has the dtype of the input. A module whose dtype differs from the dtype of the input follows the promotion rules of `torch` (`NLinear` raises, like `torch.nn.Linear`): that case is not guaranteed.                                                                                                                                                                              | dtype/device registry tests, with `float16` added (new)                                                      | imprecise, `float16` untested |
+| P10 | **Export and compile**              | Every registered module passes `torch.export` (also with a dynamic batch dimension) and `torch.compile(fullgraph=True)` on CPU: no `.item()`, no data-dependent Python branch in a `forward`. A shape check on static dimensions is allowed.                                                                                                                                                                                                                                                                                        | registry tests (exist); dynamic batch (new, [prototype] passes)                                              | true, batch not tested        |
+| P11 | **Introspectable**                  | Every hyperparameter, including a callable or a submodule, is a public attribute named like the constructor argument and is shown by `repr`.                                                                                                                                                                                                                                                                                                                                                                                        | `test_hyperparameters` (exists)                                                                              | true                          |
+| P12 | **One public path**                 | Every public object has **one** public path. `sonnix.{functional,modules,validation,factory,utils,testing}` each export their API from `__init__.py` (`__all__`); a name is exported by **one** package; the sub-folders have no `__all__`. Docs, docstrings and examples import from the flat path. Every exported name is listed under **its own package** in `docs/docs/refs` and has an `Example` that runs.                                                                                                                    | `test_imports`, `test_docs` (exist, the second too weak), `xdoctest`, no-duplicate test (new)                | **not true** (F8)             |
+| P13 | **Layered imports**                 | `testing → modules → functional → validation`; `utils`, `factory` and `validation` import no other sonnix package (`utils` is a leaf that every layer may import); no cycle.                                                                                                                                                                                                                                                                                                                                                        | import-linter contracts (exist)                                                                              | true                          |
+| P14 | **Configuration is trusted input**  | `sonnix.factory` imports and **calls** a `_target_` before it checks the type of the result. An argument typed `Module \| dict` says so in a `Warning`.                                                                                                                                                                                                                                                                                                                                                                             | `test_config_warning` (exists)                                                                               | true                          |
+| P15 | **Optional means lazy**             | Only `torch` and `coola` are imported at module level.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `package_checks` job (exists)                                                                                | true                          |
+| P16 | **Earned names**                    | A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use, that tests them, or that users need. A fixed-argument composition is a recipe in the guide, unless users look for it by name (`ReLUn`, `Square`, `ToFloat`): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.                                                                                                             | review checklist (Appendix B); a class without a registry entry fails                                        | true                          |
+| P17 | **Honest documentation** (new)      | A docstring says what the code does: the `Args:` block lists exactly the arguments of the signature, a `Raises:` block names what the code raises, and a guarantee stated in a docstring or in the guide ("no `inf`", "raises `ValueError`") has a test. `CLAUDE.md` points only to documents that are true; an obsolete review file is deleted.                                                                                                                                                                                    | signature-vs-`Args:` test over the six `__all__` (new), `xdoctest` (exists)                                  | **not true** (F9, F10)        |
 
-Not guaranteed, and documented as such: bit-exact results across torch
-versions; behaviour on GPU in CI (no GPU job; the CUDA tests run locally before
-a release); a learnable `alpha` that crosses `0` (documented in the
-numerical-stability guide); mixed-dtype inputs (torch promotes them).
+Not guaranteed, and documented as such: bit-exact results across `torch` versions; behaviour on GPU
+in CI (no GPU job; the CUDA tests run locally before a release); a learnable `alpha` that crosses `0`
+(decision D9: documented, not changed); a result that the dtype cannot represent (`Square` of
+`1000` in `float16`, `exp(100)` in `float32`); the probability variants of the binary losses with a
+prediction of exactly `0` or `1` in `float16` (the `binary_cross_entropy` of `torch` divides by `0`
+and raises under `autocast`; use the `*_with_logits` variants); a module fed a dtype other than its
+own (P9).
 
 ## 2. Constraints
 
-1. **Simple and easy to maintain.** Delete code instead of adding next to it.
-   Each new helper must remove more code than it adds.
-2. **Breaking changes are fine.** The version is `0.0.1a0`: no shim, no
-   deprecation period. Each breaking change is listed in `CHANGELOG.md`
-   ("Breaking changes" and the migration table) with the PR number.
-3. **Same numerics.** No valid call changes its value. The only behaviour
-   changes are the ones a finding below names, each with a regression test that
-   fails without the fix (`git stash push src`).
-4. **No slower than today.** A forward pass stays the same tensor operations;
-   the added checks run at construction or are Python-level comparisons. The
-   piecewise encoder is the one place where this decides the design (4.4).
-5. **Follow `CLAUDE.md` and `docs/docs/conventions.md`.**
-6. **`torch` and `coola` are the only hard dependencies.**
+1. **Simple and easy to maintain.** A property is made true by **one** helper or **one** registry
+   test, not by a check written in each class. Delete code when a change allows it (section 4.6).
+   Net size is in Appendix A: this revision adds about 125 lines of `src`, because it makes untrue
+   properties true, and removes 590 lines of obsolete documentation.
+2. **Breaking changes are fine.** The version is `0.0.1a0`: no shim, no deprecation period. Each
+   breaking change is listed in `CHANGELOG.md` ("Breaking changes" and the migration table) with the
+   PR number.
+3. **Same numerics for valid calls** in `float32`, `float64` and `bfloat16`. A behaviour changes only
+   where a finding of section 3 names it, and each such change has a regression test that fails
+   without the fix (`git stash push src`). The `float16` results change (that is the point of F1-F4).
+4. **No slower than today.** A forward pass stays the same tensor operations. The new checks compare
+   static shapes in Python (they pass `torch.export`, [prototype]). The validation of the options
+   costs `0.14` µs (`validate_positive`) and `0.33` µs (`validate_same_shape`) per call [probe], so
+   no check is moved out of the functions to save time. `NLinear` with `einsum` runs at the speed of
+   `bmm` (4.6).
+5. **Closed decisions are not reopened.** `sonnix` is a library: the helpers of `sonnix.utils`,
+   `DummyDataset`, the named wrappers (`ToFloat`, `ToLong`, `ReLUn`, `Square`), the three errors and
+   `rectifier_asinh_unit` are **kept** (#451, #453). This revision adds no removal of a public name.
+6. **Follow `CLAUDE.md` and `docs/docs/conventions.md`.**
+7. **`torch` and `coola` are the only hard dependencies.**
 
 ## 3. What differs today
 
-The baseline is green: `ruff check` clean, 8,921 tests passed (3 skipped),
-`xdoctest` 118/118, `lint-imports` 3 contracts kept. `inv types.check` and
-`mkdocs build --strict` were not run for this revision. What is left is
-**properties that are not true as written** and **surface area**, not bugs in
-the numerics.
+| #   | Finding                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Status              |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| F1  | **The default guards underflow in `float16` (P6).** `1e-8` is `0.0` in `float16` (smallest normal: `6.1e-5`). `safe_log(0)` returns `-inf` (`-18.4` in `bfloat16`); `poisson_regression_loss(0, 0)` returns `nan` and `(0, 1)` returns `inf`; `relative_loss(0, 0)`, `absolute_relative_error(0, 0)` and `symmetric_absolute_relative_error(0, 0)` return `nan`; `SafeLog` and `RelativeLoss` follow. `bfloat16` and `float32` are fine.                                                                                                                                                                                                                                     | [probe]             |
+| F2  | **`safe_exp` does not guarantee a finite output (P6).** The default `max_val=20` gives `exp(20) = 4.9e8`, which is `inf` in `float16` for every input above `11.09`; `max_val=100` gives `inf` in `float32`. The guide (`numerical_stability.md`) says "so the output has no `inf`".                                                                                                                                                                                                                                                                                                                                                                                         | [probe]             |
+| F3  | **`general_robust_regression_loss` overflows in `float16` where the loss fits.** `((p - t) / scale)²` is `inf` for `\|p - t\| / scale > 255`. For `p - t = 300`: `alpha=1` gives `inf` with a `nan` gradient (value in `float32`: `299`); `alpha=0` gives `inf` (value: `10.7`). A robust loss exists for outliers. The tests use inputs in `±30` (`_scaled`) and never see it.                                                                                                                                                                                                                                                                                              | [probe]             |
+| F4  | **`Gaussian` returns a `nan` gradient for `alpha` in `float16`.** For `\|x\| >= 256`, `x.pow(2).mul(-0.5).div(alpha.pow(2)).exp()` computes `-inf` (output `0`, correct), and the backward of the division multiplies `-inf` by `0`. `exp(-0.5 * (x / alpha)²)` has the same value in `float32` and a gradient of `0` in `float16`. A learnable `alpha` is destroyed by one large input.                                                                                                                                                                                                                                                                                     | [probe] [prototype] |
+| F5  | **Silent broadcasting (P4).** `ScaleAndShift(5)(x[3, 1])` and `DynamicTanh(5)(x[3, 1])` return `(3, 5)`; `SumFusion`, `AverageFusion` and `MultiplicationFusion` accept `(4, 3)` with `(4, 1)` and with `(3,)`; `ResidualBlock(nn.Linear(3, 1))(x[4, 3])` adds a `(4, 1)` branch to a `(4, 3)` skip; `Gaussian(num_parameters=3)(x[4, 1])` broadcasts its three `alpha` over a size-1 channel. `Gaussian(3, channel_dim=1)(x[5])` raises a bare `IndexError`. The error of the encoders and of `NLinear` is already strict and names the argument.                                                                                                                           | [probe]             |
+| F6  | **`safe_pow` hides an invalid input.** `safe_pow([-4, 0, 4], 0.5)` returns `[0, 0, 2]` (`torch.pow` gives `nan` for `-4`) and `safe_pow(-2, 2)` returns `0` (the power is `4`). The docstring says "non-negative input" and the code masks `input > 0`. The wanted property is only a finite gradient **at zero**: mask `input != 0`.                                                                                                                                                                                                                                                                                                                                        | [probe] [prototype] |
+| F7  | **P1 is not true for `safe_pow`.** `safe_exp` and `safe_log` have a module (`SafeExp`, `SafeLog`); `safe_pow` has none, and the docstring of `Pow` warns that its gradient is infinite at `0` for an exponent in `(0, 1)`, which `safe_pow` fixes.                                                                                                                                                                                                                                                                                                                                                                                                                           | [reading]           |
+| F8  | **`Reduction` has two public paths (P12).** `sonnix.validation.Reduction is sonnix.functional.Reduction`; both are in `__all__`, it is documented once (`refs/validation.md`). `test_docs` passes because its regex accepts any package (`sonnix(\.\w+)+\.{name}`).                                                                                                                                                                                                                                                                                                                                                                                                          | [probe]             |
+| F9  | **The docstrings drift (P17).** `Pow` has no `Args:` block (`exponent` is undocumented); `ToBinaryLabel` says it raises when `dim` is not an integer (there is no `dim`); the guide says to make Poisson predictions positive with `SafeExp`, `Square` or a softplus although `log_input=True` exists; F2. A probe over the 105 public classes and functions found no other mismatch, and every one has an `Example`.                                                                                                                                                                                                                                                        | [probe]             |
+| F10 | **`review/suggestions.md` is obsolete and `CLAUDE.md` points to it.** The 505-line review of 2026-11-06 lists as open the crash of `import sonnix.modules` (1.1), the indicator overflow (2.1), the unvalidated arguments (2.2-2.6), `BaseLoss` positional (3.1), ...: the code items are fixed since (#413-#455; the CI items of its section 1.2 and 7 are tracked in `.github/GUIDELINES.md`). `CLAUDE.md` still says it "lists known issues and priorities".                                                                                                                                                                                                              | [reading]           |
+| F11 | **The tests do not run the properties at the edges.** `test_dtype.py` uses `float32`, `float64`, `bfloat16`: no `float16`, although the 51 registered modules all run in `float16` on CPU [probe]. `test_half_precision.py` has 14 hand-picked functions with inputs in `±300`, `±30` or `[1, 301]`: never `0`, never tiny, and `float16` is compared at a tolerance. F1-F4 are all caught by one rule on four constant inputs (section 9).                                                                                                                                                                                                                                  | [reading] [probe]   |
+| F12 | **Logic written twice.** `binary_focal_loss` and `binary_focal_loss_with_logits` differ by two lines (`binary_cross_entropy` against `..._with_logits`, and `sigmoid`); so do the two Poly-1 functions. The fix of the integer targets (#454) had to be applied to the four functions. `NLinear.forward` reshapes, transposes and calls `bmm` (6 lines) where `einsum("...ni,nio->...no")` gives the same result at the same speed (`43` against `47` µs at `256 × 8 × 16 × 32`; `1,407` against `1,391` µs at `1,024 × 32 × 64 × 64`) for any number of leading dimensions. `NLinear.reset_parameters` has a branch `if in_features > 0 else 0` that validation makes dead. | [reading] [probe]   |
+| F13 | **The count prefix is not uniform.** `n_features`, `n_bins`, `n` (`NLinear`) against `num_frequencies` and `num_parameters`. `num_parameters` is the name of `torch.nn.PReLU` and stays; `num_frequencies` is the only other `num_`.                                                                                                                                                                                                                                                                                                                                                                                                                                         | [reading]           |
+| F14 | **Carried over.** 45 `# noqa: A002` (the `input` argument): decision D4 of the second revision, never answered (`CLAUDE.md` says a changed rule set is not a fix, so it needs approval). `pre-commit` runs `ty` and `import-linter` but not `pyright`, which `CLAUDE.md` requires (`inv types.check` runs both).                                                                                                                                                                                                                                                                                                                                                             | [reading]           |
 
-| #   | Finding                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Evidence                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| F1  | **Non-finite hyperparameters are accepted (P2, P6).** `validate_gt(x, 0)` and `validate_ge` accept `+inf`. `log_cosh_loss(scale=inf)` and `poisson_regression_loss(eps=inf)` return **`nan`**; `binary_focal_loss(gamma=inf)`, `general_robust_regression_loss(scale=inf)` and `absolute_relative_error(eps=inf)` return a silent `0`; `SafeLog(min_val=inf)` outputs `inf`; `ReLUn(max_val=inf)` is a no-op; `Clamp(nan, nan)` outputs `nan`.                                                                                                                                                                                                                                                                                                                                | [probe]                                                          |
-| F2  | **Arguments checked late, by hand, or not at all (P2).** `Clamp('a', 1)` raises the message of `>` between `str` and `int`; `ConcatFusion(dim=1.5)` and `ToCategoricalLabel(dim='a')` are accepted; `DynamicTanh(alpha_init_value=nan)` is accepted and `'a'` fails inside `fill_`; `create(num_frequencies=2.5)`, `create(feature_size=2.5)` and `from_quantiles(n_bins=2.5)` fail inside `torch.linspace` (the validators use `validate_ge` without `validate_int`); `GeneralRobustRegressionLoss(alpha='a')` calls `float()` **before** validating (`ValueError`, while the function raises `TypeError`); `PoissonRegressionLoss(log_input=...)` stores `bool(...)`; `AsinhNumericalEncoder` and `CosSinNumericalEncoder` accept `nan` tensors (the piecewise one checks). | [probe]                                                          |
-| F3  | **The `state_dict` is not complete (P8).** `PiecewiseLinearNumericalEncoder` stores `edges` and `width` (derived from `edges`) as persistent buffers, and `is_step` (derived from `width`) as a non-persistent one that is never recomputed. After `a.load_state_dict(b.state_dict())`, `a(x)` differs from `b(x)`: `[1.0, 0.5, 0.25]` instead of `[1.0, 1.0, 0.25]` for `b` built with the duplicated edge `[0, 1, 1, 3]`.                                                                                                                                                                                                                                                                                                                                                   | [probe]                                                          |
-| F4  | **P3 is not met and is not enforced.** The module rule ("one defining hyperparameter may be positional") is broken by `BinaryFocalLoss`, `BinaryFocalLossWithLogits` (`alpha, gamma`), `GeneralRobustRegressionLoss` (`alpha, scale, max_val`) and `RelativeLoss` (`indicator, eps`). `test_option_is_keyword_only` checks a hand-picked list of 27 pairs, so a new class is never checked. Two functions break the function rule: `reduce_loss(tensor, reduction)` and `safe_pow(x, exponent)` (`x` and `tensor` instead of `input`).                                                                                                                                                                                                                                        | [probe] `inspect.signature` over `sonnix.modules.__all__`        |
-| F5  | **P12 is not true.** `sonnix.utils` and `sonnix.testing` export nothing (`__all__` is empty, the docs import from `sonnix.utils.params`, ...). `sonnix.functional.loss` exports 16 names while `sonnix.modules.loss` exports none, and `docs/docs/refs/functional.md` documents the indicators under `sonnix.functional.loss.*`. `docs/docs/refs/utils.md` renders `sonnix.testing.loss` (copy of `testing.md`). `rectifier_asinh_unit` is not listed in the functional reference.                                                                                                                                                                                                                                                                                            | [probe] + docs                                                   |
-| F6  | **Compositions and non-blocks are still public (P16).** `ToFloat`, `ToLong` = `ToDtype(torch.float32/int64)`; `ReLUn(n)` = `Clamp(0, n)` (= `nn.Hardtanh(0, n)`); `Square` = `Pow(2)`; `absolute_relative_error` and `symmetric_absolute_relative_error` are **bit-identical** to `relative_loss(absolute_error(p, t), <indicator>(p, t), reduction="none")` with `classical_relative_indicator` and `arithmetical_mean_indicator`; `absolute_error` is `(t - p).abs()`; none of the three errors is used by a loss or a module; `rectifier_asinh_unit` is `input.clamp(min=0).asinh()`.                                                                                                                                                                                      | [probe] equality checked on a random `(5, 4)` pair               |
-| F7  | **Public base classes that are not extension points.** `BaseBinaryFocalLoss` and `BaseBinaryPoly1Loss` only share an `__init__`. The numerical encoders share a base class named `NumericalEncoder` (not `Base*`, unlike `BaseLoss`, `BaseFusion`, `BaseAlphaActivation`, `BaseDynamicNorm`) that lives in `_utils.py` with a public `__all__` and is not exported, so `isinstance(m, NumericalEncoder)` needs a private import.                                                                                                                                                                                                                                                                                                                                              | [probe] `hasattr(sonnix.modules, "NumericalEncoder")` is `False` |
-| F8  | **Support code that nothing in the library uses (P16).** `sonnix.utils` has 11 functions (542 lines); only `module_mode` is used (by `testing`). `get_module_device(s)`, `is_module_on_device`, `has_*`, `num_*`, `freeze_module`, `unfreeze_module` are one-liners of `torch`; `load_state_dict_to_module` is a 206-line heuristic. `DummyDataset` is used by no test outside its own. `is_loss_decreasing*` **is** used (21 test files) and stays.                                                                                                                                                                                                                                                                                                                          | grep over `src`, `tests`, `docs`, `notebooks`                    |
-| F9  | **Validators that duplicate each other or are used once.** `validate_abs_range`, `validate_frequency` and `validate_moment_order` each have **one** call site. `resolve_range` already checks `0 < min <= max` (since #439), so `validate_frequency` repeats the check on the same numbers and `validate_abs_range` repeats it on the `value_range` before the conversion. `CLAUDE.md`: no validator that is one comparison.                                                                                                                                                                                                                                                                                                                                                  | [reading] `grep validate_ src`                                   |
-| F10 | **"Parameter or buffer" is written three times** (`BaseAlphaActivation`, `AsinhNumericalEncoder`, `CosSinNumericalEncoder._register_tensor`). P8 holds only because each copy is right.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | [reading]                                                        |
-| F11 | **`n_bins` is off by one.** `from_quantiles(x, n_bins=3)` builds **2** segments, `feature_size == n_bins - 1`, and the argument `bins` of the constructor holds **edges**. The paper (and a reader) calls the segments bins.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | [probe] 4 edges → `feature_size` 3                               |
-| F12 | **`RelativeLoss.repr` hides the indicator (P11).** The indicator is a plain attribute (a function is not a submodule) and `extra_repr` does not print it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | [probe] `reduction=mean, eps=1e-08, detach_indicator=False`      |
-| F13 | **Small duplications.** `AverageFusion.fuse` repeats the sum loop of `SumFusion`; the `init == 0` check is written three times (`Gaussian`, `Snake`, `Laplacian`, which adds a second message for `< 0`); `Snake` is alone in `snake.py`, while its five siblings are in `alpha.py`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | [reading]                                                        |
-| F14 | **Dtype statements that the code does not enforce.** `absolute_error`, `absolute_relative_error` and `symmetric_absolute_relative_error` document "same shape and data type"; `float32` against `float64` is accepted and promoted. The four binary losses raise a raw torch `RuntimeError` for an integer or `bool` target (labels from a `DataLoader` are often `long`).                                                                                                                                                                                                                                                                                                                                                                                                    | [probe]                                                          |
-| F15 | **`# noqa: A002` appears 44 times** (the `input` argument, decision D4 of the first revision, never applied: it needs the maintainers' approval because `CLAUDE.md` says a changed rule set is not a fix).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `grep -c`                                                        |
+What is already right and must not regress: the validation of every hyperparameter (a fuzz of the
+constructors of all 57 exported classes with `nan`, `inf`, `-inf`, `True`, `"a"`, `2.5`, `0` and
+`-1` accepts only legitimate values, for example `init=0` for `Quadratic` or `q=0`); keyword-only
+options and the registry check of the positional arguments; the state round trip and the derived
+buffers of the piecewise encoder; strict shapes in all the losses and in the encoders; the
+function/module parity of the losses; the registry-driven export, compile, purity, dtype and
+hyperparameter tests; the import-linter layering; the 100 % coverage rule. `bfloat16` has no failure
+at all [probe]: every failure of this review is `float16`.
 
-What is already right and must not regress: parity of every module with its
-function, strict shapes in all losses (P4), keyword-only `reduction` and
-function options, the composition of the dynamic norms, the shared range logic
-(`resolve_range`), the registry-driven export/compile/dtype/purity tests, the
-import-linter layering, and the 100 % coverage rule.
-
-## 4. Architecture
+## 4. Design
 
 ### 4.1 Packages and dependencies
 
 ```text
 sonnix
-├── validation/   argument validators, Reduction                    (imports: coola)
-├── functional/   stateless ops: losses, indicators, safe_*, reduce (imports: validation)
-├── factory/      resolve_module, is_module_config, create_sequential (imports: coola, torch)
-├── utils/        register_tensor, module_mode                       (imports: torch)
-├── modules/      nn.Module wrappers, layers, encoders              (imports: functional, factory, utils, validation)
-│   └── activation/ loss/ numerical/ fusion/                        (folders, not public paths)
-└── testing/      is_loss_decreasing*                               (imports: anything; nothing imports it)
+├── validation/   argument validators, Reduction (defined, not exported)  (imports: coola)
+├── functional/   stateless ops: losses, indicators, safe_*, reduce_loss, Reduction  (imports: validation, utils)
+├── factory/      resolve_module, is_module_config, create_sequential     (imports: coola, torch)
+├── utils/        register_tensor, resolve_eps, resolve_max_exponent, module_mode, ...  (imports: torch)
+├── modules/      nn.Module wrappers, layers, encoders                    (imports: functional, factory, utils, validation)
+│   └── activation/ loss/ numerical/ fusion/                              (folders, not public paths)
+└── testing/      is_loss_decreasing*, DummyDataset                       (imports: anything; nothing imports it)
 ```
 
-The import-linter contracts stay as they are. Folders under `functional` and
-`modules` have a docstring-only `__init__.py` (P12): the flat package builds the
-namespace.
+The import-linter contracts do not change: `functional` may import `utils` (a leaf, it imports only
+`torch`); it still may not import `modules` or `factory`.
 
-### 4.2 The function/module pair and the validators (P1, P2)
+### 4.2 Dtype-aware guards (P6; F1, F2)
 
-The shape of a loss does not change (first revision, section 3.2). What changes
-is **what a check is**. One helper in `sonnix.validation` makes P2 true for the
-most common case, a strictly positive finite number:
+A guard is a number that must not underflow or overflow **in the dtype of the tensor**. Two helpers
+in `sonnix.utils` (next to `register_tensor`) make the rule true in one place:
 
 ```python
-def validate_positive(value: float, *, name: str) -> None:
-    """Validate that ``value`` is a finite number strictly greater than 0."""
-    validate_finite(value, name=name)  # type (not a bool) and finiteness
-    validate_gt(value, 0, name=name)
+def resolve_eps(eps: float, tensor: Tensor) -> float:
+    """Return ``eps``, raised to the smallest positive normal number of the dtype of ``tensor``."""
+    return max(eps, torch.finfo(_float_dtype(tensor)).tiny)
+
+
+def resolve_max_exponent(max_val: float, tensor: Tensor) -> float:
+    """Return ``max_val``, lowered so that ``exp`` of it is finite in the dtype of ``tensor``."""
+    return min(max_val, math.log(torch.finfo(_float_dtype(tensor)).max) - 1.0)
+
+
+def _float_dtype(tensor: Tensor) -> torch.dtype:  # the dtype itself, or the default one for an int
+    return tensor.dtype if tensor.is_floating_point() else torch.get_default_dtype()
 ```
 
-It replaces `validate_gt(x, 0, ...)` where `x` is `scale` (log-cosh, general
-robust), `eps` (Poisson, relative loss, `RelativeLoss`), `min_val` (`safe_log`)
-and `max_val` (general robust): about nine call sites, in the functions and
-in the modules. The other rules use `coola.validation` directly:
+The margin of `1.0` is needed: `log(65504) = 11.0899` rounds up to `11.09375` in `float16`, and
+`exp(11.09375)` is `inf` [prototype]. With the margin the cap is `10.09` (`float16`), `87.7`
+(`float32`), `708.8` (`float64`); `bfloat16` has the range of `float32`.
 
-| Argument                                                         | Check                                                                       |
-| ---------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| `gamma` (focal), `exponent` (`safe_pow`)                         | `validate_finite` then `validate_ge(.., 0)`                                 |
-| `q`, `alpha` (focal)                                             | `validate_range` (rejects `nan` and `inf`)                                  |
-| `alpha` (Poly-1), `max_val` (`SafeExp`), `threshold`, `init`     | `validate_finite`                                                           |
-| `alpha` (general robust)                                         | `validate_number`, then the custom check (`nan` and `+inf` rejected)        |
-| `min_val`, `max_val` (`Clamp`)                                   | `None` or `validate_finite`; then the relation `min_val <= max_val` by hand |
-| `dim`, `num_frequencies`, `feature_size`, `n_bins`, `n_features` | `validate_int` **then** `validate_ge`                                       |
-| `log_input`, `learnable`, `detach_indicator`, `bias`             | `validate_isinstance(.., bool)`; no `bool(...)` conversion                  |
-| `indicator`                                                      | `callable(...)`: `coola` has no `validate_callable`; custom `TypeError`     |
+| Site                                                           | Today                       | Target                                                  |
+| -------------------------------------------------------------- | --------------------------- | ------------------------------------------------------- |
+| `safe_log(input, min_val)`                                     | `input.clamp(min=min_val)`  | `input.clamp(min=resolve_eps(min_val, input))`          |
+| `safe_exp(input, max_val)`                                     | `input.clamp(max=max_val)`  | `input.clamp(max=resolve_max_exponent(max_val, input))` |
+| `poisson_regression_loss` (`log_input=False`)                  | `prediction.clamp(min=eps)` | `prediction.clamp(min=resolve_eps(eps, prediction))`    |
+| `relative_loss`                                                | `indicator.clamp(min=eps)`  | `indicator.clamp(min=resolve_eps(eps, indicator))`      |
+| `absolute_relative_error`, `symmetric_absolute_relative_error` | `.clamp(min=eps)`           | `.clamp(min=resolve_eps(eps, target))`                  |
 
-Rules:
+The docstrings of `SafeLog`, `SafeExp` and `eps` say "raised to the smallest normal number of the
+dtype" and "lowered so that the output is finite". The attributes and the `repr` keep the value
+the user passed (P11); the effective value depends on the input, like a `torch.finfo`.
 
-- A module validates **before** it converts or stores (`float(alpha)` after the
-  check, never before): the function and the module raise the same exception.
-- `validate_abs_range`, `validate_frequency` and `validate_moment_order` are
-  deleted (F9): `resolve_range` checks the range once, `create` calls
-  `validate_int` + `validate_ge` on its own count, and `moment_mean_indicator`
-  inlines `validate_int` + `validate_ge` for `k`.
-- A constructor that takes a **tensor** (the encoders) checks that it is finite,
-  as the piecewise encoder does today.
-- If `coola.validation` gains a `validate_positive`, delete ours (D5).
+Two more changes, both **[prototype]**: results in the table of section 7.
 
-### 4.3 Signatures (P3)
+- **`general_robust_regression_loss` computes in at least `float32`.** `dtype = torch.promote_types(prediction.dtype, torch.float32)`;
+  the difference is squared and scaled in `dtype`; the loss is cast back to the input dtype. For
+  `p - t = 300` in `float16`: `alpha=1` gives `299.0` and a gradient of `1.0` (today `inf` and `nan`);
+  `alpha=0` gives `10.711` (today `inf`). With `alpha=2` the loss is `9e4`, which `float16` cannot
+  hold: `inf` stays, and the gradient is finite (`600`). No other function needs it: `log_cosh_loss`,
+  the indicators and `quantile` and the `*_with_logits` losses are finite on the same inputs
+  (zeros, tiny, `±3000`), except for the two `eps` cases of F1 [probe].
+- **`Gaussian.forward` is `input.div(alpha).pow(2).mul(-0.5).exp()`** (F4): one operation fewer and
+  no division of `-inf` in the backward. `Laplacian`, `Snake`, `Quadratic`, `MultiQuadratic` and
+  `ExpSin` have no failure [probe].
 
-Functions: no change except `reduce_loss(loss, *, reduction="mean")` (the
-operand is the loss, `reduction` is an option, like every other loss function)
-and `safe_pow(input, exponent)`. `exponent` stays positional: it is the second
-operand of a binary op, as in `torch.pow(input, exponent)`. It is the only
-exception, and the signature test lists it.
+### 4.3 Strict shapes (P4; F5)
 
-Modules: a class takes positionally its **structural** arguments and at most
-one hyperparameter.
+The check is a comparison of static shapes in the `forward`; it passes `torch.export` with a dynamic
+batch and `torch.compile(fullgraph=True)` [prototype]. Each message names the argument.
 
-| Class                                                    | Positional (target)                             | Keyword-only                                        |
-| -------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------- |
-| `BinaryFocalLoss`, `BinaryFocalLossWithLogits`           | `alpha`                                         | `gamma`, `reduction`                                |
-| `GeneralRobustRegressionLoss`                            | `alpha`                                         | `scale`, `max_val`, `reduction`                     |
-| `RelativeLoss`                                           | `criterion` (a module)                          | `indicator`, `eps`, `reduction`, `detach_indicator` |
-| `Clamp`                                                  | `min_val`, `max_val` (a pair, as `nn.Hardtanh`) | none                                                |
-| alpha activations, `NLinear`, `ExU`, encoders, `*Fusion` | unchanged (sizes, tensors, `init`, `dim`)       | unchanged                                           |
+| Module                                               | Check                                                                                                                                                                        | Message names                    |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `ScaleAndShift`, `DynamicTanh`, `DynamicAsinh`       | `input.shape[-len(normalized_shape):] == normalized_shape`, like `LayerNorm`; `(3, 1)` is no longer expanded                                                                 | `normalized_shape` and the shape |
+| `SumFusion`, `AverageFusion`, `MultiplicationFusion` | all the inputs have the shape of the first one: a class attribute `BaseFusion._same_shape = True`, `ConcatFusion` sets it to `False` (`torch.cat` checks its own dimensions) | the position and both shapes     |
+| `ResidualBlock`                                      | `validate_same_shape(skip_output, residual_output, name1="skip", name2="residual")` before the sum                                                                           | both shapes                      |
+| alpha activations with `num_parameters > 1`          | `-input.ndim <= channel_dim < input.ndim` and `input.shape[channel_dim] == num_parameters`, in `_broadcast_alpha`                                                            | `channel_dim`, `num_parameters`  |
 
-`ModuleCase` of the registry gets a `positional` field (the names allowed to be
-positional, reviewed in the PR); one test compares it with
-`inspect.signature`. A new class without an entry already fails
-`test_registry_covers_every_module`, so P3 is checked for every class and not
-for a hand-picked list (F4).
+`TransformedLoss` and `MulticlassFlatten` wrap an arbitrary criterion; the shape policy is the one of
+that criterion (P4 says so). The registry gets a field `wrong_inputs: Callable | None` (inputs with a
+wrong shape) and one test asserts `ValueError` for every case that has one; a case without it is
+listed in a named set with the reason, like `NOT_REGISTERED` (the elementwise modules, which accept
+any shape).
 
-### 4.4 State (P8)
-
-**`register_tensor`**, in `sonnix.utils` (it is shared by `modules` and has no
-sonnix dependency):
+### 4.4 `safe_pow` and its module (P1; F6, F7)
 
 ```python
-def register_tensor(module: nn.Module, name: str, tensor: Tensor, *, learnable: bool) -> None:
-    """Register ``tensor`` as a parameter if ``learnable``, else as a buffer, under ``name``."""
-    if learnable:
-        module.register_parameter(name, nn.Parameter(tensor.detach().clone()))
-    else:
-        module.register_buffer(name, tensor.detach().clone())
+def safe_pow(input, exponent):  # exponent >= 0, finite (unchanged)
+    if exponent == 0:
+        return torch.ones_like(input)
+    is_nonzero = input != 0
+    return torch.where(is_nonzero, torch.where(is_nonzero, input, 1.0).pow(exponent), 0.0)
 ```
 
-It replaces the three copies (F10). `BaseAlphaActivation`,
-`AsinhNumericalEncoder` and `CosSinNumericalEncoder` call it; the `learnable`
-properties stay (`isinstance(self.alpha, nn.Parameter)`).
+`safe_pow` is `torch.pow` with a gradient of `0` at `0` and nothing else: a negative input with a
+fractional exponent is `nan`, and `safe_pow(-2, 2)` is `4` [prototype]. The relative indicators call
+it on `abs()` values and do not change. `SafePow(exponent)` is the module, completing the trio
+`SafeExp`, `SafeLog`, `SafePow`; its docstring and that of `Pow` point to each other (`Pow` is the
+plain `torch.pow`; the negative exponents stay there).
 
-**`PiecewiseLinearNumericalEncoder`** keeps **one** persistent buffer, `edges`
-(`(n_features, n_edges)`, sorted). `width`, `is_step`, `lower` and `upper` are
-non-persistent and built by one private method `_derive()`, called by
-`__init__` and by a load hook:
+### 4.5 One public path for `Reduction` (P12; F8)
 
-```python
-self.register_buffer("edges", edges)
-self._derive()  # width, is_step, lower, upper: persistent=False
-self.register_load_state_dict_post_hook(lambda module, _: module._derive())
-```
+`Reduction` and `VALID_REDUCTIONS` are defined once, in `sonnix.validation.loss` (the lowest layer,
+which `validate_loss_reduction_strategy` needs). `sonnix.functional` exports `Reduction` (it is the
+type of the `reduction` argument of every function, next to `reduce_loss`); `sonnix.validation`
+keeps `VALID_REDUCTIONS` and `validate_loss_reduction_strategy` and **stops exporting**
+`Reduction`. `refs/validation.md` and `refs/functional.md` are updated. Two tests: `test_docs`
+requires `sonnix.<package>.<name>` for the package that exports the name, and a new test asserts
+that no object is exported by two packages (`id` of the objects of the six `__all__`).
 
-Deriving them inside `forward` would also remove the stale state, but a
-prototype measured it 1.29x slower on a small input (54 → 69 µs, 8 features ×
-8 edges × batch 256) and 1.06x on a larger one (1.45 → 1.53 ms, 100 × 16 ×
-1024), so constraint 4 rejects it. The hook keeps `forward` unchanged.
-`register_load_state_dict_post_hook` exists in the supported torch (≥ 2.4).
+### 4.6 Simplifications (F12)
 
-Naming (F11): the constructor argument `bins` becomes `edges` and
-`from_quantiles(x, n_bins)` makes `n_bins` segments from `n_bins + 1` quantiles,
-so `feature_size == n_bins`. `n_bins >= 1`, and an encoder needs at least 2
-edges. A single edge is rejected: today it is a special case with
-`feature_size == 1`, which breaks the documented rule `feature_size == edges - 1`.
+- `NLinear.forward`: after the shape check, `out = torch.einsum("...ni,nio->...no", input, self.weight)`
+  and `out + self.bias`. No reshape, no transpose, any number of leading dimensions; export and
+  compile pass [prototype]; `tests/benchmark/test_nlinear.py` is the gate. The dead branch of
+  `reset_parameters` is removed.
+- Focal and Poly-1: a private core per loss, `_focal(ce_loss, p_t, target, alpha, gamma, reduction)`
+  and `_poly1(ce_loss, p_t, alpha, reduction)` in `functional/loss/`; the four public functions
+  validate, cast the target, compute `ce_loss` and `p_t`, and call it. The probability and logits
+  variants cannot drift again. No behaviour change.
+- The `target` paragraph of the four binary losses (copied eight times with the modules) is written
+  once in each function and referred to by the modules (`See sonnix.functional.<name>`), like the
+  `reduction` paragraph.
 
-### 4.5 Surface area (P16)
+### 4.7 Names (F13)
 
-> **Decision of the maintainers (#451):** `ToFloat`, `ToLong`, `ReLUn`, `Square`, the
-> three errors and `rectifier_asinh_unit` are **kept**, because users expect them. Only the
-> private bases, the `ToDtype` names and the small de-duplications of this section were
-> done. D2 and D3 are answered "keep".
+`create(..., num_frequencies=...)` of `CosSinNumericalEncoder` and `AsinhCosSinNumericalEncoder`
+becomes `n_frequencies` (D6). The rule in `conventions.md`: counts are `n_<things>`; `num_parameters`
+is the name of `torch.nn.PReLU` and stays.
 
-| Removed                                                                          | Replacement                                                                                                                                                                |
-| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ToFloat`, `ToLong`                                                              | `ToDtype("float32")`, `ToDtype("int64")`: `dtype` accepts a `torch.dtype` or its name (a configuration cannot write a `torch.dtype`, which was their only reason to exist) |
-| `ReLUn(n)`                                                                       | `Clamp(0.0, n)`                                                                                                                                                            |
-| `Square`                                                                         | `Pow(2)`                                                                                                                                                                   |
-| `absolute_error`, `absolute_relative_error`, `symmetric_absolute_relative_error` | `(target - prediction).abs()`; `relative_loss(abs_error, indicator, reduction="none")` (recipes in the losses guide)                                                       |
-| `rectifier_asinh_unit` (function)                                                | `RectifierAsinhUnit` stays: the module is the public op; the function was one line without numerical care (P1)                                                             |
-| `BaseBinaryFocalLoss`, `BaseBinaryPoly1Loss` (public)                            | private `_BinaryFocalLoss`, `_BinaryPoly1Loss` (documented, not exported)                                                                                                  |
+### 4.8 Documentation and tooling (P17; F9, F10, F14)
 
-`Snake` moves into `alpha.py`. `AverageFusion` calls the same private sum as
-`SumFusion` (`BaseFusion._sum(inputs)`). The alpha activations keep the
-`_validate_init` hook (default `validate_finite`), but write each rule once:
-`Gaussian` and `Snake` share one private function `_validate_non_zero(init)` in
-`alpha.py`, and `Laplacian` calls `validate_gt(init, 0, name="init")` (one
-message instead of two).
-
-### 4.6 Encoders
-
-- `NumericalEncoder` becomes **`BaseNumericalEncoder`** in
-  `modules/numerical/base.py` and is exported from `sonnix.modules` (F7).
-  `_utils.py` keeps the helpers (`create_spaced_values`, `prepare_tensor_param`,
-  `resolve_range`) without `__all__`.
-- The two `create` class methods keep their parameters. They validate
-  `feature_size` / `num_frequencies` with `validate_int` + `validate_ge` and
-  `n_features` likewise (F2).
-- The table of the four encoders and their output shapes does not change,
-  except `PiecewiseLinearNumericalEncoder`: `(*, n_features, n_bins)`.
-
-### 4.7 Support packages (F8)
-
-> **Decision of the maintainers (#453):** `sonnix` is a library used by other codebases, so
-> a helper is not removed because the library does not use it. The helpers of
-> `sonnix.utils` and `DummyDataset` are **kept** and step 7 is not done. D1 is answered "keep".
-> The table below is the original proposal.
-
-| Package             | Target content                                                                                                                                                             | Removed                                                                                                                                                                                                                       |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sonnix.utils`      | `module_mode`, `register_tensor`                                                                                                                                           | `get_module_device`, `get_module_devices`, `is_module_on_device`, `has_parameters`, `has_learnable_parameters`, `num_parameters`, `num_learnable_parameters`, `freeze_module`, `unfreeze_module`, `load_state_dict_to_module` |
-| `sonnix.testing`    | `is_loss_decreasing`, `is_loss_decreasing_with_adam`, `is_loss_decreasing_with_sgd` (used by 21 test files)                                                                | `DummyDataset`                                                                                                                                                                                                                |
-| `sonnix.factory`    | `resolve_module`, `is_module_config`, `create_sequential` (the guide on configurations uses them)                                                                          | —                                                                                                                                                                                                                             |
-| `sonnix.validation` | `Reduction`, `VALID_REDUCTIONS`, `validate_loss_reduction_strategy`, `validate_same_shape`, `validate_focal_params`, `validate_general_robust_params`, `validate_positive` | `validate_abs_range`, `validate_frequency`, `validate_moment_order`                                                                                                                                                           |
-
-This is the one removal of working code that no sonnix object needs. It is a
-separate, last step (step 7) so that it can be dropped without touching the
-rest (decision D1). `utils` and `testing` export their names (P12), and
-`docs/docs/refs/utils.md` stops rendering `sonnix.testing.loss`.
-
-### 4.8 Public paths (P12)
-
-- Every package of 4.1 has an `__all__` in its `__init__.py`; folders do not.
-- `docs/docs/refs/functional.md` documents the indicators as
-  `sonnix.functional.<name>`.
-- A **docs-coverage test** walks the six `__all__` lists and checks that every
-  name appears in `docs/docs/refs` (the probe found one miss:
-  `rectifier_asinh_unit`, which disappears with F6).
+- **Delete `review/suggestions.md`** and point `CLAUDE.md` to `review/target_state.md`.
+- **`test_docstring_args_match_signature`**: for the objects of the six `__all__`, the names of
+  `Args:` equal the parameters of the signature (`__init__` for a class). A class that refers to its
+  base (`ExpSin`, `Gaussian`, ... "the arguments are the ones of `BaseAlphaActivation`") is listed
+  with the base as the reference. A second check reads the `Raises:` blocks: every lowercase
+  identifier in double backticks must be a parameter of the signature. Together they fail today on
+  `Pow` (no `Args:`) and on `ToBinaryLabel` (`dim`) (F9).
+- **`docs/docs/index.md` includes `README.md`** (the `pymdownx.snippets` extension is on): the two
+  files share 88 lines today and each edit is made twice.
+- **`numerical_stability.md`** is rewritten to what the code does: `safe_exp` is finite in every
+  dtype; `safe_log` and the `eps` are raised to the dtype; Poisson with `log_input=True` for a model
+  output without positivity constraint; a half-precision section that lists the unrepresentable
+  cases of section 1.
+- `pre-commit` gets a `pyright` hook (or `inv types.check`); D4 of the second revision is asked
+  again (D7).
 
 ## 5. Public API after the change
 
 ```python
-# sonnix.functional (25 → 21)
-Reduction, reduce_loss  # reduce_loss(loss, *, reduction="mean")
-safe_exp, safe_log, safe_pow
-binary_focal_loss, binary_focal_loss_with_logits
-binary_poly1_loss, binary_poly1_loss_with_logits
-general_robust_regression_loss, log_cosh_loss, poisson_regression_loss, quantile_regression_loss
-relative_loss
-arithmetical_mean_indicator, classical_relative_indicator, geometric_mean_indicator
-maximum_mean_indicator, minimum_mean_indicator, moment_mean_indicator, reversed_relative_indicator
-
-# sonnix.modules (58 → 53)
-# losses (12)
-BaseLoss, BinaryFocalLoss, BinaryFocalLossWithLogits, BinaryPoly1Loss, BinaryPoly1LossWithLogits
-GeneralRobustRegressionLoss, LogCoshLoss, PoissonRegressionLoss, QuantileRegressionLoss
-RelativeLoss, TransformedLoss, MulticlassFlatten
-# activations (23)
-(
-    Asinh,
-    Clamp,
-    Exp,
-    Expm1,
-    Log,
-    Log1p,
-    Pow,
-    RectifierAsinhUnit,
-    SafeExp,
-    SafeLog,
-    Sin,
-    Sinh,
-    SquaredReLU,
-)
-BaseAlphaActivation, ExpSin, Gaussian, Laplacian, MultiQuadratic, Quadratic, Snake
-BaseDynamicNorm, DynamicAsinh, DynamicTanh
-# layers (4), fusion (5), encoders (5), shape / dtype / labels (4)
-ExU, NLinear, ResidualBlock, ScaleAndShift
-BaseFusion, AverageFusion, ConcatFusion, MultiplicationFusion, SumFusion
-BaseNumericalEncoder, AsinhNumericalEncoder, AsinhCosSinNumericalEncoder
-CosSinNumericalEncoder, PiecewiseLinearNumericalEncoder
-Squeeze, ToDtype, ToBinaryLabel, ToCategoricalLabel
-
-# sonnix.validation (9 → 7)   sonnix.factory (3, unchanged)
-# sonnix.utils (11 → 2)       sonnix.testing (4 → 3)
+# sonnix.functional (25, unchanged)  Reduction stays here
+# sonnix.modules    (57 -> 58)       + SafePow
+# sonnix.validation (7 -> 6)         - Reduction (VALID_REDUCTIONS and the validators stay)
+# sonnix.utils      (12 -> 14)       + resolve_eps, resolve_max_exponent
+# sonnix.factory (3), sonnix.testing (4): unchanged
+# total 108 -> 109
 ```
 
 ### Migration table
 
-| Before                                                                            | After                                                                                                   |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `log_cosh_loss(p, t, scale=inf)`, `Clamp(nan, nan)`, `ReLUn(inf)`, ...            | `ValueError` (P2)                                                                                       |
-| `ConcatFusion(dim=1.5)`, `create(num_frequencies=2.5)`, `from_quantiles(.., 2.5)` | `TypeError` naming the argument                                                                         |
-| `BinaryFocalLoss(0.25, 2.0)`                                                      | `BinaryFocalLoss(0.25, gamma=2.0)`                                                                      |
-| `GeneralRobustRegressionLoss(2.0, 1.0, 5.0)`                                      | `GeneralRobustRegressionLoss(2.0, scale=1.0, max_val=5.0)`                                              |
-| `RelativeLoss(criterion, indicator, 1e-6)`                                        | `RelativeLoss(criterion, indicator=indicator, eps=1e-6)`                                                |
-| `reduce_loss(x, "sum")`; `safe_pow(x=t, exponent=2)`                              | `reduce_loss(x, reduction="sum")`; `safe_pow(input=t, exponent=2)`                                      |
-| `ToFloat()`, `ToLong()`                                                           | `ToDtype("float32")`, `ToDtype("int64")`                                                                |
-| `ReLUn(6.0)`, `Square()`                                                          | `Clamp(0.0, 6.0)`, `Pow(2)`                                                                             |
-| `absolute_error(p, t)` and the two relative errors                                | the recipes of the losses guide                                                                         |
-| `rectifier_asinh_unit(x)`                                                         | `RectifierAsinhUnit()(x)` or `x.clamp(min=0).asinh()`                                                   |
-| `BaseBinaryFocalLoss`, `BaseBinaryPoly1Loss`                                      | subclass `BaseLoss`                                                                                     |
-| `sonnix.modules.numerical._utils.NumericalEncoder`                                | `sonnix.modules.BaseNumericalEncoder`                                                                   |
-| `PiecewiseLinearNumericalEncoder(bins=...)`, `from_quantiles(x, n_bins=k)`        | `PiecewiseLinearNumericalEncoder(edges=...)`, `from_quantiles(x, n_bins=k-1)` (same encoder)            |
-| state dict key `width` of the piecewise encoder                                   | removed (derived); checkpoints with `width` load with `strict=False`                                    |
-| `sonnix.utils.params.*`, `sonnix.utils.device.*`, `load_state_dict_to_module`     | `sum(p.numel() for p in m.parameters())`, `p.requires_grad_(False)`, `next(m.parameters()).device` (D1) |
-| `sonnix.testing.DummyDataset`                                                     | a local `torch.utils.data.TensorDataset` (D1)                                                           |
+| Before                                                                                             | After                                                                                |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `safe_log(0)`, `SafeLog()(0)` in `float16`: `-inf`                                                 | `-9.7` (`eps` raised to the smallest normal number of the dtype)                     |
+| `poisson_regression_loss`, `relative_loss`, `absolute_relative_error` on `0` in `float16`: `nan`   | finite (same rule)                                                                   |
+| `safe_exp(x)` in `float16` for `x > 11.09`: `inf`; `safe_exp(x, max_val=100)` in `float32`: `inf`  | finite: `max_val` is lowered to `log(finfo.max) - 1`                                 |
+| `general_robust_regression_loss` in `float16`, `\|p - t\| / scale > 255`: `inf` and `nan` gradient | computed in `float32`, cast back                                                     |
+| `Gaussian` gradient of `alpha` in `float16` for large `\|x\|`: `nan`                               | `0`                                                                                  |
+| `safe_pow(negative, 0.5)`: `0`; `safe_pow(-2, 2)`: `0`                                             | `nan` (like `torch.pow`); `4`                                                        |
+| `ScaleAndShift(5)(x[3, 1])`, `DynamicTanh`, `DynamicAsinh`                                         | `ValueError` naming `normalized_shape`; use `x.expand(3, 5)` to broadcast on purpose |
+| `SumFusion()(a[4, 3], b[4, 1])`, `AverageFusion`, `MultiplicationFusion`                           | `ValueError` naming both shapes; `expand` first                                      |
+| `ResidualBlock` with branches of different shapes                                                  | `ValueError` naming `skip` and `residual`                                            |
+| `Gaussian(3)(x[4, 1])`, `Gaussian(3, channel_dim=1)(x[5])` (broadcast, `IndexError`)               | `ValueError` naming `channel_dim` and `num_parameters`                               |
+| `from sonnix.validation import Reduction`                                                          | `from sonnix.functional import Reduction`                                            |
+| `CosSinNumericalEncoder.create("linspace", num_frequencies=8, ...)`                                | `create("linspace", n_frequencies=8, ...)` (D6)                                      |
 
 ## 6. Dependents
 
-| Consumer                                 | Effect                                                                                                                                                                                                      |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tests/registry.py`                      | −`ReLUn`, `Square`, `ToFloat`, `ToLong` entries; `ModuleCase` gets `positional` and `other` (a second build with different values, for the round trip).                                                     |
-| `docs/docs/refs/*`                       | `functional.md` loses `Errors` and the `.loss.` paths; `utils.md` is fixed and shrinks; `testing.md` loses `dummy`; `modules/activation.md` loses `ReLUn`, `Square`; `layers.md` loses `ToFloat`, `ToLong`. |
-| `docs/docs/guide/losses.md`              | gains the recipes: relative error, relative-mean error, absolute error.                                                                                                                                     |
-| `docs/docs/guide/numerical_stability.md` | `Square` → `Pow(2)`.                                                                                                                                                                                        |
-| `docs/docs/conventions.md`               | the design-rules table gets the revised P2, P3, P8, P11, P12 and P16.                                                                                                                                       |
-| `README.md`, `docs/docs/index.md`        | the Overview drops `ReLUn`, the `utils` description ("inspect and train modules") and `DummyDataset`.                                                                                                       |
-| `notebooks/activations.ipynb`            | uses `snn.ReLUn(m)`: change to `Clamp(0.0, m)`; verify with the notebook CI job.                                                                                                                            |
-| `CHANGELOG.md`                           | one "Breaking changes" entry per step, with the PR number, and the migration table above.                                                                                                                   |
-| `pyproject.toml`                         | import-linter: unchanged. `ruff`: unchanged unless D4 is approved.                                                                                                                                          |
+| Consumer                                                            | Effect                                                                                                                                                                       |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/registry.py`                                                 | `RelativeLoss` is built with `nn.L1Loss(reduction="none")` (`MSELoss` overflows in `float16` on its own); fields `wrong_inputs`, `fixed` (the label inputs); `SafePow` entry |
+| `tests/integration/modules/test_dtype.py`, `test_export_compile.py` | `float16` in `DTYPES`; export with a dynamic batch dimension; the new edge-input test                                                                                        |
+| `tests/unit/functional/test_half_precision.py`                      | adds zeros, tiny and large inputs; `general_robust` on `±1000`; the `_scaled` workaround is removed                                                                          |
+| `tests/unit/test_docs.py`, `test_imports.py`                        | per-package name; no object exported twice; `Args:` against the signature                                                                                                    |
+| `docs/docs/refs/*`                                                  | `Reduction` moves to `functional.md`; `SafePow` in `modules/activation.md`; `utils.md` gets two helpers                                                                      |
+| `docs/docs/conventions.md`                                          | the table of section 1 (P1, P4, P6, P9, P10, P12, P17), the rule on counts (4.7)                                                                                             |
+| `docs/docs/guide/numerical_stability.md`, `losses.md`               | 4.8; `losses.md` mentions that `eps` is raised to the dtype                                                                                                                  |
+| `docs/docs/index.md`, `README.md`                                   | `index.md` includes `README.md`; the overview lists `SafePow`                                                                                                                |
+| `CLAUDE.md`                                                         | the pointer to `review/suggestions.md` becomes `review/target_state.md`                                                                                                      |
+| `CHANGELOG.md`                                                      | one "Breaking changes" entry per step, the migration rows above, with PR numbers                                                                                             |
+| `pyproject.toml`                                                    | import-linter: unchanged. `ruff`: unchanged unless D7 is approved                                                                                                            |
 
 ## 7. Evidence
 
-Counts from `main` at `5003fc7`; probes ran today in a scratch script (outside
-the repository).
+Probes and prototypes ran in the scratchpad; the commands are not in the repository. `float16` and
+`bfloat16` on CPU, `torch 2.15`.
 
-| Measure                                                           | Today               | Target                    |
-| ----------------------------------------------------------------- | ------------------- | ------------------------- |
-| Names in `sonnix.modules.__all__`                                 | 58                  | 53                        |
-| Names in `sonnix.functional.__all__`                              | 25                  | 21                        |
-| Public functions in `sonnix.utils`                                | 11 (542 lines)      | 2 (~100)                  |
-| Validators used once or redundant                                 | 3                   | 0                         |
-| Float hyperparameters that accept `inf` or `nan` (probe, 8 found) | 8                   | 0                         |
-| Classes with more than one positional hyperparameter (P3)         | 4 (+ `Clamp`)       | 0 (+ `Clamp`, documented) |
-| Copies of "parameter or buffer"                                   | 3                   | 1                         |
-| Persistent buffers derived from another buffer                    | 1 (`width`)         | 0                         |
-| `src` lines                                                       | 6,835               | ~6,000                    |
-| `tests` lines                                                     | 12,635              | ~11,800                   |
-| Tests / doctests / lint on `main`                                 | 8,921 / 118 / clean | same or more              |
+| Case                                                        | `main`, `float16` | Prototype, `float16`           | `float32`         |
+| ----------------------------------------------------------- | ----------------- | ------------------------------ | ----------------- |
+| `safe_log(0)`                                               | `-inf`            | `-9.703`                       | `-18.42`          |
+| `safe_exp(1000)`                                            | `inf`             | `24192` (margin `1.0`)         | `4.85e8`          |
+| `poisson_regression_loss(0, [0, 1])`                        | `[nan, inf]`      | `[6.1e-5, 9.703]`              | `[1e-8, 18.42]`   |
+| `relative_loss(0, 0)`                                       | `nan`             | `0`                            | `0`               |
+| `general_robust`, `alpha=1`, `p - t = 300`: value, gradient | `inf`, `nan`      | `299.0`, `1.0`                 | `299.0`, `1.0`    |
+| `general_robust`, `alpha=0`, `p - t = 300`: value, gradient | `inf`, `0`        | `10.711`, `0.007`              | `10.714`, `0.007` |
+| `Gaussian`, `x = 1000`: gradient of `alpha`                 | `nan`             | `0`                            | `0`               |
+| `safe_pow([-4, 0, 4], 0.5)`: values, gradient at `0`        | `[0, 0, 2]`, `0`  | `[nan, 0, 2]`, `0` (`float32`) | same              |
 
-Piecewise encoder, forward cost of deriving the state on every call (CPU,
-`float32`, best of 5 × 200 runs): 1.29x slower for 8 features × 8 edges × batch
-256, 1.06x for 100 × 16 × 1024. The load hook (4.4) keeps today's speed, so no
-benchmark gate is needed; `tests/benchmark/test_nlinear.py` stays the only
-benchmark.
+The failures of the 51 registered modules on zeros, tiny, `1e3` and `-1e3` inputs (finite in
+`float32`, not in `float16`; `bfloat16` has none): `SafeLog`, `SafeExp`, `PoissonRegressionLoss`,
+`RelativeLoss`, `GeneralRobustRegressionLoss`, `Gaussian` (gradient), and the results that `float16`
+cannot represent (`Pow`, `Square`, `SquaredReLU`, `ExU`, the `MSELoss` inside `RelativeLoss`), which
+the rule of section 9 excludes by construction.
+
+| Measure                                                          | Today                                            | Target                            |
+| ---------------------------------------------------------------- | ------------------------------------------------ | --------------------------------- |
+| Properties of section 1 that are true                            | 11 of 17 (P2, P3, P5, P7, P8, P10, P11, P13-P16) | 17 of 17                          |
+| Public names (`functional` / `modules` / `validation` / `utils`) | 25 / 57 / 7 / 12                                 | 25 / 58 / 6 / 14                  |
+| Registered modules tested in `float16`                           | 0 of 51                                          | 51 of 51                          |
+| Functions with an edge-input test in half precision              | 0 (hand-picked inputs)                           | all the registered losses and ops |
+| Public objects whose `Args:` is checked against the signature    | 0                                                | 105                               |
+| `src` lines                                                      | 7,124                                            | about 7,250                       |
+| `tests` lines                                                    | 13,806                                           | about 14,200                      |
+| Lines of obsolete or duplicated documentation                    | 505 (`suggestions.md`) + 88 (`index.md`)         | 0                                 |
+| Tests / doctests / lint / types on `main`                        | 9,882 / 121 / clean / clean                      | same or more                      |
 
 ## 8. Changes to reach the target state
 
-One branch and one pull request per step (`CLAUDE.md`), small and reviewable on
-its own. Every step updates `CHANGELOG.md`, the docs it touches and the tests,
-and runs `ruff`, `inv types.check --complete`, `pytest tests` and
-`xdoctest src/sonnix all`. Steps 2, 3 and 4 are independent and can start from
-`main` in parallel; 5 needs 2 (`ToDtype` validation); 6 needs 5 (the names are
-settled); 7 is independent; 8 needs 4.
+One branch and one pull request per step (`CLAUDE.md`), small and reviewable on its own. Every step
+updates `CHANGELOG.md`, the docs it touches and the tests, and runs `ruff`,
+`inv types.check --complete`, `pytest tests`, `xdoctest src/sonnix all` and, for a step that
+changes `docs/`, `mkdocs build --strict`. Steps 1, 2, 3 and 4 are independent and can start from
+`main` in parallel; 5 needs 2 (same files in `functional/`); 6 is last.
 
-1. **Properties and docs (non-breaking).** Update `docs/docs/conventions.md`
-   with the revised rules; fix `docs/docs/refs/utils.md` (F5); add the
-   docs-coverage test (names must be listed explicitly in `docs/docs/refs`; it
-   passes once `rectifier_asinh_unit` is added to `functional.md`). _Why
-   first: the rules are written before the code changes, and the one failing
-   check is a docs typo._
-2. **Validation (breaking: values that were accepted).** F1, F2, F9: add
-   `validate_positive`; apply the table of 4.2 to the functions and the modules;
-   delete `validate_abs_range`, `validate_frequency`, `validate_moment_order`;
-   check tensor arguments of the encoders; stop `bool(...)` and `float()`
-   coercions. Regression tests, driven by one registry table
-   `INVALID_ARGUMENTS = {class_or_function: [(kwargs, exception, match), ...]}`
-   so the function and the module are checked together, with `nan`, `inf` and a
-   wrong type per float argument.
-3. **State (breaking: state-dict keys).** F3, F10, F11: add
-   `sonnix.utils.register_tensor`; use it in the alpha activations and the
-   encoders; rework `PiecewiseLinearNumericalEncoder` (`edges`, `_derive()` and
-   the load hook, `n_bins` = segments). Add the round-trip registry test
-   (`ModuleCase.other`); it fails on `main` for the piecewise encoder
-   (`git stash push src`). The single-edge case is rejected here.
-4. **Signatures (breaking in positional calls).** F4: the four classes of 4.3,
-   `reduce_loss`, `safe_pow(input, exponent)`; `ModuleCase.positional` and the
-   signature test; delete `test_option_is_keyword_only` (replaced by the
-   registry-driven test).
-5. **Surface area (breaking).** F6, F7 (private bases), F13: delete the names of
-   4.5; `ToDtype` accepts a name; `Snake` into `alpha.py`; shared fusion sum;
-   one `init` message per rule; recipes in `guide/losses.md`; update the notebook
-   and the registry.
-6. **Public paths and encoder base (breaking: import paths).** F5, F7
-   (`BaseNumericalEncoder`): `__init__.py` exports for `utils` and `testing`;
-   docstring-only `__init__` in `functional/loss` and `functional/activation`;
-   the indicators documented as `sonnix.functional.<name>`; `test_imports`
-   asserts the `__all__` of the six packages and rejects an `__all__` in a
-   folder.
-7. **Support packages (breaking).** F8, decision D1: delete the ten helpers of
-   `sonnix.utils` and `DummyDataset` with their tests; update the README and
-   `docs/docs/refs`. _Last on purpose: if the maintainers keep these helpers,
-   skip this step; nothing else depends on it._
-8. **Small consistency (non-breaking).** F12, F14: `RelativeLoss.extra_repr`
-   prints the indicator (`indicator=classical_relative_indicator` or
-   `functools.partial(...)`); the four binary losses cast integer and `bool`
-   targets to the prediction dtype (D7); the docstrings say what the code
-   checks. Extend `test_hyperparameters` to `repr`.
-9. **Migration notes (docs only).** Fill the `CHANGELOG.md` migration table with
-   the rows of section 5 and the PR numbers; update `README.md` and
+1. **Honest documentation (non-breaking).** F9, F10, F14: delete `review/suggestions.md`; fix
+   `CLAUDE.md`; fix the `Args:` of `Pow` and the `Raises:` of `ToBinaryLabel`; add
+   `test_docstring_args_match_signature`; make `test_docs` per package (`sonnix.functional.Reduction`
+   is documented only under `validation` until step 4, so the test lists it as a known exception
+   that step 4 removes); `index.md` includes `README.md`; the `pyright` hook; update
+   `conventions.md` with the table of section 1. _Why first: the rules are written before the code
+   changes, and the failing checks are typos._
+2. **Numerics (breaking in `float16` and for `safe_pow`).** F1-F4, F6, F11: `resolve_eps` and
+   `resolve_max_exponent` in `sonnix.utils` with their tests; the five sites of 4.2; the `float32`
+   computation of `general_robust`; the `Gaussian` formula; `safe_pow` on `input != 0`;
+   `float16` in `DTYPES`; the registry rule `test_finite_wherever_float32_fits` (section 9); the
+   half-precision unit tests extended; the guide rewritten. Each of F1-F4 and F6 has a regression
+   test that fails on `main` (`git stash push src`).
+3. **Strict shapes (breaking: values that were accepted).** F5: the four checks of 4.3,
+   `ModuleCase.wrong_inputs` and the registry test. The tests that rely on broadcasting
+   (`grep` for `(4, 1)` in the fusion and scale tests) are changed to `expand`.
+4. **One path and `SafePow` (breaking: an import path).** F7, F8: `SafePow` with a registry entry
+   (parity with `safe_pow`, export, compile, dtype); `Reduction` exported by `functional` only; the
+   no-duplicate test; the exception of step 1 removed; the refs pages.
+5. **Simplifications (non-breaking).** F12: `NLinear` with `einsum` (benchmark before and after in
+   the PR), the dead branch, the focal and Poly-1 cores, the `target` paragraph. _Skip any item
+   whose benchmark or export test regresses._
+6. **Names and migration notes (breaking, small).** F13 (D6): `n_frequencies`; fill the migration
+   table of `CHANGELOG.md` with the rows of section 5 and the PR numbers; update `README.md` and
    `docs/docs/index.md`.
 
-Steps 2 and 3 are the only ones that change the behaviour of valid code
-(a checkpoint of the piecewise encoder, `n_bins`); the others remove names or
-make an invalid call fail earlier.
+Steps 2 and 3 are the only ones that change the behaviour of calls that worked (a `float16` result
+that was `inf` or `nan`; a broadcast that was silent). Steps 1, 4, 5 and 6 remove or rename a name,
+or change nothing visible.
 
 ## 9. Tests and gates
 
-The unit-test rules of `CLAUDE.md` apply to everything added (one behaviour per
-test, `match` on every `pytest.raises`, seeded data, no local imports, literal
-expected values, a regression test for each bug, an integration test for each
-patched behaviour, 100 % coverage of the lines added or changed).
+The unit-test rules of `CLAUDE.md` apply to everything added (one behaviour per test, `match` on
+every `pytest.raises`, seeded data, no local imports, literal expected values, a regression test for
+each bug, an integration test for each patched behaviour, 100 % coverage of the lines added or
+changed). The tests added by this revision are **registry-driven**: a new class is covered by adding
+one `ModuleCase`.
 
-- **Validation (P2).** `INVALID_ARGUMENTS`: for each float argument `nan`,
-  `inf` and `"a"`; for each int argument `2.5`, `True`, `0`; for each flag
-  `1`. The function and the module raise the same type and message
-  (parity); the loss is not `nan` for any **valid** value (P6).
-- **Signatures (P3).** `ModuleCase.positional` equals the positional parameters
-  of the constructor; the functions have only tensor operands (and `exponent`)
-  positional.
-- **State (P8).** For every module with state: the `state_dict` keys are the
-  same for `learnable=True` and `False`; `m2.load_state_dict(m1.state_dict())`
-  gives `m2(x) == m1(x)` for `m2` built from `ModuleCase.other`; no buffer is
-  persistent and derived (a named list in the registry).
-- **Piecewise (F3, F11).** The literal output of the duplicated-edge encoder
-  after a load; `from_quantiles(x, n_bins=3).feature_size == 3`; a `width` key
-  in an old checkpoint is reported by `strict=False` as unexpected.
-- **Surface (P16).** `test_registry_covers_every_module` (exists) fails for a
-  new class without an entry; the removed names are absent from every
-  `__all__`.
-- **Public paths (P12).** `test_imports`: the six `__all__` lists, no `__all__`
-  in a folder, no docstring import from a folder; the docs-coverage test.
-- **Numerics (P6) and shapes (P4).** The half-precision, `gradcheck` and shape
-  tests of today stay; `RelativeLoss` with each indicator and a `partial`
-  indicator for the new `repr`.
-- **Docs.** `xdoctest src/sonnix all`, `mkdocs build --strict`, the notebook
-  job.
+- **Numerics (P6)**: `test_finite_wherever_float32_fits(case, edge, dtype)` for the 51 cases, the
+  edges `zeros`, `tiny` (`1e-10`), `large` (`1e3`), `negative_large` (`-1e3`) applied to the floating
+  inputs (`ModuleCase.fixed` keeps the labels of the binary losses), and the dtypes `float16` and
+  `bfloat16`. The rule: run in `float32`; for the output and for each gradient whose `float32` value
+  is finite and below `finfo(dtype).max / 4`, assert the value in `dtype` is finite. It excludes by
+  construction what the dtype cannot represent (a `Square` of `1000` in `float16`). It fails on
+  `main` for `SafeLog`, `SafeExp`, `PoissonRegressionLoss`, `RelativeLoss`,
+  `GeneralRobustRegressionLoss` and `Gaussian`. The functions without a module (the errors, the
+  indicators, `safe_pow`, `rectifier_asinh_unit`) go through a short list `FUNCTION_CASES` with the
+  same rule. Unit tests with literal values for `resolve_eps` and `resolve_max_exponent` (`float16`,
+  `bfloat16`, `float32`, `float64`, an integer tensor).
+- **Shapes (P4)**: `test_wrong_inputs_raise_value_error` over the cases with `wrong_inputs`; the
+  literal messages of the four checks; `x[3, 1]` into `ScaleAndShift(5)` is the regression test.
+- **P1**: `SafePow` against `safe_pow` in the parity test; `safe_pow` literal values for negative
+  inputs and the gradient at `0`.
+- **P9, P10**: `float16` in `DTYPES`; `torch.export` with `dynamic_shapes` on the batch dimension for
+  the registry.
+- **P12, P17**: per-package reference test; no object exported twice; `Args:` against the signature.
+- **Simplifications**: the existing equivalence and gradcheck tests pass unchanged (step 5 is a
+  refactor); `tests/benchmark/test_nlinear.py` before and after.
+- **Docs**: `xdoctest src/sonnix all`, `mkdocs build --strict`, the notebook job.
 
 ## 10. Decisions for the maintainers
 
-| #   | Decision                                                                                                         | Recommendation                                                                                                                                                                                                                                                                        |
-| --- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D1  | Delete the ten generic helpers of `sonnix.utils` and `DummyDataset` (4.7, step 7)?                               | **Yes.** Nothing in the library uses them, `torch` has a one-liner for nine of them, and `load_state_dict_to_module` is 206 lines of heuristic that solves a checkpoint problem, not a building-block one. Keep them only if there are known external users; the step is independent. |
-| D2  | Delete the three error functions and `rectifier_asinh_unit` (F6)?                                                | **Yes.** Two errors are `relative_loss` with an indicator (bit-identical, probed), the third is `(t - p).abs()`; none is a loss or a layer. Keep them only if metrics are in scope, then move them to a `sonnix.metrics` package, not `functional`.                                   |
-| D3  | Delete `ReLUn`, `Square`, `ToFloat`, `ToLong`, and let `ToDtype` take a name?                                    | **Yes.** Same rule as the first revision's deletion of `AsinhMSELoss`: a fixed-argument composition is a recipe. The cost is one line in the docs and the notebook per name.                                                                                                          |
-| D4  | `lint.flake8-builtins.builtins-ignorelist = ["input"]` to remove the 44 `# noqa: A002`?                          | **Yes**, once, in `pyproject.toml`: `input` is the `torch.nn` name and the only builtin shadowed. Still needs explicit approval (`CLAUDE.md`: a changed rule set is not a fix). Otherwise keep the `noqa`s.                                                                           |
-| D5  | `validate_positive` in `sonnix.validation` or upstream in `coola`?                                               | **Here now**, a few lines; delete it when `coola.validation` has it.                                                                                                                                                                                                                  |
-| D6  | Rename `bins` → `edges` and make `n_bins` the number of segments in the piecewise encoder (F11)?                 | **Yes.** It removes an off-by-one that every reader of `from_quantiles(x, n_bins=3)` hits, at the price of a changed meaning of `n_bins` (documented in the migration table).                                                                                                         |
-| D7  | Cast integer and `bool` targets of the four binary losses to the prediction dtype (F14)?                         | **Yes.** `DataLoader` labels are `long`; the raw `RuntimeError` of torch is the only outcome today, and the cast is free. A **float** target out of `[0, 1]` is still the caller's problem (not checked: data-dependent).                                                             |
-| D8  | `Clamp(min_val, max_val)` as the one two-hyperparameter positional exception (P3)?                               | **Yes**, like `nn.Hardtanh(min_val, max_val)`; the registry lists it. The alternative (`Clamp(*, min_val, max_val)`) breaks every call for a rule that torch itself does not follow.                                                                                                  |
-| D9  | Keep `sonnix.factory` (3 functions)?                                                                             | **Keep.** Four modules use `resolve_module`; the trust warning (P14) lives in one place.                                                                                                                                                                                              |
-| D10 | Move the top-level module files (`exu.py`, `nlinear.py`, ...) into a folder that mirrors the docs page "Layers"? | **No.** It moves files and tests for no behaviour change; the flat namespace (P12) is what users see.                                                                                                                                                                                 |
+| #   | Decision                                                                                            | Recommendation                                                                                                                                                                                                                                                    |
+| --- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | `resolve_eps` and `resolve_max_exponent` public in `sonnix.utils` (4.2)?                            | **Yes.** `CLAUDE.md`: shared helpers are public and tested; users who write their own safe ops need them (the library rule of #453). A private copy in `functional` would be imported by `modules` across a layer.                                                |
+| D2  | Add `SafePow` (4.4), or reword P1 so that `safe_pow` is function-only?                              | **Add it.** About 70 lines with the docstring, completes `SafeExp`/`SafeLog`/`SafePow`, makes P1 literally true. The alternative costs nothing and leaves the one safe op that cannot be used in a `Sequential`.                                                  |
+| D3  | `safe_pow` as `torch.pow` with a finite gradient at zero (negative input gives `nan` or the power)? | **Yes.** Today it returns a wrong number silently (F6). A data-dependent error is not possible under `torch.export`, and `nan` is what `torch.pow` returns.                                                                                                       |
+| D4  | Where does `Reduction` live (4.5)?                                                                  | **`sonnix.functional`**, next to `reduce_loss`; `sonnix.validation` keeps the validators. The other way (validation) is as short but users look for the type where they find the function.                                                                        |
+| D5  | Strict shapes for the three elementwise fusions and the residual block (4.3)?                       | **Yes** (P4). It breaks `[B, F] * [B, 1]`, which is one `expand` or one `*` away. A `broadcast=True` option is rejected: it brings back the silent case for the one who sets it by habit.                                                                         |
+| D6  | `num_frequencies` becomes `n_frequencies` (4.7)?                                                    | **Yes**, last and independent (step 6): it is a rename with no behaviour change. Drop it if the churn is not wanted.                                                                                                                                              |
+| D7  | `lint.flake8-builtins.builtins-ignorelist = ["input"]` to remove the 45 `# noqa: A002` (F14)?       | **Yes**, once, in `pyproject.toml`: `input` is the `torch.nn` name and the only shadowed builtin. It is asked again because `CLAUDE.md` says a changed rule set is not a fix, so it needs explicit approval.                                                      |
+| D8  | `float16` is a supported dtype of P6, tested on CPU (`DTYPES`, edge rule)?                          | **Yes.** All 51 modules run in `float16` on CPU, the `ExU` docstring and the half-precision tests already treat it as supported, and every real failure of this review is `float16`. The alternative (only `bfloat16`) makes F1-F4 "documented" instead of fixed. |
+| D9  | A learnable `alpha` that crosses `0` (`Gaussian`, `Laplacian`, `Snake`): parametrise it?            | **No change.** It needs an experiment (a `softplus` or `abs` parametrisation changes the model), not a rule. It stays documented in the guide and in P6.                                                                                                          |
+
+Closed decisions (answered by the maintainers, not reopened): keep the named wrappers `ToFloat`,
+`ToLong`, `ReLUn`, `Square`, the three errors and `rectifier_asinh_unit` (#451); keep the helpers of
+`sonnix.utils` and `DummyDataset` (#453); `validate_positive` in `sonnix.validation`, `edges` and
+`n_bins` as segments, integer targets cast, `Clamp(min_val, max_val)` positional, `sonnix.factory`
+kept, no folder move for the top-level modules (second revision, #447-#455).
 
 ## 11. Not covered
 
-- New losses and layers (`Tweedie`, `Dice`/`Tversky`, `SwiGLU`/`GeGLU`, a
-  multiclass focal loss): the target gives the rules a new object follows (P1-P16,
-  Appendix B), not which objects to add.
-- Sample weights, masks and `ignore_index` in the losses: a feature, with its own
-  design (shape of the weights against `reduction`).
-- A softplus or clamped parametrisation of a learnable `alpha`: needs an
-  experiment, not a rule.
-- Packaging and CI (the workflows, a GPU job): tracked in `review/suggestions.md`.
-- Lazy top-level imports (`import sonnix; sonnix.modules.X`): `import
-sonnix.modules` stays explicit and keeps the import time predictable.
-- Replacing `docformatter` with `ruff` docstring formatting.
+- New losses and layers (`Tweedie`, `Dice`/`Tversky`, `SwiGLU`/`GeGLU`, a multiclass focal loss): the
+  target gives the rules a new object follows (P1-P17, Appendix B), not which objects to add.
+- Sample weights, masks and `ignore_index` in the losses: a feature with its own design (the shape of
+  the weights against `reduction`).
+- A parametrisation of a learnable `alpha` (D9).
+- **A stable release.** `coola>=2.0.0a5` is a pre-release; the latest stable `coola` on PyPI is
+  `1.1.10` (checked today). `sonnix` cannot leave `0.0.1a0` before `coola` 2.0 is stable, or before
+  the dependency is relaxed.
+- Packaging and CI (the workflows, a GPU job, `docformatter` against `ruff` docstring formatting):
+  tracked in `.github/GUIDELINES.md`.
+- Lazy top-level imports (`import sonnix; sonnix.modules.X`): `import sonnix.modules` stays explicit
+  and keeps the import time predictable.
+- Fusing the focal and Poly-1 operations to cut the memory of the intermediates (`binary_focal_loss`
+  is `27` µs against `4` µs for `binary_cross_entropy` on a `16 × 4` tensor [probe]): a performance
+  topic, to do with a benchmark that shows a need.
 
 ## Appendix A: size of the package
 
-| Area                                          | Lines today | Lines after | Change                                                          |
-| --------------------------------------------- | ----------- | ----------- | --------------------------------------------------------------- |
-| `utils`                                       | 542         | ~100        | −`device`, `params`, `state_dict`; +`register_tensor` (~40)     |
-| `testing`                                     | 278         | 220         | −`dummy.py`                                                     |
-| `validation`                                  | 227         | ~175        | −`numerical.py`, −`validate_moment_order`, +`validate_positive` |
-| `functional` (errors, `rectifier_asinh_unit`) | 158         | 0           | −`error.py`, −`activation/hyperbolic.py`                        |
-| `modules` (`dtype`, `relu`, `Square`)         | ~215        | ~130        | −`ToFloat`, `ToLong`, `ReLUn`, `Square`                         |
-| `modules/numerical`                           | 860         | ~840        | `register_tensor`, `_derive()`, `base.py`                       |
-| rest of `src`                                 | ~4,550      | ~4,535      | `register_tensor` in the alpha activations, shared fusion sum   |
-| **Total `src`**                               | **6,835**   | **~6,000**  |                                                                 |
+| Area                                            | Lines today | Lines after | Change                                                                              |
+| ----------------------------------------------- | ----------- | ----------- | ----------------------------------------------------------------------------------- |
+| `utils`                                         | 627         | ~680        | `resolve_eps`, `resolve_max_exponent` (~50 with docstrings and examples)            |
+| `validation`                                    | 217         | ~214        | `Reduction` no longer exported                                                      |
+| `functional`                                    | 1,493       | ~1,470      | five guards (+10), `general_robust` (+6), focal and Poly-1 cores (−40)              |
+| `modules` (`SafePow`)                           | 4,340       | ~4,440      | `SafePow` (+70), the four checks (+35), `NLinear` (−8), `Gaussian` (0)              |
+| `factory`, `testing`                            | 430         | 430         | none                                                                                |
+| **Total `src`** (with `sonnix/__init__.py`, 17) | **7,124**   | **~7,250**  | +~125                                                                               |
+| `tests`                                         | 13,806      | ~14,200     | the registry rules replace hand-picked cases; +~400                                 |
+| `review/`, `docs/index.md`                      | 1,100 + 145 | ~540 + 57   | −`suggestions.md` (505), this file rewritten, `index.md` includes `README.md` (−88) |
 
 ## Appendix B: checklist for a new public object
 
-1. Is it a fixed-argument composition of existing public objects or of a
-   `torch.nn` object? Then it is a recipe in the guide (P16).
-2. Function first if it is a loss or needs numerical care; the module calls it
-   (P1).
-3. Every hyperparameter: type, finiteness, range, before it is stored; the module
-   uses the same helper (P2).
-4. Signature `(prediction, target, *, options, reduction)` or `(input, *,
-options)`; a module's positional arguments are listed in its registry entry
-   (P3).
-5. Two same-role tensors: `validate_same_shape` (P4). Loss: `reduce_loss` (P5).
-6. Large, small, zero and half-precision inputs; the gradient at the boundaries;
-   every valid hyperparameter (P6).
-7. A trained tensor that can be frozen: `register_tensor`; anything derived is
-   non-persistent and rebuilt after a load (P8). `device` and `dtype` if the
-   module creates tensors (P9).
+1. Is it a fixed-argument composition of existing public objects or of a `torch.nn` object? Then it is
+   a recipe in the guide, unless users look for it by name (P16).
+2. Function first if it is a loss or needs numerical care; the module calls it (P1).
+3. Every hyperparameter: type, finiteness, range, before it is stored; the module uses the same
+   helper (P2).
+4. Signature `(prediction, target, *, options, reduction)` or `(input, *, options)`; a module's
+   positional arguments are listed in its registry entry (P3).
+5. Two same-role tensors: `validate_same_shape`; a layer checks the dimension it consumes and names the
+   argument; nothing broadcasts (P4). Loss: `reduce_loss` (P5).
+6. A guard (`eps`, `min_val`, `max_val`) goes through `resolve_eps` / `resolve_max_exponent`; an
+   unbounded square or exponential is computed in at least `float32`; the registry edge rule passes in
+   `float16` (P6).
+7. A trained tensor that can be frozen: `register_tensor`; anything derived is non-persistent and
+   rebuilt after a load (P8). `device` and `dtype` if the module creates tensors (P9).
 8. Public attributes named like the arguments, shown in `repr` (P11).
-9. One registry entry (with `positional` and `other`): export, compile, dtype,
-   purity, parity and round-trip tests come for free (P10).
-10. Export it from the flat `__init__.py`, document it in the matching
-    `docs/docs/refs` page with an example that runs (P12).
+9. One registry entry (with `positional`, `other`, `wrong_inputs`): export, compile, dtype, purity,
+   parity, round-trip, shape and edge tests come for free (P10).
+10. Export it from the flat `__init__.py` of **one** package, document it under that package in
+    `docs/docs/refs` with an `Args:` that matches the signature and an example that runs (P12, P17).
 
-## Appendix C: history of the first plan
+## Appendix C: history of the previous revisions
 
-The first revision (2026-11-06, `fc04eeb`) had 12 steps, all merged. Its
-findings (shape policy, validation of the hyperparameters, keyword-only function
-options, `input` for every forward, composition losses, dynamic norms by
-composition, encoder range logic and input check, package layout, alpha
-`_validate_init`, copied `Args:` blocks) are closed; the details are in
-`CHANGELOG.md`.
+First revision (2026-11-06, `fc04eeb`, twelve steps, all merged). Closed: shape policy, validation
+of the hyperparameters, keyword-only function options, `input` for every forward, composition losses,
+dynamic norms by composition, encoder range logic and input check, package layout, alpha
+`_validate_init`, copied `Args:` blocks.
 
 | Step | Pull request | Summary                                                      |
 | ---- | ------------ | ------------------------------------------------------------ |
@@ -580,16 +510,29 @@ composition, encoder range logic and input check, package layout, alpha
 | 11   | #439         | `resolve_range` checks `0 < min <= max`                      |
 | 12   | #440         | copied `Args:` blocks removed                                |
 
+Second revision (2026-11-22, nine steps). Closed: non-finite hyperparameters, the state of the
+piecewise encoder (`edges`, `register_tensor`), uniform signatures, the public paths, the private
+bases, integer targets in the binary losses, the `repr` of `RelativeLoss`.
+
+| Step | Pull request | Summary                                                                            |
+| ---- | ------------ | ---------------------------------------------------------------------------------- |
+| 1    | #446         | properties and docs                                                                |
+| 2    | #447         | validation of every hyperparameter, `validate_positive`                            |
+| 3    | #449         | complete state: `register_tensor`, `edges`, load hook                              |
+| 4    | #450         | uniform signatures                                                                 |
+| 5    | #451         | surface area: private bases, `ToDtype` accepts a name; the named wrappers are kept |
+| 6    | #452         | one public path for every package                                                  |
+| 7    | #453         | dropped: `sonnix` is a library, the helpers are kept                               |
+| 8    | #454         | integer targets, `RelativeLoss` repr                                               |
+| 9    | #455         | migration table                                                                    |
+
 ## Appendix D: status of this revision
 
-| Step | Pull request | Notes   |
-| ---- | ------------ | ------- |
-| 1    | #446         | open    |
-| 2    | #447         | open    |
-| 3    | #449         | open    |
-| 4    | #450         | open    |
-| 5    | #451         | open    |
-| 6    | #452         | open    |
-| 7    | #453         | dropped (D1: keep the helpers; the pull request only documents that `sonnix` is a library) |
-| 8    | #454         | open    |
-| 9    | #455         | open    |
+| Step | Pull request | Notes       |
+| ---- | ------------ | ----------- |
+| 1    |              | not started |
+| 2    |              | not started |
+| 3    |              | not started |
+| 4    |              | not started |
+| 5    |              | not started |
+| 6    |              | not started |
