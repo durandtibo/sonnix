@@ -48,7 +48,7 @@ not true as written) and adds P16.
 | P13 | **Layered imports**                 | `testing → modules → functional → validation`; `utils`, `factory` and `validation` import no other sonnix package; no cycle.                                                                                                                                                                                                                                                                  | import-linter contracts (exist)                                                              |
 | P14 | **Configuration is trusted input**  | `sonnix.factory` imports and **calls** a `_target_` before it checks the type of the result. An argument typed `Module \| dict` says so in a `Warning`.                                                                                                                                                                                                                                       | docstring test (exists)                                                                      |
 | P15 | **Optional means lazy**             | Only `torch` and `coola` are imported at module level.                                                                                                                                                                                                                                                                                                                                        | `package_checks` job (exists)                                                                |
-| P16 | **Earned names**                    | A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use or that tests them. An object that is a fixed-argument composition of other public objects or of a `torch.nn` object is a **recipe** in the guide, not a class, unless users look for it by name (`ReLUn`, `Square`, `ToFloat`): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.                                             | review checklist (Appendix B); a class without a registry entry fails                        |
+| P16 | **Earned names**                    | A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use, that tests them, or that users of the library need. An object that is a fixed-argument composition of other public objects or of a `torch.nn` object is a **recipe** in the guide, not a class, unless users look for it by name (`ReLUn`, `Square`, `ToFloat`): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.                                             | review checklist (Appendix B); a class without a registry entry fails                        |
 
 Not guaranteed, and documented as such: bit-exact results across torch
 versions; behaviour on GPU in CI (no GPU job; the CUDA tests run locally before
@@ -265,6 +265,11 @@ message instead of two).
   except `PiecewiseLinearNumericalEncoder`: `(*, n_features, n_bins)`.
 
 ### 4.7 Support packages (F8)
+
+> **Decision of the maintainers (#453):** `sonnix` is a library used by other codebases, so
+> a helper is not removed because the library does not use it. The helpers of
+> `sonnix.utils` and `DummyDataset` are **kept** and step 7 is not done. D1 is answered "keep".
+> The table below is the original proposal.
 
 | Package             | Target content                                                                                                                                                             | Removed                                                                                                                                                                                                                       |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -585,4 +590,5 @@ composition, encoder range logic and input check, package layout, alpha
 | 4    | #450         | open    |
 | 5    | #451         | open    |
 | 6    | #452         | open    |
-| 7-9  | —            | planned |
+| 7    | #453         | dropped (D1: keep the helpers; the pull request only documents that `sonnix` is a library) |
+| 8-9  | —            | planned |

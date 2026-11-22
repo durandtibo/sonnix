@@ -21,6 +21,14 @@
 - `TransformedLoss` takes `prediction_transform` and `target_transform`: the
   modules applied to the prediction and to the target before the criterion.
 
+## Scope of the public API
+
+`sonnix` is a library that is used by other codebases. A public name is useful
+if a user needs it, not only if `sonnix` itself calls it: a helper that nothing
+in the library uses (`sonnix.utils`, `sonnix.testing`) stays public. A name is
+removed only when it is wrong or when it duplicates another name without helping
+the user.
+
 ## Design rules
 
 Each rule holds for every public object. The target design is described in
@@ -44,4 +52,4 @@ enforced step by step.
 | P13 | **Layered imports.** `testing → modules → functional → validation`; `utils`, `factory` and `validation` import no other sonnix package; no cycle. Enforced by import-linter.                                                                                                                                                                                                                                                      |
 | P14 | **Configuration is trusted input.** `sonnix.factory` imports and calls a `_target_` before it checks the type of the result. An argument typed `Module \| dict` says so in a `Warning`.                                                                                                                                                                                                                                           |
 | P15 | **Optional means lazy.** Only `torch` and `coola` are imported at module level.                                                                                                                                                                                                                                                                                                                                                   |
-| P16 | **Earned names.** A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use or that tests them. A fixed-argument composition of other public objects or of a `torch.nn` object is a recipe in the guide, unless users look for it by name (`ReLUn`, `Square`, `ToFloat`): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.                                                                                     |
+| P16 | **Earned names.** A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use, that tests them, or that users of the library need. A fixed-argument composition of other public objects or of a `torch.nn` object is a recipe in the guide, unless users look for it by name (`ReLUn`, `Square`, `ToFloat`): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.                                                                                     |

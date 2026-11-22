@@ -50,7 +50,8 @@ A library of PyTorch modules, losses and functional operations.
 are missing from `torch.nn`. It has three layers: `sonnix.functional` (stateless
 operations), `sonnix.modules` (the `torch.nn.Module` wrappers) and
 `sonnix.utils` (helpers to inspect and train modules). It also ships helpers for
-training and testing, listed at the end. It contains:
+training and testing, listed at the end. `sonnix` is a library that other codebases depend on, so a public name is
+not removed because the library itself does not use it. It contains:
 
 - **Losses**: robust and asymmetric regression losses (general robust, quantile,
   Poisson, relative losses), binary focal and Poly-1 losses, and
