@@ -643,15 +643,17 @@ Estimated from the current file sizes; docstrings and examples included.
 
 ## Appendix C: status
 
-| Step | Pull request | Notes                                                                                                      |
-| ---- | ------------ | ---------------------------------------------------------------------------------------------------------- |
-| 1    | #413         | merged                                                                                                     |
-| 2    | #414         | merged                                                                                                     |
-| 3    | #415         | merged                                                                                                     |
-| 4    | #417         | open                                                                                                       |
-| 5    | #418         | open, stacked on #417. D4 is not applied (`# noqa: A002` kept)                                             |
-| 6    | #419         | open, stacked on #418                                                                                      |
-| 7    | #420         | open, stacked on #419. `resolve_range` does not check `0 < min <= max` (the callers do)                    |
-| 8    | #422         | open, stacked on #420. Sub-package `__init__.py` files are docstring-only (ruff F401 without `__all__`)    |
-| 9    | #423         | open, stacked on #422. Helpers named `probability_of_target` / `class_weight` (public names). F19 not done |
-| 10   | #424         | migration table in `CHANGELOG.md`, conventions updated                                                     |
+| Step | Pull request | Notes                                                                                      |
+| ---- | ------------ | ------------------------------------------------------------------------------------------ |
+| 1    | #413         | merged                                                                                     |
+| 2    | #414         | merged                                                                                     |
+| 3    | #415         | merged                                                                                     |
+| 4    | #417         | merged                                                                                     |
+| 5    | #418         | merged. D4 is not applied (`# noqa: A002` kept): it needs the maintainers' approval        |
+| 6    | #419         | merged                                                                                     |
+| 7    | #420         | merged. `resolve_range` did not check `0 < min <= max` (the callers did): see follow-up 11 |
+| 8    | #422         | merged. Sub-package `__init__.py` files are docstring-only (ruff F401 without `__all__`)   |
+| 9    | #423         | merged. Helpers named `probability_of_target` / `class_weight`. F19 not done: see step 12  |
+| 10   | #424         | merged. Migration table in `CHANGELOG.md`, conventions updated                             |
+| 11   | TBD          | follow-up: `resolve_range` checks `0 < min <= max` (F13)                                   |
+| 12   | TBD          | follow-up: remove the copied `Args:` blocks of the alpha activations (F19)                 |
