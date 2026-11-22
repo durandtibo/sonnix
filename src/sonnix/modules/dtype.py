@@ -2,7 +2,7 @@ r"""Contain ``torch.nn.Module``s to change tensor's data type."""
 
 from __future__ import annotations
 
-__all__ = ["ToDtype"]
+__all__ = ["ToDtype", "ToFloat", "ToLong"]
 
 import torch
 from coola.validation import validate_in, validate_isinstance
@@ -61,3 +61,61 @@ class ToDtype(nn.Module):
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return input.to(dtype=self.dtype)
+
+
+class ToFloat(ToDtype):
+    r"""Implement a ``torch.nn.Module`` to convert a tensor to a float
+    tensor (``torch.float32``).
+
+    It is ``ToDtype(torch.float32)`` with a name that is easier to find.
+
+    Shape:
+        - Input: ``(*)``, where ``*`` means any number of dimensions.
+        - Output: ``(*)``, same shape as the input.
+
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import ToFloat
+        >>> m = ToFloat()
+        >>> m
+        ToFloat(dtype=torch.float32)
+        >>> out = m(torch.tensor([[2, -1, 0], [1, 2, 3]]))
+        >>> out
+        tensor([[ 2., -1.,  0.],
+                [ 1.,  2.,  3.]])
+
+        ```
+    """
+
+    def __init__(self) -> None:
+        super().__init__(dtype=torch.float32)
+
+
+class ToLong(ToDtype):
+    r"""Implement a ``torch.nn.Module`` to convert a tensor to a long
+    tensor (``torch.int64``).
+
+    It is ``ToDtype(torch.int64)`` with a name that is easier to find.
+
+    Shape:
+        - Input: ``(*)``, where ``*`` means any number of dimensions.
+        - Output: ``(*)``, same shape as the input.
+
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import ToLong
+        >>> m = ToLong()
+        >>> m
+        ToLong(dtype=torch.int64)
+        >>> out = m(torch.tensor([[2.0, -1.0, 0.0], [1.0, 2.0, 3.0]]))
+        >>> out
+        tensor([[ 2, -1,  0],
+                [ 1,  2,  3]])
+
+        ```
+    """
+
+    def __init__(self) -> None:
+        super().__init__(dtype=torch.int64)

@@ -5,7 +5,7 @@ import torch
 from coola.equality import objects_are_equal
 from coola.utils.tensor import get_available_devices
 
-from sonnix.modules import ToDtype
+from sonnix.modules import ToDtype, ToFloat, ToLong
 
 #############################
 #     Tests for ToDtype     #
@@ -82,3 +82,55 @@ def test_to_dtype_name_forward_long(device: str) -> None:
 def test_to_dtype_unknown_name(name: str) -> None:
     with pytest.raises(ValueError, match=r"dtype must be one of"):
         ToDtype(name)
+
+
+#############################
+#     Tests for ToFloat     #
+#############################
+
+
+def test_to_float_dtype() -> None:
+    assert ToFloat().dtype == torch.float32
+
+
+def test_to_float_is_to_dtype() -> None:
+    assert isinstance(ToFloat(), ToDtype)
+
+
+def test_to_float_repr() -> None:
+    assert repr(ToFloat()) == "ToFloat(dtype=torch.float32)"
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+def test_to_float_forward(device: str) -> None:
+    device = torch.device(device)
+    module = ToFloat().to(device=device)
+    output = module(torch.tensor([1, 2, 3, 4], dtype=torch.long, device=device))
+    assert objects_are_equal(
+        output, torch.tensor([1.0, 2.0, 3.0, 4.0], dtype=torch.float, device=device)
+    )
+
+
+############################
+#     Tests for ToLong     #
+############################
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+def test_to_long_forward(device: str) -> None:
+    device = torch.device(device)
+    module = ToLong().to(device=device)
+    output = module(torch.tensor([1.0, 2.0, 3.0, 4.0], dtype=torch.float, device=device))
+    assert objects_are_equal(output, torch.tensor([1, 2, 3, 4], dtype=torch.long, device=device))
+
+
+def test_to_long_dtype() -> None:
+    assert ToLong().dtype == torch.int64
+
+
+def test_to_long_is_to_dtype() -> None:
+    assert isinstance(ToLong(), ToDtype)
+
+
+def test_to_long_repr() -> None:
+    assert repr(ToLong()) == "ToLong(dtype=torch.int64)"
