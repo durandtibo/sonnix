@@ -4,7 +4,8 @@ import pytest
 import torch
 from coola.utils.tensor import get_available_devices
 
-from sonnix.modules import BaseBinaryPoly1Loss, BinaryPoly1Loss, BinaryPoly1LossWithLogits
+from sonnix.modules import BinaryPoly1Loss, BinaryPoly1LossWithLogits
+from sonnix.modules.loss.poly import _BinaryPoly1Loss
 
 SIZES = (1, 2)
 TOLERANCE = 1e-6
@@ -211,20 +212,20 @@ def test_binary_focal_loss_with_logits_backward(device: str) -> None:
 
 
 #########################################
-#     Tests for BaseBinaryPoly1Loss     #
+#     Tests for _BinaryPoly1Loss     #
 #########################################
 
 
-def test_basebinarypoly1loss_repr() -> None:
-    assert repr(BaseBinaryPoly1Loss()) == "BaseBinaryPoly1Loss(reduction=mean, alpha=1.0)"
+def test_binarypoly1loss_base_repr() -> None:
+    assert repr(_BinaryPoly1Loss()) == "_BinaryPoly1Loss(reduction=mean, alpha=1.0)"
 
 
 @pytest.mark.parametrize("loss", [BinaryPoly1Loss, BinaryPoly1LossWithLogits])
-def test_basebinarypoly1loss_subclass(loss: type) -> None:
-    assert issubclass(loss, BaseBinaryPoly1Loss)
+def test_binarypoly1loss_base_subclass(loss: type) -> None:
+    assert issubclass(loss, _BinaryPoly1Loss)
 
 
-def test_basebinarypoly1loss_pair_are_independent() -> None:
+def test_binarypoly1loss_base_pair_are_independent() -> None:
     assert not issubclass(BinaryPoly1Loss, BinaryPoly1LossWithLogits)
 
 

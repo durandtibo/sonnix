@@ -1,12 +1,10 @@
 # Losses
 
-Loss modules and the shared base classes. See also
+Loss modules and the base class of the losses that have a reduction. See also
 the [`sonnix.modules`](index.md) overview.
 
 | Name                                                                         | Description                                                                                                        |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| [`BaseBinaryFocalLoss`](#sonnix.modules.BaseBinaryFocalLoss)                 | Define the base class of the binary focal losses.                                                                  |
-| [`BaseBinaryPoly1Loss`](#sonnix.modules.BaseBinaryPoly1Loss)                 | Define the base class of the binary Poly-1 losses.                                                                 |
 | [`BaseLoss`](#sonnix.modules.BaseLoss)                                       | Define the base class of the loss modules that have a reduction.                                                   |
 | [`BinaryFocalLoss`](#sonnix.modules.BinaryFocalLoss)                         | Implementation of the binary focal loss.                                                                           |
 | [`BinaryFocalLossWithLogits`](#sonnix.modules.BinaryFocalLossWithLogits)     | Implementation of the binary focal loss.                                                                           |
@@ -19,10 +17,6 @@ the [`sonnix.modules`](index.md) overview.
 | [`QuantileRegressionLoss`](#sonnix.modules.QuantileRegressionLoss)           | Implement a loss module that computes the quantile regression loss.                                                |
 | [`RelativeLoss`](#sonnix.modules.RelativeLoss)                               | Implement a "generic" relative loss that takes as input a criterion.                                               |
 | [`TransformedLoss`](#sonnix.modules.TransformedLoss)                         | Implement a loss function where the predictions and targets are transformed before to be fed to the loss function. |
-
-## ::: sonnix.modules.BaseBinaryFocalLoss
-
-## ::: sonnix.modules.BaseBinaryPoly1Loss
 
 ## ::: sonnix.modules.BaseLoss
 

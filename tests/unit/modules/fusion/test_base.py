@@ -48,3 +48,33 @@ def test_base_fusion_fuse_receives_the_inputs() -> None:
     x1, x2 = torch.ones(2), torch.zeros(2)
     module(x1, x2)
     assert objects_are_equal(module.received, (x1, x2))
+
+
+#########################
+#     Tests for _sum    #
+#########################
+
+
+def test_sum_one_input() -> None:
+    assert objects_are_equal(BaseFusion._sum((torch.tensor([1.0, 2.0]),)), torch.tensor([1.0, 2.0]))
+
+
+def test_sum_several_inputs() -> None:
+    assert objects_are_equal(
+        BaseFusion._sum(
+            (torch.tensor([1.0, 2.0]), torch.tensor([3.0, 4.0]), torch.tensor([5.0, 6.0]))
+        ),
+        torch.tensor([9.0, 12.0]),
+    )
+
+
+def test_sum_does_not_modify_the_inputs() -> None:
+    x1, x2 = torch.tensor([1.0, 2.0]), torch.tensor([3.0, 4.0])
+    BaseFusion._sum((x1, x2))
+    assert objects_are_equal(x1, torch.tensor([1.0, 2.0]))
+
+
+def test_sum_keeps_the_gradient() -> None:
+    x1 = torch.tensor([1.0, 2.0], requires_grad=True)
+    BaseFusion._sum((x1, torch.tensor([3.0, 4.0]))).sum().backward()
+    assert objects_are_equal(x1.grad, torch.ones(2))

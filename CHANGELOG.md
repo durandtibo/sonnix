@@ -29,6 +29,17 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- Clean up the public surface (revised target state step 5, #451):
+  `BaseBinaryFocalLoss` and `BaseBinaryPoly1Loss` become private
+  (`_BinaryFocalLoss`, `_BinaryPoly1Loss`; the public classes document their
+  arguments), `ToDtype` accepts a `torch.dtype` or its name
+  (`ToDtype("float32")`), `Snake` moves to
+  `sonnix/modules/activation/alpha.py`, `AverageFusion` and `SumFusion` share
+  `BaseFusion._sum`, and `Gaussian` and `Snake` check `init` with `coola.validation.validate_non_zero`.
+  `Laplacian` rejects `init <= 0` with one message (`init must be greater than
+  0`). `ToFloat`, `ToLong`, `ReLUn`, `Square`, the three error functions and
+  `rectifier_asinh_unit` are kept: a named wrapper that users look for is
+  allowed (P16).
 - Uniform call signatures (revised target state step 4, #450).
   `BinaryFocalLoss`, `BinaryFocalLossWithLogits` take only `alpha`
   positionally (`gamma` is keyword-only); `GeneralRobustRegressionLoss` takes

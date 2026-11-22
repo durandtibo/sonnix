@@ -48,7 +48,7 @@ not true as written) and adds P16.
 | P13 | **Layered imports**                 | `testing → modules → functional → validation`; `utils`, `factory` and `validation` import no other sonnix package; no cycle.                                                                                                                                                                                                                                                                  | import-linter contracts (exist)                                                              |
 | P14 | **Configuration is trusted input**  | `sonnix.factory` imports and **calls** a `_target_` before it checks the type of the result. An argument typed `Module \| dict` says so in a `Warning`.                                                                                                                                                                                                                                       | docstring test (exists)                                                                      |
 | P15 | **Optional means lazy**             | Only `torch` and `coola` are imported at module level.                                                                                                                                                                                                                                                                                                                                        | `package_checks` job (exists)                                                                |
-| P16 | **Earned names**                    | A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use or that tests them. An object that is a fixed-argument composition of other public objects or of a `torch.nn` object is a **recipe** in the guide, not a class. A base class is public only if users are meant to subclass it.                                             | review checklist (Appendix B); a class without a registry entry fails                        |
+| P16 | **Earned names**                    | A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use or that tests them. An object that is a fixed-argument composition of other public objects or of a `torch.nn` object is a **recipe** in the guide, not a class, unless users look for it by name (`ReLUn`, `Square`, `ToFloat`): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.                                             | review checklist (Appendix B); a class without a registry entry fails                        |
 
 Not guaranteed, and documented as such: bit-exact results across torch
 versions; behaviour on GPU in CI (no GPU job; the CUDA tests run locally before
@@ -230,6 +230,11 @@ edges. A single edge is rejected: today it is a special case with
 `feature_size == 1`, which breaks the documented rule `feature_size == edges - 1`.
 
 ### 4.5 Surface area (P16)
+
+> **Decision of the maintainers (#451):** `ToFloat`, `ToLong`, `ReLUn`, `Square`, the
+> three errors and `rectifier_asinh_unit` are **kept**, because users expect them. Only the
+> private bases, the `ToDtype` names and the small de-duplications of this section were
+> done. D2 and D3 are answered "keep".
 
 | Removed                                                                          | Replacement                                                                                                                                                                |
 | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -578,4 +583,5 @@ composition, encoder range logic and input check, package layout, alpha
 | 2    | #447         | open    |
 | 3    | #449         | open    |
 | 4    | #450         | open    |
-| 5-9  | —            | planned |
+| 5    | #451         | open    |
+| 6-9  | —            | planned |
