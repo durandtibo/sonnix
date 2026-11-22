@@ -507,7 +507,7 @@ patched behaviour, 100 % coverage of the lines added or changed).
   experiment, not a rule.
 - Packaging and CI (the workflows, a GPU job): tracked in `review/suggestions.md`.
 - Lazy top-level imports (`import sonnix; sonnix.modules.X`): `import
-  sonnix.modules` stays explicit and keeps the import time predictable.
+sonnix.modules` stays explicit and keeps the import time predictable.
 - Replacing `docformatter` with `ruff` docstring formatting.
 
 ## Appendix A: size of the package
@@ -532,7 +532,7 @@ patched behaviour, 100 % coverage of the lines added or changed).
 3. Every hyperparameter: type, finiteness, range, before it is stored; the module
    uses the same helper (P2).
 4. Signature `(prediction, target, *, options, reduction)` or `(input, *,
-   options)`; a module's positional arguments are listed in its registry entry
+options)`; a module's positional arguments are listed in its registry entry
    (P3).
 5. Two same-role tensors: `validate_same_shape` (P4). Loss: `reduce_loss` (P5).
 6. Large, small, zero and half-precision inputs; the gradient at the boundaries;
