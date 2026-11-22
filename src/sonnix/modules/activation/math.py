@@ -179,6 +179,9 @@ class Pow(nn.Module):
         negative. The gradient of a power with an exponent in ``(0, 1)``
         is infinite at ``0``.
 
+    Args:
+        exponent: The exponent. It must be a finite number.
+
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
         - Output: ``(*)``, same shape as the input.

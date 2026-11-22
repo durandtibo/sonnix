@@ -179,8 +179,8 @@ def is_loss_decreasing_with_sgd(
         criterion: The criterion to test.
         feature: The input of the module.
         target: The target used to compute the loss.
-        num_iterations: The number of optimization steps.
         lr: The learning rate.
+        num_iterations: The number of optimization steps.
         random_seed: The random seed to make the function
             deterministic if the module contains randomness. It is
             applied to the two evaluations of the loss and to the

@@ -132,3 +132,16 @@ device. `sonnix` provides them once, with a consistent API:
 - numerically stable implementations, tested for overflow and finite gradients;
 - `device` and `dtype` support, and frozen tensors stored as buffers so
   `module.to(...)` and `state_dict` work as expected.
+
+## API stability
+
+:warning: While `sonnix` is in development stage, no API is guaranteed to be
+stable from one release to the next. In fact, it is very likely that the API
+will change multiple times before a stable 1.0.0 release. In practice, this
+means that upgrading `sonnix` to a new version will possibly break any code that
+was using the old version of `sonnix`.
+
+## License
+
+`sonnix` is licensed under BSD 3-Clause "New" or "Revised" license available
+in [LICENSE](https://github.com/durandtibo/sonnix/blob/main/LICENSE) file.
