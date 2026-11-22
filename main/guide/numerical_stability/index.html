@@ -1183,21 +1183,24 @@
 
 <h1 id="numerical-stability">Numerical stability<a class="headerlink" href="#numerical-stability" title="Permanent link">&para;</a></h1>
 <ul>
-<li><strong>Large values.</strong> The relative indicators and <code>exp</code>/<code>pow</code> based functions can overflow in half
-  precision. Check the docstring of the function you use, and compare with a <code>float32</code> run.</li>
-<li><strong>Exponential and logarithm.</strong> <code>safe_exp</code> clamps the input before <code>exp</code>, so the output has no
-  <code>inf</code>; it does not remove <code>nan</code>. <code>safe_log</code> clamps the input to <code>min_val</code>; with
-  <code>preserve_gradient=True</code> the gradient of the unclamped function is used, so at <code>x = 0</code> the
-  gradient is <code>1 / min_val</code>, which is large.</li>
-<li><strong>Powers.</strong> <code>safe_pow</code> has a zero gradient at <code>0</code> instead of <code>nan</code>. Use it instead of
-  <code>x ** p</code> or <code>sqrt</code> when the input can be <code>0</code> and a gradient is needed.</li>
-<li><strong>Poisson loss.</strong> <code>poisson_regression_loss</code> expects positive predictions. Apply a positive
-  activation (for example <code>SafeExp</code>, <code>Square</code> or a softplus) to the output of the model.</li>
-<li><strong>Learnable <code>alpha</code>.</strong> <code>Gaussian</code> and <code>Laplacian</code> divide by <code>alpha</code>. A learnable <code>alpha</code> that
-  reaches <code>0</code> makes the training fail and is hard to debug: use a small learning rate for it or
-  keep it fixed.</li>
-<li><strong>Reductions.</strong> <code>mean</code> divides by the number of elements, <code>batchmean</code> by the batch size. A
-  loss summed over a large tensor can overflow in <code>float16</code>.</li>
+<li><strong>Large values.</strong> The relative indicators and <code>exp</code>/<code>pow</code> based functions can
+  overflow in half precision. Check the docstring of the function you use, and
+  compare with a <code>float32</code> run.</li>
+<li><strong>Exponential and logarithm.</strong> <code>safe_exp</code> clamps the input before <code>exp</code>, so
+  the output has no <code>inf</code>; it does not remove <code>nan</code>. <code>safe_log</code> clamps the input
+  to <code>min_val</code>; with <code>preserve_gradient=True</code> the gradient of the unclamped
+  function is used, so at <code>x = 0</code> the gradient is <code>1 / min_val</code>, which is large.</li>
+<li><strong>Powers.</strong> <code>safe_pow</code> has a zero gradient at <code>0</code> instead of <code>nan</code>. Use it
+  instead of <code>x ** p</code> or <code>sqrt</code> when the input can be <code>0</code> and a
+  gradient is needed.</li>
+<li><strong>Poisson loss.</strong> <code>poisson_regression_loss</code> expects positive predictions.
+  Apply a positive activation (for example <code>SafeExp</code>, <code>Square</code> or a softplus) to
+  the output of the model.</li>
+<li><strong>Learnable <code>alpha</code>.</strong> <code>Gaussian</code> and <code>Laplacian</code> divide by <code>alpha</code>. A
+  learnable <code>alpha</code> that reaches <code>0</code> makes the training fail and is hard to
+  debug: use a small learning rate for it or keep it fixed.</li>
+<li><strong>Reductions.</strong> <code>mean</code> divides by the number of elements, <code>batchmean</code> by the
+  batch size. A loss summed over a large tensor can overflow in <code>float16</code>.</li>
 </ul>
 
 

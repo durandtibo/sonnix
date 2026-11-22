@@ -1249,8 +1249,9 @@
 
 
 <h1 id="numerical-encoders-and-embeddings">Numerical encoders and embeddings<a class="headerlink" href="#numerical-encoders-and-embeddings" title="Permanent link">&para;</a></h1>
-<p>A numerical encoder maps each scalar feature to a vector of <code>feature_size</code> values. The input has
-shape <code>(*, n_features)</code> and the output has shape <code>(*, n_features, feature_size)</code>.</p>
+<p>A numerical encoder maps each scalar feature to a vector of <code>feature_size</code>
+values. The input has shape <code>(*, n_features)</code> and the output
+has shape <code>(*, n_features, feature_size)</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1277,12 +1278,13 @@ shape <code>(*, n_features)</code> and the output has shape <code>(*, n_features
 </tr>
 </tbody>
 </table>
-<p>The classes have a <code>create</code> (or <code>from_quantiles</code>) class method that builds the encoder from the
-data or from a range, with one set of parameters per feature (<code>n_features</code>).</p>
+<p>The classes have a <code>create</code> (or <code>from_quantiles</code>) class method that builds the
+encoder from the data or from a range, with one set of parameters
+per feature (<code>n_features</code>).</p>
 <h2 id="embedding-of-numerical-features">Embedding of numerical features<a class="headerlink" href="#embedding-of-numerical-features" title="Permanent link">&para;</a></h2>
-<p>An encoder is usually followed by <code>NLinear</code>, which applies a different linear layer to each
-feature. The composition below turns a table of <code>n_features</code> numbers into
-<code>n_features</code> embeddings of size <code>d_embedding</code>:</p>
+<p>An encoder is usually followed by <code>NLinear</code>, which applies a different linear
+layer to each feature. The composition below turns a table of <code>n_features</code>
+numbers into <code>n_features</code> embeddings of size <code>d_embedding</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">nn</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.modules</span><span class="w"> </span><span class="kn">import</span> <span class="n">NLinear</span><span class="p">,</span> <span class="n">PiecewiseLinearNumericalEncoder</span>
@@ -1296,8 +1298,9 @@ feature. The composition below turns a table of <code>n_features</code> numbers 
 <span class="p">)</span>
 <span class="n">out</span> <span class="o">=</span> <span class="n">embedding</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># shape: (128, 3, 16)</span>
 </code></pre></div>
-<p><code>NLinear(n, in_features, out_features)</code> expects an input of shape <code>(*, n, in_features)</code> and
-raises a <code>ValueError</code> that names <code>n</code> when the shape does not match.</p>
+<p><code>NLinear(n, in_features, out_features)</code> expects an input of shape
+<code>(*, n, in_features)</code> and raises a <code>ValueError</code> that names <code>n</code> when the shape
+does not match.</p>
 <p>See the <a href="../../refs/modules/numerical/">reference</a> for the list of encoders.</p>
 
 

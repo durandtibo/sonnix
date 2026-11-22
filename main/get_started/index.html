@@ -1268,31 +1268,34 @@
 
 
 <h1 id="get-started">Get Started<a class="headerlink" href="#get-started" title="Permanent link">&para;</a></h1>
-<p>It is highly recommended to install in
-a <a href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a>
+<p>It is highly recommended to install in a
+<a href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a>
 to keep your system in order.</p>
 <h2 id="installing-with-pip-recommended">Installing with <code>pip</code> (recommended)<a class="headerlink" href="#installing-with-pip-recommended" title="Permanent link">&para;</a></h2>
 <p>The following command installs the latest version of the library:</p>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>sonnix
 </code></pre></div>
-<p><code>sonnix</code> has no optional dependency: <code>pip install sonnix</code> installs <code>coola</code> and PyTorch.</p>
+<p><code>sonnix</code> has no optional dependency: <code>pip install sonnix</code> installs
+<code>coola</code> and PyTorch.</p>
 <h2 id="installing-from-source">Installing from source<a class="headerlink" href="#installing-from-source" title="Permanent link">&para;</a></h2>
-<p><code>sonnix</code> requires Python 3.11 or later. <a href="https://docs.astral.sh/uv/"><code>uv</code></a> is used to manage the
-virtual environment and the dependencies. If <code>uv</code> is not installed on your machine, follow
-the <a href="https://docs.astral.sh/uv/getting-started/installation/">installation guide</a>.</p>
+<p><code>sonnix</code> requires Python 3.11 or later. <a href="https://docs.astral.sh/uv/"><code>uv</code></a> is
+used to manage the virtual environment and the dependencies. If <code>uv</code> is not
+installed on your machine, follow the
+<a href="https://docs.astral.sh/uv/getting-started/installation/">installation guide</a>.</p>
 <p>First, clone the git repository:</p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:durandtibo/sonnix.git
 <span class="nb">cd</span><span class="w"> </span>sonnix
 </code></pre></div>
-<p>Then, create a virtual environment in <code>.venv</code> and install the package (editable) with the
-development dependencies:</p>
+<p>Then, create a virtual environment in <code>.venv</code> and install the package (editable)
+with the development dependencies:</p>
 <div class="highlight"><pre><span></span><code>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>--group<span class="w"> </span>docs
 </code></pre></div>
 <p>Activate the environment, or prefix the commands with <code>uv run</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
 </code></pre></div>
-<p>The tasks of the project are run with <a href="https://www.pyinvoke.org/"><code>invoke</code></a>. <code>inv --list</code> lists
-them. You can test the installation with the following commands:</p>
+<p>The tasks of the project are run with <a href="https://www.pyinvoke.org/"><code>invoke</code></a>.
+<code>inv --list</code> lists them. You can test the installation with
+the following commands:</p>
 <div class="highlight"><pre><span></span><code>inv<span class="w"> </span>test.unit
 inv<span class="w"> </span>test.integration
 inv<span class="w"> </span>test.doctest

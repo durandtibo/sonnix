@@ -1270,18 +1270,23 @@
 <h1 id="conventions">Conventions<a class="headerlink" href="#conventions" title="Permanent link">&para;</a></h1>
 <h2 id="argument-names">Argument names<a class="headerlink" href="#argument-names" title="Permanent link">&para;</a></h2>
 <ul>
-<li>The loss functions and the loss modules take <code>(prediction, target)</code>, while PyTorch uses
-  <code>(input, target)</code>. This is a deliberate choice: the first argument of a loss is the output of a
-  model. Every module with a single tensor input names it <code>input</code> in <code>forward</code>, like <code>torch.nn</code>.</li>
-<li>Layers that map a feature dimension (<code>NLinear</code>, <code>ExU</code>) use <code>in_features</code> and <code>out_features</code>.</li>
-<li>The numerical encoders expose <code>n_features</code> (the size of the last input dimension) and
-  <code>feature_size</code> (the size of the encoding of one feature), as shown in their representation.</li>
+<li>The loss functions and the loss modules take <code>(prediction, target)</code>, while
+  PyTorch uses <code>(input, target)</code>. This is a deliberate choice: the first
+  argument of a loss is the output of a model. Every module with a single tensor
+  input names it <code>input</code> in <code>forward</code>, like <code>torch.nn</code>.</li>
+<li>Layers that map a feature dimension (<code>NLinear</code>, <code>ExU</code>) use
+  <code>in_features</code> and <code>out_features</code>.</li>
+<li>The numerical encoders expose <code>n_features</code> (the size of the last input
+  dimension) and <code>feature_size</code> (the size of the encoding of one feature), as
+  shown in their representation.</li>
 <li><code>normalized_shape</code> follows <code>torch.nn.LayerNorm</code>.</li>
-<li>The hyperparameters of a module are public attributes named like the constructor arguments.</li>
-<li>Options of the functions are keyword-only; so are the options of the modules, except the one defining
-  hyperparameter (<code>LogCoshLoss(2.0)</code>, like <code>nn.LeakyReLU(0.1)</code>).</li>
-<li><code>TransformedLoss</code> takes <code>prediction_transform</code> and <code>target_transform</code>: the modules applied to the
-  prediction and to the target before the criterion.</li>
+<li>The hyperparameters of a module are public attributes named like
+  the constructor arguments.</li>
+<li>Options of the functions are keyword-only; so are the options of the modules,
+  except the one defining hyperparameter
+  (<code>LogCoshLoss(2.0)</code>, like <code>nn.LeakyReLU(0.1)</code>).</li>
+<li><code>TransformedLoss</code> takes <code>prediction_transform</code> and <code>target_transform</code>: the
+  modules applied to the prediction and to the target before the criterion.</li>
 </ul>
 <h2 id="design-rules">Design rules<a class="headerlink" href="#design-rules" title="Permanent link">&para;</a></h2>
 <p>Each rule holds for every public object. The target design is described in

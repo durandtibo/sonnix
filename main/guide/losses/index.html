@@ -1293,12 +1293,12 @@
 
 
 <h1 id="losses">Losses<a class="headerlink" href="#losses" title="Permanent link">&para;</a></h1>
-<p>Every loss exists twice: as a function in <code>sonnix.functional</code> and as a module in <code>sonnix.modules</code>
-(for example <code>log_cosh_loss</code> and <code>LogCoshLoss</code>). The module stores the hyperparameters and calls
-the function.</p>
+<p>Every loss exists twice: as a function in <code>sonnix.functional</code> and as a module in
+<code>sonnix.modules</code> (for example <code>log_cosh_loss</code> and <code>LogCoshLoss</code>). The module
+stores the hyperparameters and calls the function.</p>
 <h2 id="arguments">Arguments<a class="headerlink" href="#arguments" title="Permanent link">&para;</a></h2>
-<p>A loss takes <code>(prediction, target)</code>, in this order, and returns a tensor. The options are
-keyword-only:</p>
+<p>A loss takes <code>(prediction, target)</code>, in this order, and returns a tensor. The
+options are keyword-only:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.modules</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogCoshLoss</span>
 
@@ -1306,8 +1306,8 @@ keyword-only:</p>
 <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 </code></pre></div>
 <h2 id="reduction">Reduction<a class="headerlink" href="#reduction" title="Permanent link">&para;</a></h2>
-<p>All the losses accept the same <code>reduction</code> values. The elementwise loss <code>l</code> of a prediction of
-shape <code>(N, ...)</code> is reduced as follows:</p>
+<p>All the losses accept the same <code>reduction</code> values. The elementwise loss <code>l</code> of a
+prediction of shape <code>(N, ...)</code> is reduced as follows:</p>
 <table>
 <thead>
 <tr>
@@ -1339,22 +1339,25 @@ shape <code>(N, ...)</code> is reduced as follows:</p>
 </tr>
 </tbody>
 </table>
-<p><code>"mean"</code> is the default. <code>sonnix.functional.reduce_loss</code> implements these strategies and validates
-the value, so a custom loss only has to call it:</p>
+<p><code>"mean"</code> is the default. <code>sonnix.functional.reduce_loss</code> implements these
+strategies and validates the value, so a custom loss only has to call it:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce_loss</span>
 
 <span class="n">reduce_loss</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">"batchmean"</span><span class="p">)</span>  <span class="c1"># tensor(3.)</span>
 </code></pre></div>
 <h2 id="composing-losses">Composing losses<a class="headerlink" href="#composing-losses" title="Permanent link">&para;</a></h2>
-<p>A loss that is a composition of a <code>torch.nn</code> criterion and a transform is a recipe, not a class.</p>
+<p>A loss that is a composition of a <code>torch.nn</code> criterion and a transform is a
+recipe, not a class.</p>
 <ul>
-<li><code>TransformedLoss</code> applies a module to the prediction and/or to the target before the criterion
-  (for example <code>Asinh</code> to compare values that span several orders of magnitude).</li>
-<li><code>RelativeLoss</code> divides the error of a criterion by an indicator of the magnitude of the
-  prediction and the target, so the loss is not dominated by the large values. The indicator is a
-  function of <code>sonnix.functional</code> (<code>classical_relative_indicator</code>, <code>moment_mean_indicator</code>, ...);
-  use <code>functools.partial</code> to set its options.</li>
+<li><code>TransformedLoss</code> applies a module to the prediction and/or to the target
+  before the criterion (for example <code>Asinh</code> to compare values that span several
+  orders of magnitude).</li>
+<li><code>RelativeLoss</code> divides the error of a criterion by an indicator of the
+  magnitude of the prediction and the target, so the loss is not dominated by
+  the large values. The indicator is a function of <code>sonnix.functional</code>
+  (<code>classical_relative_indicator</code>, <code>moment_mean_indicator</code>, ...); use
+  <code>functools.partial</code> to set its options.</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 
@@ -1373,8 +1376,9 @@ the value, so a custom loss only has to call it:</p>
     <span class="n">nn</span><span class="o">.</span><span class="n">SmoothL1Loss</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="s2">"none"</span><span class="p">),</span> <span class="n">indicator</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">moment_mean_indicator</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>The criterion and the transforms can be modules or <a href="../configurations/">configurations</a>. The
-criterion of <code>RelativeLoss</code> must not reduce (<code>reduction="none"</code>).</p>
+<p>The criterion and the transforms can be modules or
+<a href="../configurations/">configurations</a>. The criterion of <code>RelativeLoss</code> must
+not reduce (<code>reduction="none"</code>).</p>
 <p>See the <a href="../../refs/modules/loss/">reference</a> for the list of losses.</p>
 
 
