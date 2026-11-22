@@ -1278,13 +1278,14 @@
   <code>feature_size</code> (the size of the encoding of one feature), as shown in their representation.</li>
 <li><code>normalized_shape</code> follows <code>torch.nn.LayerNorm</code>.</li>
 <li>The hyperparameters of a module are public attributes named like the constructor arguments.</li>
-<li>Options are keyword-only.</li>
+<li>Options of the functions are keyword-only; so are the options of the modules, except the one defining
+  hyperparameter (<code>LogCoshLoss(2.0)</code>, like <code>nn.LeakyReLU(0.1)</code>).</li>
 <li><code>TransformedLoss</code> takes <code>prediction_transform</code> and <code>target_transform</code>: the modules applied to the
   prediction and to the target before the criterion.</li>
 </ul>
 <h2 id="design-rules">Design rules<a class="headerlink" href="#design-rules" title="Permanent link">&para;</a></h2>
 <p>Each rule holds for every public object. The target design is described in
-<code>review/target_state.md</code>; a rule marked <em>planned</em> is not yet true everywhere.</p>
+<code>review/target_state.md</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1303,11 +1304,11 @@
 </tr>
 <tr>
 <td>P3</td>
-<td><strong>Uniform call signature.</strong> Losses: <code>(prediction, target, *, &lt;options&gt;, reduction)</code>. Single-tensor ops: <code>(input, *, &lt;options&gt;)</code>. Options are keyword-only (<em>planned</em> for functions).</td>
+<td><strong>Uniform call signature.</strong> Losses: <code>(prediction, target, *, &lt;options&gt;, reduction)</code>. Single-tensor ops: <code>(input, *, &lt;options&gt;)</code>. Options of the functions are keyword-only; a module may take its defining hyperparameter positionally, like <code>torch.nn</code>.</td>
 </tr>
 <tr>
 <td>P4</td>
-<td><strong>Strict shapes.</strong> Two tensors of the same role must have the same shape (<code>ValueError</code> naming both shapes). Nothing broadcasts silently (<em>planned</em>).</td>
+<td><strong>Strict shapes.</strong> Two tensors of the same role must have the same shape (<code>ValueError</code> naming both shapes). Nothing broadcasts silently.</td>
 </tr>
 <tr>
 <td>P5</td>
