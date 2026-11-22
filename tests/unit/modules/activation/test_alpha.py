@@ -5,7 +5,15 @@ import torch
 from coola.equality import objects_are_allclose, objects_are_equal
 from coola.utils.tensor import get_available_devices
 
-from sonnix.modules import ExpSin, Gaussian, Laplacian, MultiQuadratic, Quadratic, Snake
+from sonnix.modules import (
+    BaseAlphaActivation,
+    ExpSin,
+    Gaussian,
+    Laplacian,
+    MultiQuadratic,
+    Quadratic,
+    Snake,
+)
 
 SIZES = (1, 2, 3)
 SHAPES = [(2,), (2, 3), (2, 3, 4), (2, 3, 4, 5)]
@@ -528,3 +536,24 @@ def test_gaussian_non_finite_init(init: float) -> None:
 def test_gaussian_incorrect_num_parameters_type(num_parameters: object) -> None:
     with pytest.raises(TypeError, match=r"num_parameters must be an int"):
         Gaussian(num_parameters=num_parameters)
+
+
+#############################################
+#     Tests for the _validate_init hook     #
+#############################################
+
+
+@pytest.mark.parametrize("init", [float("nan"), float("inf")])
+def test_base_alpha_activation_validate_init_not_finite(init: float) -> None:
+    with pytest.raises(ValueError, match=r"init must be finite"):
+        BaseAlphaActivation()._validate_init(init)
+
+
+@pytest.mark.parametrize("init", [-2.0, 0.0, 2.0])
+def test_base_alpha_activation_validate_init_accepts_any_finite_value(init: float) -> None:
+    BaseAlphaActivation()._validate_init(init)
+
+
+@pytest.mark.parametrize("module", [Gaussian, Snake])
+def test_alpha_activation_negative_init_is_accepted(module: type[torch.nn.Module]) -> None:
+    assert module(init=-1.0).alpha.item() == -1.0

@@ -62,7 +62,11 @@ class Snake(BaseAlphaActivation):
         ```
     """
 
-    allow_zero_init = False
+    def _validate_init(self, init: float) -> None:
+        super()._validate_init(init)
+        if init == 0:
+            msg = f"'init' has to be different from 0 (received {init})"
+            raise ValueError(msg)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         alpha = self._broadcast_alpha(input)
