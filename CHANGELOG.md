@@ -29,6 +29,9 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- Documentation only: the alpha activations, the binary focal losses and the
+  binary Poly-1 losses no longer copy the `Args:` block of their base class.
+  The class docstring points to it (target state step 12, #440).
 - `resolve_range` (used by `AsinhNumericalEncoder.create`,
   `CosSinNumericalEncoder.create` and `AsinhCosSinNumericalEncoder.create`)
   checks `0 < min <= max` itself, so the check is written once. The error
