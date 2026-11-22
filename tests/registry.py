@@ -34,12 +34,24 @@ class ModuleCase:
             inputs of the module in ``float32``.
         differentiable: ``True`` if the output is a floating point tensor
             that depends differentiably on the inputs or parameters.
+        other: A function that returns a second module of the same
+            class with different values (it is used by the state
+            round trip test). ``None`` if two builds already differ
+            (random initialization) or if the module has no state.
+        has_learnable_option: ``True`` if the constructor has the
+            ``learnable`` option (a frozen tensor is a buffer with the
+            name of the parameter).
+        derived: The names of the tensors that are derived from other
+            state. They must not be in the ``state_dict``.
     """
 
     name: str
     build: Callable[..., nn.Module]
     make_inputs: Callable[[], tuple[torch.Tensor, ...]]
     differentiable: bool = True
+    other: Callable[..., nn.Module] | None = None
+    has_learnable_option: bool = False
+    derived: tuple[str, ...] = ()
 
     def __repr__(self) -> str:
         return self.name
@@ -88,18 +100,28 @@ def _triple_normal() -> tuple[torch.Tensor, ...]:
     return tuple(torch.randn(4, 3, generator=generator) for _ in range(2))
 
 
+def _builder(cls: type[nn.Module], *args: object, **kwargs: object) -> Callable[..., nn.Module]:
+    return lambda **extra: cls(*args, **kwargs, **extra)
+
+
 def _case(
     cls: type[nn.Module],
     make_inputs: Callable[[], tuple[torch.Tensor, ...]],
     *args: object,
     differentiable: bool = True,
+    other: Callable[..., nn.Module] | None = None,
+    has_learnable_option: bool = False,
+    derived: tuple[str, ...] = (),
     **kwargs: object,
 ) -> ModuleCase:
     return ModuleCase(
         name=cls.__name__,
-        build=lambda **extra: cls(*args, **kwargs, **extra),
+        build=_builder(cls, *args, **kwargs),
         make_inputs=make_inputs,
         differentiable=differentiable,
+        other=other,
+        has_learnable_option=has_learnable_option,
+        derived=derived,
     )
 
 
@@ -115,31 +137,78 @@ def _lazy_case(
     )
 
 
-_BINS = torch.tensor([[0.0, 1.0, 2.0, 3.0], [-1.0, 0.0, 1.0, 5.0], [0.0, 2.0, 4.0, 6.0]])
+def _piecewise_inputs() -> tuple[torch.Tensor, ...]:
+    # The first column has values inside the step segment (between 1 and 2).
+    return (torch.tensor([[1.5, 0.5, 3.0], [-3.0, 2.0, 5.0], [1.2, 1.5, 4.5], [0.0, 0.0, 0.0]]),)
+
+
+# The first feature has a duplicated edge (a step segment).
+_EDGES = torch.tensor([[0.0, 1.0, 1.0, 3.0], [-1.0, 0.0, 1.0, 5.0], [0.0, 2.0, 4.0, 6.0]])
+_OTHER_EDGES = torch.tensor([[0.0, 1.0, 2.0, 3.0], [-2.0, 0.0, 2.0, 4.0], [1.0, 2.0, 3.0, 6.0]])
 
 MODULE_CASES: tuple[ModuleCase, ...] = (
     # activations
     _case(sm.Asinh, _normal(4, 3)),
     _case(sm.Clamp, _normal(4, 3)),
-    _case(sm.DynamicAsinh, _normal(4, 3), 3),
-    _case(sm.DynamicTanh, _normal(4, 3), 3),
+    _case(
+        sm.DynamicAsinh,
+        _normal(4, 3),
+        3,
+        other=_builder(sm.DynamicAsinh, 3, alpha_init_value=2.0),
+    ),
+    _case(
+        sm.DynamicTanh,
+        _normal(4, 3),
+        3,
+        other=_builder(sm.DynamicTanh, 3, alpha_init_value=2.0),
+    ),
     _case(sm.Exp, _normal(4, 3)),
-    _case(sm.ExpSin, _normal(4, 3)),
+    _case(
+        sm.ExpSin,
+        _normal(4, 3),
+        other=_builder(sm.ExpSin, init=2.0),
+        has_learnable_option=True,
+    ),
     _case(sm.Expm1, _normal(4, 3)),
-    _case(sm.Gaussian, _normal(4, 3)),
-    _case(sm.Laplacian, _normal(4, 3)),
+    _case(
+        sm.Gaussian,
+        _normal(4, 3),
+        other=_builder(sm.Gaussian, init=2.0),
+        has_learnable_option=True,
+    ),
+    _case(
+        sm.Laplacian,
+        _normal(4, 3),
+        other=_builder(sm.Laplacian, init=2.0),
+        has_learnable_option=True,
+    ),
     _case(sm.Log, _positive(4, 3)),
     _case(sm.Log1p, _positive(4, 3)),
-    _case(sm.MultiQuadratic, _normal(4, 3)),
+    _case(
+        sm.MultiQuadratic,
+        _normal(4, 3),
+        other=_builder(sm.MultiQuadratic, init=2.0),
+        has_learnable_option=True,
+    ),
     _case(sm.Pow, _positive(4, 3), 2.0),
-    _case(sm.Quadratic, _normal(4, 3)),
+    _case(
+        sm.Quadratic,
+        _normal(4, 3),
+        other=_builder(sm.Quadratic, init=2.0),
+        has_learnable_option=True,
+    ),
     _case(sm.ReLUn, _normal(4, 3)),
     _case(sm.RectifierAsinhUnit, _normal(4, 3)),
     _case(sm.SafeExp, _normal(4, 3)),
     _case(sm.SafeLog, _positive(4, 3)),
     _case(sm.Sin, _normal(4, 3)),
     _case(sm.Sinh, _normal(4, 3)),
-    _case(sm.Snake, _normal(4, 3)),
+    _case(
+        sm.Snake,
+        _normal(4, 3),
+        other=_builder(sm.Snake, init=2.0),
+        has_learnable_option=True,
+    ),
     _case(sm.Square, _normal(4, 3)),
     _case(sm.SquaredReLU, _normal(4, 3)),
     # layers
@@ -160,20 +229,37 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
     _case(sm.MultiplicationFusion, _triple_normal),
     _case(sm.SumFusion, _triple_normal),
     # numerical encoders
-    _case(sm.AsinhNumericalEncoder, _normal(4, 3), torch.ones(3, 2)),
+    _case(
+        sm.AsinhNumericalEncoder,
+        _normal(4, 3),
+        torch.ones(3, 2),
+        other=_builder(sm.AsinhNumericalEncoder, torch.full((3, 2), 2.0)),
+        has_learnable_option=True,
+    ),
     _case(
         sm.CosSinNumericalEncoder,
         _normal(4, 3),
         torch.ones(3, 2),
         torch.zeros(3, 2),
+        other=_builder(sm.CosSinNumericalEncoder, torch.full((3, 2), 2.0), torch.ones(3, 2)),
+        has_learnable_option=True,
     ),
     _case(
         sm.AsinhCosSinNumericalEncoder,
         _normal(4, 3),
         torch.ones(3, 2),
         torch.zeros(3, 2),
+        other=_builder(sm.AsinhCosSinNumericalEncoder, torch.full((3, 2), 2.0), torch.ones(3, 2)),
+        has_learnable_option=True,
     ),
-    _case(sm.PiecewiseLinearNumericalEncoder, _normal(4, 3), _BINS),
+    _case(
+        sm.PiecewiseLinearNumericalEncoder,
+        _piecewise_inputs,
+        _EDGES,
+        on_duplicate="ignore",
+        other=_builder(sm.PiecewiseLinearNumericalEncoder, _OTHER_EDGES),
+        derived=("start", "width", "is_step", "lower", "upper"),
+    ),
     # losses
     _case(sm.BinaryFocalLoss, _pair_probability),
     _case(sm.BinaryFocalLossWithLogits, _pair_logits),
