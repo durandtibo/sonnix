@@ -156,8 +156,26 @@ def test_resolve_range_invalid_value_range() -> None:
         resolve_range("scale", None, (4.0, 0.5))
 
 
-def test_resolve_range_does_not_validate_range() -> None:
-    assert resolve_range("scale", (-1.0, -2.0), None) == (-1.0, -2.0)
+def test_resolve_range_range_equal_bounds() -> None:
+    assert resolve_range("scale", (2.0, 2.0), None) == (2.0, 2.0)
+
+
+def test_resolve_range_zero_min() -> None:
+    with pytest.raises(ValueError, match=r"min_scale must be greater than 0"):
+        resolve_range("scale", (0.0, 1.0), None)
+
+
+def test_resolve_range_negative_min() -> None:
+    with pytest.raises(ValueError, match=r"min_frequency must be greater than 0"):
+        resolve_range("frequency", (-1.0, 2.0), None)
+
+
+def test_resolve_range_max_lower_than_min() -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"'max_scale' \(received: 1.0\) has to be greater than 'min_scale' \(received: 3.0\)",
+    ):
+        resolve_range("scale", (3.0, 1.0), None)
 
 
 #########################################

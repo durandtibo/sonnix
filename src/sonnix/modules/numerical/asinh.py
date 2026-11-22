@@ -7,7 +7,7 @@ __all__ = ["AsinhNumericalEncoder"]
 
 from typing import TYPE_CHECKING, Literal
 
-from coola.validation import validate_ge, validate_gt
+from coola.validation import validate_ge
 from torch import nn
 
 from sonnix.modules.numerical._utils import (
@@ -160,13 +160,6 @@ class AsinhNumericalEncoder(NumericalEncoder):
         """
         min_scale, max_scale = resolve_range("scale", scale_range, value_range)
         validate_ge(feature_size, 1, name="feature_size")
-        validate_gt(min_scale, 0, name="min_scale")
-        if max_scale < min_scale:
-            msg = (
-                f"'max_scale' (received: {max_scale}) has to be greater than "
-                f"'min_scale' (received: {min_scale})"
-            )
-            raise ValueError(msg)
         scale = create_spaced_values(
             spacing,
             feature_size,

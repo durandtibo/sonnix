@@ -29,6 +29,11 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- `resolve_range` (used by `AsinhNumericalEncoder.create`,
+  `CosSinNumericalEncoder.create` and `AsinhCosSinNumericalEncoder.create`)
+  checks `0 < min <= max` itself, so the check is written once. The error
+  messages are unchanged; `scale_range` is now checked before `feature_size`
+  (target state step 11, #439).
 - Remove `View` (it reshaped the batch dimension too, so it only worked for one
   batch size): use `nn.Flatten`, `nn.Unflatten` or `x.reshape` in the model. The
   alpha activations validate `init` in an overridable `_validate_init` method
