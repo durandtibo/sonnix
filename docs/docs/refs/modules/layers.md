@@ -1,6 +1,7 @@
 # Layers
 
-Linear layers, residual blocks, normalization-like layers and shape/dtype helpers. See also the [`sonnix.modules`](index.md) overview.
+Linear layers, residual blocks, normalization-like layers and shape/dtype
+helpers. See also the [`sonnix.modules`](index.md) overview.
 
 | Name                                                       |
 | ---------------------------------------------------------- |
@@ -34,4 +35,3 @@ Linear layers, residual blocks, normalization-like layers and shape/dtype helper
 ## ::: sonnix.modules.ToFloat
 
 ## ::: sonnix.modules.ToLong
-

@@ -15,7 +15,9 @@
         <img  alt="Doc style: google" src="https://img.shields.io/badge/%20style-google-3666d6.svg">
     </a>
     <a href="https://github.com/astral-sh/ruff">
-        <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff" style="max-width:100%;">
+        <img
+            src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json"
+            alt="Ruff" style="max-width:100%;">
     </a>
     <a href="https://github.com/guilatrova/tryceratops">
         <img  alt="Doc style: google" src="https://img.shields.io/badge/try%2Fexcept%20style-tryceratops%20%F0%9F%A6%96%E2%9C%A8-black">
@@ -44,23 +46,28 @@ A library of PyTorch modules, losses and functional operations.
 
 ## Overview
 
-`sonnix` is a library of [PyTorch](https://pytorch.org/) building blocks that are missing from
-`torch.nn`. It has three layers: `sonnix.functional` (stateless operations), `sonnix.modules` (the
-`torch.nn.Module` wrappers) and `sonnix.utils` (helpers to inspect and train modules). It also ships
-helpers for training and testing, listed at the end. It contains:
+`sonnix` is a library of [PyTorch](https://pytorch.org/) building blocks that
+are missing from `torch.nn`. It has three layers: `sonnix.functional` (stateless
+operations), `sonnix.modules` (the `torch.nn.Module` wrappers) and
+`sonnix.utils` (helpers to inspect and train modules). It also ships helpers for
+training and testing, listed at the end. It contains:
 
-- **Losses**: robust and asymmetric regression losses (general robust, quantile, Poisson, relative
-  losses), binary focal and Poly-1 losses, and `TransformedLoss`. They share the same
-  `reduction` options (`none`, `mean`, `sum`, `batchmean`).
-- **Activations**: parametric activations (`Snake`, `Gaussian`, `Laplacian`, `Quadratic`,
-  `MultiQuadratic`, `ExpSin`), `ReLUn`, `SquaredReLU`, `Asinh` and safe `exp`/`log` modules.
-- **Numerical encoders**: `CosSinNumericalEncoder`, `AsinhCosSinNumericalEncoder`,
-  `AsinhNumericalEncoder` and `PiecewiseLinearNumericalEncoder` to embed numerical features.
-- **Layers**: `NLinear`, `ExU`, `ResidualBlock`, `ScaleAndShift`, `DynamicTanh`, `DynamicAsinh`,
-  the fusion modules and the shape and dtype helpers.
-- **Helpers**: `sonnix.factory` builds modules from a configuration (`ResidualBlock` and
-  `TransformedLoss` use its `resolve_module`), `sonnix.utils` inspects, freezes and loads modules
-  (`num_parameters`, `freeze_module`, `load_state_dict_to_module`), and `sonnix.testing` provides
+- **Losses**: robust and asymmetric regression losses (general robust, quantile,
+  Poisson, relative losses), binary focal and Poly-1 losses, and
+  `TransformedLoss`. They share the same `reduction` options (`none`,
+  `mean`, `sum`, `batchmean`).
+- **Activations**: parametric activations (`Snake`, `Gaussian`, `Laplacian`,
+  `Quadratic`, `MultiQuadratic`, `ExpSin`), `ReLUn`, `SquaredReLU`, `Asinh` and
+  safe `exp`/`log` modules.
+- **Numerical encoders**: `CosSinNumericalEncoder`,
+  `AsinhCosSinNumericalEncoder`, `AsinhNumericalEncoder` and
+  `PiecewiseLinearNumericalEncoder` to embed numerical features.
+- **Layers**: `NLinear`, `ExU`, `ResidualBlock`, `ScaleAndShift`, `DynamicTanh`,
+  `DynamicAsinh`, the fusion modules and the shape and dtype helpers.
+- **Helpers**: `sonnix.factory` builds modules from a configuration
+  (`ResidualBlock` and `TransformedLoss` use its `resolve_module`),
+  `sonnix.utils` inspects, freezes and loads modules (`num_parameters`,
+  `freeze_module`, `load_state_dict_to_module`), and `sonnix.testing` provides
   `DummyDataset` and `is_loss_decreasing` to test your own modules.
 
 ## Installation
@@ -114,13 +121,13 @@ plots the activations.
 
 ## Motivation
 
-`torch.nn` covers the standard layers. Research code keeps re-implementing the same extras (a
-robust loss, a periodic activation, a numerical embedding), often with a different handling of the
-reduction, the numerical stability or the device. `sonnix` provides them once, with a consistent
-API:
+`torch.nn` covers the standard layers. Research code keeps re-implementing the
+same extras (a robust loss, a periodic activation, a numerical embedding), often
+with a different handling of the reduction, the numerical stability or the
+device. `sonnix` provides them once, with a consistent API:
 
 - the same `reduction` options for every loss;
 - validated arguments and readable hyperparameters (`repr` shows them);
 - numerically stable implementations, tested for overflow and finite gradients;
-- `device` and `dtype` support, and frozen tensors stored as buffers so `module.to(...)` and
-  `state_dict` work as expected.
+- `device` and `dtype` support, and frozen tensors stored as buffers so
+  `module.to(...)` and `state_dict` work as expected.
