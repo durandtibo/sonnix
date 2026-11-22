@@ -7,7 +7,7 @@ __all__ = ["AsinhNumericalEncoder"]
 
 from typing import TYPE_CHECKING, Literal
 
-from coola.validation import validate_ge
+from coola.validation import validate_ge, validate_int, validate_isinstance
 from torch import nn
 
 from sonnix.modules.numerical._utils import (
@@ -36,8 +36,11 @@ class AsinhNumericalEncoder(NumericalEncoder):
             otherwise they are frozen.
 
     Raises:
-        ValueError: if the input does not have ``n_features`` as last
-            dimension (no broadcast, even if ``n_features`` is 1).
+        TypeError: if ``learnable`` is not a ``bool``.
+        ValueError: if ``scale`` is not a 1d or 2d tensor or if it
+            contains a ``NaN`` or an infinite value, or if the input
+            does not have ``n_features`` as last dimension (no
+            broadcast, even if ``n_features`` is 1).
 
     Shape:
         - Input: ``(*, n_features)``, where ``*`` means any number of
@@ -75,6 +78,7 @@ class AsinhNumericalEncoder(NumericalEncoder):
 
     def __init__(self, scale: Tensor, *, learnable: bool = False) -> None:
         super().__init__()
+        validate_isinstance(learnable, bool, name="learnable")
         scale = prepare_tensor_param(scale, name="scale")
         self.scale: Tensor
         if learnable:
@@ -138,6 +142,8 @@ class AsinhNumericalEncoder(NumericalEncoder):
             An instantiated encoder with ``n_features`` features.
 
         Raises:
+            TypeError: if ``feature_size`` or ``n_features`` is not an
+                integer.
             ValueError: if ``spacing`` is not valid, if both or none of
                 ``scale_range`` and ``value_range`` are given, or if
                 the range, ``feature_size`` or ``n_features`` are
@@ -159,6 +165,7 @@ class AsinhNumericalEncoder(NumericalEncoder):
             ```
         """
         min_scale, max_scale = resolve_range("scale", scale_range, value_range)
+        validate_int(feature_size, name="feature_size")
         validate_ge(feature_size, 1, name="feature_size")
         scale = create_spaced_values(
             spacing,

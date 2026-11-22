@@ -5,6 +5,7 @@ from __future__ import annotations
 __all__ = ["ConcatFusion"]
 
 import torch
+from coola.validation import validate_int
 
 from sonnix.modules.fusion.base import BaseFusion
 
@@ -14,6 +15,9 @@ class ConcatFusion(BaseFusion):
 
     Args:
         dim: The fusion dimension. ``-1`` means the last dimension.
+
+    Raises:
+        TypeError: if ``dim`` is not an integer.
 
     Example:
         ```pycon
@@ -35,6 +39,7 @@ class ConcatFusion(BaseFusion):
 
     def __init__(self, dim: int = -1) -> None:
         super().__init__()
+        validate_int(dim, name="dim")
         self.dim = dim
 
     def extra_repr(self) -> str:

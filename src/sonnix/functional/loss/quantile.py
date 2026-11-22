@@ -7,7 +7,7 @@ __all__ = ["quantile_regression_loss"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_range
+from coola.validation import validate_number, validate_range
 
 from sonnix.functional.reduction import reduce_loss
 from sonnix.validation import validate_same_shape
@@ -55,6 +55,7 @@ def quantile_regression_loss(
 
         ```
     """
+    validate_number(q, name="q")
     validate_range(q, 0.0, 1.0, name="q")
     validate_same_shape(prediction, target, name1="prediction", name2="target")
     diff = target - prediction

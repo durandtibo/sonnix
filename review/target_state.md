@@ -575,4 +575,5 @@ composition, encoder range logic and input check, package layout, alpha
 | Step | Pull request | Notes   |
 | ---- | ------------ | ------- |
 | 1    | #446         | open    |
-| 2-9  | —            | planned |
+| 2    | #447         | open    |
+| 3-9  | —            | planned |

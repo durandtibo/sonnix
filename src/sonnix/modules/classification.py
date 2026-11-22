@@ -5,7 +5,7 @@ from __future__ import annotations
 __all__ = ["ToBinaryLabel", "ToCategoricalLabel"]
 
 import torch
-from coola.validation import validate_finite
+from coola.validation import validate_finite, validate_int
 from torch import nn
 
 
@@ -21,6 +21,7 @@ class ToBinaryLabel(nn.Module):
             labels.
 
     Raises:
+        TypeError: If ``threshold`` is not a number or ``dim`` is not an integer.
         ValueError: If ``threshold`` is not finite.
 
     Example:
@@ -79,6 +80,9 @@ class ToCategoricalLabel(nn.Module):
     Args:
         dim: The dimension of the classes.
 
+    Raises:
+        TypeError: if ``dim`` is not an integer.
+
     Example:
         ```pycon
         >>> import torch
@@ -95,6 +99,7 @@ class ToCategoricalLabel(nn.Module):
 
     def __init__(self, dim: int = -1) -> None:
         super().__init__()
+        validate_int(dim, name="dim")
         self.dim = dim
 
     def extra_repr(self) -> str:

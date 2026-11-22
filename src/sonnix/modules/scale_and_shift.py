@@ -6,7 +6,7 @@ from __future__ import annotations
 __all__ = ["ScaleAndShift"]
 
 import torch
-from coola.validation import validate_ge, validate_int
+from coola.validation import validate_ge, validate_int, validate_isinstance
 from torch import nn
 from torch.nn import init
 
@@ -34,7 +34,7 @@ class ScaleAndShift(nn.Module):
 
     Raises:
         TypeError: if a dimension of ``normalized_shape`` is not an
-            integer.
+            integer, or if ``bias`` is not a ``bool``.
         ValueError: if a dimension of ``normalized_shape`` is lower
             than 1.
 
@@ -66,6 +66,7 @@ class ScaleAndShift(nn.Module):
         dtype: torch.dtype | None = None,
     ) -> None:
         super().__init__()
+        validate_isinstance(bias, bool, name="bias")
         if isinstance(normalized_shape, int):
             normalized_shape = (normalized_shape,)
         self.normalized_shape = tuple(normalized_shape)

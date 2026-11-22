@@ -10,10 +10,10 @@ from typing import TYPE_CHECKING, Literal
 
 import torch
 from coola.random import make_torch_generator
-from coola.validation import validate_ge, validate_gt, validate_in, validate_int
+from coola.validation import validate_ge, validate_in, validate_int
 from torch import nn
 
-from sonnix.validation import validate_abs_range
+from sonnix.validation import validate_positive
 
 if TYPE_CHECKING:
     from torch import Tensor
@@ -46,7 +46,7 @@ def _resolve_torch_generator(generator_or_seed: int | torch.Generator) -> torch.
 
 
 def prepare_tensor_param(tensor: Tensor, name: str) -> Tensor:
-    r"""Prepare a tensor parameter to be a 2d tensor.
+    r"""Prepare a tensor parameter to be a finite 2d tensor.
 
     Args:
         tensor: The tensor to prepare.
@@ -56,7 +56,8 @@ def prepare_tensor_param(tensor: Tensor, name: str) -> Tensor:
         The prepared tensor.
 
     Raises:
-        ValueError: if the input tensor is not a 1d or 2d tensor.
+        ValueError: if the input tensor is not a 1d or 2d tensor or
+            if it contains a ``NaN`` or an infinite value.
 
     Example:
         ```pycon
@@ -71,6 +72,9 @@ def prepare_tensor_param(tensor: Tensor, name: str) -> Tensor:
         tensor = tensor.view(1, -1)
     if tensor.ndim != 2:
         msg = f"Incorrect shape for '{name}': {tensor.shape}"
+        raise ValueError(msg)
+    if not tensor.isfinite().all():
+        msg = f"'{name}' must contain only finite values"
         raise ValueError(msg)
     return tensor
 
@@ -175,9 +179,10 @@ def resolve_range(
             ``0 < min <= max``.
 
     Raises:
+        TypeError: if a bound of the given range is not a number.
         ValueError: if both or none of ``range_`` and ``value_range``
-            are given, if ``value_range`` is not valid, or if the
-            range of the parameter is not ``0 < min <= max``.
+            are given, or if the given range is not
+            ``0 < min <= max`` with finite bounds.
 
     Example:
         ```pycon
@@ -190,21 +195,21 @@ def resolve_range(
         ```
     """
     if range_ is not None and value_range is None:
-        min_value, max_value = range_
+        (low, high), low_name, high_name = range_, f"min_{name}", f"max_{name}"
     elif range_ is None and value_range is not None:
-        validate_abs_range(min_abs_value=value_range[0], max_abs_value=value_range[1])
-        min_value, max_value = 1 / value_range[1], 1 / value_range[0]
+        (low, high), low_name, high_name = value_range, "min_abs_value", "max_abs_value"
     else:
         msg = f"Exactly one of '{name}_range' and 'value_range' has to be provided"
         raise ValueError(msg)
-    validate_gt(min_value, 0, name=f"min_{name}")
-    if max_value < min_value:
+    validate_positive(low, name=low_name)
+    validate_positive(high, name=high_name)
+    if high < low:
         msg = (
-            f"'max_{name}' (received: {max_value}) has to be greater than "
-            f"'min_{name}' (received: {min_value})"
+            f"'{high_name}' (received: {high}) has to be greater than "
+            f"'{low_name}' (received: {low})"
         )
         raise ValueError(msg)
-    return min_value, max_value
+    return (low, high) if range_ is not None else (1 / high, 1 / low)
 
 
 class NumericalEncoder(nn.Module, ABC):

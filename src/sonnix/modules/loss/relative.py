@@ -6,11 +6,12 @@ __all__ = ["RelativeLoss"]
 
 from typing import TYPE_CHECKING, Any
 
-from coola.validation import validate_gt
+from coola.validation import validate_isinstance
 
 from sonnix.factory import resolve_module
 from sonnix.functional import classical_relative_indicator, relative_loss
 from sonnix.modules.loss.base import BaseLoss
+from sonnix.validation import validate_positive
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -40,7 +41,7 @@ class RelativeLoss(BaseLoss):
             ``sonnix.functional``). Use ``functools.partial`` to set
             its options. If ``None``,
             ``classical_relative_indicator`` is used.
-        eps: An arbitrary small strictly positive number to avoid
+        eps: An arbitrary small finite, strictly positive number to avoid
             undefined results when the indicator is zero.
         detach_indicator: If ``True``, the indicator is detached from
             the graph so no gradient flows through the denominator.
@@ -52,7 +53,8 @@ class RelativeLoss(BaseLoss):
 
     Raises:
         TypeError: if ``indicator`` is not callable.
-        ValueError: if ``eps`` is not strictly positive.
+        TypeError: if ``eps`` is not a number or ``detach_indicator`` is not a ``bool``.
+        ValueError: if ``eps`` is not finite and strictly positive.
 
     Example:
         ```pycon
@@ -96,9 +98,10 @@ class RelativeLoss(BaseLoss):
             raise TypeError(msg)
         self.indicator = indicator
 
-        validate_gt(eps, 0, name="eps")
+        validate_positive(eps, name="eps")
+        validate_isinstance(detach_indicator, bool, name="detach_indicator")
         self.eps = float(eps)
-        self.detach_indicator = bool(detach_indicator)
+        self.detach_indicator = detach_indicator
 
     def extra_repr(self) -> str:
         return f"{super().extra_repr()}, eps={self.eps}, detach_indicator={self.detach_indicator}"

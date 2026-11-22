@@ -7,7 +7,7 @@ __all__ = ["QuantileRegressionLoss"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_range
+from coola.validation import validate_number, validate_range
 
 from sonnix.functional import quantile_regression_loss
 from sonnix.modules.loss.base import BaseLoss
@@ -49,6 +49,7 @@ class QuantileRegressionLoss(BaseLoss):
 
     def __init__(self, q: float = 0.5, *, reduction: Reduction = "mean") -> None:
         super().__init__(reduction=reduction)
+        validate_number(q, name="q")
         validate_range(q, 0.0, 1.0, name="q")
         self.q = float(q)
 

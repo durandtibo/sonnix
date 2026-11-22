@@ -60,6 +60,7 @@ class BinaryPoly1Loss(BaseBinaryPoly1Loss):
             same shape as input.
 
     Raises:
+        TypeError: If ``alpha`` is not a number.
         ValueError: If ``alpha`` is not finite.
 
     Example:
@@ -122,6 +123,7 @@ class BinaryPoly1LossWithLogits(BaseBinaryPoly1Loss):
             same shape as input.
 
     Raises:
+        TypeError: If ``alpha`` is not a number.
         ValueError: If ``alpha`` is not finite.
 
     Example:

@@ -11,6 +11,7 @@ __all__ = [
 from typing import TYPE_CHECKING, Literal
 
 import torch
+from coola.validation import validate_ge, validate_int, validate_isinstance
 from torch import nn
 
 from sonnix.modules.numerical._utils import (
@@ -19,7 +20,7 @@ from sonnix.modules.numerical._utils import (
     prepare_tensor_param,
     resolve_range,
 )
-from sonnix.validation import validate_frequency, validate_same_shape
+from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:
     from typing import Self
@@ -40,6 +41,12 @@ class CosSinNumericalEncoder(NumericalEncoder):
             ``(feature_size // 2,)``.
         learnable: If ``True`` the frequencies and phase-shift
             parameters are learnable, otherwise they are frozen.
+
+    Raises:
+        TypeError: if ``learnable`` is not a ``bool``.
+        ValueError: if ``frequency`` or ``phase_shift`` is not a 1d or
+            2d tensor, if they have different shapes, or if they contain
+            a ``NaN`` or an infinite value.
 
     Shape:
         - Input: ``(*, n_features)``, where ``*`` means any number of
@@ -87,6 +94,7 @@ class CosSinNumericalEncoder(NumericalEncoder):
 
     def __init__(self, frequency: Tensor, phase_shift: Tensor, *, learnable: bool = False) -> None:
         super().__init__()
+        validate_isinstance(learnable, bool, name="learnable")
         frequency = prepare_tensor_param(frequency, name="frequency")
         self.frequency: Tensor
         self.phase_shift: Tensor
@@ -185,6 +193,8 @@ class CosSinNumericalEncoder(NumericalEncoder):
             An instantiated encoder with ``n_features`` features.
 
         Raises:
+            TypeError: if ``num_frequencies`` or ``n_features`` is not
+                an integer.
             ValueError: if ``spacing`` is not valid, if both or none of
                 ``frequency_range`` and ``value_range`` are given, or if
                 the range, ``num_frequencies`` or ``n_features`` are
@@ -213,11 +223,8 @@ class CosSinNumericalEncoder(NumericalEncoder):
             ```
         """
         min_frequency, max_frequency = resolve_range("frequency", frequency_range, value_range)
-        validate_frequency(
-            num_frequencies=num_frequencies,
-            min_frequency=min_frequency,
-            max_frequency=max_frequency,
-        )
+        validate_int(num_frequencies, name="num_frequencies")
+        validate_ge(num_frequencies, 1, name="num_frequencies")
         frequency = create_spaced_values(
             spacing,
             num_frequencies,

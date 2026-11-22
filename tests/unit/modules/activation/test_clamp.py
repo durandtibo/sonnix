@@ -71,3 +71,26 @@ def test_clamp_without_min() -> None:
     assert Clamp(min_val=None, max_val=1.0)(torch.tensor([-5.0, 2.0])).equal(
         torch.tensor([-5.0, 1.0])
     )
+
+
+def test_clamp_without_max() -> None:
+    assert Clamp(min_val=-1.0, max_val=None)(torch.tensor([-5.0, 2.0])).equal(
+        torch.tensor([-1.0, 2.0])
+    )
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf")])
+def test_clamp_min_val_not_finite(value: float) -> None:
+    with pytest.raises(ValueError, match=r"min_val must be finite"):
+        Clamp(min_val=value, max_val=1.0)
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("-inf")])
+def test_clamp_max_val_not_finite(value: float) -> None:
+    with pytest.raises(ValueError, match=r"max_val must be finite"):
+        Clamp(min_val=-1.0, max_val=value)
+
+
+def test_clamp_incorrect_type() -> None:
+    with pytest.raises(TypeError, match=r"min_val must be a real number"):
+        Clamp(min_val="a", max_val=1)

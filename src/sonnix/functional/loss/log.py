@@ -8,11 +8,10 @@ __all__ = ["log_cosh_loss"]
 import math
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_gt
 from torch.nn.functional import softplus
 
 from sonnix.functional.reduction import reduce_loss
-from sonnix.validation import validate_same_shape
+from sonnix.validation import validate_positive, validate_same_shape
 
 if TYPE_CHECKING:
     import torch
@@ -44,7 +43,8 @@ def log_cosh_loss(
         The logarithm of the hyperbolic cosine of the prediction error.
 
     Raises:
-        ValueError: if ``scale`` is not strictly positive or if the
+        TypeError: if ``scale`` is not a number.
+        ValueError: if ``scale`` is not finite and strictly positive or if the
             reduction is not valid.
         ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
@@ -59,7 +59,7 @@ def log_cosh_loss(
 
         ```
     """
-    validate_gt(scale, 0, name="scale")
+    validate_positive(scale, name="scale")
     validate_same_shape(prediction, target, name1="prediction", name2="target")
     error = target.sub(prediction).div(scale).abs()
     # Numerically stable form of log(cosh(x)): it does not overflow for large |x|.
