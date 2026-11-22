@@ -57,7 +57,7 @@ end. It contains:
   `TransformedLoss`. They share the same `reduction` options (`none`,
   `mean`, `sum`, `batchmean`).
 - **Activations**: parametric activations (`Snake`, `Gaussian`, `Laplacian`,
-  `Quadratic`, `MultiQuadratic`, `ExpSin`), `SquaredReLU`, `Asinh` and
+  `Quadratic`, `MultiQuadratic`, `ExpSin`), `ReLUn`, `SquaredReLU`, `Asinh` and
   safe `exp`/`log` modules.
 - **Numerical encoders**: `CosSinNumericalEncoder`,
   `AsinhCosSinNumericalEncoder`, `AsinhNumericalEncoder` and

@@ -13,6 +13,8 @@ helpers. See also the [`sonnix.modules`](index.md) overview.
 | [`ToBinaryLabel`](#sonnix.modules.ToBinaryLabel)           |
 | [`ToCategoricalLabel`](#sonnix.modules.ToCategoricalLabel) |
 | [`ToDtype`](#sonnix.modules.ToDtype)                       |
+| [`ToFloat`](#sonnix.modules.ToFloat)                       |
+| [`ToLong`](#sonnix.modules.ToLong)                         |
 
 ## ::: sonnix.modules.ExU
 
@@ -30,3 +32,6 @@ helpers. See also the [`sonnix.modules`](index.md) overview.
 
 ## ::: sonnix.modules.ToDtype
 
+## ::: sonnix.modules.ToFloat
+
+## ::: sonnix.modules.ToLong

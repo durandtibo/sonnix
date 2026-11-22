@@ -4,6 +4,8 @@
 
 ### ::: sonnix.functional.safe_exp
 
+### ::: sonnix.functional.rectifier_asinh_unit
+
 ### ::: sonnix.functional.safe_log
 
 ## Loss functions
@@ -43,6 +45,14 @@
 #### ::: sonnix.functional.moment_mean_indicator
 
 #### ::: sonnix.functional.reversed_relative_indicator
+
+## Errors
+
+### ::: sonnix.functional.absolute_error
+
+### ::: sonnix.functional.absolute_relative_error
+
+### ::: sonnix.functional.symmetric_absolute_relative_error
 
 ## Utility
 
