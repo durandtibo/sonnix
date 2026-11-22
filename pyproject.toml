@@ -43,7 +43,7 @@ dynamic = ["maintainers"]
 
 requires-python = ">=3.11"
 
-dependencies = ["coola>=2.0.0a4,<3.0", "torch>=2.4,<3.0"]
+dependencies = ["coola>=2.0.0a5,<3.0", "torch>=2.4,<3.0"]
 
 [project.optional-dependencies]
 

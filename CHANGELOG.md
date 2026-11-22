@@ -48,7 +48,7 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
   arguments), `ToDtype` accepts a `torch.dtype` or its name
   (`ToDtype("float32")`), `Snake` moves to
   `sonnix/modules/activation/alpha.py`, `AverageFusion` and `SumFusion` share
-  `BaseFusion._sum`, and `Gaussian` and `Snake` share one check of `init`.
+  `BaseFusion._sum`, and `Gaussian` and `Snake` check `init` with `coola.validation.validate_non_zero`.
   `Laplacian` rejects `init <= 0` with one message (`init must be greater than
   0`). `ToFloat`, `ToLong`, `ReLUn`, `Square`, the three error functions and
   `rectifier_asinh_unit` are kept: a named wrapper that users look for is
