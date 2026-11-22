@@ -18,6 +18,7 @@ from sonnix.modules import (
     Pow,
     QuantileRegressionLoss,
     RelativeLoss,
+    ReLUn,
     SafeExp,
     SafeLog,
     ScaleAndShift,
@@ -33,6 +34,7 @@ from sonnix.modules import (
 @pytest.mark.parametrize(
     ("module", "name", "value"),
     [
+        (ReLUn(max_val=3.0), "max_val", 3.0),
         (Clamp(min_val=-2.0, max_val=2.0), "min_val", -2.0),
         (Clamp(min_val=-2.0, max_val=2.0), "max_val", 2.0),
         (Clamp(), "min_val", -1.0),
