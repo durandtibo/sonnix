@@ -157,20 +157,9 @@ class ExpSin(BaseAlphaActivation):
         Ramasinghe S., Lucey S.
         ECCV 2022. (http://arxiv.org/pdf/2111.15135)
 
-    Args:
-        num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, only two values are
-            legitimate: ``1``, or the number of channels at input.
-        init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learned during the
-            training, otherwise they are fixed.
-        channel_dim: The dimension of the input that ``alpha`` is
-            broadcast over when ``num_parameters`` is greater than 1.
-            The default ``-1`` is the last dimension. Use ``1`` for
-            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
-        device: The device of the parameters.
-        dtype: The data type of the parameters. ``None`` uses the
-            default floating point type.
+    The constructor arguments (``num_parameters``, ``init``, ``learnable``,
+    ``channel_dim``, ``device`` and ``dtype``) are the ones of
+    ``BaseAlphaActivation``.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -209,20 +198,9 @@ class Gaussian(BaseAlphaActivation):
         Ramasinghe S., Lucey S.
         ECCV 2022. (http://arxiv.org/pdf/2111.15135)
 
-    Args:
-        num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, only two values are
-            legitimate: ``1``, or the number of channels at input.
-        init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learned during the
-            training, otherwise they are fixed.
-        channel_dim: The dimension of the input that ``alpha`` is
-            broadcast over when ``num_parameters`` is greater than 1.
-            The default ``-1`` is the last dimension. Use ``1`` for
-            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
-        device: The device of the parameters.
-        dtype: The data type of the parameters. ``None`` uses the
-            default floating point type.
+    The constructor arguments (``num_parameters``, ``init``, ``learnable``,
+    ``channel_dim``, ``device`` and ``dtype``) are the ones of
+    ``BaseAlphaActivation``.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -271,20 +249,9 @@ class Laplacian(BaseAlphaActivation):
         Ramasinghe S., Lucey S.
         ECCV 2022. (http://arxiv.org/pdf/2111.15135)
 
-    Args:
-        num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, only two values are
-            legitimate: ``1``, or the number of channels at input.
-        init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learned during the
-            training, otherwise they are fixed.
-        channel_dim: The dimension of the input that ``alpha`` is
-            broadcast over when ``num_parameters`` is greater than 1.
-            The default ``-1`` is the last dimension. Use ``1`` for
-            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
-        device: The device of the parameters.
-        dtype: The data type of the parameters. ``None`` uses the
-            default floating point type.
+    The constructor arguments (``num_parameters``, ``init``, ``learnable``,
+    ``channel_dim``, ``device`` and ``dtype``) are the ones of
+    ``BaseAlphaActivation``.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -333,20 +300,9 @@ class MultiQuadratic(BaseAlphaActivation):
         Ramasinghe S., Lucey S.
         ECCV 2022. (http://arxiv.org/pdf/2111.15135)
 
-    Args:
-        num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, only two values are
-            legitimate: ``1``, or the number of channels at input.
-        init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learned during the
-            training, otherwise they are fixed.
-        channel_dim: The dimension of the input that ``alpha`` is
-            broadcast over when ``num_parameters`` is greater than 1.
-            The default ``-1`` is the last dimension. Use ``1`` for
-            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
-        device: The device of the parameters.
-        dtype: The data type of the parameters. ``None`` uses the
-            default floating point type.
+    The constructor arguments (``num_parameters``, ``init``, ``learnable``,
+    ``channel_dim``, ``device`` and ``dtype``) are the ones of
+    ``BaseAlphaActivation``.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -382,20 +338,9 @@ class Quadratic(BaseAlphaActivation):
         Ramasinghe S., Lucey S.
         ECCV 2022. (http://arxiv.org/pdf/2111.15135)
 
-    Args:
-        num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, only two values are
-            legitimate: ``1``, or the number of channels at input.
-        init: The initial value of the learnable parameter(s).
-        learnable: If ``True``, the parameters are learned during the
-            training, otherwise they are fixed.
-        channel_dim: The dimension of the input that ``alpha`` is
-            broadcast over when ``num_parameters`` is greater than 1.
-            The default ``-1`` is the last dimension. Use ``1`` for
-            an input of shape ``(N, C, L)`` like ``torch.nn.PReLU``.
-        device: The device of the parameters.
-        dtype: The data type of the parameters. ``None`` uses the
-            default floating point type.
+    The constructor arguments (``num_parameters``, ``init``, ``learnable``,
+    ``channel_dim``, ``device`` and ``dtype``) are the ones of
+    ``BaseAlphaActivation``.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.

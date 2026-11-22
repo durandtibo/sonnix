@@ -28,7 +28,8 @@ class BaseBinaryPoly1Loss(BaseLoss):
 
     Args:
         alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
-            probability of the target class.
+            probability of the target class. The loss is
+            ``cross_entropy + alpha * (1 - p_t)``.
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
     """
@@ -49,12 +50,8 @@ class BinaryPoly1Loss(BaseBinaryPoly1Loss):
     Classification Loss Functions"
     (https://arxiv.org/pdf/2204.12511)
 
-    Args:
-        alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
-            probability of the target class. The loss is
-            ``cross_entropy + alpha * (1 - p_t)``.
-        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
-            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
+    The constructor arguments (``alpha`` and ``reduction``) are the ones of
+    ``BaseBinaryPoly1Loss``.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -115,12 +112,8 @@ class BinaryPoly1LossWithLogits(BaseBinaryPoly1Loss):
     Classification Loss Functions"
     (https://arxiv.org/pdf/2204.12511)
 
-    Args:
-        alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
-            probability of the target class. The loss is
-            ``cross_entropy + alpha * (1 - p_t)``.
-        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
-            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
+    The constructor arguments (``alpha`` and ``reduction``) are the ones of
+    ``BaseBinaryPoly1Loss``.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.

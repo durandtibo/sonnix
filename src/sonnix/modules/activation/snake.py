@@ -23,21 +23,9 @@ class Snake(BaseAlphaActivation):
         Ziyin L., Hartwig T., Ueda M.
         NeurIPS, 2020. (http://arxiv.org/pdf/2006.08195)
 
-    Args:
-        num_parameters: The number of learnable parameters. Although
-            it takes an integer as input, only two values are
-            legitimate: ``1``, or the number of channels at input.
-        init: The initial value of the parameter(s) ``alpha``, which
-            is the frequency of the periodic component. It has to be
-            different from 0.
-        learnable: If ``True``, the parameters are learned during the
-            training, otherwise they are fixed.
-        channel_dim: The dimension of the input that ``alpha`` is
-            broadcast over when ``num_parameters`` is greater than 1.
-            The default ``-1`` is the last dimension.
-        device: The device of the parameters.
-        dtype: The data type of the parameters. ``None`` uses the
-            default floating point type.
+    The constructor arguments (``num_parameters``, ``init``, ``learnable``,
+    ``channel_dim``, ``device`` and ``dtype``) are the ones of
+    ``BaseAlphaActivation``. Here ``alpha`` is the frequency of the periodic component.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
