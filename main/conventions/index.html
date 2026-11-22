@@ -1272,7 +1272,7 @@
 <ul>
 <li>The loss functions and the loss modules take <code>(prediction, target)</code>, while PyTorch uses
   <code>(input, target)</code>. This is a deliberate choice: the first argument of a loss is the output of a
-  model. The activation functions and modules use <code>input</code>, like <code>torch.nn.functional</code>.</li>
+  model. Every module with a single tensor input names it <code>input</code> in <code>forward</code>, like <code>torch.nn</code>.</li>
 <li>Layers that map a feature dimension (<code>NLinear</code>, <code>ExU</code>) use <code>in_features</code> and <code>out_features</code>.</li>
 <li>The numerical encoders expose <code>n_features</code> (the size of the last input dimension) and
   <code>feature_size</code> (the size of the encoding of one feature), as shown in their representation.</li>
