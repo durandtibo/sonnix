@@ -2181,9 +2181,9 @@ integer.</p>
             <td>
               <div class="doc-md-description">
                 <p>if <code>num_parameters</code> is lower than 1, if <code>init</code>
-is not finite, if <code>init</code> is 0 for a module that does not
-allow it, or if <code>init</code> is negative for a module that
-does not allow it.</p>
+is not finite, or if <code>init</code> is a value that the subclass
+rejects (<code>Gaussian</code>, <code>Laplacian</code> and <code>Snake</code> reject
+<code>0</code> and <code>Laplacian</code> rejects negative values).</p>
               </div>
             </td>
           </tr>
