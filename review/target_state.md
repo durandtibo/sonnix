@@ -655,5 +655,5 @@ Estimated from the current file sizes; docstrings and examples included.
 | 8    | #422         | merged. Sub-package `__init__.py` files are docstring-only (ruff F401 without `__all__`) |
 | 9    | #423         | merged. Helpers named `probability_of_target` / `class_weight`. F19 done in step 12      |
 | 10   | #424         | merged. Migration table in `CHANGELOG.md`, conventions updated                           |
-| 11   | #439         | open, stacked on #438: `resolve_range` checks `0 < min <= max` (F13)                     |
-| 12   | #440         | open, stacked on #439: the copied `Args:` blocks point to their base class (F19)         |
+| 11   | #439         | merged. `resolve_range` checks `0 < min <= max` (F13)                                    |
+| 12   | #440         | merged. The copied `Args:` blocks point to their base class (F19)                        |
