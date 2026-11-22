@@ -328,3 +328,15 @@ def test_general_robust_regression_loss_extra_repr() -> None:
         GeneralRobustRegressionLoss(alpha=1.0, scale=2.0, max_val=5.0).extra_repr()
         == "reduction=mean, alpha=1.0, scale=2.0, max_val=5.0"
     )
+
+
+def test_general_robust_regression_loss_alpha_is_positional() -> None:
+    assert GeneralRobustRegressionLoss(1.0).alpha == 1.0
+
+
+@pytest.mark.parametrize("args", [(2.0, 1.0), (2.0, 1.0, 5.0)])
+def test_general_robust_regression_loss_other_options_are_keyword_only(args: tuple) -> None:
+    with pytest.raises(
+        TypeError, match=r"takes from 1 to 2 positional arguments but \d were given"
+    ):
+        GeneralRobustRegressionLoss(*args)

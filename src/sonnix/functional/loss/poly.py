@@ -77,7 +77,7 @@ def binary_poly1_loss(
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
     p_t = probability_of_target(prediction, target)
     loss = ce_loss + alpha * (1 - p_t)
-    return reduce_loss(loss, reduction)
+    return reduce_loss(loss, reduction=reduction)
 
 
 def binary_poly1_loss_with_logits(
@@ -138,4 +138,4 @@ def binary_poly1_loss_with_logits(
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
     p_t = probability_of_target(prediction.sigmoid(), target)
     loss = ce_loss + alpha * (1 - p_t)
-    return reduce_loss(loss, reduction)
+    return reduce_loss(loss, reduction=reduction)

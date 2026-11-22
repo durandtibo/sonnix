@@ -91,4 +91,4 @@ def poisson_regression_loss(
     else:
         rate = prediction.clamp(min=eps)
         loss = rate - target.mul(rate.log())
-    return reduce_loss(loss, reduction)
+    return reduce_loss(loss, reduction=reduction)

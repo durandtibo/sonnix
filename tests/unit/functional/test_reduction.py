@@ -103,4 +103,19 @@ def test_reduce_loss_reduction_incorrect() -> None:
 
 def test_reduce_loss_batchmean_0d() -> None:
     with pytest.raises(ValueError, match="'batchmean' reduction requires"):
-        reduce_loss(torch.tensor(1.0), "batchmean")
+        reduce_loss(torch.tensor(1.0), reduction="batchmean")
+
+
+def test_reduce_loss_default_reduction_is_mean() -> None:
+    assert objects_are_equal(reduce_loss(torch.tensor([1.0, 3.0])), torch.tensor(2.0))
+
+
+def test_reduce_loss_reduction_is_keyword_only() -> None:
+    with pytest.raises(TypeError, match=r"takes 1 positional argument but 2 were given"):
+        reduce_loss(torch.ones(2), "sum")
+
+
+def test_reduce_loss_operand_is_loss() -> None:
+    assert objects_are_equal(
+        reduce_loss(loss=torch.tensor([1.0, 3.0]), reduction="sum"), torch.tensor(4.0)
+    )

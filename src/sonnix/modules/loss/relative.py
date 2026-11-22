@@ -83,9 +83,9 @@ class RelativeLoss(BaseLoss):
     def __init__(
         self,
         criterion: nn.Module | dict[Any, Any],
+        *,
         indicator: Callable[[torch.Tensor, torch.Tensor], torch.Tensor] | None = None,
         eps: float = 1e-8,
-        *,
         reduction: Reduction = "mean",
         detach_indicator: bool = False,
     ) -> None:
