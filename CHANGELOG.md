@@ -232,14 +232,14 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
   `Raises:` block quotes only parameters. Every exported name is documented
   under its own package. `review/suggestions.md` (obsolete) is deleted, the
   `pre-commit` configuration runs `pyright`, and `docs/docs/index.md` includes
-  `README.md` (third target state step 1, #PR).
+  `README.md` (third target state step 1, #459).
 
 ### Fixed
 
 - Docstrings: `Pow` documents `exponent`, `ToBinaryLabel` no longer says it
   raises for a `dim` that does not exist, and the `Args:` of `RelativeLoss` and
   `is_loss_decreasing_with_sgd` follow the order of the signature (third target
-  state step 1, #PR).
+  state step 1, #459).
 - The four binary losses (`binary_focal_loss`, `binary_focal_loss_with_logits`,
   `binary_poly1_loss`, `binary_poly1_loss_with_logits`, and their modules)
   convert an integer or `bool` target to the dtype of the prediction. Before,
