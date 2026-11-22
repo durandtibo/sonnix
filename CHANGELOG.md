@@ -29,6 +29,19 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- Remove the public names that are compositions or that are not extension
+  points (revised target state step 5, #451): `ToFloat` and `ToLong`
+  (`ToDtype("float32")`, `ToDtype("int64")`: `ToDtype` accepts a `torch.dtype`
+  or its name), `ReLUn` (`Clamp(0.0, n)`), `Square` (`Pow(2)`),
+  `absolute_error`, `absolute_relative_error` and
+  `symmetric_absolute_relative_error` (recipes in the losses guide),
+  `rectifier_asinh_unit` (`RectifierAsinhUnit` stays), and the public base
+  classes `BaseBinaryFocalLoss` and `BaseBinaryPoly1Loss` (now private; the
+  public classes document their arguments). `Snake` moves to
+  `sonnix/modules/activation/alpha.py`, `AverageFusion` and `SumFusion` share
+  `BaseFusion._sum`, and `Gaussian` and `Snake` share one check of `init`.
+  `Laplacian` rejects `init <= 0` with one message (`init must be greater than
+  0`). The notebook `activations.ipynb` uses `Clamp(0.0, n)`.
 - Uniform call signatures (revised target state step 4, #450).
   `BinaryFocalLoss`, `BinaryFocalLossWithLogits` take only `alpha`
   positionally (`gamma` is keyword-only); `GeneralRobustRegressionLoss` takes

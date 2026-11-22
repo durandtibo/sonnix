@@ -13,8 +13,6 @@ __all__ = [
     "AsinhNumericalEncoder",
     "AverageFusion",
     "BaseAlphaActivation",
-    "BaseBinaryFocalLoss",
-    "BaseBinaryPoly1Loss",
     "BaseDynamicNorm",
     "BaseFusion",
     "BaseLoss",
@@ -46,7 +44,6 @@ __all__ = [
     "Pow",
     "Quadratic",
     "QuantileRegressionLoss",
-    "ReLUn",
     "RectifierAsinhUnit",
     "RelativeLoss",
     "ResidualBlock",
@@ -56,15 +53,12 @@ __all__ = [
     "Sin",
     "Sinh",
     "Snake",
-    "Square",
     "SquaredReLU",
     "Squeeze",
     "SumFusion",
     "ToBinaryLabel",
     "ToCategoricalLabel",
     "ToDtype",
-    "ToFloat",
-    "ToLong",
     "TransformedLoss",
 ]
 
@@ -75,6 +69,7 @@ from sonnix.modules.activation.alpha import (
     Laplacian,
     MultiQuadratic,
     Quadratic,
+    Snake,
 )
 from sonnix.modules.activation.clamp import Clamp
 from sonnix.modules.activation.dynamic import BaseDynamicNorm, DynamicAsinh, DynamicTanh
@@ -90,12 +85,10 @@ from sonnix.modules.activation.math import (
     SafeLog,
     Sin,
     Sinh,
-    Square,
 )
-from sonnix.modules.activation.relu import ReLUn, SquaredReLU
-from sonnix.modules.activation.snake import Snake
+from sonnix.modules.activation.relu import SquaredReLU
 from sonnix.modules.classification import ToBinaryLabel, ToCategoricalLabel
-from sonnix.modules.dtype import ToDtype, ToFloat, ToLong
+from sonnix.modules.dtype import ToDtype
 from sonnix.modules.exu import ExU
 from sonnix.modules.fusion.aggregation import (
     AverageFusion,
@@ -105,20 +98,12 @@ from sonnix.modules.fusion.aggregation import (
 from sonnix.modules.fusion.base import BaseFusion
 from sonnix.modules.fusion.concat import ConcatFusion
 from sonnix.modules.loss.base import BaseLoss
-from sonnix.modules.loss.focal import (
-    BaseBinaryFocalLoss,
-    BinaryFocalLoss,
-    BinaryFocalLossWithLogits,
-)
+from sonnix.modules.loss.focal import BinaryFocalLoss, BinaryFocalLossWithLogits
 from sonnix.modules.loss.general_robust import GeneralRobustRegressionLoss
 from sonnix.modules.loss.log import LogCoshLoss
 from sonnix.modules.loss.multiclass import MulticlassFlatten
 from sonnix.modules.loss.poisson import PoissonRegressionLoss
-from sonnix.modules.loss.poly import (
-    BaseBinaryPoly1Loss,
-    BinaryPoly1Loss,
-    BinaryPoly1LossWithLogits,
-)
+from sonnix.modules.loss.poly import BinaryPoly1Loss, BinaryPoly1LossWithLogits
 from sonnix.modules.loss.quantile import QuantileRegressionLoss
 from sonnix.modules.loss.relative import (
     RelativeLoss,

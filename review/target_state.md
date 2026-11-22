@@ -578,4 +578,5 @@ composition, encoder range logic and input check, package layout, alpha
 | 2    | #447         | open    |
 | 3    | #449         | open    |
 | 4    | #450         | open    |
-| 5-9  | —            | planned |
+| 5    | #451         | open    |
+| 6-9  | —            | planned |

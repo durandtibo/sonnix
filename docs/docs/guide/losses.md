@@ -76,4 +76,39 @@ The criterion and the transforms can be modules or
 [configurations](configurations.md). The criterion of `RelativeLoss` must
 not reduce (`reduction="none"`).
 
+## Error recipes
+
+The elementwise errors are not functions of the package, they are one line of
+`torch` and `sonnix.functional` (use `reduction="none"` to keep the shape of the
+inputs):
+
+```python
+import torch
+
+from sonnix.functional import (
+    arithmetical_mean_indicator,
+    classical_relative_indicator,
+    relative_loss,
+)
+
+prediction, target = torch.randn(4, 3), torch.randn(4, 3)
+
+# absolute error
+absolute_error = (target - prediction).abs()
+
+# absolute relative error: |target - prediction| / |target|
+absolute_relative_error = relative_loss(
+    absolute_error,
+    classical_relative_indicator(prediction, target),
+    reduction="none",
+)
+
+# symmetric absolute relative error: |target - prediction| / mean(|target|, |prediction|)
+symmetric_absolute_relative_error = relative_loss(
+    absolute_error,
+    arithmetical_mean_indicator(prediction, target),
+    reduction="none",
+)
+```
+
 See the [reference](../refs/modules/loss.md) for the list of losses.

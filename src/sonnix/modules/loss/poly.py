@@ -2,7 +2,7 @@ r"""Contain the Poly1Loss implementation."""
 
 from __future__ import annotations
 
-__all__ = ["BaseBinaryPoly1Loss", "BinaryPoly1Loss", "BinaryPoly1LossWithLogits"]
+__all__ = ["BinaryPoly1Loss", "BinaryPoly1LossWithLogits"]
 
 from typing import TYPE_CHECKING
 
@@ -20,11 +20,12 @@ if TYPE_CHECKING:
     from sonnix.functional.reduction import Reduction
 
 
-class BaseBinaryPoly1Loss(BaseLoss):
+class _BinaryPoly1Loss(BaseLoss):
     r"""Define the base class of the binary Poly-1 losses.
 
     It stores the hyperparameters shared by ``BinaryPoly1Loss`` and
-    ``BinaryPoly1LossWithLogits``.
+    ``BinaryPoly1LossWithLogits``. It is private: the public classes
+    document their arguments.
 
     Args:
         alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
@@ -43,15 +44,19 @@ class BaseBinaryPoly1Loss(BaseLoss):
         return f"{super().extra_repr()}, alpha={self.alpha}"
 
 
-class BinaryPoly1Loss(BaseBinaryPoly1Loss):
+class BinaryPoly1Loss(_BinaryPoly1Loss):
     r"""Implementation of the binary Poly-1 loss for binary targets.
 
     Based on "PolyLoss: A Polynomial Expansion Perspective of
     Classification Loss Functions"
     (https://arxiv.org/pdf/2204.12511)
 
-    The constructor arguments (``alpha`` and ``reduction``) are the ones of
-    ``BaseBinaryPoly1Loss``.
+    Args:
+        alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
+            probability of the target class. The loss is
+            ``cross_entropy + alpha * (1 - p_t)``. It must be finite.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -106,15 +111,19 @@ class BinaryPoly1Loss(BaseBinaryPoly1Loss):
         )
 
 
-class BinaryPoly1LossWithLogits(BaseBinaryPoly1Loss):
+class BinaryPoly1LossWithLogits(_BinaryPoly1Loss):
     r"""Implementation of the binary Poly-1 loss for binary targets.
 
     Based on "PolyLoss: A Polynomial Expansion Perspective of
     Classification Loss Functions"
     (https://arxiv.org/pdf/2204.12511)
 
-    The constructor arguments (``alpha`` and ``reduction``) are the ones of
-    ``BaseBinaryPoly1Loss``.
+    Args:
+        alpha: The weight of the ``(1 - p_t)`` term, where ``p_t`` is the
+            probability of the target class. The loss is
+            ``cross_entropy + alpha * (1 - p_t)``. It must be finite.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.

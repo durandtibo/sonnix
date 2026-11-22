@@ -255,8 +255,13 @@ MODULE_ARGUMENTS = [
     ],
     ("Clamp-both-nan", sm.Clamp, {"min_val": NAN, "max_val": NAN}, ValueError, r"min_val must be"),
     *[
-        (f"ReLUn-{value}", sm.ReLUn, {"max_val": value}, exception, match)
-        for value, exception, match in _RESOLVED
+        (f"ToDtype-{value!r}", sm.ToDtype, {"dtype": value}, exception, match)
+        for value, exception, match in (
+            ("float33", ValueError, r"dtype must be one of"),
+            ("Tensor", ValueError, r"dtype must be one of"),
+            (1, TypeError, r"dtype must be an instance of"),
+            (float, TypeError, r"dtype must be an instance of"),
+        )
     ],
     *[
         (f"Pow-{value}", sm.Pow, {"exponent": value}, exception, match)

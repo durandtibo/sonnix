@@ -135,7 +135,6 @@ POSITIONAL: dict[str, tuple[str, ...]] = {
     "Pow": ("exponent",),
     "Quadratic": _ALPHA_ACTIVATION,
     "QuantileRegressionLoss": ("q",),
-    "ReLUn": ("max_val",),
     "RelativeLoss": ("criterion",),
     "ResidualBlock": ("residual", "skip"),
     "SafeExp": ("max_val",),
@@ -251,7 +250,6 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
         other=_builder(sm.Quadratic, init=2.0),
         has_learnable_option=True,
     ),
-    _case(sm.ReLUn, _normal(4, 3)),
     _case(sm.RectifierAsinhUnit, _normal(4, 3)),
     _case(sm.SafeExp, _normal(4, 3)),
     _case(sm.SafeLog, _positive(4, 3)),
@@ -263,7 +261,6 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
         other=_builder(sm.Snake, init=2.0),
         has_learnable_option=True,
     ),
-    _case(sm.Square, _normal(4, 3)),
     _case(sm.SquaredReLU, _normal(4, 3)),
     # layers
     _case(sm.ExU, _normal(5, 3), 3, 4),
@@ -275,8 +272,6 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
     _case(sm.ToBinaryLabel, _normal(4, 3), differentiable=False),
     _case(sm.ToCategoricalLabel, _normal(4, 3), differentiable=False),
     _case(sm.ToDtype, _normal(4, 3), torch.float32, differentiable=False),
-    _case(sm.ToFloat, _normal(4, 3), differentiable=False),
-    _case(sm.ToLong, _normal(4, 3), differentiable=False),
     # fusion
     _case(sm.AverageFusion, _triple_normal),
     _case(sm.ConcatFusion, _triple_normal),

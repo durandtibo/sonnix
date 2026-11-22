@@ -41,6 +41,33 @@ class BaseFusion(nn.Module, ABC):
             raise ValueError(msg)
         return self.fuse(inputs)
 
+    @staticmethod
+    def _sum(inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
+        r"""Sum the inputs.
+
+        It is shared by the fusions that are built on a sum
+        (``SumFusion`` and ``AverageFusion``).
+
+        Args:
+            inputs: The tensors to sum. There is at least one tensor.
+
+        Returns:
+            The sum of the tensors.
+
+        Example:
+            ```pycon
+            >>> import torch
+            >>> from sonnix.modules import BaseFusion
+            >>> BaseFusion._sum((torch.tensor([1.0, 2.0]), torch.tensor([3.0, 4.0])))
+            tensor([4., 6.])
+
+            ```
+        """
+        output = inputs[0]
+        for x in inputs[1:]:
+            output = output.add(x)
+        return output
+
     @abstractmethod
     def fuse(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
         r"""Fuse the inputs.

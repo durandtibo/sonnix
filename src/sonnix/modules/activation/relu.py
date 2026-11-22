@@ -2,60 +2,15 @@ r"""Contain relu-like activation modules."""
 
 from __future__ import annotations
 
-__all__ = ["ReLUn", "SquaredReLU"]
+__all__ = ["SquaredReLU"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_finite, validate_ge
 from torch import nn
 from torch.nn import functional
 
 if TYPE_CHECKING:
     import torch
-
-
-class ReLUn(nn.Module):
-    r"""Implement the ReLU-n module.
-
-    The ReLU-n equation is: ``ReLUn(x, n)=min(max(0,x),n)``
-
-    Args:
-        max_val: The maximum value a.k.a. ``n`` in the equation above.
-
-    Shape:
-        - Input: ``(*)``, where ``*`` means any number of dimensions.
-        - Output: ``(*)``, same shape as the input.
-
-    Raises:
-        TypeError: if ``max_val`` is not a number.
-        ValueError: if ``max_val`` is negative or not finite.
-
-    Example:
-        ```pycon
-        >>> import torch
-        >>> from sonnix.modules import ReLUn
-        >>> m = ReLUn(max_val=5)
-        >>> m
-        ReLUn(max_val=5.0)
-        >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
-        >>> out
-        tensor([[0., 1., 2., 3.],
-                [4., 5., 5., 5.]])
-
-        ```
-    """
-
-    def __init__(self, max_val: float = 1.0) -> None:
-        super().__init__()
-        validate_finite(max_val, name="max_val")
-        validate_ge(max_val, 0, name="max_val")
-        self.max_val = float(max_val)
-
-    def extra_repr(self) -> str:
-        return f"max_val={self.max_val}"
-
-    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.clamp(min=0.0, max=self.max_val)
 
 
 class SquaredReLU(nn.Module):

@@ -62,10 +62,7 @@ class SumFusion(BaseFusion):
     """
 
     def fuse(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
-        output = inputs[0]
-        for x in inputs[1:]:
-            output = output.add(x)
-        return output
+        return self._sum(inputs)
 
 
 class AverageFusion(BaseFusion):
@@ -90,7 +87,4 @@ class AverageFusion(BaseFusion):
     """
 
     def fuse(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
-        output = inputs[0]
-        for x in inputs[1:]:
-            output = output.add(x)
-        return output.div(len(inputs))
+        return self._sum(inputs).div(len(inputs))

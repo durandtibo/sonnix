@@ -13,7 +13,6 @@ __all__ = [
     "SafeLog",
     "Sin",
     "Sinh",
-    "Square",
 ]
 
 import torch
@@ -378,32 +377,3 @@ class Sinh(nn.Module):
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return input.sinh()
-
-
-class Square(nn.Module):
-    r"""Implement the square activation.
-
-    It is equivalent to ``Pow(exponent=2)`` with a name that is easier
-    to use in a configuration.
-
-    Shape:
-        - Input: ``(*)``, where ``*`` means any number of dimensions.
-        - Output: ``(*)``, same shape as the input.
-
-    Example:
-        ```pycon
-        >>> import torch
-        >>> from sonnix.modules import Square
-        >>> m = Square()
-        >>> m
-        Square()
-        >>> out = m(torch.arange(8, dtype=torch.float).view(2, 4))
-        >>> out
-        tensor([[ 0.,  1.,  4.,  9.],
-                [16., 25., 36., 49.]])
-
-        ```
-    """
-
-    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.pow(2)

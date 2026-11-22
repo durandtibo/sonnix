@@ -10,8 +10,6 @@ from tests.registry import MODULE_CASES, ModuleCase
 # The modules that are not instantiated by the registry.
 NOT_REGISTERED = {
     "BaseAlphaActivation",
-    "BaseBinaryFocalLoss",
-    "BaseBinaryPoly1Loss",
     "BaseDynamicNorm",
     "BaseFusion",
     "BaseLoss",

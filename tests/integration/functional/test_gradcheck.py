@@ -30,6 +30,26 @@ def _probability() -> tuple[torch.Tensor, torch.Tensor]:
     return probability_pair(3, 4, dtype=torch.float64)
 
 
+def _absolute_relative_error(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+    # The recipe of the losses guide.
+    return F.relative_loss(
+        (target - prediction).abs(),
+        F.classical_relative_indicator(prediction, target),
+        reduction="none",
+    )
+
+
+def _symmetric_absolute_relative_error(
+    prediction: torch.Tensor, target: torch.Tensor
+) -> torch.Tensor:
+    # The recipe of the losses guide.
+    return F.relative_loss(
+        (target - prediction).abs(),
+        F.arithmetical_mean_indicator(prediction, target),
+        reduction="none",
+    )
+
+
 # (function, factory of the inputs). The gradient is checked with respect to
 # the first input (the prediction). The inputs are random, so none of them is
 # at a non-differentiable point.
@@ -47,9 +67,8 @@ LOSSES: dict[str, tuple[Callable[..., torch.Tensor], Callable[[], tuple[torch.Te
     "poisson_regression_loss": (F.poisson_regression_loss, _positive),
     "quantile_regression_loss": (F.quantile_regression_loss, _normal),
     "relative_loss": (F.relative_loss, _positive),
-    "absolute_error": (F.absolute_error, _normal),
-    "absolute_relative_error": (F.absolute_relative_error, _positive),
-    "symmetric_absolute_relative_error": (F.symmetric_absolute_relative_error, _positive),
+    "absolute_relative_error": (_absolute_relative_error, _positive),
+    "symmetric_absolute_relative_error": (_symmetric_absolute_relative_error, _positive),
     "arithmetical_mean_indicator": (F.arithmetical_mean_indicator, _positive),
     "classical_relative_indicator": (F.classical_relative_indicator, _positive),
     "geometric_mean_indicator": (F.geometric_mean_indicator, _positive),
@@ -60,7 +79,6 @@ LOSSES: dict[str, tuple[Callable[..., torch.Tensor], Callable[[], tuple[torch.Te
 }
 
 ACTIVATIONS: dict[str, Callable[..., torch.Tensor]] = {
-    "rectifier_asinh_unit": F.rectifier_asinh_unit,
     "safe_exp": F.safe_exp,
     "safe_exp_preserve_gradient": partial(F.safe_exp, preserve_gradient=True),
     "safe_log": F.safe_log,

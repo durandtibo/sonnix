@@ -26,3 +26,28 @@ PUBLIC_NAMES = sorted(
 def test_public_name_is_documented_in_the_reference(name: str) -> None:
     # A name is listed explicitly by a ``::: sonnix.<package>.<name>`` directive.
     assert re.search(rf"^#+ ::: sonnix(\.\w+)+\.{name}$", REFS_TEXT, flags=re.MULTILINE)
+
+
+##############################################
+#     Tests for the reference directives     #
+##############################################
+
+DIRECTIVES = sorted(set(re.findall(r"^#+ ::: (sonnix(?:\.\w+)+)$", REFS_TEXT, flags=re.MULTILINE)))
+
+
+def _resolve(path: str) -> object:
+    parts = path.split(".")
+    for i in range(len(parts), 0, -1):
+        try:
+            obj = importlib.import_module(".".join(parts[:i]))
+        except ModuleNotFoundError:
+            continue
+        for attribute in parts[i:]:
+            obj = getattr(obj, attribute)
+        return obj
+    raise ModuleNotFoundError(path)
+
+
+@pytest.mark.parametrize("path", DIRECTIVES)
+def test_reference_directive_points_to_an_existing_object(path: str) -> None:
+    assert _resolve(path) is not None

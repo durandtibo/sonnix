@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import pytest
 import torch
 from coola.equality import objects_are_allclose, objects_are_equal
@@ -14,6 +16,7 @@ from sonnix.modules import (
     Quadratic,
     Snake,
 )
+from sonnix.modules.activation.alpha import _validate_non_zero
 
 SIZES = (1, 2, 3)
 SHAPES = [(2,), (2, 3), (2, 3, 4), (2, 3, 4, 5)]
@@ -421,10 +424,15 @@ def test_alpha_activation_invalid_num_parameters(module: type[torch.nn.Module]) 
 ALPHA_ACTIVATIONS = [ExpSin, Gaussian, Laplacian, MultiQuadratic, Quadratic, Snake]
 
 
-@pytest.mark.parametrize("module", [Gaussian, Laplacian, Snake])
+@pytest.mark.parametrize("module", [Gaussian, Snake])
 def test_alpha_activation_zero_init_is_rejected(module: type[torch.nn.Module]) -> None:
     with pytest.raises(ValueError, match=r"'init' has to be different from 0 \(received 0\)"):
         module(init=0)
+
+
+def test_laplacian_zero_init_is_rejected() -> None:
+    with pytest.raises(ValueError, match=r"init must be greater than 0"):
+        Laplacian(init=0)
 
 
 @pytest.mark.parametrize("module", [ExpSin, MultiQuadratic, Quadratic])
@@ -513,7 +521,7 @@ def test_alpha_activation_broadcast_alpha_1d_input() -> None:
 
 
 def test_laplacian_negative_init() -> None:
-    with pytest.raises(ValueError, match=r"'init' has to be positive"):
+    with pytest.raises(ValueError, match=r"init must be greater than 0"):
         Laplacian(init=-1.0)
 
 
@@ -557,3 +565,105 @@ def test_base_alpha_activation_validate_init_accepts_any_finite_value(init: floa
 @pytest.mark.parametrize("module", [Gaussian, Snake])
 def test_alpha_activation_negative_init_is_accepted(module: type[torch.nn.Module]) -> None:
     assert module(init=-1.0).alpha.item() == -1.0
+
+
+###########################
+#     Tests for Snake     #
+###########################
+
+
+def test_snake_str() -> None:
+    assert str(Snake()).startswith("Snake(")
+
+
+def test_snake_forward_frequency_default() -> None:
+    module = Snake()
+    assert torch.allclose(
+        module(torch.tensor([[1.0, 0.0, -1.0], [-2.0, 0.0, 2.0]])),
+        torch.tensor(
+            [
+                [1.708073418273571, 0.0, -0.2919265817264288],
+                [-1.173178189568194, 0.0, 2.826821810431806],
+            ]
+        ),
+    )
+
+
+def test_snake_forward_frequency_2() -> None:
+    module = Snake(init=2.0)
+    assert torch.allclose(
+        module(torch.tensor([[1.0, 0.0, -1.0], [-2.0, 0.0, 2.0]])),
+        torch.tensor(
+            [
+                [1.413410905215903, 0.0, -0.586589094784097],
+                [-1.7136249915478468, 0.0, 2.2863750084521532],
+            ]
+        ),
+    )
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+@pytest.mark.parametrize("shape", SHAPES)
+def test_snake_forward_shape(shape: tuple[int, ...], device: str) -> None:
+    device = torch.device(device)
+    module = Snake().to(device=device)
+    out = module(torch.randn(*shape, device=device))
+    assert out.shape == shape
+    assert out.dtype == torch.float
+    assert out.device == device
+
+
+def test_snake_zero_init() -> None:
+    with pytest.raises(ValueError, match=r"'init' has to be different from 0 \(received 0\)"):
+        Snake(init=0)
+
+
+def test_snake_extra_repr() -> None:
+    assert (
+        Snake(num_parameters=3, learnable=False).extra_repr()
+        == "num_parameters=3, learnable=False, channel_dim=-1"
+    )
+
+
+def test_snake_learnable_by_default() -> None:
+    assert Snake().alpha.requires_grad
+
+
+def test_snake_frozen_alpha_is_buffer() -> None:
+    assert [n for n, _ in Snake(learnable=False).named_parameters()] == []
+
+
+def test_snake_forward_per_channel_alpha() -> None:
+    module = Snake(num_parameters=2, init=2.0)
+    assert module(torch.tensor([[1.0, 0.0], [-1.0, 2.0]])).allclose(
+        torch.tensor([[1.413410905215903, 0.0], [-0.586589094784097, 2.2863750084521532]])
+    )
+
+
+def test_snake_forward_alpha_gradient_is_finite() -> None:
+    module = Snake()
+    module(torch.randn(4, 3)).sum().backward()
+    assert module.alpha.grad.isfinite().all()
+
+
+@pytest.mark.parametrize("x", [-1e3, -1.0, 1.0, 1e3])
+def test_snake_forward_equals_paper_formula(x: float) -> None:
+    module = Snake(init=1.5)
+    expected = x + math.sin(1.5 * x) ** 2 / 1.5
+    assert module(torch.tensor([x], dtype=torch.float64)).item() == pytest.approx(expected)
+
+
+#######################################
+#     Tests for _validate_non_zero    #
+#######################################
+
+
+@pytest.mark.parametrize("init", [-1.0, 0.5, 2, 1e-30])
+def test_validate_non_zero_valid(init: float) -> None:
+    assert _validate_non_zero(init) is None
+
+
+@pytest.mark.parametrize("init", [0, 0.0, -0.0])
+def test_validate_non_zero_zero(init: float) -> None:
+    with pytest.raises(ValueError, match=r"'init' has to be different from 0"):
+        _validate_non_zero(init)

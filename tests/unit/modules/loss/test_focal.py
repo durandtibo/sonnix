@@ -4,7 +4,8 @@ import pytest
 import torch
 from coola.utils.tensor import get_available_devices
 
-from sonnix.modules import BaseBinaryFocalLoss, BinaryFocalLoss, BinaryFocalLossWithLogits
+from sonnix.modules import BinaryFocalLoss, BinaryFocalLossWithLogits
+from sonnix.modules.loss.focal import _BinaryFocalLoss
 
 SIZES = (1, 2)
 TOLERANCE = 1e-6
@@ -284,22 +285,20 @@ def test_binary_focal_loss_module_incorrect_alpha(loss: type, alpha: float) -> N
 
 
 #########################################
-#     Tests for BaseBinaryFocalLoss     #
+#     Tests for _BinaryFocalLoss     #
 #########################################
 
 
-def test_basebinaryfocalloss_repr() -> None:
-    assert (
-        repr(BaseBinaryFocalLoss()) == "BaseBinaryFocalLoss(reduction=mean, alpha=0.25, gamma=2.0)"
-    )
+def test_binaryfocalloss_base_repr() -> None:
+    assert repr(_BinaryFocalLoss()) == "_BinaryFocalLoss(reduction=mean, alpha=0.25, gamma=2.0)"
 
 
 @pytest.mark.parametrize("loss", [BinaryFocalLoss, BinaryFocalLossWithLogits])
-def test_basebinaryfocalloss_subclass(loss: type) -> None:
-    assert issubclass(loss, BaseBinaryFocalLoss)
+def test_binaryfocalloss_base_subclass(loss: type) -> None:
+    assert issubclass(loss, _BinaryFocalLoss)
 
 
-def test_basebinaryfocalloss_pair_are_independent() -> None:
+def test_binaryfocalloss_base_pair_are_independent() -> None:
     assert not issubclass(BinaryFocalLoss, BinaryFocalLossWithLogits)
 
 
