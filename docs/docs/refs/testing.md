@@ -1,5 +1,7 @@
 # sonnix.testing
 
+## ::: sonnix.testing.DummyDataset
+
 ## ::: sonnix.testing.is_loss_decreasing
 
 ## ::: sonnix.testing.is_loss_decreasing_with_adam
