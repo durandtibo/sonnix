@@ -7,11 +7,12 @@ on:
   workflow_call:
   workflow_dispatch: # to trigger manually
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   cyclic-import:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -22,24 +23,6 @@ jobs:
       - name: Setup python environment
         uses: durandtibo/setup-venv-uv-action@4445098aa662d3d72aa0455918bc46a091b2a7f8 # ratchet:durandtibo/setup-venv-uv-action@v0.3.1
 
-      - name: check sonnix
+      - name: check modules
         run: |
-          python -c "import sonnix"
-
-      - name: check sonnix.functional
-        run: |
-          python -c "from sonnix import functional"
-          python -c "from sonnix.functional import activation"
-          python -c "from sonnix.functional import loss"
-
-      - name: check sonnix.modules
-        run: |
-          python -c "from sonnix import modules"
-          python -c "from sonnix.modules import activation"
-          python -c "from sonnix.modules import fusion"
-          python -c "from sonnix.modules import loss"
-          python -c "from sonnix.modules import numerical"
-
-      - name: check sonnix.utils
-        run: |
-          python -c "from sonnix import utils"
+          inv imports.check-cycles

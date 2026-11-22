@@ -1,0 +1,44 @@
+# Property-based tests workflow.
+# Runs the Hypothesis tests of tests/properties/ on ubuntu-latest across the
+# standard (non-free-threaded) Python versions, because hypothesis has no
+# wheels for free-threaded builds. The tests check the properties of hash_object
+# documented in docs/docs/uguide/hashing.md.
+
+name: Property-based Tests
+on:
+  workflow_call:
+    inputs:
+      test-matrix:
+        description: "JSON test matrix from lib-get-test-matrix.yaml, loaded once by the caller"
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  properties:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      max-parallel: 8
+      fail-fast: false
+      matrix:
+        python-version: ${{ fromJson(inputs.test-matrix).python_versions_standard }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+
+      - name: Setup python environment
+        uses: durandtibo/setup-venv-uv-action@4445098aa662d3d72aa0455918bc46a091b2a7f8 # ratchet:durandtibo/setup-venv-uv-action@v0.3.1
+        with:
+          python-version: ${{ matrix.python-version }}
+          install-args: "--groups dev,property"
+
+      - name: Run property-based tests
+        env:
+          # Same examples for every run, and the blob to replay a failure.
+          HYPOTHESIS_PROFILE: ci
+        run: |
+          pytest tests/properties --cov=sonnix --cov-report=term-missing

@@ -1,5 +1,5 @@
 # Code formatting and linting workflow.
-# Checks code formatting and code quality with ruff.
+# Checks the formatting and the quality of the Python, shell, YAML, TOML and Makefile files.
 # Ensures code follows project style guidelines.
 
 name: Format
@@ -7,11 +7,43 @@ on:
   workflow_call:
   workflow_dispatch: # to trigger manually
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
+  format:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+      # The Markdown files are not formatted here: the existing documentation does not
+      # pass prettier and markdownlint yet.
+      - name: Format
+        run: |
+          make format-yaml format-makefile format-shell format-toml
+      - name: Check for changes
+        run: |
+          git diff --exit-code
+
+  lint:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+      - name: Lint
+        run: |
+          make lint-yaml lint-makefile lint-shell lint-actions
+
   python:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -28,23 +60,3 @@ jobs:
       - name: Lint python scripts
         run: |
           inv lint.check-python
-
-  shell:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
-
-      # make lint-shell/check-format-shell use `xargs -r`, so they no-op
-      # cleanly when the repo has no shell scripts, unlike the previous
-      # ludeeus/action-shellcheck-based setup which failed with "No files
-      # specified" in that case.
-      - name: Check shell formatting
-        run: |
-          make check-format-shell
-
-      - name: Lint shell scripts
-        run: |
-          make lint-shell
