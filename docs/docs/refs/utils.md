@@ -7,3 +7,5 @@
 ## ::: sonnix.utils.params
 
 ## ::: sonnix.utils.state_dict
+
+## ::: sonnix.utils.tensor

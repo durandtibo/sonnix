@@ -16,6 +16,7 @@ from sonnix.modules.numerical._utils import (
     prepare_tensor_param,
     resolve_range,
 )
+from sonnix.utils.tensor import register_tensor
 
 if TYPE_CHECKING:
     from typing import Self
@@ -81,12 +82,7 @@ class AsinhNumericalEncoder(NumericalEncoder):
         validate_isinstance(learnable, bool, name="learnable")
         scale = prepare_tensor_param(scale, name="scale")
         self.scale: Tensor
-        if learnable:
-            self.scale = nn.Parameter(scale.detach().clone())
-        else:
-            # Frozen values are buffers: they are saved in the state dict and moved with
-            # the module, but they are not returned by ``parameters()``.
-            self.register_buffer("scale", scale.detach().clone())
+        register_tensor(self, "scale", scale, learnable=learnable)
 
     @classmethod
     def create(

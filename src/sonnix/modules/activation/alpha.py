@@ -17,6 +17,8 @@ import torch
 from coola.validation import validate_finite, validate_ge, validate_int, validate_isinstance
 from torch import nn
 
+from sonnix.utils.tensor import register_tensor
+
 if TYPE_CHECKING:
     from torch import Tensor
 
@@ -96,12 +98,7 @@ class BaseAlphaActivation(nn.Module):
             device=device,
             dtype=dtype if dtype is not None else torch.get_default_dtype(),
         )
-        if learnable:
-            self.alpha = nn.Parameter(alpha)
-        else:
-            # Frozen values are buffers: they are saved in the state dict and moved with
-            # the module, but they are not returned by ``parameters()``.
-            self.register_buffer("alpha", alpha)
+        register_tensor(self, "alpha", alpha, learnable=learnable)
 
     def _validate_init(self, init: float) -> None:
         r"""Validate the initial value of ``alpha``.

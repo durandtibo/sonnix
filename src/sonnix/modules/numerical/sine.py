@@ -20,6 +20,7 @@ from sonnix.modules.numerical._utils import (
     prepare_tensor_param,
     resolve_range,
 )
+from sonnix.utils.tensor import register_tensor
 from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:
@@ -98,10 +99,10 @@ class CosSinNumericalEncoder(NumericalEncoder):
         frequency = prepare_tensor_param(frequency, name="frequency")
         self.frequency: Tensor
         self.phase_shift: Tensor
-        self._register_tensor("frequency", frequency, learnable)
+        register_tensor(self, "frequency", frequency, learnable=learnable)
 
         phase_shift = prepare_tensor_param(phase_shift, name="phase_shift")
-        self._register_tensor("phase_shift", phase_shift, learnable)
+        register_tensor(self, "phase_shift", phase_shift, learnable=learnable)
         validate_same_shape(
             self.frequency, self.phase_shift, name1="'frequency'", name2="'phase_shift'"
         )
@@ -111,14 +112,6 @@ class CosSinNumericalEncoder(NumericalEncoder):
         r"""Indicate if the frequencies and phase-shifts are
         learnable."""
         return isinstance(self.frequency, nn.Parameter)
-
-    def _register_tensor(self, name: str, value: Tensor, learnable: bool) -> None:
-        # Frozen values are buffers: they are saved in the state dict and moved with
-        # the module, but they are not returned by ``parameters()``.
-        if learnable:
-            self.register_parameter(name, nn.Parameter(value.detach().clone()))
-        else:
-            self.register_buffer(name, value.detach().clone())
 
     @property
     def n_features(self) -> int:
