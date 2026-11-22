@@ -11,7 +11,8 @@ from typing import TYPE_CHECKING, Literal
 import torch
 from coola.validation import validate_ge, validate_in, validate_int
 
-from sonnix.modules.numerical._utils import NumericalEncoder, prepare_tensor_param
+from sonnix.modules.numerical._utils import prepare_tensor_param
+from sonnix.modules.numerical.base import BaseNumericalEncoder
 
 if TYPE_CHECKING:
     from typing import Self
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
     from torch import Tensor
 
 
-class PiecewiseLinearNumericalEncoder(NumericalEncoder):
+class PiecewiseLinearNumericalEncoder(BaseNumericalEncoder):
     r"""Implement a numerical encoder using piecewise linear functions.
 
     This layer was proposed in the following paper:

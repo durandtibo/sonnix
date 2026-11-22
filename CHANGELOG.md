@@ -29,6 +29,19 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- One public path for every package (revised target state step 6, #452):
+  `sonnix.utils` and `sonnix.testing` export their API (`from sonnix.utils
+  import module_mode, register_tensor, ...`, `from sonnix.testing import
+  is_loss_decreasing, ...`); the `__init__.py` of the folders
+  `sonnix.functional.loss` and `sonnix.functional.activation` no longer export
+  anything (use `sonnix.functional`); the module paths still work as they were
+  (`sonnix.utils.mode`, ...) but they are not public. `NumericalEncoder`
+  (`sonnix.modules.numerical._utils`) becomes `BaseNumericalEncoder` in
+  `sonnix/modules/numerical/base.py` and is exported by `sonnix.modules`.
+  The reference lists every exported name of `utils` and `testing`; the
+  docstrings import from the flat path. New tests check the six `__all__`
+  lists, that no folder has an `__all__`, and that no docstring imports from a
+  folder.
 - Clean up the public surface (revised target state step 5, #451):
   `BaseBinaryFocalLoss` and `BaseBinaryPoly1Loss` become private
   (`_BinaryFocalLoss`, `_BinaryPoly1Loss`; the public classes document their

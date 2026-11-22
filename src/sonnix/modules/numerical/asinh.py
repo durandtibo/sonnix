@@ -11,11 +11,11 @@ from coola.validation import validate_ge, validate_int, validate_isinstance
 from torch import nn
 
 from sonnix.modules.numerical._utils import (
-    NumericalEncoder,
     create_spaced_values,
     prepare_tensor_param,
     resolve_range,
 )
+from sonnix.modules.numerical.base import BaseNumericalEncoder
 from sonnix.utils.tensor import register_tensor
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from torch import Tensor
 
 
-class AsinhNumericalEncoder(NumericalEncoder):
+class AsinhNumericalEncoder(BaseNumericalEncoder):
     r"""Implement a numerical encoder using the inverse hyperbolic sine
     (asinh).
 

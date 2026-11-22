@@ -5,14 +5,7 @@ import torch
 from coola.equality import objects_are_equal
 from coola.random import make_torch_generator
 
-from sonnix.modules import (
-    AsinhCosSinNumericalEncoder,
-    AsinhNumericalEncoder,
-    CosSinNumericalEncoder,
-    PiecewiseLinearNumericalEncoder,
-)
 from sonnix.modules.numerical._utils import (
-    NumericalEncoder,
     _resolve_torch_generator,
     create_spaced_values,
     prepare_tensor_param,
@@ -205,55 +198,3 @@ def test_resolve_range_max_lower_than_min() -> None:
         match=r"'max_scale' \(received: 1.0\) has to be greater than 'min_scale' \(received: 3.0\)",
     ):
         resolve_range("scale", (3.0, 1.0), None)
-
-
-#########################################
-#     Tests for NumericalEncoder        #
-#########################################
-
-ENCODERS = [
-    AsinhNumericalEncoder(torch.ones(3, 2)),
-    CosSinNumericalEncoder(torch.ones(3, 2), torch.zeros(3, 2)),
-    AsinhCosSinNumericalEncoder(torch.ones(3, 2), torch.zeros(3, 2)),
-    PiecewiseLinearNumericalEncoder(torch.tensor([[0.0, 1.0, 2.0]] * 3)),
-]
-SINGLE_FEATURE_ENCODERS = [
-    AsinhNumericalEncoder(torch.ones(1, 2)),
-    CosSinNumericalEncoder(torch.ones(1, 2), torch.zeros(1, 2)),
-    AsinhCosSinNumericalEncoder(torch.ones(1, 2), torch.zeros(1, 2)),
-    PiecewiseLinearNumericalEncoder(torch.tensor([[0.0, 1.0, 2.0]])),
-]
-
-
-def test_numerical_encoder_abstract() -> None:
-    with pytest.raises(TypeError, match=r"abstract"):
-        NumericalEncoder()
-
-
-@pytest.mark.parametrize("encoder", ENCODERS, ids=lambda e: type(e).__name__)
-def test_numerical_encoder_input_incorrect_last_dimension(encoder: NumericalEncoder) -> None:
-    with pytest.raises(
-        ValueError, match=r"Expected an input of shape \(\*, n_features=3\) but received \(5, 4\)"
-    ):
-        encoder(torch.ones(5, 4))
-
-
-@pytest.mark.parametrize("encoder", ENCODERS, ids=lambda e: type(e).__name__)
-def test_numerical_encoder_input_scalar(encoder: NumericalEncoder) -> None:
-    with pytest.raises(ValueError, match=r"but received \(\)"):
-        encoder(torch.tensor(1.0))
-
-
-@pytest.mark.parametrize("encoder", SINGLE_FEATURE_ENCODERS, ids=lambda e: type(e).__name__)
-def test_numerical_encoder_single_feature_does_not_broadcast(encoder: NumericalEncoder) -> None:
-    with pytest.raises(
-        ValueError, match=r"Expected an input of shape \(\*, n_features=1\) but received \(5, 4\)"
-    ):
-        encoder(torch.ones(5, 4))
-
-
-@pytest.mark.parametrize("encoder", SINGLE_FEATURE_ENCODERS, ids=lambda e: type(e).__name__)
-def test_numerical_encoder_single_feature_accepts_last_dimension_1(
-    encoder: NumericalEncoder,
-) -> None:
-    assert encoder(torch.ones(5, 1)).shape[:2] == (5, 1)

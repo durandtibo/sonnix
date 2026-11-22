@@ -16,6 +16,7 @@ __all__ = [
     "BaseDynamicNorm",
     "BaseFusion",
     "BaseLoss",
+    "BaseNumericalEncoder",
     "BinaryFocalLoss",
     "BinaryFocalLossWithLogits",
     "BinaryPoly1Loss",
@@ -116,6 +117,7 @@ from sonnix.modules.loss.relative import (
 from sonnix.modules.loss.transform import TransformedLoss
 from sonnix.modules.nlinear import NLinear
 from sonnix.modules.numerical.asinh import AsinhNumericalEncoder
+from sonnix.modules.numerical.base import BaseNumericalEncoder
 from sonnix.modules.numerical.piecewise import PiecewiseLinearNumericalEncoder
 from sonnix.modules.numerical.sine import (
     AsinhCosSinNumericalEncoder,

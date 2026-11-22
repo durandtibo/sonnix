@@ -36,7 +36,8 @@ __all__ = [
     "symmetric_absolute_relative_error",
 ]
 
-from sonnix.functional.activation import rectifier_asinh_unit, safe_exp, safe_log
+from sonnix.functional.activation.hyperbolic import rectifier_asinh_unit
+from sonnix.functional.activation.math import safe_exp, safe_log
 from sonnix.functional.error import (
     absolute_error,
     absolute_relative_error,

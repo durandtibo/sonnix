@@ -31,7 +31,7 @@ def has_parameters(module: nn.Module) -> bool:
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.params import has_parameters
+        >>> from sonnix.utils import has_parameters
         >>> has_parameters(torch.nn.Linear(4, 6))
         True
         >>> has_parameters(torch.nn.Identity())
@@ -60,7 +60,7 @@ def has_learnable_parameters(module: nn.Module) -> bool:
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.params import has_learnable_parameters, freeze_module
+        >>> from sonnix.utils import has_learnable_parameters, freeze_module
         >>> has_learnable_parameters(torch.nn.Linear(4, 6))
         True
         >>> module = torch.nn.Linear(4, 6)
@@ -87,7 +87,7 @@ def num_parameters(module: nn.Module) -> int:
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.params import num_parameters
+        >>> from sonnix.utils import num_parameters
         >>> num_parameters(torch.nn.Linear(4, 6))
         30
         >>> num_parameters(torch.nn.Identity())
@@ -111,7 +111,7 @@ def num_learnable_parameters(module: nn.Module) -> int:
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.params import num_learnable_parameters
+        >>> from sonnix.utils import num_learnable_parameters
         >>> num_learnable_parameters(torch.nn.Linear(4, 6))
         30
         >>> module = torch.nn.Linear(4, 6)
@@ -135,7 +135,7 @@ def freeze_module(module: nn.Module) -> None:
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.params import freeze_module
+        >>> from sonnix.utils import freeze_module
         >>> module = torch.nn.Linear(4, 6)
         >>> freeze_module(module)
         >>> for name, param in module.named_parameters():
@@ -159,7 +159,7 @@ def unfreeze_module(module: nn.Module) -> None:
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.params import unfreeze_module
+        >>> from sonnix.utils import unfreeze_module
         >>> module = torch.nn.Linear(4, 6)
         >>> unfreeze_module(module)
         >>> for name, param in module.named_parameters():
