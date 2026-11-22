@@ -36,10 +36,6 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 | `GeneralRobustRegressionLoss(2.0, 1.0, 5.0)`                                      | `GeneralRobustRegressionLoss(2.0, scale=1.0, max_val=5.0)` (#450)                                           |
 | `RelativeLoss(criterion, indicator, 1e-6)`                                        | `RelativeLoss(criterion, indicator=indicator, eps=1e-6)` (#450)                                             |
 | `reduce_loss(x, "sum")`; `safe_pow(x=t, exponent=2)`                              | `reduce_loss(x, reduction="sum")`; `safe_pow(input=t, exponent=2)` (#450)                                   |
-| `ToFloat()`, `ToLong()`                                                           | `ToDtype("float32")`, `ToDtype("int64")` (#451)                                                             |
-| `ReLUn(6.0)`, `Square()`                                                          | `Clamp(0.0, 6.0)`, `Pow(2)` (#451)                                                                          |
-| `absolute_error(p, t)` and the two relative errors                                | the recipes of the losses guide (#451)                                                                      |
-| `rectifier_asinh_unit(x)`                                                         | `RectifierAsinhUnit()(x)` or `x.clamp(min=0).asinh()` (#451)                                                |
 | `BaseBinaryFocalLoss`, `BaseBinaryPoly1Loss`                                      | subclass `BaseLoss` (#451)                                                                                  |
 | `sonnix.modules.numerical._utils.NumericalEncoder`                                | `sonnix.modules.BaseNumericalEncoder` (#452)                                                                |
 | `sonnix.functional.loss.X`, `sonnix.utils.mode.X`, `sonnix.testing.loss.X`        | `sonnix.functional.X`, `sonnix.utils.X`, `sonnix.testing.X` (#452)                                          |
