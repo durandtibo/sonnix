@@ -2,8 +2,6 @@
 
 ## ::: sonnix.utils.device
 
-## ::: sonnix.testing.loss
-
 ## ::: sonnix.utils.mode
 
 ## ::: sonnix.utils.params
