@@ -4,8 +4,7 @@ import pytest
 import torch
 from coola.utils.tensor import get_available_devices
 
-from sonnix.modules import BinaryPoly1Loss, BinaryPoly1LossWithLogits
-from sonnix.modules.loss import BaseBinaryPoly1Loss
+from sonnix.modules import BaseBinaryPoly1Loss, BinaryPoly1Loss, BinaryPoly1LossWithLogits
 
 SIZES = (1, 2)
 TOLERANCE = 1e-6

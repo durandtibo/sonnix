@@ -4,15 +4,12 @@ from __future__ import annotations
 
 __all__ = ["Reduction", "reduce_loss"]
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
-from sonnix.validation.loss import validate_loss_reduction_strategy
+from sonnix.validation.loss import Reduction, validate_loss_reduction_strategy
 
 if TYPE_CHECKING:
     from torch import Tensor
-
-Reduction = Literal["none", "mean", "sum", "batchmean"]
-r"""The valid loss reduction strategies."""
 
 
 def reduce_loss(tensor: Tensor, reduction: Reduction) -> Tensor:

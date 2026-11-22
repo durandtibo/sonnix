@@ -4,8 +4,7 @@ import pytest
 import torch
 from coola.utils.tensor import get_available_devices
 
-from sonnix.modules import BinaryFocalLoss, BinaryFocalLossWithLogits
-from sonnix.modules.loss import BaseBinaryFocalLoss
+from sonnix.modules import BaseBinaryFocalLoss, BinaryFocalLoss, BinaryFocalLossWithLogits
 
 SIZES = (1, 2)
 TOLERANCE = 1e-6

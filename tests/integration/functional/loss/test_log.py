@@ -4,7 +4,7 @@ import torch
 from torch import nn
 
 from sonnix.functional import log_cosh_loss
-from sonnix.utils.loss import is_loss_decreasing_with_sgd
+from sonnix.testing.loss import is_loss_decreasing_with_sgd
 
 ###################################
 #     Tests for log_cosh_loss     #

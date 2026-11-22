@@ -17,7 +17,7 @@ from sonnix.modules import (
     Sinh,
     Square,
 )
-from sonnix.utils.loss import is_loss_decreasing_with_adam
+from sonnix.testing.loss import is_loss_decreasing_with_adam
 
 
 @pytest.mark.parametrize(

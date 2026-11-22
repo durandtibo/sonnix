@@ -3,7 +3,7 @@ dict."""
 
 from __future__ import annotations
 
-__all__ = ["find_module_state_dict", "load_state_dict_to_module"]
+__all__ = ["load_state_dict_to_module"]
 
 import logging
 from typing import TYPE_CHECKING, Any
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-def find_module_state_dict(
+def _find_module_state_dict(
     state_dict: dict[Any, Any] | list[Any] | tuple[Any, ...] | set[Any], module_keys: set[Any]
 ) -> dict[Any, Any]:
     r"""Try to find automatically the part of the state dict related to a
@@ -44,7 +44,7 @@ def find_module_state_dict(
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.state_dict import find_module_state_dict
+        >>> from sonnix.utils.state_dict import _find_module_state_dict
         >>> state = {
         ...     "model": {
         ...         "weight": 42,
@@ -55,7 +55,7 @@ def find_module_state_dict(
         ...     }
         ... }
         >>> module = torch.nn.Linear(4, 5)
-        >>> state_dict = find_module_state_dict(state, module_keys=set(module.state_dict().keys()))
+        >>> state_dict = _find_module_state_dict(state, module_keys=set(module.state_dict().keys()))
         >>> state_dict
         {'weight': tensor([[1., 1., 1., 1.],
                 [1., 1., 1., 1.],
@@ -72,12 +72,12 @@ def find_module_state_dict(
         if stripped:
             return stripped
         for value in state_dict.values():
-            found = find_module_state_dict(value, module_keys)
+            found = _find_module_state_dict(value, module_keys)
             if found:
                 return found
     elif isinstance(state_dict, (list, tuple, set)):
         for value in state_dict:
-            found = find_module_state_dict(value, module_keys)
+            found = _find_module_state_dict(value, module_keys)
             if found:
                 return found
     return {}
@@ -172,7 +172,7 @@ def load_state_dict_to_module(
             "Could not load the state dict. Try to find automatically the part of the state dict "
             "that matches with the module."
         )
-        found = find_module_state_dict(state_dict, module_keys)
+        found = _find_module_state_dict(state_dict, module_keys)
         if not found:
             logger.info("Could not find a part of the state dict that matches with the module.")
             raise
@@ -187,7 +187,7 @@ def load_state_dict_to_module(
                 "No key of the module was found in the state dict. Try to find automatically the "
                 "part of the state dict that matches with the module."
             )
-            found = find_module_state_dict(state_dict, module_keys)
+            found = _find_module_state_dict(state_dict, module_keys)
             if not found:
                 logger.warning(
                     "Could not find a part of the state dict that matches with the module. "

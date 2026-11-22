@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from sonnix.modules import (
+    BaseLoss,
     BinaryFocalLoss,
     BinaryFocalLossWithLogits,
     BinaryPoly1Loss,
@@ -16,7 +17,6 @@ from sonnix.modules import (
     QuantileRegressionLoss,
     RelativeLoss,
 )
-from sonnix.modules.loss import BaseLoss
 
 if TYPE_CHECKING:
     from torch import nn

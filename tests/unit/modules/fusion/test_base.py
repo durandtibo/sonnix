@@ -4,7 +4,7 @@ import pytest
 import torch
 from coola.equality import objects_are_equal
 
-from sonnix.modules.fusion import BaseFusion
+from sonnix.modules import BaseFusion
 
 
 class MyFusion(BaseFusion):
