@@ -415,3 +415,9 @@ def test_moment_mean_indicator_gradient_matches_unscaled_formula() -> None:
     moment_mean_indicator(prediction, torch.tensor([3.0, 1.0]), k=2).sum().backward()
     # d/dp sqrt((t^2 + p^2) / 2) = p / (2 * sqrt((t^2 + p^2) / 2))
     assert prediction.grad.allclose(torch.tensor([0.223606797749979, -0.6324555320336759]))
+
+
+@pytest.mark.parametrize("k", [1.5, True])
+def test_moment_mean_indicator_incorrect_k_type(k: object) -> None:
+    with pytest.raises(TypeError, match=r"k must be an int"):
+        moment_mean_indicator(torch.randn(2, 3), torch.randn(2, 3), k=k)

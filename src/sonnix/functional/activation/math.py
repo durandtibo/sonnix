@@ -6,7 +6,9 @@ __all__ = ["safe_exp", "safe_log"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_finite, validate_gt
+from coola.validation import validate_finite, validate_isinstance
+
+from sonnix.validation import validate_positive
 
 if TYPE_CHECKING:
     import torch
@@ -40,6 +42,8 @@ def safe_exp(
         A tensor with the exponential of the elements.
 
     Raises:
+        TypeError: If ``max_val`` is not a number or ``preserve_gradient`` is not a
+            ``bool``.
         ValueError: If ``max_val`` is not finite.
 
     Example:
@@ -53,6 +57,7 @@ def safe_exp(
         ```
     """
     validate_finite(max_val, name="max_val")
+    validate_isinstance(preserve_gradient, bool, name="preserve_gradient")
     clamped = input.clamp(max=max_val)
     if preserve_gradient:
         clamped = input + (clamped - input).detach()
@@ -92,7 +97,9 @@ def safe_log(
         A tensor with the natural logarithm of the elements.
 
     Raises:
-        ValueError: if ``min_val`` is not strictly positive.
+        TypeError: if ``min_val`` is not a number or ``preserve_gradient`` is not a
+            ``bool``.
+        ValueError: if ``min_val`` is not finite and strictly positive.
 
     Example:
         ```pycon
@@ -103,7 +110,8 @@ def safe_log(
 
         ```
     """
-    validate_gt(min_val, 0, name="min_val")
+    validate_positive(min_val, name="min_val")
+    validate_isinstance(preserve_gradient, bool, name="preserve_gradient")
     clamped = input.clamp(min=min_val)
     if preserve_gradient:
         clamped = input + (clamped - input).detach()

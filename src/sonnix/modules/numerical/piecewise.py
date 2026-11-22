@@ -9,7 +9,7 @@ import warnings
 from typing import TYPE_CHECKING, Literal
 
 import torch
-from coola.validation import validate_ge, validate_in
+from coola.validation import validate_ge, validate_in, validate_int
 
 from sonnix.modules.numerical._utils import NumericalEncoder, prepare_tensor_param
 
@@ -105,9 +105,6 @@ class PiecewiseLinearNumericalEncoder(NumericalEncoder):
         bins = bins.sort(dim=1)[0]
         n_bins = bins.shape[1]
         validate_ge(n_bins, 1, name="n_bins")
-        if not bins.isfinite().all():
-            msg = "bins must contain only finite values"
-            raise ValueError(msg)
         self.register_buffer("edges", bins[:, :-1] if n_bins > 1 else bins)
         width = bins.diff() if n_bins > 1 else torch.ones_like(bins)
         # With a single segment, a zero width is replaced by 1 instead of a step.
@@ -184,6 +181,7 @@ class PiecewiseLinearNumericalEncoder(NumericalEncoder):
 
             ```
         """
+        validate_int(n_bins, name="n_bins")
         validate_ge(n_bins, 2, name="n_bins")
         x = prepare_tensor_param(x.view(-1, 1) if x.ndim == 1 else x, name="x")
         probabilities = torch.linspace(0.0, 1.0, n_bins, dtype=x.dtype, device=x.device)

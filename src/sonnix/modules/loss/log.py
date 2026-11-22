@@ -7,10 +7,9 @@ __all__ = ["LogCoshLoss"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_gt
-
 from sonnix.functional import log_cosh_loss
 from sonnix.modules.loss.base import BaseLoss
+from sonnix.validation import validate_positive
 
 if TYPE_CHECKING:
     import torch
@@ -32,7 +31,8 @@ class LogCoshLoss(BaseLoss):
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Raises:
-        ValueError: if ``scale`` is not greater than 0 or if the
+        TypeError: if ``scale`` is not a number.
+        ValueError: if ``scale`` is not finite and strictly positive or if the
             reduction is not valid.
 
     Example:
@@ -52,7 +52,7 @@ class LogCoshLoss(BaseLoss):
 
     def __init__(self, scale: float = 1.0, *, reduction: Reduction = "mean") -> None:
         super().__init__(reduction=reduction)
-        validate_gt(scale, 0, name="scale")
+        validate_positive(scale, name="scale")
         self.scale = float(scale)
 
     def extra_repr(self) -> str:

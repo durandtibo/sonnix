@@ -29,6 +29,23 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- Validate every hyperparameter completely (revised target state step 2,
+  #447): a float must be finite (`log_cosh_loss(scale=inf)`,
+  `poisson_regression_loss(eps=inf)`, `binary_focal_loss(gamma=inf)`,
+  `SafeLog(min_val=inf)`, `ReLUn(max_val=inf)`, `Clamp(nan, nan)`,
+  `DynamicTanh(alpha_init_value=nan)`, an infinite range of an encoder, ...
+  now raise `ValueError`); an integer argument is checked before it is used
+  (`ConcatFusion(dim=1.5)`, `create(num_frequencies=2.5)`,
+  `from_quantiles(n_bins=2.5)` raise `TypeError`); a flag must be a `bool`
+  (`learnable`, `bias`, `log_input`, `detach_indicator`,
+  `preserve_gradient`); the modules validate before they convert, so
+  `GeneralRobustRegressionLoss(alpha="a")` raises `TypeError` like the
+  function. The encoders reject a `NaN` or an infinite tensor
+  (`AsinhNumericalEncoder`, `CosSinNumericalEncoder`; the piecewise message is
+  now `'bins' must contain only finite values`). New
+  `sonnix.validation.validate_positive`; removed `validate_abs_range`,
+  `validate_frequency` and `validate_moment_order` (`resolve_range` checks the
+  range once and names `min_abs_value` / `max_abs_value` for a `value_range`).
 - Documentation only: the alpha activations, the binary focal losses and the
   binary Poly-1 losses no longer copy the `Args:` block of their base class.
   The class docstring points to it (target state step 12, #440).

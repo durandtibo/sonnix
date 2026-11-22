@@ -5,7 +5,7 @@ from __future__ import annotations
 __all__ = ["safe_pow"]
 
 import torch
-from coola.validation import validate_ge
+from coola.validation import validate_finite, validate_ge
 
 
 def safe_pow(x: torch.Tensor, exponent: float) -> torch.Tensor:
@@ -26,7 +26,8 @@ def safe_pow(x: torch.Tensor, exponent: float) -> torch.Tensor:
             ``1`` everywhere.
 
     Raises:
-        ValueError: if the exponent is negative.
+        TypeError: if the exponent is not a number.
+        ValueError: if the exponent is negative or not finite.
 
     Example:
         ```pycon
@@ -41,6 +42,7 @@ def safe_pow(x: torch.Tensor, exponent: float) -> torch.Tensor:
 
         ```
     """
+    validate_finite(exponent, name="exponent")
     validate_ge(exponent, 0, name="exponent")
     if exponent == 0:
         return torch.ones_like(x)

@@ -40,14 +40,15 @@ class GeneralRobustRegressionLoss(BaseLoss):
         scale: The scale parameter that controls the size of the loss's
             quadratic bowl near 0.
         max_val: The max value to clip the loss before to compute the
-            reduction. It has to be strictly positive.
+            reduction. It has to be finite and strictly positive.
             ``None`` means no clipping is used.
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Raises:
+        TypeError: if ``alpha``, ``scale`` or ``max_val`` is not a number.
         ValueError: if ``alpha`` is ``NaN`` or ``+inf``, or if ``scale`` or
-            ``max_val`` is not strictly positive.
+            ``max_val`` is not finite and strictly positive.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -81,8 +82,8 @@ class GeneralRobustRegressionLoss(BaseLoss):
         reduction: Reduction = "mean",
     ) -> None:
         super().__init__(reduction=reduction)
-        self.alpha = float(alpha)
         validate_general_robust_params(alpha, scale, max_val)
+        self.alpha = float(alpha)
         self.scale = float(scale)
         self.max_val = max_val
 

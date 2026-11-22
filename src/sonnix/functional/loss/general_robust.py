@@ -58,7 +58,7 @@ def general_robust_regression_loss(
         scale: The scale parameter that controls the size of the loss's
             quadratic bowl near 0.
         max_val: The max value to clip the loss before to compute the
-            reduction. It has to be strictly positive.
+            reduction. It has to be finite and strictly positive.
             ``None`` means no clipping is used.
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
@@ -69,8 +69,9 @@ def general_robust_regression_loss(
 
     Raises:
         ValueError: if the reduction is not valid.
+        TypeError: if ``alpha``, ``scale`` or ``max_val`` is not a number.
         ValueError: if ``alpha`` is ``NaN`` or ``+inf``, or if ``scale`` or
-            ``max_val`` is not strictly positive.
+            ``max_val`` is not finite and strictly positive.
         ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
     Example:

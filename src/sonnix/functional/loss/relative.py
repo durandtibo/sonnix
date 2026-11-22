@@ -16,11 +16,11 @@ __all__ = [
 from typing import TYPE_CHECKING
 
 import torch
-from coola.validation import validate_gt
+from coola.validation import validate_ge, validate_int
 
 from sonnix.functional.power import safe_pow
 from sonnix.functional.reduction import reduce_loss
-from sonnix.validation import validate_moment_order, validate_same_shape
+from sonnix.validation import validate_positive, validate_same_shape
 
 if TYPE_CHECKING:
     from sonnix.functional.reduction import Reduction
@@ -46,7 +46,7 @@ def relative_loss(
         loss: The loss values. The tensor must have the same shape as
             the target.
         indicator: The indicator values.
-        eps: An arbitrary small strictly positive number to avoid
+        eps: An arbitrary small finite, strictly positive number to avoid
             undefined results when the indicator is zero.
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
@@ -57,7 +57,8 @@ def relative_loss(
     Raises:
         ValueError: if the loss and indicator shapes do not match.
         ValueError: if the reduction is not valid.
-        ValueError: if ``eps`` is not strictly positive.
+        TypeError: if ``eps`` is not a number.
+        ValueError: if ``eps`` is not finite and strictly positive.
 
     Example:
         ```pycon
@@ -76,7 +77,7 @@ def relative_loss(
 
         ```
     """
-    validate_gt(eps, 0, name="eps")
+    validate_positive(eps, name="eps")
     validate_same_shape(loss, indicator, name1="loss", name2="indicator")
     return reduce_loss(loss.div(indicator.clamp(min=eps)), reduction)
 
@@ -269,7 +270,8 @@ def moment_mean_indicator(
 
         ```
     """
-    validate_moment_order(k)
+    validate_int(k, name="k")
+    validate_ge(k, 1, name="k")
     validate_same_shape(prediction, target, name1="prediction", name2="target")
     # Scale by the largest magnitude so ``|x| ** k`` cannot overflow.
     target, prediction = target.abs(), prediction.abs()

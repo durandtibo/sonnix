@@ -7,10 +7,10 @@ __all__ = ["poisson_regression_loss"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_gt
+from coola.validation import validate_isinstance
 
 from sonnix.functional.reduction import reduce_loss
-from sonnix.validation import validate_same_shape
+from sonnix.validation import validate_positive, validate_same_shape
 
 if TYPE_CHECKING:
     import torch
@@ -54,7 +54,7 @@ def poisson_regression_loss(
             logarithm of the predicted rate.
         target: The count target values. The values must be
             non-negative (zero is allowed).
-        eps: An arbitrary small strictly positive number to avoid
+        eps: An arbitrary small finite, strictly positive number to avoid
             undefined results when the count is zero.
         log_input: If ``True``, the predictions are the logarithm of
             the rate.
@@ -66,7 +66,8 @@ def poisson_regression_loss(
             on the reduction strategy.
 
     Raises:
-        ValueError: if ``eps`` is not strictly positive.
+        TypeError: if ``eps`` is not a number or ``log_input`` is not a ``bool``.
+        ValueError: if ``eps`` is not finite and strictly positive.
         ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
     Example:
@@ -82,7 +83,8 @@ def poisson_regression_loss(
 
         ```
     """
-    validate_gt(eps, 0, name="eps")
+    validate_positive(eps, name="eps")
+    validate_isinstance(log_input, bool, name="log_input")
     validate_same_shape(prediction, target, name1="prediction", name2="target")
     if log_input:
         loss = prediction.exp() - target.mul(prediction)

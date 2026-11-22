@@ -8,7 +8,7 @@ import math
 from typing import TYPE_CHECKING
 
 import torch
-from coola.validation import validate_ge, validate_int
+from coola.validation import validate_ge, validate_int, validate_isinstance
 from torch import nn
 from torch.nn import init
 
@@ -33,7 +33,7 @@ class NLinear(nn.Module):
 
     Raises:
         TypeError: if ``n``, ``in_features`` or ``out_features`` is
-            not an integer.
+            not an integer, or if ``bias`` is not a ``bool``.
         ValueError: if ``n``, ``in_features`` or ``out_features`` is
             lower than 1.
 
@@ -71,6 +71,7 @@ class NLinear(nn.Module):
         dtype: torch.dtype | None = None,
     ) -> None:
         super().__init__()
+        validate_isinstance(bias, bool, name="bias")
         for name, value in (("n", n), ("in_features", in_features), ("out_features", out_features)):
             validate_int(value, name=name)
             validate_ge(value, 1, name=name)

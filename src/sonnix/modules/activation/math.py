@@ -17,10 +17,11 @@ __all__ = [
 ]
 
 import torch
-from coola.validation import validate_finite, validate_gt
+from coola.validation import validate_finite, validate_isinstance
 from torch import nn
 
 from sonnix.functional import safe_exp, safe_log
+from sonnix.validation import validate_positive
 
 
 class Asinh(nn.Module):
@@ -183,6 +184,7 @@ class Pow(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Raises:
+        TypeError: If ``exponent`` is not a number.
         ValueError: If ``exponent`` is not finite.
 
     Example:
@@ -232,6 +234,8 @@ class SafeExp(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Raises:
+        TypeError: If ``max_val`` is not a number or ``preserve_gradient`` is not a
+            ``bool``.
         ValueError: If ``max_val`` is not finite.
 
     Example:
@@ -252,6 +256,7 @@ class SafeExp(nn.Module):
     def __init__(self, max_val: float = 20.0, *, preserve_gradient: bool = False) -> None:
         super().__init__()
         validate_finite(max_val, name="max_val")
+        validate_isinstance(preserve_gradient, bool, name="preserve_gradient")
         self.max_val = float(max_val)
         self.preserve_gradient = preserve_gradient
 
@@ -288,7 +293,9 @@ class SafeLog(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Raises:
-        ValueError: if ``min_val`` is not strictly positive.
+        TypeError: if ``min_val`` is not a number or ``preserve_gradient`` is not a
+            ``bool``.
+        ValueError: if ``min_val`` is not finite and strictly positive.
 
     Example:
         ```pycon
@@ -307,7 +314,8 @@ class SafeLog(nn.Module):
 
     def __init__(self, min_val: float = 1e-8, *, preserve_gradient: bool = False) -> None:
         super().__init__()
-        validate_gt(min_val, 0, name="min_val")
+        validate_positive(min_val, name="min_val")
+        validate_isinstance(preserve_gradient, bool, name="preserve_gradient")
         self.min_val = float(min_val)
         self.preserve_gradient = preserve_gradient
 
