@@ -5,7 +5,6 @@ Linear layers, residual blocks, normalization-like layers and shape/dtype helper
 | Name                                                       |
 | ---------------------------------------------------------- |
 | [`ExU`](#sonnix.modules.ExU)                               |
-| [`MulticlassFlatten`](#sonnix.modules.MulticlassFlatten)   |
 | [`NLinear`](#sonnix.modules.NLinear)                       |
 | [`ResidualBlock`](#sonnix.modules.ResidualBlock)           |
 | [`ScaleAndShift`](#sonnix.modules.ScaleAndShift)           |
@@ -18,8 +17,6 @@ Linear layers, residual blocks, normalization-like layers and shape/dtype helper
 | [`View`](#sonnix.modules.View)                             |
 
 ## ::: sonnix.modules.ExU
-
-## ::: sonnix.modules.MulticlassFlatten
 
 ## ::: sonnix.modules.NLinear
 

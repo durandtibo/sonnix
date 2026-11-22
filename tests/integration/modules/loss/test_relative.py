@@ -1,21 +1,26 @@
 from __future__ import annotations
 
+from functools import partial
+from typing import TYPE_CHECKING
+
 import pytest
 import torch
 from torch import nn
 
-from sonnix.modules import RelativeLoss, RelativeMSELoss, RelativeSmoothL1Loss
-from sonnix.modules.loss import (
-    ArithmeticalMeanIndicator,
-    BaseRelativeIndicator,
-    ClassicalRelativeIndicator,
-    GeometricMeanIndicator,
-    MaximumMeanIndicator,
-    MinimumMeanIndicator,
-    MomentMeanIndicator,
-    ReversedRelativeIndicator,
+from sonnix.functional import (
+    arithmetical_mean_indicator,
+    classical_relative_indicator,
+    geometric_mean_indicator,
+    maximum_mean_indicator,
+    minimum_mean_indicator,
+    moment_mean_indicator,
+    reversed_relative_indicator,
 )
+from sonnix.modules import RelativeLoss
 from sonnix.utils.loss import is_loss_decreasing_with_sgd
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 CRITERIA = [
     nn.MSELoss(reduction="none"),
@@ -23,15 +28,15 @@ CRITERIA = [
     nn.L1Loss(reduction="none"),
 ]
 INDICATORS = [
-    ArithmeticalMeanIndicator(),
-    ClassicalRelativeIndicator(),
-    GeometricMeanIndicator(),
-    MaximumMeanIndicator(),
-    MinimumMeanIndicator(),
-    MomentMeanIndicator(),
-    MomentMeanIndicator(k=2),
-    MomentMeanIndicator(k=3),
-    ReversedRelativeIndicator(),
+    arithmetical_mean_indicator,
+    classical_relative_indicator,
+    geometric_mean_indicator,
+    maximum_mean_indicator,
+    minimum_mean_indicator,
+    moment_mean_indicator,
+    partial(moment_mean_indicator, k=2),
+    partial(moment_mean_indicator, k=3),
+    reversed_relative_indicator,
 ]
 REDUCTIONS = ["mean", "sum"]
 
@@ -53,7 +58,7 @@ def test_relative_loss_loss_decreasing(
     module: nn.Module,
     criterion: nn.Module,
     reduction: str,
-    indicator: BaseRelativeIndicator,
+    indicator: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
 ) -> None:
     assert is_loss_decreasing_with_sgd(
         module=module,
@@ -63,42 +68,4 @@ def test_relative_loss_loss_decreasing(
         feature=torch.randn(16, 10).clamp(-1.0, 1.0),
         target=torch.rand(16, 8),
         num_iterations=50,
-    )
-
-
-#####################################
-#     Tests for RelativeMSELoss     #
-#####################################
-
-
-@pytest.mark.parametrize("indicator", INDICATORS)
-@pytest.mark.parametrize("reduction", REDUCTIONS)
-def test_relative_mse_loss_loss_decreasing(
-    module: nn.Module, reduction: str, indicator: BaseRelativeIndicator
-) -> None:
-    assert is_loss_decreasing_with_sgd(
-        module=module,
-        criterion=RelativeMSELoss(reduction=reduction, indicator=indicator),
-        feature=torch.randn(16, 10).clamp(-1.0, 1.0),
-        target=torch.rand(16, 8),
-        num_iterations=10,
-    )
-
-
-##########################################
-#     Tests for RelativeSmoothL1Loss     #
-##########################################
-
-
-@pytest.mark.parametrize("indicator", INDICATORS)
-@pytest.mark.parametrize("reduction", REDUCTIONS)
-def test_relative_smooth_l1_loss_loss_decreasing(
-    module: nn.Module, reduction: str, indicator: BaseRelativeIndicator
-) -> None:
-    assert is_loss_decreasing_with_sgd(
-        module=module,
-        criterion=RelativeSmoothL1Loss(reduction=reduction, indicator=indicator),
-        feature=torch.randn(16, 10).clamp(-1.0, 1.0),
-        target=torch.rand(16, 8),
-        num_iterations=10,
     )

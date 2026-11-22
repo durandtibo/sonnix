@@ -3,13 +3,13 @@ transform the predictions or targets."""
 
 from __future__ import annotations
 
-__all__ = ["log_cosh_loss", "msle_loss"]
+__all__ = ["log_cosh_loss"]
 
 import math
 from typing import TYPE_CHECKING
 
 from coola.validation import validate_gt
-from torch.nn.functional import mse_loss, softplus
+from torch.nn.functional import softplus
 
 from sonnix.functional.reduction import reduce_loss
 from sonnix.validation import validate_same_shape
@@ -65,47 +65,3 @@ def log_cosh_loss(
     # Numerically stable form of log(cosh(x)): it does not overflow for large |x|.
     loss = error + softplus(-2.0 * error) - math.log(2.0)
     return reduce_loss(loss.mul(scale), reduction=reduction)
-
-
-def msle_loss(
-    prediction: torch.Tensor, target: torch.Tensor, *, reduction: Reduction = "mean"
-) -> torch.Tensor:
-    r"""Compute the mean squared error (MSE) on the logarithmic
-    transformed predictions and targets.
-
-    This loss is best to use when targets having exponential growth,
-    such as population counts, average sales of a commodity over a
-    span of years etc. Note that this loss penalizes an
-    under-predicted estimate greater than an over-predicted estimate.
-
-    Note: this loss only works with values greater or equal to ``-1``
-    (``log1p`` is undefined below). For inputs lower than ``-1``, the
-    result is ``nan`` and no error is raised. Clamp or shift the inputs
-    if they can be negative.
-
-    Args:
-        prediction: The predictions.
-        target: The target values.
-        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
-            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
-
-    Returns:
-        The mean squared logarithmic error. The shape of
-            the tensor depends on the reduction strategy.
-
-    Raises:
-        ValueError: If ``prediction`` and ``target`` do not have the same shape.
-
-    Example:
-        ```pycon
-        >>> import torch
-        >>> from sonnix.functional import msle_loss
-        >>> loss = msle_loss(torch.randn(2, 4, requires_grad=True), torch.randn(2, 4))
-        >>> loss
-        tensor(..., grad_fn=<MeanBackward0>)
-        >>> loss.backward()
-
-        ```
-    """
-    validate_same_shape(prediction, target, name1="prediction", name2="target")
-    return reduce_loss(mse_loss(prediction.log1p(), target.log1p(), reduction="none"), reduction)

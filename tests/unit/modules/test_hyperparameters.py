@@ -4,7 +4,6 @@ import pytest
 from torch import nn
 
 from sonnix.modules import (
-    AsinhSmoothL1Loss,
     BinaryFocalLoss,
     BinaryFocalLossWithLogits,
     BinaryPoly1Loss,
@@ -14,7 +13,6 @@ from sonnix.modules import (
     DynamicTanh,
     ExU,
     GeneralRobustRegressionLoss,
-    MomentMeanIndicator,
     NLinear,
     PoissonRegressionLoss,
     Pow,
@@ -51,13 +49,11 @@ from sonnix.modules import (
         (ConcatFusion(dim=2), "dim", 2),
         (ScaleAndShift(normalized_shape=4), "normalized_shape", (4,)),
         (DynamicTanh(normalized_shape=4, alpha_init_value=0.3), "alpha_init_value", 0.3),
-        (MomentMeanIndicator(k=3), "k", 3),
         (ToBinaryLabel(threshold=0.5), "threshold", 0.5),
         (NLinear(n=3, in_features=4, out_features=5), "n", 3),
         (NLinear(n=3, in_features=4, out_features=5), "in_features", 4),
         (NLinear(n=3, in_features=4, out_features=5), "out_features", 5),
         (ExU(in_features=4, out_features=5), "in_features", 4),
-        (AsinhSmoothL1Loss(beta=2.0), "beta", 2.0),
         (QuantileRegressionLoss(q=0.3), "q", 0.3),
         (PoissonRegressionLoss(eps=1e-3), "eps", 1e-3),
         (RelativeLoss(nn.MSELoss(), eps=1e-3, detach_indicator=True), "eps", 1e-3),

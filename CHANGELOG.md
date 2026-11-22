@@ -7,6 +7,13 @@ All notable changes to this project are documented in this file. The package is 
 
 ### Breaking changes
 
+- Remove the losses that are a composition of a `torch.nn` criterion and a transform: `AsinhMSELoss`,
+  `AsinhSmoothL1Loss`, `MSLELoss`, `RelativeMSELoss`, `RelativeSmoothL1Loss`, `asinh_mse_loss`,
+  `asinh_smooth_l1_loss` and `msle_loss`. Use `TransformedLoss` or `RelativeLoss` (recipes in the losses
+  guide). Remove the seven relative indicator modules and `BaseRelativeIndicator`: `RelativeLoss(indicator=...)`
+  takes a callable (the `*_indicator` functions of `sonnix.functional`, `functools.partial` for `k`), is not
+  a submodule anymore, and a non-callable indicator raises a `TypeError`. `MulticlassFlatten` moves to
+  `sonnix.modules.loss` (still exported by `sonnix.modules`) (target state step 4, #417).
 - The options of the functions of `sonnix.functional` are keyword-only (`log_cosh_loss(p, t, scale=2.0)`):
   `scale`, `alpha`, `gamma`, `beta`, `q`, `eps`, `k`, `max_val` and `min_val`. Positional calls are a `TypeError`
   (target state step 3, #415).

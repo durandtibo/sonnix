@@ -14,15 +14,12 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 FUNCTIONS = [
-    sf.asinh_mse_loss,
-    sf.asinh_smooth_l1_loss,
     sf.binary_focal_loss,
     sf.binary_focal_loss_with_logits,
     sf.binary_poly1_loss,
     sf.binary_poly1_loss_with_logits,
     sf.general_robust_regression_loss,
     sf.log_cosh_loss,
-    sf.msle_loss,
     sf.poisson_regression_loss,
     sf.quantile_regression_loss,
     sf.arithmetical_mean_indicator,

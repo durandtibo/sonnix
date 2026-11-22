@@ -15,7 +15,6 @@ NOT_REGISTERED = {
     "BaseDynamicNorm",
     "BaseFusion",
     "BaseLoss",
-    "BaseRelativeIndicator",
     "MulticlassFlatten",
 }
 

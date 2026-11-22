@@ -3,35 +3,22 @@ r"""Contain loss functions."""
 from __future__ import annotations
 
 __all__ = [
-    "ArithmeticalMeanIndicator",
-    "AsinhMSELoss",
-    "AsinhSmoothL1Loss",
     "BaseBinaryFocalLoss",
     "BaseBinaryPoly1Loss",
     "BaseLoss",
-    "BaseRelativeIndicator",
     "BinaryFocalLoss",
     "BinaryFocalLossWithLogits",
     "BinaryPoly1Loss",
     "BinaryPoly1LossWithLogits",
-    "ClassicalRelativeIndicator",
     "GeneralRobustRegressionLoss",
-    "GeometricMeanIndicator",
     "LogCoshLoss",
-    "MSLELoss",
-    "MaximumMeanIndicator",
-    "MinimumMeanIndicator",
-    "MomentMeanIndicator",
+    "MulticlassFlatten",
     "PoissonRegressionLoss",
     "QuantileRegressionLoss",
     "RelativeLoss",
-    "RelativeMSELoss",
-    "RelativeSmoothL1Loss",
-    "ReversedRelativeIndicator",
     "TransformedLoss",
 ]
 
-from sonnix.modules.loss.asinh import AsinhMSELoss, AsinhSmoothL1Loss
 from sonnix.modules.loss.base import BaseLoss
 from sonnix.modules.loss.focal import (
     BaseBinaryFocalLoss,
@@ -39,17 +26,8 @@ from sonnix.modules.loss.focal import (
     BinaryFocalLossWithLogits,
 )
 from sonnix.modules.loss.general_robust import GeneralRobustRegressionLoss
-from sonnix.modules.loss.indicators import (
-    ArithmeticalMeanIndicator,
-    BaseRelativeIndicator,
-    ClassicalRelativeIndicator,
-    GeometricMeanIndicator,
-    MaximumMeanIndicator,
-    MinimumMeanIndicator,
-    MomentMeanIndicator,
-    ReversedRelativeIndicator,
-)
-from sonnix.modules.loss.log import LogCoshLoss, MSLELoss
+from sonnix.modules.loss.log import LogCoshLoss
+from sonnix.modules.loss.multiclass import MulticlassFlatten
 from sonnix.modules.loss.poisson import PoissonRegressionLoss
 from sonnix.modules.loss.poly import (
     BaseBinaryPoly1Loss,
@@ -59,7 +37,5 @@ from sonnix.modules.loss.poly import (
 from sonnix.modules.loss.quantile import QuantileRegressionLoss
 from sonnix.modules.loss.relative import (
     RelativeLoss,
-    RelativeMSELoss,
-    RelativeSmoothL1Loss,
 )
 from sonnix.modules.loss.transform import TransformedLoss

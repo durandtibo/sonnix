@@ -2,22 +2,23 @@ r"""Contain relative loss implementations."""
 
 from __future__ import annotations
 
-__all__ = ["RelativeLoss", "RelativeMSELoss", "RelativeSmoothL1Loss"]
+__all__ = ["RelativeLoss"]
 
 from typing import TYPE_CHECKING, Any
 
-import torch
-from coola.validation import validate_ge, validate_gt
-from torch import nn
+from coola.validation import validate_gt
 
 from sonnix.factory import resolve_module
-from sonnix.functional import relative_loss
+from sonnix.functional import classical_relative_indicator, relative_loss
 from sonnix.modules.loss.base import BaseLoss
-from sonnix.modules.loss.indicators import ClassicalRelativeIndicator
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    import torch
+    from torch import nn
+
     from sonnix.functional.reduction import Reduction
-    from sonnix.modules.loss.indicators import BaseRelativeIndicator
 
 
 class RelativeLoss(BaseLoss):
@@ -33,35 +34,39 @@ class RelativeLoss(BaseLoss):
         criterion: The criterion or its configuration. This criterion
             should not have reduction to be compatible with the shapes
             of the prediction and targets.
-        indicator: The indicator module or its configuration. If
-            ``None``, ``ClassicalRelativeIndicator`` is instantiated.
+        indicator: The indicator function. It takes the prediction
+            and the target and returns a non-negative tensor of the
+            same shape (see the ``*_indicator`` functions of
+            ``sonnix.functional``). Use ``functools.partial`` to set
+            its options. If ``None``,
+            ``classical_relative_indicator`` is used.
         eps: An arbitrary small strictly positive number to avoid
             undefined results when the indicator is zero.
         detach_indicator: If ``True``, the indicator is detached from
             the graph so no gradient flows through the denominator.
             By default (``False``) the gradients flow through the
             indicator, which can reward shrinking it (e.g. with
-            ``ReversedRelativeIndicator``).
+            ``reversed_relative_indicator``).
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Raises:
+        TypeError: if ``indicator`` is not callable.
         ValueError: if ``eps`` is not strictly positive.
 
     Example:
         ```pycon
         >>> import torch
         >>> from sonnix.modules import RelativeLoss
-        >>> from sonnix.modules.loss import ClassicalRelativeIndicator
+        >>> from sonnix.functional import classical_relative_indicator
         >>> criterion = RelativeLoss(
         ...     criterion=torch.nn.MSELoss(reduction="none"),
-        ...     indicator=ClassicalRelativeIndicator(),
+        ...     indicator=classical_relative_indicator,
         ... )
         >>> criterion
         RelativeLoss(
           reduction=mean, eps=1e-08, detach_indicator=False
           (criterion): MSELoss()
-          (indicator): ClassicalRelativeIndicator()
         )
         >>> prediction = torch.randn(3, 5, requires_grad=True)
         >>> target = torch.randn(3, 5)
@@ -76,7 +81,7 @@ class RelativeLoss(BaseLoss):
     def __init__(
         self,
         criterion: nn.Module | dict[Any, Any],
-        indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
+        indicator: Callable[[torch.Tensor, torch.Tensor], torch.Tensor] | None = None,
         eps: float = 1e-8,
         *,
         reduction: Reduction = "mean",
@@ -84,9 +89,12 @@ class RelativeLoss(BaseLoss):
     ) -> None:
         super().__init__(reduction=reduction)
         self.criterion: nn.Module = resolve_module(criterion)
-        self.indicator: nn.Module = resolve_module(
-            ClassicalRelativeIndicator() if indicator is None else indicator
-        )
+        if indicator is None:
+            indicator = classical_relative_indicator
+        if not callable(indicator):
+            msg = f"indicator must be callable but received {indicator!r}"
+            raise TypeError(msg)
+        self.indicator = indicator
 
         validate_gt(eps, 0, name="eps")
         self.eps = float(eps)
@@ -106,138 +114,3 @@ class RelativeLoss(BaseLoss):
             reduction=self.reduction,
             eps=self.eps,
         )
-
-
-class RelativeMSELoss(RelativeLoss):
-    r"""Implement the relative MSE loss.
-
-    Warning:
-        A configuration (a ``dict`` with a ``_target_`` key) calls its
-        ``_target_`` before the type of the result is checked, so it
-        must come from a trusted source. See ``sonnix.factory``.
-
-    Args:
-        indicator: The indicator module or its configuration. If
-            ``None``, ``ClassicalRelativeIndicator`` is instantiated.
-        eps: An arbitrary small strictly positive number to avoid
-            undefined results when the indicator is zero.
-        detach_indicator: If ``True``, the indicator is detached from
-            the graph so no gradient flows through the denominator.
-            By default (``False``) the gradients flow through the
-            indicator, which can reward shrinking it (e.g. with
-            ``ReversedRelativeIndicator``).
-        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
-            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
-
-    Raises:
-        ValueError: if ``eps`` is not strictly positive.
-
-    Example:
-        ```pycon
-        >>> import torch
-        >>> from sonnix.modules import RelativeMSELoss
-        >>> from sonnix.modules.loss import ClassicalRelativeIndicator
-        >>> criterion = RelativeMSELoss(indicator=ClassicalRelativeIndicator())
-        >>> criterion
-        RelativeMSELoss(
-          reduction=mean, eps=1e-08, detach_indicator=False
-          (criterion): MSELoss()
-          (indicator): ClassicalRelativeIndicator()
-        )
-        >>> prediction = torch.randn(3, 5, requires_grad=True)
-        >>> target = torch.randn(3, 5)
-        >>> loss = criterion(prediction, target)
-        >>> loss
-        tensor(..., grad_fn=<MeanBackward0>)
-        >>> loss.backward()
-
-        ```
-    """
-
-    def __init__(
-        self,
-        indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
-        eps: float = 1e-8,
-        *,
-        reduction: Reduction = "mean",
-        detach_indicator: bool = False,
-    ) -> None:
-        super().__init__(
-            criterion=nn.MSELoss(reduction="none"),
-            indicator=indicator,
-            reduction=reduction,
-            eps=eps,
-            detach_indicator=detach_indicator,
-        )
-
-
-class RelativeSmoothL1Loss(RelativeLoss):
-    r"""Implement the relative smooth L1 loss.
-
-    Warning:
-        A configuration (a ``dict`` with a ``_target_`` key) calls its
-        ``_target_`` before the type of the result is checked, so it
-        must come from a trusted source. See ``sonnix.factory``.
-
-    Args:
-        indicator: The indicator module or its configuration. If
-            ``None``, ``ClassicalRelativeIndicator`` is instantiated.
-        eps: An arbitrary small strictly positive number to avoid
-            undefined results when the indicator is zero.
-        detach_indicator: If ``True``, the indicator is detached from
-            the graph so no gradient flows through the denominator.
-            By default (``False``) the gradients flow through the
-            indicator, which can reward shrinking it (e.g. with
-            ``ReversedRelativeIndicator``).
-        beta: The threshold at which to change between L1 and L2
-            loss. The value must be non-negative.
-        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
-            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
-
-    Raises:
-        ValueError: if ``eps`` is not strictly positive or ``beta`` is
-            negative.
-
-    Example:
-        ```pycon
-        >>> import torch
-        >>> from sonnix.modules import RelativeSmoothL1Loss
-        >>> from sonnix.modules.loss import ClassicalRelativeIndicator
-        >>> criterion = RelativeSmoothL1Loss(indicator=ClassicalRelativeIndicator())
-        >>> criterion
-        RelativeSmoothL1Loss(
-          reduction=mean, eps=1e-08, detach_indicator=False, beta=1.0
-          (criterion): SmoothL1Loss()
-          (indicator): ClassicalRelativeIndicator()
-        )
-        >>> prediction = torch.randn(3, 5, requires_grad=True)
-        >>> target = torch.randn(3, 5)
-        >>> loss = criterion(prediction, target)
-        >>> loss
-        tensor(..., grad_fn=<MeanBackward0>)
-        >>> loss.backward()
-
-        ```
-    """
-
-    def __init__(
-        self,
-        indicator: BaseRelativeIndicator | dict[Any, Any] | None = None,
-        eps: float = 1e-8,
-        *,
-        reduction: Reduction = "mean",
-        detach_indicator: bool = False,
-        beta: float = 1.0,
-    ) -> None:
-        validate_ge(beta, 0, name="beta")
-        super().__init__(
-            criterion=nn.SmoothL1Loss(reduction="none", beta=beta),
-            indicator=indicator,
-            reduction=reduction,
-            eps=eps,
-            detach_indicator=detach_indicator,
-        )
-        self.beta = float(beta)
-
-    def extra_repr(self) -> str:
-        return f"{super().extra_repr()}, beta={self.beta}"
