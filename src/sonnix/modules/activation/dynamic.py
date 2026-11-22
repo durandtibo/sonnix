@@ -18,13 +18,15 @@ from torch.nn import init
 from sonnix.modules.scale_and_shift import ScaleAndShift
 
 
-class BaseDynamicNorm(ScaleAndShift, ABC):
+class BaseDynamicNorm(nn.Module, ABC):
     r"""Defines the base class to implement a dynamic normalization layer
     like Dynamic Tanh (DyT).
 
-    It is a ``ScaleAndShift`` layer with a learnable scalar ``alpha``
-    and a nonlinearity applied to ``alpha * x``. The subclasses
-    implement ``forward``.
+    It applies a nonlinearity to ``alpha * x``, where ``alpha`` is a
+    learnable scalar, then a ``ScaleAndShift`` layer (the ``affine``
+    submodule, so the learnable ``gamma`` and ``beta`` are
+    ``affine.weight`` and ``affine.bias``). The subclasses implement
+    ``_activation``.
 
     Args:
         normalized_shape: The input shape to normalize.
@@ -47,12 +49,14 @@ class BaseDynamicNorm(ScaleAndShift, ABC):
         >>> import torch
         >>> from sonnix.modules.activation.dynamic import BaseDynamicNorm
         >>> class MyDynamicNorm(BaseDynamicNorm):
-        ...     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        ...         return self._affine(input.mul(self.alpha).tanh())
+        ...     def _activation(self, input: torch.Tensor) -> torch.Tensor:
+        ...         return input.tanh()
         ...
         >>> m = MyDynamicNorm(normalized_shape=5)
         >>> m
-        MyDynamicNorm(normalized_shape=(5,), bias=True)
+        MyDynamicNorm(
+          (affine): ScaleAndShift(normalized_shape=(5,), bias=True)
+        )
 
         ```
     """
@@ -66,26 +70,31 @@ class BaseDynamicNorm(ScaleAndShift, ABC):
         device: torch.device | None = None,
         dtype: torch.dtype | None = None,
     ) -> None:
-        super().__init__(normalized_shape, bias=bias, device=device, dtype=dtype)
+        super().__init__()
+        self.affine = ScaleAndShift(normalized_shape, bias=bias, device=device, dtype=dtype)
+        self.normalized_shape = self.affine.normalized_shape
         self.alpha_init_value = alpha_init_value
         self.alpha: nn.Parameter = nn.Parameter(torch.empty(1, device=device, dtype=dtype))
         self.reset_parameters()
 
     @abstractmethod
-    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        r"""Apply the dynamic normalization.
+    def _activation(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        r"""Apply the nonlinearity to ``alpha * input``.
 
         Args:
-            input: The input tensor.
+            input: The input tensor multiplied by ``alpha``.
 
         Returns:
             The output tensor, which has the same shape as the input.
         """
 
+    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        return self.affine(self._activation(input.mul(self.alpha)))
+
     def reset_parameters(self) -> None:
         r"""Reset the parameters: ``alpha`` to ``alpha_init_value``,
         ``gamma`` to 1 and ``beta`` to 0."""
-        super().reset_parameters()
+        self.affine.reset_parameters()
         init.constant_(self.alpha, self.alpha_init_value)
 
 
@@ -119,7 +128,9 @@ class DynamicAsinh(BaseDynamicNorm):
         >>> from sonnix.modules import DynamicAsinh
         >>> m = DynamicAsinh(normalized_shape=5)
         >>> m
-        DynamicAsinh(normalized_shape=(5,), bias=True)
+        DynamicAsinh(
+          (affine): ScaleAndShift(normalized_shape=(5,), bias=True)
+        )
         >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
         >>> out
         tensor([[-0.8814, -0.4812,  0.0000,  0.4812,  0.8814],
@@ -128,8 +139,8 @@ class DynamicAsinh(BaseDynamicNorm):
         ```
     """
 
-    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return self._affine(input.mul(self.alpha).asinh())
+    def _activation(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        return input.asinh()
 
 
 class DynamicTanh(BaseDynamicNorm):
@@ -166,7 +177,9 @@ class DynamicTanh(BaseDynamicNorm):
         >>> from sonnix.modules import DynamicTanh
         >>> m = DynamicTanh(normalized_shape=5)
         >>> m
-        DynamicTanh(normalized_shape=(5,), bias=True)
+        DynamicTanh(
+          (affine): ScaleAndShift(normalized_shape=(5,), bias=True)
+        )
         >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
         >>> out
         tensor([[-0.7616, -0.4621,  0.0000,  0.4621,  0.7616],
@@ -175,5 +188,5 @@ class DynamicTanh(BaseDynamicNorm):
         ```
     """
 
-    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return self._affine(input.mul(self.alpha).tanh())
+    def _activation(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        return input.tanh()
