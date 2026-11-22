@@ -8,17 +8,17 @@ import torch
 from torch import nn
 from torch.nn.functional import l1_loss, mse_loss, smooth_l1_loss
 
-from sonnix.functional import relative_loss
-from sonnix.functional.loss import (
+from sonnix.functional import (
     arithmetical_mean_indicator,
     classical_relative_indicator,
     geometric_mean_indicator,
     maximum_mean_indicator,
     minimum_mean_indicator,
     moment_mean_indicator,
+    relative_loss,
     reversed_relative_indicator,
 )
-from sonnix.testing.loss import is_loss_decreasing_with_sgd
+from sonnix.testing import is_loss_decreasing_with_sgd
 
 if TYPE_CHECKING:
     from collections.abc import Callable

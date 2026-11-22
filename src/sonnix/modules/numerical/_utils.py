@@ -2,16 +2,12 @@ r"""Contain helper functions shared by the numerical encoders."""
 
 from __future__ import annotations
 
-__all__ = ["NumericalEncoder", "create_spaced_values", "prepare_tensor_param", "resolve_range"]
-
 import math
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Literal
 
 import torch
 from coola.random import make_torch_generator
 from coola.validation import validate_ge, validate_in, validate_int
-from torch import nn
 
 from sonnix.validation import validate_positive
 
@@ -210,44 +206,3 @@ def resolve_range(
         )
         raise ValueError(msg)
     return (low, high) if range_ is not None else (1 / high, 1 / low)
-
-
-class NumericalEncoder(nn.Module, ABC):
-    r"""Define the base class of the numerical encoders.
-
-    The input has the shape ``(*, n_features)``. The last dimension has
-    to be ``n_features``: a size of 1 is not broadcast.
-    """
-
-    @property
-    @abstractmethod
-    def n_features(self) -> int:
-        r"""Return the input feature size."""
-
-    @abstractmethod
-    def _encode(self, input: Tensor) -> Tensor:  # noqa: A002
-        r"""Encode an input of shape ``(*, n_features)``."""
-
-    def _check(self, input: Tensor) -> Tensor:  # noqa: A002
-        r"""Check the last dimension of the input.
-
-        Args:
-            input: The input tensor.
-
-        Returns:
-            The input tensor.
-
-        Raises:
-            ValueError: if the input has no dimension or if its last
-                dimension is not ``n_features``.
-        """
-        if input.ndim < 1 or input.shape[-1] != self.n_features:
-            msg = (
-                f"Expected an input of shape (*, n_features={self.n_features}) "
-                f"but received {tuple(input.shape)}"
-            )
-            raise ValueError(msg)
-        return input
-
-    def forward(self, input: Tensor) -> Tensor:  # noqa: A002
-        return self._encode(self._check(input))

@@ -32,7 +32,7 @@ def register_tensor(module: nn.Module, name: str, tensor: Tensor, *, learnable: 
         ```pycon
         >>> import torch
         >>> from torch import nn
-        >>> from sonnix.utils.tensor import register_tensor
+        >>> from sonnix.utils import register_tensor
         >>> module = nn.Module()
         >>> register_tensor(module, "alpha", torch.ones(2), learnable=True)
         >>> [name for name, _ in module.named_parameters()]

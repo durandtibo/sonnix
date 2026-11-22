@@ -145,7 +145,7 @@ def load_state_dict_to_module(
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.state_dict import load_state_dict_to_module
+        >>> from sonnix.utils import load_state_dict_to_module
         >>> state = {
         ...     "model": {
         ...         "weight": 42,

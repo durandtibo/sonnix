@@ -25,7 +25,7 @@ def module_mode(module: nn.Module) -> Generator[None]:
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.mode import module_mode
+        >>> from sonnix.utils import module_mode
         >>> module = torch.nn.ModuleDict(
         ...     {"module1": torch.nn.Linear(4, 6), "module2": torch.nn.Linear(2, 4).eval()}
         ... )

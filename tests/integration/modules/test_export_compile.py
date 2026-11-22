@@ -13,6 +13,7 @@ NOT_REGISTERED = {
     "BaseDynamicNorm",
     "BaseFusion",
     "BaseLoss",
+    "BaseNumericalEncoder",
     "MulticlassFlatten",
 }
 
