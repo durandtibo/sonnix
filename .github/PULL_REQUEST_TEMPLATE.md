@@ -1,5 +1,3 @@
-<!-- markdownlint-disable MD036 MD041 -->
-
 **PLEASE REMOVE THE TEMPLATE DESCRIPTION BEFORE SUBMITTING**
 
 ## Describe your changes

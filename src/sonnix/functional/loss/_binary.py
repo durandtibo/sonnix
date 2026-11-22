@@ -38,7 +38,8 @@ def probability_of_target(probability: torch.Tensor, target: torch.Tensor) -> to
 
 
 def class_weight(alpha: float, target: torch.Tensor) -> torch.Tensor:
-    r"""Compute the weight of each element given its target (``alpha_t``).
+    r"""Compute the weight of each element given its target
+    (``alpha_t``).
 
     Args:
         alpha: The weight of the positive class. The negative class has

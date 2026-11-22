@@ -210,8 +210,8 @@ def resolve_range(
 class NumericalEncoder(nn.Module, ABC):
     r"""Define the base class of the numerical encoders.
 
-    The input has the shape ``(*, n_features)``. The last dimension
-    has to be ``n_features``: a size of 1 is not broadcast.
+    The input has the shape ``(*, n_features)``. The last dimension has
+    to be ``n_features``: a size of 1 is not broadcast.
     """
 
     @property
