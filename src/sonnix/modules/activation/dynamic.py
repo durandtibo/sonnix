@@ -12,6 +12,7 @@ __all__ = ["BaseDynamicNorm", "DynamicAsinh", "DynamicTanh"]
 from abc import ABC, abstractmethod
 
 import torch
+from coola.validation import validate_finite
 from torch import nn
 from torch.nn import init
 
@@ -39,6 +40,11 @@ class BaseDynamicNorm(nn.Module, ABC):
         device: The device of the parameters.
         dtype: The data type of the parameters. ``None`` uses the
             default floating point type.
+
+    Raises:
+        TypeError: if ``alpha_init_value`` is not a number or ``bias`` is
+            not a ``bool``.
+        ValueError: if ``alpha_init_value`` is not finite.
 
     Shape:
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.
@@ -71,6 +77,7 @@ class BaseDynamicNorm(nn.Module, ABC):
         dtype: torch.dtype | None = None,
     ) -> None:
         super().__init__()
+        validate_finite(alpha_init_value, name="alpha_init_value")
         self.affine = ScaleAndShift(normalized_shape, bias=bias, device=device, dtype=dtype)
         self.normalized_shape = self.affine.normalized_shape
         self.alpha_init_value = alpha_init_value
@@ -117,6 +124,11 @@ class DynamicAsinh(BaseDynamicNorm):
         device: The device of the parameters.
         dtype: The data type of the parameters. ``None`` uses the
             default floating point type.
+
+    Raises:
+        TypeError: if ``alpha_init_value`` is not a number or ``bias`` is
+            not a ``bool``.
+        ValueError: if ``alpha_init_value`` is not finite.
 
     Shape:
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.
@@ -166,6 +178,11 @@ class DynamicTanh(BaseDynamicNorm):
         device: The device of the parameters.
         dtype: The data type of the parameters. ``None`` uses the
             default floating point type.
+
+    Raises:
+        TypeError: if ``alpha_init_value`` is not a number or ``bias`` is
+            not a ``bool``.
+        ValueError: if ``alpha_init_value`` is not finite.
 
     Shape:
         - Input: ``(N, *)``, where ``*`` means any number of dimensions.

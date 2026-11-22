@@ -7,10 +7,11 @@ __all__ = ["PoissonRegressionLoss"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_gt
+from coola.validation import validate_isinstance
 
 from sonnix.functional import poisson_regression_loss
 from sonnix.modules.loss.base import BaseLoss
+from sonnix.validation import validate_positive
 
 if TYPE_CHECKING:
     import torch
@@ -31,7 +32,7 @@ class PoissonRegressionLoss(BaseLoss):
     predictions are the logarithm of the rate.
 
     Args:
-        eps: An arbitrary small strictly positive number to avoid
+        eps: An arbitrary small finite, strictly positive number to avoid
             undefined results when the count is zero.
         log_input: If ``True``, the predictions are the logarithm of
             the rate and ``eps`` is not used.
@@ -39,7 +40,8 @@ class PoissonRegressionLoss(BaseLoss):
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Raises:
-        ValueError: if ``eps`` is not strictly positive.
+        TypeError: if ``eps`` is not a number or ``log_input`` is not a ``bool``.
+        ValueError: if ``eps`` is not finite and strictly positive.
 
     Example:
         ```pycon
@@ -62,9 +64,10 @@ class PoissonRegressionLoss(BaseLoss):
         self, eps: float = 1e-8, *, log_input: bool = False, reduction: Reduction = "mean"
     ) -> None:
         super().__init__(reduction=reduction)
-        validate_gt(eps, 0, name="eps")
+        validate_positive(eps, name="eps")
+        validate_isinstance(log_input, bool, name="log_input")
         self.eps = float(eps)
-        self.log_input = bool(log_input)
+        self.log_input = log_input
 
     def extra_repr(self) -> str:
         return f"{super().extra_repr()}, eps={self.eps}, log_input={self.log_input}"

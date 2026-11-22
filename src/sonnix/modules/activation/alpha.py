@@ -14,7 +14,7 @@ __all__ = [
 from typing import TYPE_CHECKING
 
 import torch
-from coola.validation import validate_finite, validate_ge, validate_int
+from coola.validation import validate_finite, validate_ge, validate_int, validate_isinstance
 from torch import nn
 
 if TYPE_CHECKING:
@@ -51,7 +51,7 @@ class BaseAlphaActivation(nn.Module):
 
     Raises:
         TypeError: if ``num_parameters`` or ``channel_dim`` is not an
-            integer.
+            integer, or if ``learnable`` is not a ``bool``.
         ValueError: if ``num_parameters`` is lower than 1, if ``init``
             is not finite, or if ``init`` is a value that the subclass
             rejects (``Gaussian``, ``Laplacian`` and ``Snake`` reject
@@ -86,6 +86,7 @@ class BaseAlphaActivation(nn.Module):
         validate_int(num_parameters, name="num_parameters")
         validate_ge(num_parameters, 1, name="num_parameters")
         self._validate_init(init)
+        validate_isinstance(learnable, bool, name="learnable")
         validate_int(channel_dim, name="channel_dim")
         self.channel_dim = channel_dim
         self.alpha: Tensor

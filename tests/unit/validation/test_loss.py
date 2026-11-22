@@ -11,7 +11,6 @@ from sonnix.validation.loss import (
     validate_focal_params,
     validate_general_robust_params,
     validate_loss_reduction_strategy,
-    validate_moment_order,
 )
 
 ######################################################
@@ -38,28 +37,6 @@ def test_functional_reduction_is_the_validation_reduction() -> None:
 
 
 ###########################################
-#     Tests for validate_moment_order     #
-###########################################
-
-
-@pytest.mark.parametrize("k", [1, 2, 5])
-def test_validate_moment_order_valid(k: int) -> None:
-    assert validate_moment_order(k) is None
-
-
-@pytest.mark.parametrize("k", [1.5, True])
-def test_validate_moment_order_incorrect_type(k: object) -> None:
-    with pytest.raises(TypeError, match=r"k must be an int"):
-        validate_moment_order(k)
-
-
-@pytest.mark.parametrize("k", [0, -1])
-def test_validate_moment_order_invalid(k: int) -> None:
-    with pytest.raises(ValueError, match=r"k must be greater than or equal to 1"):
-        validate_moment_order(k)
-
-
-###########################################
 #     Tests for validate_focal_params     #
 ###########################################
 
@@ -80,9 +57,33 @@ def test_validate_focal_params_alpha_out_of_range(alpha: float) -> None:
         validate_focal_params(alpha=alpha, gamma=2.0)
 
 
+@pytest.mark.parametrize("alpha", [float("nan"), float("inf")])
+def test_validate_focal_params_alpha_not_finite(alpha: float) -> None:
+    with pytest.raises(ValueError, match=r"alpha must be in the range"):
+        validate_focal_params(alpha=alpha, gamma=2.0)
+
+
+@pytest.mark.parametrize("alpha", ["a", True])
+def test_validate_focal_params_alpha_incorrect_type(alpha: object) -> None:
+    with pytest.raises(TypeError, match=r"alpha"):
+        validate_focal_params(alpha=alpha, gamma=2.0)
+
+
 def test_validate_focal_params_negative_gamma() -> None:
     with pytest.raises(ValueError, match=r"gamma"):
         validate_focal_params(alpha=0.25, gamma=-1.0)
+
+
+@pytest.mark.parametrize("gamma", [float("nan"), float("inf")])
+def test_validate_focal_params_gamma_not_finite(gamma: float) -> None:
+    with pytest.raises(ValueError, match=r"gamma must be finite"):
+        validate_focal_params(alpha=0.25, gamma=gamma)
+
+
+@pytest.mark.parametrize("gamma", ["a", True])
+def test_validate_focal_params_gamma_incorrect_type(gamma: object) -> None:
+    with pytest.raises(TypeError, match=r"gamma must be a real number"):
+        validate_focal_params(alpha=0.25, gamma=gamma)
 
 
 ####################################################
@@ -101,9 +102,21 @@ def test_validate_general_robust_params_invalid_alpha(alpha: float) -> None:
         validate_general_robust_params(alpha=alpha, scale=1.0, max_val=None)
 
 
+@pytest.mark.parametrize("alpha", ["a", True])
+def test_validate_general_robust_params_alpha_incorrect_type(alpha: object) -> None:
+    with pytest.raises(TypeError, match=r"alpha must be a real number"):
+        validate_general_robust_params(alpha=alpha, scale=1.0, max_val=None)
+
+
 @pytest.mark.parametrize("scale", [0.0, -1.0])
 def test_validate_general_robust_params_invalid_scale(scale: float) -> None:
     with pytest.raises(ValueError, match=r"scale must be greater than 0"):
+        validate_general_robust_params(alpha=1.0, scale=scale, max_val=None)
+
+
+@pytest.mark.parametrize("scale", [float("nan"), float("inf")])
+def test_validate_general_robust_params_scale_not_finite(scale: float) -> None:
+    with pytest.raises(ValueError, match=r"scale must be finite"):
         validate_general_robust_params(alpha=1.0, scale=scale, max_val=None)
 
 
@@ -115,4 +128,10 @@ def test_validate_general_robust_params_valid_max_val(max_val: float | None) -> 
 @pytest.mark.parametrize("max_val", [0.0, -1.0])
 def test_validate_general_robust_params_invalid_max_val(max_val: float) -> None:
     with pytest.raises(ValueError, match=r"max_val must be greater than 0"):
+        validate_general_robust_params(alpha=1.0, scale=1.0, max_val=max_val)
+
+
+@pytest.mark.parametrize("max_val", [float("nan"), float("inf")])
+def test_validate_general_robust_params_max_val_not_finite(max_val: float) -> None:
+    with pytest.raises(ValueError, match=r"max_val must be finite"):
         validate_general_robust_params(alpha=1.0, scale=1.0, max_val=max_val)

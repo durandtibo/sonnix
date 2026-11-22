@@ -54,6 +54,7 @@ def binary_poly1_loss(
             on the reduction strategy.
 
     Raises:
+        TypeError: If ``alpha`` is not a number.
         ValueError: If ``alpha`` is not finite.
         ValueError: If ``prediction`` and ``target`` do not have the same shape.
 
@@ -114,6 +115,7 @@ def binary_poly1_loss_with_logits(
             on the reduction strategy.
 
     Raises:
+        TypeError: If ``alpha`` is not a number.
         ValueError: If ``alpha`` is not finite.
         ValueError: If ``prediction`` and ``target`` do not have the same shape.
 

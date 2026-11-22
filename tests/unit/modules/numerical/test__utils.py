@@ -54,6 +54,12 @@ def test_prepare_tensor_param_2d() -> None:
     )
 
 
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_prepare_tensor_param_not_finite(value: float) -> None:
+    with pytest.raises(ValueError, match=r"'scale' must contain only finite values"):
+        prepare_tensor_param(torch.tensor([1.0, value]), name="scale")
+
+
 def test_prepare_tensor_param_incorrect_shape() -> None:
     with pytest.raises(ValueError, match=r"Incorrect shape for 'scale':"):
         prepare_tensor_param(torch.ones(2, 3, 4), name="scale")
@@ -154,6 +160,29 @@ def test_resolve_range_none() -> None:
 def test_resolve_range_invalid_value_range() -> None:
     with pytest.raises(ValueError, match=r"'max_abs_value'"):
         resolve_range("scale", None, (4.0, 0.5))
+
+
+@pytest.mark.parametrize("value_range", [(0.0, 1.0), (-1.0, 1.0)])
+def test_resolve_range_value_range_not_positive_min(value_range: tuple[float, float]) -> None:
+    with pytest.raises(ValueError, match=r"min_abs_value must be greater than 0"):
+        resolve_range("scale", None, value_range)
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf")])
+def test_resolve_range_value_range_not_finite_max(value: float) -> None:
+    with pytest.raises(ValueError, match=r"max_abs_value must be finite"):
+        resolve_range("scale", None, (1.0, value))
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf")])
+def test_resolve_range_range_not_finite_max(value: float) -> None:
+    with pytest.raises(ValueError, match=r"max_scale must be finite"):
+        resolve_range("scale", (1.0, value), None)
+
+
+def test_resolve_range_range_incorrect_type() -> None:
+    with pytest.raises(TypeError, match=r"min_scale must be a real number"):
+        resolve_range("scale", ("a", 1.0), None)
 
 
 def test_resolve_range_range_equal_bounds() -> None:

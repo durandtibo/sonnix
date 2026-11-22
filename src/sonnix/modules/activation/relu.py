@@ -6,7 +6,7 @@ __all__ = ["ReLUn", "SquaredReLU"]
 
 from typing import TYPE_CHECKING
 
-from coola.validation import validate_ge
+from coola.validation import validate_finite, validate_ge
 from torch import nn
 from torch.nn import functional
 
@@ -27,7 +27,8 @@ class ReLUn(nn.Module):
         - Output: ``(*)``, same shape as the input.
 
     Raises:
-        ValueError: if ``max_val`` is negative.
+        TypeError: if ``max_val`` is not a number.
+        ValueError: if ``max_val`` is negative or not finite.
 
     Example:
         ```pycon
@@ -46,6 +47,7 @@ class ReLUn(nn.Module):
 
     def __init__(self, max_val: float = 1.0) -> None:
         super().__init__()
+        validate_finite(max_val, name="max_val")
         validate_ge(max_val, 0, name="max_val")
         self.max_val = float(max_val)
 

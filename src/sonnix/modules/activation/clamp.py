@@ -5,6 +5,7 @@ from __future__ import annotations
 __all__ = ["Clamp"]
 
 import torch
+from coola.validation import validate_finite
 
 
 class Clamp(torch.nn.Module):
@@ -18,7 +19,9 @@ class Clamp(torch.nn.Module):
             ``None`` means there is no maximum value.
 
     Raises:
-        ValueError: if ``min_val`` is greater than ``max_val``.
+        TypeError: if ``min_val`` or ``max_val`` is not a number.
+        ValueError: if ``min_val`` or ``max_val`` is not finite, or if
+            ``min_val`` is greater than ``max_val``.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -40,6 +43,10 @@ class Clamp(torch.nn.Module):
 
     def __init__(self, min_val: float | None = -1.0, max_val: float | None = 1.0) -> None:
         super().__init__()
+        if min_val is not None:
+            validate_finite(min_val, name="min_val")
+        if max_val is not None:
+            validate_finite(max_val, name="max_val")
         if min_val is not None and max_val is not None and min_val > max_val:
             msg = f"min_val ({min_val}) must be lower than or equal to max_val ({max_val})"
             raise ValueError(msg)

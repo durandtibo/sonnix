@@ -538,7 +538,7 @@ def test_piecewise_linear_numerical_encoder_empty_bins() -> None:
 
 @pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
 def test_piecewise_linear_numerical_encoder_non_finite_bins(value: float) -> None:
-    with pytest.raises(ValueError, match=r"bins must contain only finite values"):
+    with pytest.raises(ValueError, match=r"'bins' must contain only finite values"):
         PiecewiseLinearNumericalEncoder(bins=torch.tensor([[1.0, value, 4.0]]))
 
 
