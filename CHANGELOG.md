@@ -29,6 +29,17 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- Remove the helpers that nothing in the library uses (revised target state
+  step 7, decision D1, #453): `get_module_device`, `get_module_devices`,
+  `is_module_on_device`, `has_parameters`, `has_learnable_parameters`,
+  `num_parameters`, `num_learnable_parameters`, `freeze_module`,
+  `unfreeze_module`, `load_state_dict_to_module` (`sonnix.utils` keeps
+  `module_mode` and `register_tensor`) and `DummyDataset` (`sonnix.testing`
+  keeps the three `is_loss_decreasing*`). Use `sum(p.numel() for p in
+  m.parameters())`, `p.requires_grad_(False)`, `next(m.parameters()).device`
+  and a `torch.utils.data.TensorDataset`. The README and the documentation
+  index no longer describe `sonnix.utils` as helpers to inspect and train
+  modules.
 - One public path for every package (revised target state step 6, #452):
   `sonnix.utils` and `sonnix.testing` export their API (`from sonnix.utils
   import module_mode, register_tensor, ...`, `from sonnix.testing import

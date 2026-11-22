@@ -9,7 +9,7 @@ from coola.equality import objects_are_equal
 import sonnix
 from sonnix.functional import absolute_error
 from sonnix.modules import Exp
-from sonnix.utils.params import has_parameters
+from sonnix.utils import register_tensor
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -47,7 +47,9 @@ def check_modules() -> None:
 
 def check_utils() -> None:
     logger.info("Checking 'utils' package...")
-    assert has_parameters(torch.nn.Linear(4, 6))
+    module = torch.nn.Module()
+    register_tensor(module, "alpha", torch.ones(2), learnable=True)
+    assert [name for name, _ in module.named_parameters()] == ["alpha"]
 
 
 def main() -> None:
