@@ -11,10 +11,12 @@ from torch import nn
 from sonnix.functional import (
     arithmetical_mean_indicator,
     classical_relative_indicator,
+    geometric_mean_indicator,
     moment_mean_indicator,
     reversed_relative_indicator,
 )
 from sonnix.modules import RelativeLoss
+from sonnix.modules.loss.relative import _callable_repr
 
 ##################################
 #     Tests for RelativeLoss     #
@@ -135,9 +137,9 @@ def test_relative_loss_indicator_incorrect() -> None:
         RelativeLoss(criterion=nn.MSELoss(), indicator=1.0)
 
 
-#######################################
+######################################
 #     Tests for detach_indicator     #
-#######################################
+######################################
 
 
 def test_relative_loss_detach_indicator_false_gradient_flows_through_indicator() -> None:
@@ -175,7 +177,7 @@ def test_relative_loss_invalid_eps(eps: float) -> None:
 def test_relative_loss_extra_repr() -> None:
     assert (
         RelativeLoss(nn.MSELoss(), eps=1e-3, reduction="sum", detach_indicator=True).extra_repr()
-        == "reduction=sum, eps=0.001, detach_indicator=True"
+        == "reduction=sum, indicator=classical_relative_indicator, eps=0.001, detach_indicator=True"
     )
 
 
@@ -188,3 +190,61 @@ def test_relative_loss_options_are_keyword_only(args: tuple) -> None:
         match=r"takes 2 positional arguments but \d were given",
     ):
         RelativeLoss(nn.MSELoss(reduction="none"), *args)
+
+
+def test_relative_loss_extra_repr_indicator_function() -> None:
+    assert (
+        "indicator=geometric_mean_indicator"
+        in RelativeLoss(nn.MSELoss(), indicator=geometric_mean_indicator).extra_repr()
+    )
+
+
+def test_relative_loss_extra_repr_indicator_partial() -> None:
+    assert (
+        "indicator=functools.partial(moment_mean_indicator, k=2)"
+        in RelativeLoss(nn.MSELoss(), indicator=partial(moment_mean_indicator, k=2)).extra_repr()
+    )
+
+
+def test_relative_loss_repr_shows_the_indicator() -> None:
+    assert "indicator=reversed_relative_indicator" in repr(
+        RelativeLoss(nn.MSELoss(), indicator=reversed_relative_indicator)
+    )
+
+
+#################################
+#     Tests for _callable_repr    #
+#################################
+
+
+def test_callable_repr_function() -> None:
+    assert _callable_repr(classical_relative_indicator) == "classical_relative_indicator"
+
+
+def test_callable_repr_partial() -> None:
+    assert (
+        _callable_repr(partial(moment_mean_indicator, k=2))
+        == "functools.partial(moment_mean_indicator, k=2)"
+    )
+
+
+def test_callable_repr_partial_with_positional_argument() -> None:
+    assert _callable_repr(partial(pow, 2)) == "functools.partial(pow, 2)"
+
+
+def test_callable_repr_partial_of_a_lambda() -> None:
+    assert _callable_repr(partial(lambda p, t, scale: (p - t) * scale, scale=2)) == (
+        "functools.partial(<lambda>, scale=2)"
+    )
+
+
+def test_callable_repr_lambda() -> None:
+    assert _callable_repr(lambda p, t: p - t) == "<lambda>"
+
+
+def test_callable_repr_method() -> None:
+    assert _callable_repr(torch.Tensor.abs) == "abs"
+
+
+def test_callable_repr_callable_object() -> None:
+    assert _callable_repr(nn.Identity()) == "Identity()"

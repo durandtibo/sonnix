@@ -95,10 +95,11 @@ class BinaryFocalLoss(_BinaryFocalLoss):
         Args:
             prediction: The float tensor with predictions as
                 probabilities for each example.
-            target: A float tensor with the same shape as inputs.
+            target: A tensor with the same shape as ``prediction``.
                 It stores the binary classification label for each
                 element in inputs (0 for the negative class and 1 for
-                the positive class).
+                the positive class). An integer or ``bool`` tensor is
+                converted to the dtype of ``prediction``.
 
         Returns:
             ``torch.Tensor`` of type float: The loss value(s). The
@@ -165,10 +166,11 @@ class BinaryFocalLossWithLogits(_BinaryFocalLoss):
             prediction: The float tensor with predictions as
                 unnormalized scores (often referred to as logits) for
                 each example.
-            target: A float tensor with the same shape as inputs.
+            target: A tensor with the same shape as ``prediction``.
                 It stores the binary classification label for each
                 element in inputs (0 for the negative class and 1 for
-                the positive class).
+                the positive class). An integer or ``bool`` tensor is
+                converted to the dtype of ``prediction``.
 
         Returns:
             ``torch.Tensor`` of type float: The loss value(s). The
