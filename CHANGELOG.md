@@ -39,8 +39,6 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 | `BaseBinaryFocalLoss`, `BaseBinaryPoly1Loss`                                      | subclass `BaseLoss` (#451)                                                                                  |
 | `sonnix.modules.numerical._utils.NumericalEncoder`                                | `sonnix.modules.BaseNumericalEncoder` (#452)                                                                |
 | `sonnix.functional.loss.X`, `sonnix.utils.mode.X`, `sonnix.testing.loss.X`        | `sonnix.functional.X`, `sonnix.utils.X`, `sonnix.testing.X` (#452)                                          |
-| `sonnix.utils.params.*`, `sonnix.utils.device.*`, `load_state_dict_to_module`     | `sum(p.numel() for p in m.parameters())`, `p.requires_grad_(False)`, `next(m.parameters()).device` (#453)   |
-| `sonnix.testing.DummyDataset`                                                     | a local `torch.utils.data.TensorDataset` (#453)                                                             |
 | `binary_focal_loss(p, t_long)` and the three other binary losses (`RuntimeError`) | work: an integer or `bool` target is converted to the dtype of the prediction (#454)                        |
 
 ### Breaking changes
