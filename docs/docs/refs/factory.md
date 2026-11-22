@@ -1,3 +1,3 @@
 # sonnix.factory
 
-### ::: sonnix.factory.module
+## ::: sonnix.factory.module

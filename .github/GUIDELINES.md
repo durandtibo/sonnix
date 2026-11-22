@@ -18,10 +18,10 @@ Every file is prefixed by what it does:
 | `release-`  | Publishing: PyPI package, GitHub release assets, documentation.                                                                                                      |
 | `security-` | Supply-chain/security scanning (Scorecard, dependency review).                                                                                                       |
 
-`workflows/ci.yaml` is the entry point for pull requests/pushes to `main`; it fans out
-to the `ci-*.yaml` reusable workflows so each check can also be run/dispatched
-on its own. Job ids in `ci.yaml` and in the workflows it calls are
-load-bearing for branch protection (see the comment at the top of `ci.yaml`)
+`workflows/ci.yaml` is the entry point for pull requests/pushes to `main`; it
+fans out to the `ci-*.yaml` reusable workflows so each check can also be
+run/dispatched on its own. Job ids in `ci.yaml` and in the workflows it calls
+are load-bearing for branch protection (see the comment at the top of `ci.yaml`)
 — keep them in sync if you rename either side.
 
 Two `ci-*` workflows are deliberately _not_ called from `ci.yaml`, each
@@ -33,8 +33,9 @@ than every PR/push.
 
 ## Catalogue of the workflows
 
-The trigger of a reusable workflow is `workflow_call`: it runs when another workflow calls it
-(`ci.yaml` for the `ci-*` ones, `nightly-package.yaml` for the `nightly-test-*` ones).
+The trigger of a reusable workflow is `workflow_call`: it runs when another
+workflow calls it (`ci.yaml` for the `ci-*` ones, `nightly-package.yaml` for
+the `nightly-test-*` ones).
 
 | Workflow                             | Trigger                                     | Purpose                                                                                                            |
 | ------------------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -74,8 +75,8 @@ The trigger of a reusable workflow is `workflow_call`: it runs when another work
 | `bot-sync-shared-makefile.yaml`      | weekly (Wednesday)                          | Sync the shared Makefile subtree and open a pull request.                                                          |
 | `bot-update-deps.yaml`               | weekly (Saturday)                           | Update the dependencies (`uv.lock`) and open a pull request.                                                       |
 
-All the workflows can also be triggered manually (`workflow_dispatch`), except the reusable ones
-that need inputs and the pull request security review.
+All the workflows can also be triggered manually (`workflow_dispatch`), except
+the reusable ones that need inputs and the pull request security review.
 
 ## Composite actions vs. reusable workflows
 
@@ -84,11 +85,11 @@ that need inputs and the pull request security review.
   generating a bot token + checking out, or opening the resulting PR as
   ci-bot). Composite actions cannot produce a job-level output usable in a
   `strategy.matrix`.
-- **`.github/workflows/lib-*.yaml`** (reusable workflows called with `uses:
-./.github/workflows/lib-....yaml`): used when the output needs to feed a
-  matrix, or when the shared logic is naturally a whole job (e.g. reading
-  the supported Python versions and operating systems once and handing the JSON down to several
-  jobs via `needs:`).
+- **`.github/workflows/lib-*.yaml`** (reusable workflows called with
+  `uses: ./.github/workflows/lib-....yaml`): used when the output needs to feed
+  a matrix, or when the shared logic is naturally a whole job (e.g. reading the
+  supported Python versions and operating systems once and handing the JSON down
+  to several jobs via `needs:`).
 
 When adding new duplication, prefer extending an existing composite
 action/reusable workflow over copy-pasting steps.
@@ -98,13 +99,13 @@ action/reusable workflow over copy-pasting steps.
 - **Action pinning**: every third-party (and first-party `actions/*`) step is
   pinned to a full commit SHA with a trailing `# ratchet:owner/repo@vX.Y.Z`
   comment, added and refreshed automatically by
-  [`ratchet`](https://github.com/sethvargo/ratchet) via `workflows/bot-pin-action.yaml`.
-  Never hand-pin a SHA without that comment — the next `bot-pin-action` run
-  would otherwise silently downgrade or drift it. Local composite actions
-  (`uses: ./.github/actions/...`) are referenced by path, not pinned. Any
-  runtime tool invoked outside of a pinned action (e.g. `npx <pkg>`) should
-  also pin an explicit version, so a bot-authored PR can't pick up an
-  unreviewed upstream release.
+  [`ratchet`](https://github.com/sethvargo/ratchet) via
+  `workflows/bot-pin-action.yaml`. Never hand-pin a SHA without that comment —
+  the next `bot-pin-action` run would otherwise silently downgrade or drift it.
+  Local composite actions (`uses: ./.github/actions/...`) are referenced by
+  path, not pinned. Any runtime tool invoked outside of a pinned action (e.g.
+  `npx <pkg>`) should also pin an explicit version, so a bot-authored PR can't
+  pick up an unreviewed upstream release.
 - **Permissions**: top-level `permissions:` is always the least the workflow
   needs — `contents: read` or `{}` — and any job that needs more (e.g.
   `contents: write` to push, `id-token: write` for OIDC) declares it on that
@@ -125,9 +126,9 @@ action/reusable workflow over copy-pasting steps.
 Values that would otherwise be duplicated across workflows are centralized in
 `../dev/config`:
 
-- The supported Python versions / OS matrix is not in this directory: it is the default
-  config of `durandtibo/workflow-config-action`, read once per run by
-  `lib-get-test-matrix.yaml`.
+- The supported Python versions / OS matrix is not in this directory: it is the
+  default config of `durandtibo/workflow-config-action`, read once per
+  run by `lib-get-test-matrix.yaml`.
 - `../dev/config/package_versions.json` — version ranges to test optional
   dependencies against, read by `lib-get-package-versions.yaml` and kept
   current by `bot-generate-package-versions.yaml`.
@@ -140,10 +141,11 @@ new extra only needs to be added in one place.
 
 ## Validating changes to this directory
 
-`workflows/ci-verify-workflows.yaml` runs `durandtibo/verify-github-workflow-action` on
-every PR/push that touches `.github/workflows/*`, checking pinning and
-general workflow correctness. Locally, `actionlint` (run from this
-directory) and a YAML syntax check are good pre-flight checks before pushing:
+`workflows/ci-verify-workflows.yaml` runs
+`durandtibo/verify-github-workflow-action` on every PR/push that touches
+`.github/workflows/*`, checking pinning and general workflow correctness.
+Locally, `actionlint` (run from this directory) and a YAML syntax check are good
+pre-flight checks before pushing:
 
 ```bash
 cd .github/workflows && actionlint

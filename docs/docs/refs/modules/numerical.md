@@ -1,6 +1,7 @@
 # Numerical encoders
 
-Modules that embed numerical features. See also the [`sonnix.modules`](index.md) overview.
+Modules that embed numerical features. See also
+the [`sonnix.modules`](index.md) overview.
 
 | Name                                                                                 | Description                                                                                                         |
 | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |

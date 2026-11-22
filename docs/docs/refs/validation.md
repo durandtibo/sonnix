@@ -1,7 +1,7 @@
 # sonnix.validation
 
-### ::: sonnix.validation.tensor
+## ::: sonnix.validation.tensor
 
-### ::: sonnix.validation.loss
+## ::: sonnix.validation.loss
 
-### ::: sonnix.validation.numerical
+## ::: sonnix.validation.numerical

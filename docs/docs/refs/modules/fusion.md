@@ -1,6 +1,7 @@
 # Fusion
 
-Modules that merge several tensors into one. See also the [`sonnix.modules`](index.md) overview.
+Modules that merge several tensors into one. See also
+the [`sonnix.modules`](index.md) overview.
 
 | Name                                                           |
 | -------------------------------------------------------------- |

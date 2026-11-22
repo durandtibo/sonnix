@@ -1,6 +1,7 @@
 # Activations
 
-Activation functions and element-wise math modules. See also the [`sonnix.modules`](index.md) overview.
+Activation functions and element-wise math modules. See also
+the [`sonnix.modules`](index.md) overview.
 
 | Name                                                         |
 | ------------------------------------------------------------ |
