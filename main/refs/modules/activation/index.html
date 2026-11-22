@@ -985,17 +985,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sonnix.modules.BaseDynamicNorm.forward" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        forward
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#sonnix.modules.BaseDynamicNorm.reset_parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1031,23 +1020,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="DynamicAsinh">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sonnix.modules.DynamicAsinh.forward" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        forward
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1058,23 +1030,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="DynamicTanh">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sonnix.modules.DynamicTanh.forward" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        forward
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1612,17 +1567,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sonnix.modules.BaseDynamicNorm.forward" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        forward
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#sonnix.modules.BaseDynamicNorm.reset_parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1658,23 +1602,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="DynamicAsinh">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sonnix.modules.DynamicAsinh.forward" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        forward
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1685,23 +1612,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="DynamicTanh">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sonnix.modules.DynamicTanh.forward" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        forward
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2360,15 +2270,17 @@ does not allow it.</p>
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="sonnix.modules.ScaleAndShift (sonnix.modules.scale_and_shift.ScaleAndShift)" href="../layers/#sonnix.modules.ScaleAndShift">ScaleAndShift</a></code>, <code><span title="abc.ABC">ABC</span></code></p>
+              Bases: <code><span title="torch.nn.Module">Module</span></code>, <code><span title="abc.ABC">ABC</span></code></p>
 
 
 
         <p>Defines the base class to implement a dynamic normalization layer
 like Dynamic Tanh (DyT).</p>
-<p>It is a <code>ScaleAndShift</code> layer with a learnable scalar <code>alpha</code>
-and a nonlinearity applied to <code>alpha * x</code>. The subclasses
-implement <code>forward</code>.</p>
+<p>It applies a nonlinearity to <code>alpha * x</code>, where <code>alpha</code> is a
+learnable scalar, then a <code>ScaleAndShift</code> layer (the <code>affine</code>
+submodule, so the learnable <code>gamma</code> and <code>beta</code> are
+<code>affine.weight</code> and <code>affine.bias</code>). The subclasses implement
+<code>_activation</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2484,12 +2396,14 @@ default floating point type.</p>
   <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.modules.activation.dynamic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseDynamicNorm</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyDynamicNorm</span><span class="p">(</span><span class="n">BaseDynamicNorm</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="gp">... </span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affine</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span><span class="o">.</span><span class="n">tanh</span><span class="p">())</span>
+<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="nf">_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">tanh</span><span class="p">()</span>
 <span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">MyDynamicNorm</span><span class="p">(</span><span class="n">normalized_shape</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
-<span class="go">MyDynamicNorm(normalized_shape=(5,), bias=True)</span>
+<span class="go">MyDynamicNorm(</span>
+<span class="go">  (affine): ScaleAndShift(normalized_shape=(5,), bias=True)</span>
+<span class="go">)</span>
 </code></pre></div>
 </details>
 
@@ -2512,84 +2426,6 @@ default floating point type.</p>
 
 
 
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="sonnix.modules.BaseDynamicNorm.forward" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">sonnix.modules.BaseDynamicNorm.forward</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
-  </span>
-
-<a href="#sonnix.modules.BaseDynamicNorm.forward" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">forward</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Apply the dynamic normalization.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>input</code>
-            </td>
-            <td>
-                  <code><span title="torch.Tensor">Tensor</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The input tensor.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="torch.Tensor">Tensor</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The output tensor, which has the same shape as the input.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    </div>
-
-</div>
 
 <div class="doc doc-object doc-function">
 
@@ -2899,7 +2735,9 @@ default floating point type.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.modules</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicAsinh</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">DynamicAsinh</span><span class="p">(</span><span class="n">normalized_shape</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
-<span class="go">DynamicAsinh(normalized_shape=(5,), bias=True)</span>
+<span class="go">DynamicAsinh(</span>
+<span class="go">  (affine): ScaleAndShift(normalized_shape=(5,), bias=True)</span>
+<span class="go">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">m</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span>
 <span class="go">tensor([[-0.8814, -0.4812,  0.0000,  0.4812,  0.8814],</span>
@@ -2926,80 +2764,6 @@ default floating point type.</p>
 
 
 
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="sonnix.modules.DynamicAsinh.forward" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">sonnix.modules.DynamicAsinh.forward</span>
-
-
-<a href="#sonnix.modules.DynamicAsinh.forward" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">forward</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Apply the dynamic normalization.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>input</code>
-            </td>
-            <td>
-                  <code><span title="torch.Tensor">Tensor</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The input tensor.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="torch.Tensor">Tensor</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The output tensor, which has the same shape as the input.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    </div>
-
-</div>
 
 
 
@@ -3152,7 +2916,9 @@ default floating point type.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.modules</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicTanh</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">DynamicTanh</span><span class="p">(</span><span class="n">normalized_shape</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
-<span class="go">DynamicTanh(normalized_shape=(5,), bias=True)</span>
+<span class="go">DynamicTanh(</span>
+<span class="go">  (affine): ScaleAndShift(normalized_shape=(5,), bias=True)</span>
+<span class="go">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">m</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span>
 <span class="go">tensor([[-0.7616, -0.4621,  0.0000,  0.4621,  0.7616],</span>
@@ -3179,80 +2945,6 @@ default floating point type.</p>
 
 
 
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="sonnix.modules.DynamicTanh.forward" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">sonnix.modules.DynamicTanh.forward</span>
-
-
-<a href="#sonnix.modules.DynamicTanh.forward" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">forward</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Apply the dynamic normalization.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>input</code>
-            </td>
-            <td>
-                  <code><span title="torch.Tensor">Tensor</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The input tensor.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="torch.Tensor">Tensor</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The output tensor, which has the same shape as the input.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    </div>
-
-</div>
 
 
 
