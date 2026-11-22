@@ -2394,7 +2394,7 @@ default floating point type.</p>
 <details class="example" open>
   <summary>Example</summary>
   <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.modules.activation.dynamic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseDynamicNorm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.modules</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseDynamicNorm</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyDynamicNorm</span><span class="p">(</span><span class="n">BaseDynamicNorm</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="nf">_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="gp">... </span>        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">tanh</span><span class="p">()</span>

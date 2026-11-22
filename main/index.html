@@ -1409,11 +1409,10 @@ helpers for training and testing, listed at the end. It contains:</p>
   <code>AsinhNumericalEncoder</code> and <code>PiecewiseLinearNumericalEncoder</code> to embed numerical features.</li>
 <li><strong>Layers</strong>: <code>NLinear</code>, <code>ExU</code>, <code>ResidualBlock</code>, <code>ScaleAndShift</code>, <code>DynamicTanh</code>, <code>DynamicAsinh</code>,
   the fusion modules and the shape and dtype helpers.</li>
-<li><strong>Training and testing helpers</strong> (not used by the modules and the functions above): <code>sonnix.factory</code>
-  builds modules, datasets and optimizers from a configuration (<code>ResidualBlock</code> and <code>TransformedLoss</code>
-  use its <code>resolve_module</code>), <code>sonnix.utils</code> inspects, freezes and checks modules (<code>num_parameters</code>,
-  <code>freeze_module</code>, <code>is_loss_decreasing</code>, <code>load_state_dict_to_module</code>), and <code>sonnix.testing</code> provides
-  <code>DummyDataset</code>.</li>
+<li><strong>Helpers</strong>: <code>sonnix.factory</code> builds modules from a configuration (<code>ResidualBlock</code> and
+  <code>TransformedLoss</code> use its <code>resolve_module</code>), <code>sonnix.utils</code> inspects, freezes and loads modules
+  (<code>num_parameters</code>, <code>freeze_module</code>, <code>load_state_dict_to_module</code>), and <code>sonnix.testing</code> provides
+  <code>DummyDataset</code> and <code>is_loss_decreasing</code> to test your own modules.</li>
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>sonnix
