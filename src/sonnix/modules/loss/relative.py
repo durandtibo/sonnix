@@ -4,6 +4,8 @@ from __future__ import annotations
 
 __all__ = ["RelativeLoss"]
 
+import functools
+import inspect
 from typing import TYPE_CHECKING, Any
 
 from coola.validation import validate_isinstance
@@ -20,6 +22,42 @@ if TYPE_CHECKING:
     from torch import nn
 
     from sonnix.functional.reduction import Reduction
+
+
+def _callable_repr(function: Callable) -> str:
+    r"""Return a short representation of a callable.
+
+    The ``repr`` of a function has the address of the function, which
+    changes at each run. A function is shown by its name, and a
+    ``functools.partial`` by its function and its arguments.
+
+    Args:
+        function: The callable to represent.
+
+    Returns:
+        The representation, for example ``classical_relative_indicator``
+            or ``functools.partial(moment_mean_indicator, k=2)``.
+
+    Example:
+        ```pycon
+        >>> from functools import partial
+        >>> from sonnix.functional import moment_mean_indicator
+        >>> from sonnix.modules.loss.relative import _callable_repr
+        >>> _callable_repr(moment_mean_indicator)
+        'moment_mean_indicator'
+        >>> _callable_repr(partial(moment_mean_indicator, k=2))
+        'functools.partial(moment_mean_indicator, k=2)'
+
+        ```
+    """
+    if isinstance(function, functools.partial):
+        arguments = [
+            _callable_repr(function.func),
+            *(repr(arg) for arg in function.args),
+            *(f"{key}={value!r}" for key, value in function.keywords.items()),
+        ]
+        return f"functools.partial({', '.join(arguments)})"
+    return function.__name__ if inspect.isroutine(function) else repr(function)
 
 
 class RelativeLoss(BaseLoss):
@@ -67,7 +105,7 @@ class RelativeLoss(BaseLoss):
         ... )
         >>> criterion
         RelativeLoss(
-          reduction=mean, eps=1e-08, detach_indicator=False
+          reduction=mean, indicator=classical_relative_indicator, eps=1e-08, detach_indicator=False
           (criterion): MSELoss()
         )
         >>> prediction = torch.randn(3, 5, requires_grad=True)
@@ -104,7 +142,10 @@ class RelativeLoss(BaseLoss):
         self.detach_indicator = detach_indicator
 
     def extra_repr(self) -> str:
-        return f"{super().extra_repr()}, eps={self.eps}, detach_indicator={self.detach_indicator}"
+        return (
+            f"{super().extra_repr()}, indicator={_callable_repr(self.indicator)}, "
+            f"eps={self.eps}, detach_indicator={self.detach_indicator}"
+        )
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = self.criterion(prediction, target)

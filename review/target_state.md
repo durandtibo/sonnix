@@ -591,4 +591,5 @@ composition, encoder range logic and input check, package layout, alpha
 | 5    | #451         | open    |
 | 6    | #452         | open    |
 | 7    | #453         | dropped (D1: keep the helpers; the pull request only documents that `sonnix` is a library) |
-| 8-9  | —            | planned |
+| 8    | #454         | open    |
+| 9    | —            | planned |

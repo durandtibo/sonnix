@@ -18,7 +18,7 @@ SIZES = (1, 2, 3)
 
 def test_dynamic_asinh_str() -> None:
     assert str(DynamicAsinh(normalized_shape=5)) == (
-        "DynamicAsinh(\n  (affine): ScaleAndShift(normalized_shape=(5,), bias=True)\n)"
+        "DynamicAsinh(\n  alpha_init_value=0.5\n  (affine): ScaleAndShift(normalized_shape=(5,), bias=True)\n)"
     )
 
 
@@ -226,7 +226,7 @@ def test_dynamic_asinh_reset_parameters_bias() -> None:
 
 def test_dynamic_tanh_str() -> None:
     assert str(DynamicTanh(normalized_shape=5)) == (
-        "DynamicTanh(\n  (affine): ScaleAndShift(normalized_shape=(5,), bias=True)\n)"
+        "DynamicTanh(\n  alpha_init_value=0.5\n  (affine): ScaleAndShift(normalized_shape=(5,), bias=True)\n)"
     )
 
 

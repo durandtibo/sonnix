@@ -215,6 +215,17 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Fixed
 
+- The four binary losses (`binary_focal_loss`, `binary_focal_loss_with_logits`,
+  `binary_poly1_loss`, `binary_poly1_loss_with_logits`, and their modules)
+  convert an integer or `bool` target to the dtype of the prediction. Before,
+  the labels of a `DataLoader` (`long`) raised a `RuntimeError` of `torch`. A
+  floating point target is not converted (revised target state step 8, #454).
+- `RelativeLoss.__repr__` shows the `indicator` (`indicator=classical_relative_indicator`
+  or `indicator=functools.partial(moment_mean_indicator, k=2)`), and
+  `DynamicTanh`, `DynamicAsinh` and `BaseDynamicNorm` show `alpha_init_value`,
+  so every hyperparameter is shown by `repr` (revised target state step 8,
+  #454). A new test checks it for the hyperparameters of the registry.
+
 - `load_state_dict_to_module` finds the state dict of checkpoints saved from
   `DataParallel` (`module.` prefix) or `torch.compile` (`_orig_mod.` prefix),
   and `import sonnix` no longer fails when the package is not installed

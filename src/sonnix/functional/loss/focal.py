@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from torch.nn.functional import binary_cross_entropy, binary_cross_entropy_with_logits
 
-from sonnix.functional.loss._binary import class_weight, probability_of_target
+from sonnix.functional.loss._binary import cast_target, class_weight, probability_of_target
 from sonnix.functional.power import safe_pow
 from sonnix.functional.reduction import reduce_loss
 from sonnix.validation import validate_focal_params, validate_same_shape
@@ -42,9 +42,11 @@ def binary_focal_loss(
     Args:
         prediction: The float tensor with predictions as probabilities
             for each example.
-        target: A float tensor with the same shape as inputs. It stores
+        target: A tensor with the same shape as ``prediction``. It stores
             the binary classification label for each element in inputs
-            (0 for the negative class and 1 for the positive class).
+            (0 for the negative class and 1 for the positive class). An
+            integer or ``bool`` tensor (for example the labels of a
+            ``DataLoader``) is converted to the dtype of ``prediction``.
         alpha: The weighting factor, which must be in the range
             ``[0, 1]``. ``None`` disables the weighting.
         gamma: The focusing parameter, which must be positive
@@ -75,6 +77,7 @@ def binary_focal_loss(
     """
     validate_focal_params(alpha=alpha, gamma=gamma)
     validate_same_shape(prediction, target, name1="prediction", name2="target")
+    target = cast_target(target, prediction)
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
     p_t = probability_of_target(prediction, target)
     loss = ce_loss * safe_pow(1 - p_t, gamma)
@@ -107,9 +110,11 @@ def binary_focal_loss_with_logits(
     Args:
         prediction: The float tensor with predictions as unnormalized
             scores (often referred to as logits) for each example.
-        target: A float tensor with the same shape as inputs. It stores
+        target: A tensor with the same shape as ``prediction``. It stores
             the binary classification label for each element in inputs
-            (0 for the negative class and 1 for the positive class).
+            (0 for the negative class and 1 for the positive class). An
+            integer or ``bool`` tensor (for example the labels of a
+            ``DataLoader``) is converted to the dtype of ``prediction``.
         alpha: The weighting factor, which must be in the range
             ``[0, 1]``. ``None`` disables the weighting.
         gamma: The focusing parameter, which must be positive
@@ -140,6 +145,7 @@ def binary_focal_loss_with_logits(
     """
     validate_focal_params(alpha=alpha, gamma=gamma)
     validate_same_shape(prediction, target, name1="prediction", name2="target")
+    target = cast_target(target, prediction)
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
     p_t = probability_of_target(prediction.sigmoid(), target)
     loss = ce_loss * safe_pow(1 - p_t, gamma)
