@@ -8,8 +8,8 @@ import torch
 from coola.validation import validate_finite, validate_ge
 
 
-def safe_pow(x: torch.Tensor, exponent: float) -> torch.Tensor:
-    r"""Compute ``x ** exponent`` for non-negative values with a finite
+def safe_pow(input: torch.Tensor, exponent: float) -> torch.Tensor:  # noqa: A002
+    r"""Compute ``input ** exponent`` for non-negative values with a finite
     gradient at zero.
 
     For an exponent in ``(0, 1)``, the derivative of the power is
@@ -17,12 +17,12 @@ def safe_pow(x: torch.Tensor, exponent: float) -> torch.Tensor:
     zeros are masked before the power so the gradient is zero there.
 
     Args:
-        x: The non-negative input tensor.
+        input: The non-negative input tensor.
         exponent: The exponent, which must be non-negative.
 
     Returns:
-        The tensor ``x ** exponent``, which is exactly ``0`` where
-            ``x`` is ``0``, except for ``exponent=0`` where it is
+        The tensor ``input ** exponent``, which is exactly ``0`` where
+            ``input`` is ``0``, except for ``exponent=0`` where it is
             ``1`` everywhere.
 
     Raises:
@@ -45,6 +45,6 @@ def safe_pow(x: torch.Tensor, exponent: float) -> torch.Tensor:
     validate_finite(exponent, name="exponent")
     validate_ge(exponent, 0, name="exponent")
     if exponent == 0:
-        return torch.ones_like(x)
-    is_positive = x > 0
-    return torch.where(is_positive, torch.where(is_positive, x, 1.0).pow(exponent), 0.0)
+        return torch.ones_like(input)
+    is_positive = input > 0
+    return torch.where(is_positive, torch.where(is_positive, input, 1.0).pow(exponent), 0.0)

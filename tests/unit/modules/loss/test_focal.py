@@ -307,3 +307,19 @@ def test_binary_focal_loss_extra_repr() -> None:
     assert (
         BinaryFocalLoss(alpha=0.5, gamma=3.0).extra_repr() == "reduction=mean, alpha=0.5, gamma=3.0"
     )
+
+
+#########################################
+#     Tests for the call signatures     #
+#########################################
+
+
+@pytest.mark.parametrize("module", [BinaryFocalLoss, BinaryFocalLossWithLogits])
+def test_focal_loss_alpha_is_positional(module: type) -> None:
+    assert module(0.5).alpha == 0.5
+
+
+@pytest.mark.parametrize("module", [BinaryFocalLoss, BinaryFocalLossWithLogits])
+def test_focal_loss_gamma_is_keyword_only(module: type) -> None:
+    with pytest.raises(TypeError, match=r"takes from 1 to 2 positional arguments but 3 were given"):
+        module(0.25, 2.0)

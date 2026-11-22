@@ -43,6 +43,10 @@ class ModuleCase:
             name of the parameter).
         derived: The names of the tensors that are derived from other
             state. They must not be in the ``state_dict``.
+        positional: The names of the constructor arguments that may be
+            positional: the structural arguments (sizes, wrapped
+            modules, tensors) and at most one hyperparameter, the
+            defining one. The other arguments are keyword-only.
     """
 
     name: str
@@ -52,6 +56,7 @@ class ModuleCase:
     other: Callable[..., nn.Module] | None = None
     has_learnable_option: bool = False
     derived: tuple[str, ...] = ()
+    positional: tuple[str, ...] = ()
 
     def __repr__(self) -> str:
         return self.name
@@ -100,6 +105,51 @@ def _triple_normal() -> tuple[torch.Tensor, ...]:
     return tuple(torch.randn(4, 3, generator=generator) for _ in range(2))
 
 
+# The constructor arguments that may be positional (property P3): the structural arguments
+# (sizes, wrapped modules, tensors) and at most one hyperparameter, the defining one. The
+# modules that are not listed have keyword-only arguments only. ``Clamp`` is the one
+# exception with two hyperparameters, like ``torch.nn.Hardtanh(min_val, max_val)``.
+_ALPHA_ACTIVATION = ("num_parameters", "init")
+POSITIONAL: dict[str, tuple[str, ...]] = {
+    "AsinhCosSinNumericalEncoder": ("frequency", "phase_shift"),
+    "AsinhNumericalEncoder": ("scale",),
+    "BinaryFocalLoss": ("alpha",),
+    "BinaryFocalLossWithLogits": ("alpha",),
+    "BinaryPoly1Loss": ("alpha",),
+    "BinaryPoly1LossWithLogits": ("alpha",),
+    "Clamp": ("min_val", "max_val"),
+    "ConcatFusion": ("dim",),
+    "CosSinNumericalEncoder": ("frequency", "phase_shift"),
+    "DynamicAsinh": ("normalized_shape", "alpha_init_value"),
+    "DynamicTanh": ("normalized_shape", "alpha_init_value"),
+    "ExU": ("in_features", "out_features"),
+    "ExpSin": _ALPHA_ACTIVATION,
+    "Gaussian": _ALPHA_ACTIVATION,
+    "GeneralRobustRegressionLoss": ("alpha",),
+    "Laplacian": _ALPHA_ACTIVATION,
+    "LogCoshLoss": ("scale",),
+    "MultiQuadratic": _ALPHA_ACTIVATION,
+    "NLinear": ("n", "in_features", "out_features"),
+    "PiecewiseLinearNumericalEncoder": ("edges",),
+    "PoissonRegressionLoss": ("eps",),
+    "Pow": ("exponent",),
+    "Quadratic": _ALPHA_ACTIVATION,
+    "QuantileRegressionLoss": ("q",),
+    "ReLUn": ("max_val",),
+    "RelativeLoss": ("criterion",),
+    "ResidualBlock": ("residual", "skip"),
+    "SafeExp": ("max_val",),
+    "SafeLog": ("min_val",),
+    "ScaleAndShift": ("normalized_shape",),
+    "Snake": _ALPHA_ACTIVATION,
+    "Squeeze": ("dim",),
+    "ToBinaryLabel": ("threshold",),
+    "ToCategoricalLabel": ("dim",),
+    "ToDtype": ("dtype",),
+    "TransformedLoss": ("criterion", "prediction_transform", "target_transform"),
+}
+
+
 def _builder(cls: type[nn.Module], *args: object, **kwargs: object) -> Callable[..., nn.Module]:
     return lambda **extra: cls(*args, **kwargs, **extra)
 
@@ -122,6 +172,7 @@ def _case(
         other=other,
         has_learnable_option=has_learnable_option,
         derived=derived,
+        positional=POSITIONAL.get(cls.__name__, ()),
     )
 
 
@@ -133,7 +184,10 @@ def _lazy_case(
     # The arguments are built for every module: a submodule shared between
     # two modules would be modified in place (for example by ``.to(dtype)``).
     return ModuleCase(
-        name=cls.__name__, build=lambda **extra: cls(*make_args(), **extra), make_inputs=make_inputs
+        name=cls.__name__,
+        build=lambda **extra: cls(*make_args(), **extra),
+        make_inputs=make_inputs,
+        positional=POSITIONAL.get(cls.__name__, ()),
     )
 
 

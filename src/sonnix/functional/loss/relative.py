@@ -79,7 +79,7 @@ def relative_loss(
     """
     validate_positive(eps, name="eps")
     validate_same_shape(loss, indicator, name1="loss", name2="indicator")
-    return reduce_loss(loss.div(indicator.clamp(min=eps)), reduction)
+    return reduce_loss(loss.div(indicator.clamp(min=eps)), reduction=reduction)
 
 
 def arithmetical_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:

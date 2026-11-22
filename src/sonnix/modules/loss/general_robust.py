@@ -76,9 +76,9 @@ class GeneralRobustRegressionLoss(BaseLoss):
     def __init__(
         self,
         alpha: float = 2.0,
+        *,
         scale: float = 1.0,
         max_val: float | None = None,
-        *,
         reduction: Reduction = "mean",
     ) -> None:
         super().__init__(reduction=reduction)

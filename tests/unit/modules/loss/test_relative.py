@@ -177,3 +177,14 @@ def test_relative_loss_extra_repr() -> None:
         RelativeLoss(nn.MSELoss(), eps=1e-3, reduction="sum", detach_indicator=True).extra_repr()
         == "reduction=sum, eps=0.001, detach_indicator=True"
     )
+
+
+@pytest.mark.parametrize(
+    "args", [(classical_relative_indicator,), (classical_relative_indicator, 1e-6)]
+)
+def test_relative_loss_options_are_keyword_only(args: tuple) -> None:
+    with pytest.raises(
+        TypeError,
+        match=r"takes 2 positional arguments but \d were given",
+    ):
+        RelativeLoss(nn.MSELoss(reduction="none"), *args)
