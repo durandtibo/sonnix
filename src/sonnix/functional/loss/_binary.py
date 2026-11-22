@@ -3,12 +3,41 @@ losses."""
 
 from __future__ import annotations
 
-__all__ = ["class_weight", "probability_of_target"]
+__all__ = ["cast_target", "class_weight", "probability_of_target"]
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import torch
+
+
+def cast_target(target: torch.Tensor, prediction: torch.Tensor) -> torch.Tensor:
+    r"""Convert an integer or ``bool`` target to the dtype of the
+    prediction.
+
+    The labels of a ``DataLoader`` are often ``long``, and the binary
+    cross entropy of ``torch`` rejects them. A floating point target is
+    not converted: the dtype of a soft target is the choice of the
+    caller.
+
+    Args:
+        target: The targets.
+        prediction: The predictions.
+
+    Returns:
+        The target, converted to the dtype of ``prediction`` if it is
+            an integer or a ``bool`` tensor, otherwise unchanged.
+
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional.loss._binary import cast_target
+        >>> cast_target(torch.tensor([1, 0]), torch.tensor([0.8, 0.2]))
+        tensor([1., 0.])
+
+        ```
+    """
+    return target if target.is_floating_point() else target.to(prediction.dtype)
 
 
 def probability_of_target(probability: torch.Tensor, target: torch.Tensor) -> torch.Tensor:

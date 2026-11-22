@@ -61,6 +61,7 @@ class BaseDynamicNorm(nn.Module, ABC):
         >>> m = MyDynamicNorm(normalized_shape=5)
         >>> m
         MyDynamicNorm(
+          alpha_init_value=0.5
           (affine): ScaleAndShift(normalized_shape=(5,), bias=True)
         )
 
@@ -83,6 +84,9 @@ class BaseDynamicNorm(nn.Module, ABC):
         self.alpha_init_value = alpha_init_value
         self.alpha: nn.Parameter = nn.Parameter(torch.empty(1, device=device, dtype=dtype))
         self.reset_parameters()
+
+    def extra_repr(self) -> str:
+        return f"alpha_init_value={self.alpha_init_value}"
 
     @abstractmethod
     def _activation(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
@@ -141,6 +145,7 @@ class DynamicAsinh(BaseDynamicNorm):
         >>> m = DynamicAsinh(normalized_shape=5)
         >>> m
         DynamicAsinh(
+          alpha_init_value=0.5
           (affine): ScaleAndShift(normalized_shape=(5,), bias=True)
         )
         >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
@@ -195,6 +200,7 @@ class DynamicTanh(BaseDynamicNorm):
         >>> m = DynamicTanh(normalized_shape=5)
         >>> m
         DynamicTanh(
+          alpha_init_value=0.5
           (affine): ScaleAndShift(normalized_shape=(5,), bias=True)
         )
         >>> out = m(torch.tensor([[-2, -1, 0, 1, 2], [3, 2, 1, 2, 3]]))
