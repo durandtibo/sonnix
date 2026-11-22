@@ -3,8 +3,8 @@ argument, with the same exception type and message for a function and
 its module (properties P2 and P6).
 
 ``INVALID_ARGUMENTS`` maps a function and its module to the invalid
-keyword arguments and the expected exception. ``MODULE_ARGUMENTS``
-lists the invalid arguments of the objects that have no function.
+keyword arguments and the expected exception. ``MODULE_ARGUMENTS`` lists
+the invalid arguments of the objects that have no function.
 """
 
 from __future__ import annotations

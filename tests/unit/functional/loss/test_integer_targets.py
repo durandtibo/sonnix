@@ -1,5 +1,5 @@
-r"""Test that the binary losses accept integer and ``bool`` targets, like
-the labels of a ``DataLoader``."""
+r"""Test that the binary losses accept integer and ``bool`` targets,
+like the labels of a ``DataLoader``."""
 
 from __future__ import annotations
 

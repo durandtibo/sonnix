@@ -120,11 +120,11 @@ class PiecewiseLinearNumericalEncoder(BaseNumericalEncoder):
     def _derive(self) -> None:
         r"""Compute the tensors derived from ``edges``.
 
-        The derived tensors (``start``, ``width``, ``is_step``, ``lower``
-        and ``upper``) are non-persistent buffers: they are not in the
-        state dict and are computed again after a load, so they cannot
-        be stale. They are precomputed so ``forward`` has a single
-        ``clamp`` and no data-dependent Python branch.
+        The derived tensors (``start``, ``width``, ``is_step``,
+        ``lower`` and ``upper``) are non-persistent buffers: they are
+        not in the state dict and are computed again after a load, so
+        they cannot be stale. They are precomputed so ``forward`` has a
+        single ``clamp`` and no data-dependent Python branch.
         """
         width = self.edges.diff(dim=1)
         n_segments = width.shape[1]
@@ -224,8 +224,8 @@ class PiecewiseLinearNumericalEncoder(BaseNumericalEncoder):
 
     @property
     def feature_size(self) -> int:
-        r"""Return the output feature size i.e. the number of edges minus
-        one."""
+        r"""Return the output feature size i.e. the number of edges
+        minus one."""
         return self.edges.shape[1] - 1
 
     def extra_repr(self) -> str:
