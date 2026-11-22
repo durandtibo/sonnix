@@ -33,7 +33,7 @@ def get_module_device(module: nn.Module) -> torch.device:
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.device import get_module_device
+        >>> from sonnix.utils import get_module_device
         >>> get_module_device(torch.nn.Linear(4, 6))
         device(type='cpu')
 
@@ -61,7 +61,7 @@ def get_module_devices(module: nn.Module) -> list[torch.device]:
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.device import get_module_devices
+        >>> from sonnix.utils import get_module_devices
         >>> get_module_devices(torch.nn.Linear(4, 6))
         [device(type='cpu')]
 
@@ -85,7 +85,7 @@ def is_module_on_device(module: nn.Module, device: torch.device) -> bool:
     Example:
         ```pycon
         >>> import torch
-        >>> from sonnix.utils.device import is_module_on_device
+        >>> from sonnix.utils import is_module_on_device
         >>> is_module_on_device(torch.nn.Linear(4, 6), torch.device("cpu"))
         True
 

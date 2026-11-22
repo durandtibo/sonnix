@@ -15,11 +15,11 @@ from coola.validation import validate_ge, validate_int, validate_isinstance
 from torch import nn
 
 from sonnix.modules.numerical._utils import (
-    NumericalEncoder,
     create_spaced_values,
     prepare_tensor_param,
     resolve_range,
 )
+from sonnix.modules.numerical.base import BaseNumericalEncoder
 from sonnix.utils.tensor import register_tensor
 from sonnix.validation import validate_same_shape
 
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from torch import Tensor
 
 
-class CosSinNumericalEncoder(NumericalEncoder):
+class CosSinNumericalEncoder(BaseNumericalEncoder):
     r"""Implement a frequency/phase-shift numerical encoder where the
     periodic functions are cosine and sine.
 

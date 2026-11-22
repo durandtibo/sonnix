@@ -25,7 +25,7 @@ class DummyDataset(Dataset[dict[str, torch.Tensor]]):
 
     Example:
         ```pycon
-        >>> from sonnix.testing.dummy import DummyDataset
+        >>> from sonnix.testing import DummyDataset
         >>> dataset = DummyDataset(num_examples=10, feature_size=7)
         >>> dataset[0]
         {'feature': tensor([...]), 'target': tensor([...])}

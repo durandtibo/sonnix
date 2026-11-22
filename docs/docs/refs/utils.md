@@ -1,11 +1,25 @@
 # sonnix.utils
 
-## ::: sonnix.utils.device
+## ::: sonnix.utils.freeze_module
 
-## ::: sonnix.utils.mode
+## ::: sonnix.utils.get_module_device
 
-## ::: sonnix.utils.params
+## ::: sonnix.utils.get_module_devices
 
-## ::: sonnix.utils.state_dict
+## ::: sonnix.utils.has_learnable_parameters
 
-## ::: sonnix.utils.tensor
+## ::: sonnix.utils.has_parameters
+
+## ::: sonnix.utils.is_module_on_device
+
+## ::: sonnix.utils.load_state_dict_to_module
+
+## ::: sonnix.utils.module_mode
+
+## ::: sonnix.utils.num_learnable_parameters
+
+## ::: sonnix.utils.num_parameters
+
+## ::: sonnix.utils.register_tensor
+
+## ::: sonnix.utils.unfreeze_module

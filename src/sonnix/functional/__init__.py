@@ -32,7 +32,7 @@ __all__ = [
     "safe_pow",
 ]
 
-from sonnix.functional.activation import safe_exp, safe_log
+from sonnix.functional.activation.math import safe_exp, safe_log
 from sonnix.functional.loss.focal import (
     binary_focal_loss,
     binary_focal_loss_with_logits,
