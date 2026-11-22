@@ -283,7 +283,7 @@ MODULE_ARGUMENTS = [
         )
         for cls, name in (
             (sm.AsinhNumericalEncoder, "scale"),
-            (sm.PiecewiseLinearNumericalEncoder, "bins"),
+            (sm.PiecewiseLinearNumericalEncoder, "edges"),
         )
         for value in (NAN, INF)
     ],

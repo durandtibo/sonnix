@@ -15,6 +15,13 @@ The classes have a `create` (or `from_quantiles`) class method that builds the
 encoder from the data or from a range, with one set of parameters
 per feature (`n_features`).
 
+`PiecewiseLinearNumericalEncoder` takes the `edges` of the segments, a tensor
+of shape `(n_features, n_edges)`: it has `n_edges - 1` segments (bins) per
+feature, so `feature_size == n_edges - 1`. `from_quantiles(x, n_bins)` builds
+`n_bins` segments from the `n_bins + 1` quantiles, so `feature_size == n_bins`.
+The edges are the only state of the encoder (`state_dict`); the widths of the
+segments are computed from them, also after `load_state_dict`.
+
 ## Embedding of numerical features
 
 An encoder is usually followed by `NLinear`, which applies a different linear

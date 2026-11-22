@@ -29,6 +29,23 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- Make the state of the encoders and the activations complete by
+  construction (revised target state step 3, #448). New
+  `sonnix.utils.register_tensor`, used by the alpha activations and the
+  numerical encoders (it replaces three copies of "parameter or buffer").
+  `PiecewiseLinearNumericalEncoder` keeps a single persistent buffer,
+  `edges`; `width`, `is_step`, `lower`, `upper` and the new `start` are
+  non-persistent and computed again after `load_state_dict` (before, `width`
+  was in the state dict and `is_step` was not recomputed, so loading the state
+  of an encoder with a duplicated edge changed its output). The constructor
+  argument `bins` is renamed `edges`, and `edges` now holds all the edges
+  (`(n_features, n_edges)`, so `feature_size == n_edges - 1`); a single edge is
+  rejected. `from_quantiles(x, n_bins)` now makes `n_bins` segments from
+  `n_bins + 1` quantiles, so `feature_size == n_bins`
+  (`from_quantiles(x, n_bins=k)` becomes `from_quantiles(x, n_bins=k - 1)` for
+  the same encoder). A checkpoint with the key `width` loads with
+  `strict=False`; an old `edges` has one value less per feature and does not
+  load.
 - Validate every hyperparameter completely (revised target state step 2,
   #447): a float must be finite (`log_cosh_loss(scale=inf)`,
   `poisson_regression_loss(eps=inf)`, `binary_focal_loss(gamma=inf)`,
