@@ -11,7 +11,7 @@
   instead of `x ** p` or `sqrt` when the input can be `0` and a
   gradient is needed.
 - **Poisson loss.** `poisson_regression_loss` expects positive predictions.
-  Apply a positive activation (for example `SafeExp`, `Pow(2)` or a softplus) to
+  Apply a positive activation (for example `SafeExp`, `Square` or a softplus) to
   the output of the model.
 - **Learnable `alpha`.** `Gaussian` and `Laplacian` divide by `alpha`. A
   learnable `alpha` that reaches `0` makes the training fail and is hard to

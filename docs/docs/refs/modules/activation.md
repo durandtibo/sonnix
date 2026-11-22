@@ -21,12 +21,14 @@ the [`sonnix.modules`](index.md) overview.
 | [`MultiQuadratic`](#sonnix.modules.MultiQuadratic)           |
 | [`Pow`](#sonnix.modules.Pow)                                 |
 | [`Quadratic`](#sonnix.modules.Quadratic)                     |
+| [`ReLUn`](#sonnix.modules.ReLUn)                             |
 | [`RectifierAsinhUnit`](#sonnix.modules.RectifierAsinhUnit)   |
 | [`SafeExp`](#sonnix.modules.SafeExp)                         |
 | [`SafeLog`](#sonnix.modules.SafeLog)                         |
 | [`Sin`](#sonnix.modules.Sin)                                 |
 | [`Sinh`](#sonnix.modules.Sinh)                               |
 | [`Snake`](#sonnix.modules.Snake)                             |
+| [`Square`](#sonnix.modules.Square)                           |
 | [`SquaredReLU`](#sonnix.modules.SquaredReLU)                 |
 
 ## ::: sonnix.modules.Asinh
@@ -61,6 +63,8 @@ the [`sonnix.modules`](index.md) overview.
 
 ## ::: sonnix.modules.Quadratic
 
+## ::: sonnix.modules.ReLUn
+
 ## ::: sonnix.modules.RectifierAsinhUnit
 
 ## ::: sonnix.modules.SafeExp
@@ -72,5 +76,7 @@ the [`sonnix.modules`](index.md) overview.
 ## ::: sonnix.modules.Sinh
 
 ## ::: sonnix.modules.Snake
+
+## ::: sonnix.modules.Square
 
 ## ::: sonnix.modules.SquaredReLU

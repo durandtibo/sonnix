@@ -53,41 +53,22 @@ def _scaled() -> tuple[torch.Tensor, torch.Tensor]:
 
 def _relative_geometric(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
     return sf.relative_loss(
-        (target - prediction).abs(), sf.geometric_mean_indicator(prediction, target)
+        sf.absolute_error(prediction, target), sf.geometric_mean_indicator(prediction, target)
     )
 
 
 def _relative_moment(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
     return sf.relative_loss(
-        (target - prediction).abs(), sf.moment_mean_indicator(prediction, target, k=2)
-    )
-
-
-def _absolute_relative_error(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-    # The recipe of the losses guide.
-    return sf.relative_loss(
-        (target - prediction).abs(),
-        sf.classical_relative_indicator(prediction, target),
-        reduction="none",
-    )
-
-
-def _symmetric_absolute_relative_error(
-    prediction: torch.Tensor, target: torch.Tensor
-) -> torch.Tensor:
-    # The recipe of the losses guide.
-    return sf.relative_loss(
-        (target - prediction).abs(),
-        sf.arithmetical_mean_indicator(prediction, target),
-        reduction="none",
+        sf.absolute_error(prediction, target), sf.moment_mean_indicator(prediction, target, k=2)
     )
 
 
 # (function, inputs): the functions are compared in half precision and
 # in float32 on large values.
 CASES = {
-    "absolute_relative_error": (_absolute_relative_error, _large),
-    "symmetric_absolute_relative_error": (_symmetric_absolute_relative_error, _large),
+    "absolute_error": (sf.absolute_error, _large),
+    "absolute_relative_error": (sf.absolute_relative_error, _large),
+    "symmetric_absolute_relative_error": (sf.symmetric_absolute_relative_error, _large),
     "log_cosh_loss": (sf.log_cosh_loss, _large),
     "general_robust_regression_loss": (sf.general_robust_regression_loss, _scaled),
     "poisson_regression_loss": (sf.poisson_regression_loss, _positive),

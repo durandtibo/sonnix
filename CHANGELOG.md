@@ -42,19 +42,17 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
   docstrings import from the flat path. New tests check the six `__all__`
   lists, that no folder has an `__all__`, and that no docstring imports from a
   folder.
-- Remove the public names that are compositions or that are not extension
-  points (revised target state step 5, #451): `ToFloat` and `ToLong`
-  (`ToDtype("float32")`, `ToDtype("int64")`: `ToDtype` accepts a `torch.dtype`
-  or its name), `ReLUn` (`Clamp(0.0, n)`), `Square` (`Pow(2)`),
-  `absolute_error`, `absolute_relative_error` and
-  `symmetric_absolute_relative_error` (recipes in the losses guide),
-  `rectifier_asinh_unit` (`RectifierAsinhUnit` stays), and the public base
-  classes `BaseBinaryFocalLoss` and `BaseBinaryPoly1Loss` (now private; the
-  public classes document their arguments). `Snake` moves to
+- Clean up the public surface (revised target state step 5, #451):
+  `BaseBinaryFocalLoss` and `BaseBinaryPoly1Loss` become private
+  (`_BinaryFocalLoss`, `_BinaryPoly1Loss`; the public classes document their
+  arguments), `ToDtype` accepts a `torch.dtype` or its name
+  (`ToDtype("float32")`), `Snake` moves to
   `sonnix/modules/activation/alpha.py`, `AverageFusion` and `SumFusion` share
   `BaseFusion._sum`, and `Gaussian` and `Snake` share one check of `init`.
   `Laplacian` rejects `init <= 0` with one message (`init must be greater than
-  0`). The notebook `activations.ipynb` uses `Clamp(0.0, n)`.
+  0`). `ToFloat`, `ToLong`, `ReLUn`, `Square`, the three error functions and
+  `rectifier_asinh_unit` are kept: a named wrapper that users look for is
+  allowed (P16).
 - Uniform call signatures (revised target state step 4, #450).
   `BinaryFocalLoss`, `BinaryFocalLossWithLogits` take only `alpha`
   positionally (`gamma` is keyword-only); `GeneralRobustRegressionLoss` takes

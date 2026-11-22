@@ -264,6 +264,10 @@ MODULE_ARGUMENTS = [
         )
     ],
     *[
+        (f"ReLUn-{value}", sm.ReLUn, {"max_val": value}, exception, match)
+        for value, exception, match in _RESOLVED
+    ],
+    *[
         (f"Pow-{value}", sm.Pow, {"exponent": value}, exception, match)
         for value, exception, match in _RESOLVED
     ],

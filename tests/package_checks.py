@@ -7,7 +7,7 @@ import torch
 from coola.equality import objects_are_equal
 
 import sonnix
-from sonnix.functional import log_cosh_loss
+from sonnix.functional import absolute_error
 from sonnix.modules import Exp
 from sonnix.utils.params import has_parameters
 
@@ -34,8 +34,8 @@ def check_packages() -> None:
 def check_functional() -> None:
     logger.info("Checking 'functional' package...")
     assert objects_are_equal(
-        log_cosh_loss(torch.ones(2, 3), torch.ones(2, 3)),
-        torch.tensor(0.0),
+        absolute_error(torch.ones(2, 3), torch.ones(2, 3)),
+        torch.zeros(2, 3),
     )
 
 

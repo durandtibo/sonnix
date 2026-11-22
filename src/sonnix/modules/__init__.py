@@ -45,6 +45,7 @@ __all__ = [
     "Pow",
     "Quadratic",
     "QuantileRegressionLoss",
+    "ReLUn",
     "RectifierAsinhUnit",
     "RelativeLoss",
     "ResidualBlock",
@@ -54,12 +55,15 @@ __all__ = [
     "Sin",
     "Sinh",
     "Snake",
+    "Square",
     "SquaredReLU",
     "Squeeze",
     "SumFusion",
     "ToBinaryLabel",
     "ToCategoricalLabel",
     "ToDtype",
+    "ToFloat",
+    "ToLong",
     "TransformedLoss",
 ]
 
@@ -86,10 +90,11 @@ from sonnix.modules.activation.math import (
     SafeLog,
     Sin,
     Sinh,
+    Square,
 )
-from sonnix.modules.activation.relu import SquaredReLU
+from sonnix.modules.activation.relu import ReLUn, SquaredReLU
 from sonnix.modules.classification import ToBinaryLabel, ToCategoricalLabel
-from sonnix.modules.dtype import ToDtype
+from sonnix.modules.dtype import ToDtype, ToFloat, ToLong
 from sonnix.modules.exu import ExU
 from sonnix.modules.fusion.aggregation import (
     AverageFusion,

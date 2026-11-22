@@ -15,6 +15,7 @@ from sonnix.modules import (
     SafeLog,
     Sin,
     Sinh,
+    Square,
 )
 from sonnix.testing import is_loss_decreasing_with_adam
 
@@ -33,6 +34,7 @@ from sonnix.testing import is_loss_decreasing_with_adam
         SafeLog(),
         Sin(),
         Sinh(),
+        Square(),
     ],
 )
 def test_activation_is_loss_decreasing(activation: nn.Module) -> None:
