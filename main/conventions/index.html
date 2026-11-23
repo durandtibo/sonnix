@@ -1398,6 +1398,14 @@ the user.</p>
 <td>P17</td>
 <td><strong>Honest documentation.</strong> A docstring says what the code does: the <code>Args:</code> block lists exactly the arguments of the signature, a <code>Raises:</code> block names what the code raises, and a guarantee stated in a docstring or in the guide ("no <code>inf</code>", "raises <code>ValueError</code>") has a test. <code>CLAUDE.md</code> points only to documents that are true; an obsolete review file is deleted.</td>
 </tr>
+<tr>
+<td>P18</td>
+<td><strong>Easy to maintain.</strong> A rule lives in one place and an object is added or changed in the fewest places. (1) One mechanism per rule: validation, reduction, shape check, dtype guard, state registration and a core shared by two variants are one helper, never a copy in a class. (2) One source per fact: a description, a rule or a number is written once; the other places are generated or checked against it by a test. (3) A new object is one source entry, one <code>__all__</code> line, one reference directive and one registry entry; every other test is derived from the registry or from the signature, and a missing entry fails a test. (4) No suppression (<code>noqa</code>, <code>type: ignore</code>, <code>ty: ignore</code>, <code>pragma: no cover</code>) in <code>src</code>; the only exception is <code>noqa: A002</code> for the argument <code>input</code>. (5) Small surface: two hard dependencies, every declared <code>torch</code> version tested.</td>
+</tr>
+<tr>
+<td>P19</td>
+<td><strong>Matches its definition.</strong> Every loss and op equals its reference on typical inputs (the <code>torch</code> equivalent or a naive formula in <code>float64</code>). A formula with limit cases (<code>alpha=2</code>, <code>alpha=0</code>, <code>alpha=-inf</code> of the robust loss) is continuous across the switch. An option that is only about the gradient (<code>preserve_gradient</code>) does not change the value.</td>
+</tr>
 </tbody>
 </table>
 
