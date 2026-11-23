@@ -17,5 +17,5 @@ def test_poisson_regression_loss() -> None:
         criterion=poisson_regression_loss,
         feature=torch.randn(8, 4),
         target=torch.randn(8, 4),
-        num_iterations=5,
+        n_iterations=5,
     )

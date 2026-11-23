@@ -77,7 +77,7 @@ def prepare_tensor_param(tensor: Tensor, name: str) -> Tensor:
 
 def create_spaced_values(
     spacing: Literal["rand", "linspace", "logspace"],
-    num_values: int,
+    n_values: int,
     low: float,
     high: float,
     *,
@@ -95,7 +95,7 @@ def create_spaced_values(
             evenly spaced in the log space (``low`` has to be strictly
             positive). The deterministic spacings give the same values
             to every feature.
-        num_values: The number of values per feature.
+        n_values: The number of values per feature.
         low: The lower bound of the range.
         high: The upper bound of the range.
         n_features: The number of features.
@@ -108,7 +108,7 @@ def create_spaced_values(
             default floating point type.
 
     Returns:
-        A tensor of shape ``(n_features, num_values)``.
+        A tensor of shape ``(n_features, n_values)``.
 
     Raises:
         TypeError: if ``n_features`` is not an integer.
@@ -118,7 +118,7 @@ def create_spaced_values(
     Example:
         ```pycon
         >>> from sonnix.modules.numerical._utils import create_spaced_values
-        >>> create_spaced_values("linspace", num_values=3, low=1.0, high=3.0, n_features=2)
+        >>> create_spaced_values("linspace", n_values=3, low=1.0, high=3.0, n_features=2)
         tensor([[1., 2., 3.],
                 [1., 2., 3.]])
 
@@ -131,7 +131,7 @@ def create_spaced_values(
         return (
             torch.rand(
                 n_features,
-                num_values,
+                n_values,
                 generator=None if generator is None else _resolve_torch_generator(generator),
                 device=device,
                 dtype=dtype,
@@ -140,12 +140,12 @@ def create_spaced_values(
             .add(low)
         )
     if spacing == "linspace":
-        values = torch.linspace(start=low, end=high, steps=num_values, device=device, dtype=dtype)
+        values = torch.linspace(start=low, end=high, steps=n_values, device=device, dtype=dtype)
     else:
         values = torch.logspace(
             start=math.log10(low),
             end=math.log10(high),
-            steps=num_values,
+            steps=n_values,
             device=device,
             dtype=dtype,
         )

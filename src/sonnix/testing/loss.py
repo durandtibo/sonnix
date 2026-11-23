@@ -32,7 +32,7 @@ def is_loss_decreasing(
     feature: Tensor,
     target: Tensor,
     *,
-    num_iterations: int = 1,
+    n_iterations: int = 1,
     random_seed: int = 1548783767065776748,
     max_norm: float | None = 1.0,
 ) -> bool:
@@ -45,7 +45,7 @@ def is_loss_decreasing(
         optimizer: The optimizer to update the weights of the model.
         feature: The input of the module.
         target: The target used to compute the loss.
-        num_iterations: The number of optimization steps.
+        n_iterations: The number of optimization steps.
         random_seed: The random seed to make the function
             deterministic if the module contains randomness. It is
             applied to the two evaluations of the loss and to the
@@ -58,9 +58,9 @@ def is_loss_decreasing(
             otherwise ``False``.
 
     Raises:
-        TypeError: If ``num_iterations`` or ``random_seed`` is not an
+        TypeError: If ``n_iterations`` or ``random_seed`` is not an
             integer, or ``max_norm`` is not a number.
-        ValueError: If ``num_iterations`` is lower than 1, or if
+        ValueError: If ``n_iterations`` is lower than 1, or if
             ``max_norm`` is not ``None`` and not finite and strictly
             positive.
 
@@ -82,8 +82,8 @@ def is_loss_decreasing(
 
         ```
     """
-    validate_int(num_iterations, name="num_iterations")
-    validate_ge(num_iterations, 1, name="num_iterations")
+    validate_int(n_iterations, name="n_iterations")
+    validate_ge(n_iterations, 1, name="n_iterations")
     validate_int(random_seed, name="random_seed")
     if max_norm is not None:
         validate_positive(max_norm, name="max_norm")
@@ -95,7 +95,7 @@ def is_loss_decreasing(
 
         module.train()
         with torch_seed(random_seed):
-            for _ in range(num_iterations):
+            for _ in range(n_iterations):
                 optimizer.zero_grad()
                 loss = criterion(module(feature), target)
                 loss.backward()
@@ -117,7 +117,7 @@ def is_loss_decreasing_with_adam(
     target: Tensor,
     *,
     lr: float = 0.0003,
-    num_iterations: int = 1,
+    n_iterations: int = 1,
     random_seed: int = 1548783767065776748,
     max_norm: float | None = 1.0,
 ) -> bool:
@@ -132,7 +132,7 @@ def is_loss_decreasing_with_adam(
         feature: The input of the module.
         target: The target used to compute the loss.
         lr: The learning rate.
-        num_iterations: The number of optimization steps.
+        n_iterations: The number of optimization steps.
         random_seed: The random seed to make the function
             deterministic if the module contains randomness. It is
             applied to the two evaluations of the loss and to the
@@ -146,9 +146,9 @@ def is_loss_decreasing_with_adam(
 
     Raises:
         TypeError: If ``lr`` or ``max_norm`` is not a number, or if
-            ``num_iterations`` or ``random_seed`` is not an integer.
+            ``n_iterations`` or ``random_seed`` is not an integer.
         ValueError: If ``lr`` is not finite and strictly positive, if
-            ``num_iterations`` is lower than 1, or if ``max_norm`` is not
+            ``n_iterations`` is lower than 1, or if ``max_norm`` is not
             ``None`` and not finite and strictly positive.
 
     Example:
@@ -174,7 +174,7 @@ def is_loss_decreasing_with_adam(
         optimizer=Adam(module.parameters(), lr=lr),
         feature=feature,
         target=target,
-        num_iterations=num_iterations,
+        n_iterations=n_iterations,
         random_seed=random_seed,
         max_norm=max_norm,
     )
@@ -187,7 +187,7 @@ def is_loss_decreasing_with_sgd(
     target: Tensor,
     *,
     lr: float = 0.01,
-    num_iterations: int = 1,
+    n_iterations: int = 1,
     random_seed: int = 1548783767065776748,
     max_norm: float | None = 1.0,
 ) -> bool:
@@ -202,7 +202,7 @@ def is_loss_decreasing_with_sgd(
         feature: The input of the module.
         target: The target used to compute the loss.
         lr: The learning rate.
-        num_iterations: The number of optimization steps.
+        n_iterations: The number of optimization steps.
         random_seed: The random seed to make the function
             deterministic if the module contains randomness. It is
             applied to the two evaluations of the loss and to the
@@ -216,9 +216,9 @@ def is_loss_decreasing_with_sgd(
 
     Raises:
         TypeError: If ``lr`` or ``max_norm`` is not a number, or if
-            ``num_iterations`` or ``random_seed`` is not an integer.
+            ``n_iterations`` or ``random_seed`` is not an integer.
         ValueError: If ``lr`` is not finite and strictly positive, if
-            ``num_iterations`` is lower than 1, or if ``max_norm`` is not
+            ``n_iterations`` is lower than 1, or if ``max_norm`` is not
             ``None`` and not finite and strictly positive.
 
     Example:
@@ -244,7 +244,7 @@ def is_loss_decreasing_with_sgd(
         optimizer=SGD(module.parameters(), lr=lr),
         feature=feature,
         target=target,
-        num_iterations=num_iterations,
+        n_iterations=n_iterations,
         random_seed=random_seed,
         max_norm=max_norm,
     )
