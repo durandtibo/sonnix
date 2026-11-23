@@ -2,44 +2,34 @@
 
 <p align="center">
     <a href="https://github.com/durandtibo/sonnix/actions/workflows/ci.yaml">
-        <img alt="CI" src="https://github.com/durandtibo/sonnix/actions/workflows/ci.yaml/badge.svg">
-    </a>
+        <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/durandtibo/sonnix/ci.yaml?branch=main&label=CI&logo=github"></a>
     <a href="https://github.com/durandtibo/sonnix/actions/workflows/nightly-package.yaml">
-        <img alt="Nightly Package Tests" src="https://github.com/durandtibo/sonnix/actions/workflows/nightly-package.yaml/badge.svg">
-    </a>
+        <img alt="Nightly Package Tests" src="https://img.shields.io/github/actions/workflow/status/durandtibo/sonnix/nightly-package.yaml?label=nightly&logo=github"></a>
     <a href="https://codecov.io/gh/durandtibo/sonnix">
-        <img alt="Codecov" src="https://codecov.io/gh/durandtibo/sonnix/branch/main/graph/badge.svg">
-    </a>
-    <br/>
-    <a href="https://google.github.io/styleguide/pyguide.html#s3.8-comments-and-docstrings">
-        <img  alt="Doc style: google" src="https://img.shields.io/badge/%20style-google-3666d6.svg">
-    </a>
-    <a href="https://github.com/astral-sh/ruff">
-        <img
-            src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json"
-            alt="Ruff" style="max-width:100%;">
-    </a>
-    <a href="https://github.com/guilatrova/tryceratops">
-        <img  alt="Doc style: google" src="https://img.shields.io/badge/try%2Fexcept%20style-tryceratops%20%F0%9F%A6%96%E2%9C%A8-black">
-    </a>
+        <img alt="Codecov" src="https://img.shields.io/codecov/c/github/durandtibo/sonnix?logo=codecov"></a>
+    <a href="https://durandtibo.github.io/sonnix/">
+        <img alt="Documentation (stable)" src="https://img.shields.io/badge/docs-stable-blue?logo=readthedocs&logoColor=white"></a>
     <br/>
     <a href="https://pypi.org/project/sonnix/">
-        <img alt="PYPI version" src="https://img.shields.io/pypi/v/sonnix">
-    </a>
+        <img alt="PyPI version" src="https://img.shields.io/pypi/v/sonnix?logo=pypi&logoColor=white"></a>
     <a href="https://pypi.org/project/sonnix/">
-        <img alt="Python" src="https://img.shields.io/pypi/pyversions/sonnix.svg">
-    </a>
+        <img alt="Python" src="https://img.shields.io/pypi/pyversions/sonnix?logo=python&logoColor=white"></a>
     <a href="https://opensource.org/licenses/BSD-3-Clause">
-        <img alt="BSD-3-Clause" src="https://img.shields.io/pypi/l/sonnix">
-    </a>
+        <img alt="BSD-3-Clause" src="https://img.shields.io/pypi/l/sonnix"></a>
+    <br/>
+    <a href="https://github.com/astral-sh/ruff">
+        <img alt="Ruff" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json"></a>
+    <a href="https://google.github.io/styleguide/pyguide.html#s3.8-comments-and-docstrings">
+        <img alt="Doc style: google" src="https://img.shields.io/badge/docstyle-google-3666d6"></a>
+    <a href="https://scorecard.dev/viewer/?uri=github.com/durandtibo/sonnix">
+        <img alt="OpenSSF Scorecard" src="https://img.shields.io/ossf-scorecard/github.com/durandtibo/sonnix?label=openssf%20scorecard"></a>
     <br/>
     <a href="https://pepy.tech/project/sonnix">
-        <img  alt="Downloads" src="https://static.pepy.tech/badge/sonnix">
-    </a>
+        <img alt="Downloads" src="https://img.shields.io/pepy/dt/sonnix"></a>
     <a href="https://pepy.tech/project/sonnix">
-        <img  alt="Monthly downloads" src="https://static.pepy.tech/badge/sonnix/month">
-    </a>
-    <br/>
+        <img alt="Monthly downloads" src="https://img.shields.io/pepy/dm/sonnix"></a>
+    <a href="https://github.com/durandtibo/sonnix/stargazers">
+        <img alt="GitHub stars" src="https://img.shields.io/github/stars/durandtibo/sonnix?logo=github"></a>
 </p>
 
 A library of PyTorch modules, losses and functional operations.
