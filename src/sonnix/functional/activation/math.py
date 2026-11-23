@@ -18,7 +18,8 @@ def _clamp(
     max_val: float | None = None,
     preserve_gradient: bool,
 ) -> torch.Tensor:
-    r"""Clamp the elements, and optionally keep the gradient of the input.
+    r"""Clamp the elements, and optionally keep the gradient of the
+    input.
 
     Args:
         input: The input tensor.

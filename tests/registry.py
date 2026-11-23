@@ -443,8 +443,8 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
 
 
 class _FunctionModule(nn.Module):
-    r"""Wrap a function of ``sonnix.functional`` in a module, to run it with
-    the tests of the registry."""
+    r"""Wrap a function of ``sonnix.functional`` in a module, to run it
+    with the tests of the registry."""
 
     def __init__(self, function: Callable[..., torch.Tensor]) -> None:
         super().__init__()
@@ -481,7 +481,8 @@ FUNCTION_CASES: tuple[ModuleCase, ...] = (
 
 @dataclass(frozen=True)
 class CallCase:
-    r"""Describe a valid call of a public function, class or class method.
+    r"""Describe a valid call of a public function, class or class
+    method.
 
     The test of the scalar arguments walks the signature of ``target`` and
     calls ``call`` with one invalid argument at a time (property P2).

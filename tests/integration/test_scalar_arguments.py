@@ -1,11 +1,11 @@
-r"""Test that every scalar argument of the public API is validated (property
-P2).
+r"""Test that every scalar argument of the public API is validated
+(property P2).
 
 The test walks the signature of each call of ``CALL_CASES``: an ``int``
-rejects ``2.5``, ``True`` and ``"a"``, a ``float`` rejects ``"a"``, ``nan``
-and ``inf``, and a ``bool`` rejects ``1``. A scalar argument that is not
-validated fails at once, so a new option cannot escape the property. The
-range of each argument (``gamma >= 0``) is tested in
+rejects ``2.5``, ``True`` and ``"a"``, a ``float`` rejects ``"a"``,
+``nan`` and ``inf``, and a ``bool`` rejects ``1``. A scalar argument
+that is not validated fails at once, so a new option cannot escape the
+property. The range of each argument (``gamma >= 0``) is tested in
 ``test_invalid_arguments.py``.
 """
 
