@@ -2437,6 +2437,7 @@ not a <code>bool</code>.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">MyDynamicNorm</span><span class="p">(</span><span class="n">normalized_shape</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
 <span class="go">MyDynamicNorm(</span>
+<span class="go">  alpha_init_value=0.5</span>
 <span class="go">  (affine): ScaleAndShift(normalized_shape=(5,), bias=True)</span>
 <span class="go">)</span>
 </code></pre></div>
@@ -2816,6 +2817,7 @@ not a <code>bool</code>.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">DynamicAsinh</span><span class="p">(</span><span class="n">normalized_shape</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
 <span class="go">DynamicAsinh(</span>
+<span class="go">  alpha_init_value=0.5</span>
 <span class="go">  (affine): ScaleAndShift(normalized_shape=(5,), bias=True)</span>
 <span class="go">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">m</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]))</span>
@@ -3031,6 +3033,7 @@ not a <code>bool</code>.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">DynamicTanh</span><span class="p">(</span><span class="n">normalized_shape</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
 <span class="go">DynamicTanh(</span>
+<span class="go">  alpha_init_value=0.5</span>
 <span class="go">  (affine): ScaleAndShift(normalized_shape=(5,), bias=True)</span>
 <span class="go">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">m</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]))</span>

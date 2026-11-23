@@ -528,6 +528,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#scope-of-the-public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope of the public API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#design-rules" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1237,6 +1248,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#scope-of-the-public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope of the public API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#design-rules" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1289,6 +1311,12 @@
 <li><code>TransformedLoss</code> takes <code>prediction_transform</code> and <code>target_transform</code>: the
   modules applied to the prediction and to the target before the criterion.</li>
 </ul>
+<h2 id="scope-of-the-public-api">Scope of the public API<a class="headerlink" href="#scope-of-the-public-api" title="Permanent link">&para;</a></h2>
+<p><code>sonnix</code> is a library that is used by other codebases. A public name is useful
+if a user needs it, not only if <code>sonnix</code> itself calls it: a helper that nothing
+in the library uses (<code>sonnix.utils</code>, <code>sonnix.testing</code>) stays public. A name is
+removed only when it is wrong or when it duplicates another name without helping
+the user.</p>
 <h2 id="design-rules">Design rules<a class="headerlink" href="#design-rules" title="Permanent link">&para;</a></h2>
 <p>Each rule holds for every public object. The target design is described in
 <code>review/target_state.md</code>; the rules P2, P3, P8, P11, P12 and P16 are being
@@ -1363,7 +1391,7 @@ enforced step by step.</p>
 </tr>
 <tr>
 <td>P16</td>
-<td><strong>Earned names.</strong> A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use or that tests them. A fixed-argument composition of other public objects or of a <code>torch.nn</code> object is a recipe in the guide, unless users look for it by name (<code>ReLUn</code>, <code>Square</code>, <code>ToFloat</code>): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.</td>
+<td><strong>Earned names.</strong> A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use, that tests them, or that users of the library need. A fixed-argument composition of other public objects or of a <code>torch.nn</code> object is a recipe in the guide, unless users look for it by name (<code>ReLUn</code>, <code>Square</code>, <code>ToFloat</code>): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.</td>
 </tr>
 </tbody>
 </table>
