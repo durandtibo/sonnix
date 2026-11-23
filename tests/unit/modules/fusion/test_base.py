@@ -78,3 +78,30 @@ def test_sum_keeps_the_gradient() -> None:
     x1 = torch.tensor([1.0, 2.0], requires_grad=True)
     BaseFusion._sum((x1, torch.tensor([3.0, 4.0]))).sum().backward()
     assert objects_are_equal(x1.grad, torch.ones(2))
+
+
+class NoCheckFusion(BaseFusion):
+    _same_shape = False
+
+    def fuse(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
+        return torch.cat(inputs, dim=-1)
+
+
+def test_base_fusion_same_shape_default() -> None:
+    assert BaseFusion._same_shape
+
+
+def test_base_fusion_forward_different_shapes() -> None:
+    with pytest.raises(ValueError, match=r"inputs\[0\] and inputs\[1\] must have the same shape"):
+        MyFusion()(torch.ones(2, 3), torch.ones(2, 1))
+
+
+def test_base_fusion_forward_different_shapes_allowed_by_the_subclass() -> None:
+    assert NoCheckFusion()(torch.ones(2, 3), torch.ones(2, 1)).shape == (2, 4)
+
+
+def test_base_fusion_forward_does_not_call_fuse_on_different_shapes() -> None:
+    module = RecordFusion()
+    with pytest.raises(ValueError, match=r"same shape"):
+        module(torch.ones(2), torch.ones(3))
+    assert not hasattr(module, "received")

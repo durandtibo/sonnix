@@ -10,6 +10,7 @@ import torch
 from torch import nn
 
 from sonnix.factory import resolve_module
+from sonnix.validation import validate_same_shape
 
 
 class ResidualBlock(nn.Module):
@@ -25,6 +26,11 @@ class ResidualBlock(nn.Module):
             (dictionary).
         skip: The skip mapping module or its configuration
             (dictionary). If ``None``, the ``Identity`` module is used.
+
+    Raises:
+        ValueError: if the output of ``skip`` and the output of
+            ``residual`` do not have the same shape (nothing
+            broadcasts).
 
     Example:
         ```pycon
@@ -58,4 +64,7 @@ class ResidualBlock(nn.Module):
         self.skip: nn.Module = resolve_module(nn.Identity() if skip is None else skip)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return self.skip(input) + self.residual(input)
+        skip_output = self.skip(input)
+        residual_output = self.residual(input)
+        validate_same_shape(skip_output, residual_output, name1="skip", name2="residual")
+        return skip_output + residual_output

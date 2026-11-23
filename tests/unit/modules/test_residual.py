@@ -59,3 +59,21 @@ def test_residual_block_empty_sequential_skip_is_kept() -> None:
     skip = nn.Sequential()
     module = ResidualBlock(residual=nn.Linear(4, 4), skip=skip)
     assert module.skip is skip
+
+
+def test_residual_block_branches_with_different_shapes() -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"skip and residual must have the same shape, got \(4, 3\) and \(4, 1\)",
+    ):
+        ResidualBlock(residual=nn.Linear(3, 1))(torch.ones(4, 3))
+
+
+def test_residual_block_branches_with_different_number_of_dimensions() -> None:
+    with pytest.raises(ValueError, match=r"got \(4, 3\) and \(12,\)"):
+        ResidualBlock(residual=nn.Flatten(0))(torch.ones(4, 3))
+
+
+def test_residual_block_custom_skip_with_a_different_shape() -> None:
+    with pytest.raises(ValueError, match=r"got \(4, 2\) and \(4, 3\)"):
+        ResidualBlock(residual=nn.Identity(), skip=nn.Linear(3, 2))(torch.ones(4, 3))

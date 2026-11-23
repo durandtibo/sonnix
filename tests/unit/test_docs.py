@@ -77,8 +77,8 @@ ARGS_REFERENCE = {
     "Quadratic": "BaseAlphaActivation",
     "Snake": "BaseAlphaActivation",
 }
-# Names that a ``Raises:`` block may quote without being a parameter: the type of an argument, and
-# the method that raises.
+# Names that a ``Raises:`` block may quote without being a parameter of the constructor or of the
+# ``forward``: the type of an argument, and the method that raises.
 RAISES_TYPES = {"bool", "int", "float", "forward"}
 # The encoders raise when the last dimension of the input is not ``n_features``, an attribute that
 # is not a parameter of the constructor of the class that documents it.
@@ -128,6 +128,9 @@ def test_raises_quote_only_parameters(package: str, name: str) -> None:
     obj = _get_object(package, name)
     quoted = set(re.findall(r"``([a-z_]\w*)``", _get_section(obj, "Raises")))
     allowed = set(_get_parameters(obj)) | RAISES_TYPES | RAISES_ATTRIBUTES.get(name, set())
+    if inspect.isclass(obj) and hasattr(obj, "forward"):
+        # A class documents the errors of its constructor and of its ``forward``.
+        allowed |= set(_get_parameters(obj.forward))
     assert quoted - allowed == set()
 
 

@@ -223,3 +223,48 @@ def test_scale_and_shift_incorrect_normalized_shape(normalized_shape: object) ->
 def test_scale_and_shift_incorrect_normalized_shape_type() -> None:
     with pytest.raises(TypeError, match=r"normalized_shape must be an int"):
         ScaleAndShift(normalized_shape=(2.5,))
+
+
+############################################
+#     Tests for the shape of the input     #
+############################################
+
+
+def test_scale_and_shift_forward_size_one_dimension_is_not_expanded() -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"The last dimensions of input must be normalized_shape=\(5,\), got shape \(3, 1\)",
+    ):
+        ScaleAndShift(5)(torch.ones(3, 1))
+
+
+def test_scale_and_shift_forward_wrong_last_dimension() -> None:
+    with pytest.raises(ValueError, match=r"normalized_shape=\(5,\), got shape \(3, 4\)"):
+        ScaleAndShift(5)(torch.ones(3, 4))
+
+
+def test_scale_and_shift_forward_fewer_dimensions_than_normalized_shape() -> None:
+    with pytest.raises(ValueError, match=r"normalized_shape=\(4, 2\), got shape \(2,\)"):
+        ScaleAndShift((4, 2))(torch.ones(2))
+
+
+def test_scale_and_shift_forward_0d_input() -> None:
+    with pytest.raises(ValueError, match=r"normalized_shape=\(1,\), got shape \(\)"):
+        ScaleAndShift(1)(torch.tensor(1.0))
+
+
+def test_scale_and_shift_forward_wrong_order_of_the_dimensions() -> None:
+    with pytest.raises(ValueError, match=r"normalized_shape=\(4, 2\), got shape \(3, 2, 4\)"):
+        ScaleAndShift((4, 2))(torch.ones(3, 2, 4))
+
+
+def test_scale_and_shift_forward_several_leading_dimensions() -> None:
+    assert ScaleAndShift((4, 2))(torch.ones(5, 3, 4, 2)).shape == (5, 3, 4, 2)
+
+
+def test_scale_and_shift_forward_exact_shape_without_batch_dimension() -> None:
+    assert ScaleAndShift((4, 2))(torch.ones(4, 2)).shape == (4, 2)
+
+
+def test_scale_and_shift_forward_expand_broadcasts_on_purpose() -> None:
+    assert ScaleAndShift(5)(torch.ones(3, 1).expand(3, 5)).shape == (3, 5)

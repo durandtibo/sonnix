@@ -44,11 +44,14 @@ class BaseDynamicNorm(nn.Module, ABC):
     Raises:
         TypeError: if ``alpha_init_value`` is not a number or ``bias`` is
             not a ``bool``.
-        ValueError: if ``alpha_init_value`` is not finite.
+        ValueError: if ``alpha_init_value`` is not finite, or if the
+            last dimensions of the input are not ``normalized_shape``.
 
     Shape:
-        - Input: ``(N, *)``, where ``*`` means any number of dimensions.
-        - Output: ``(N, *)``, same shape as the input.
+        - Input: ``(N, *, normalized_shape)``, where ``*`` means any
+          number of dimensions. The last dimensions are
+          ``normalized_shape``.
+        - Output: ``(N, *, normalized_shape)``, same shape as the input.
 
     Example:
         ```pycon
@@ -132,11 +135,14 @@ class DynamicAsinh(BaseDynamicNorm):
     Raises:
         TypeError: if ``alpha_init_value`` is not a number or ``bias`` is
             not a ``bool``.
-        ValueError: if ``alpha_init_value`` is not finite.
+        ValueError: if ``alpha_init_value`` is not finite, or if the
+            last dimensions of the input are not ``normalized_shape``.
 
     Shape:
-        - Input: ``(N, *)``, where ``*`` means any number of dimensions.
-        - Output: ``(N, *)``, same shape as the input.
+        - Input: ``(N, *, normalized_shape)``, where ``*`` means any
+          number of dimensions. The last dimensions are
+          ``normalized_shape``.
+        - Output: ``(N, *, normalized_shape)``, same shape as the input.
 
     Example:
         ```pycon
@@ -187,11 +193,14 @@ class DynamicTanh(BaseDynamicNorm):
     Raises:
         TypeError: if ``alpha_init_value`` is not a number or ``bias`` is
             not a ``bool``.
-        ValueError: if ``alpha_init_value`` is not finite.
+        ValueError: if ``alpha_init_value`` is not finite, or if the
+            last dimensions of the input are not ``normalized_shape``.
 
     Shape:
-        - Input: ``(N, *)``, where ``*`` means any number of dimensions.
-        - Output: ``(N, *)``, same shape as the input.
+        - Input: ``(N, *, normalized_shape)``, where ``*`` means any
+          number of dimensions. The last dimensions are
+          ``normalized_shape``.
+        - Output: ``(N, *, normalized_shape)``, same shape as the input.
 
     Example:
         ```pycon

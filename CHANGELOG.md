@@ -43,6 +43,20 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- Strict shapes (third target state step 3, #461): nothing broadcasts silently
+  any more. `ScaleAndShift`, `DynamicTanh` and `DynamicAsinh` raise a
+  `ValueError` naming `normalized_shape` when the last dimensions of the input
+  are not `normalized_shape` (`ScaleAndShift(5)(x[3, 1])` no longer returns
+  `(3, 5)`; use `x.expand(3, 5)`). `SumFusion`, `AverageFusion` and
+  `MultiplicationFusion` raise a `ValueError` naming both shapes when an input
+  does not have the shape of the first one (`ConcatFusion` is unchanged).
+  `ResidualBlock` raises a `ValueError` naming `skip` and `residual` when the
+  two branches have different shapes. The alpha activations with
+  `num_parameters > 1` raise a `ValueError` naming `channel_dim` and
+  `num_parameters` when `channel_dim` is out of range or the size of this
+  dimension is not `num_parameters` (it was a broadcast, or a bare
+  `IndexError`). `RelativeLoss` checks that the prediction and the target have
+  the same shape before it calls the criterion.
 - Numerics in half precision (third target state step 2, #460): the default
   guards are raised to the smallest normal number of the dtype
   (`resolve_eps`: `safe_log`, `SafeLog`, `poisson_regression_loss`,
@@ -228,6 +242,11 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
 
 ### Added
 
+- `ModuleCase.wrong_inputs` in the test registry and a test that every module
+  raises a `ValueError` on inputs with a wrong shape (the modules that accept
+  any shape are listed with the reason), and a `torch.export` test with a
+  dynamic batch dimension for every registered module (third target state
+  step 3, #461).
 - `sonnix.utils.resolve_eps` and `sonnix.utils.resolve_max_exponent`, the two
   helpers that adapt a guard to the dtype of a tensor. New registry tests: every
   module and every function without a module is finite on zeros, tiny and large

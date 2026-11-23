@@ -13,7 +13,7 @@ from coola.validation import validate_isinstance
 from sonnix.factory import resolve_module
 from sonnix.functional import classical_relative_indicator, relative_loss
 from sonnix.modules.loss.base import BaseLoss
-from sonnix.validation import validate_positive
+from sonnix.validation import validate_positive, validate_same_shape
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -93,7 +93,9 @@ class RelativeLoss(BaseLoss):
     Raises:
         TypeError: if ``indicator`` is not callable.
         TypeError: if ``eps`` is not a number or ``detach_indicator`` is not a ``bool``.
-        ValueError: if ``eps`` is not finite and strictly positive.
+        ValueError: if ``eps`` is not finite and strictly positive, or if
+            ``prediction`` and ``target`` do not have the same shape
+            (checked before the criterion is called).
 
     Example:
         ```pycon
@@ -149,6 +151,7 @@ class RelativeLoss(BaseLoss):
         )
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        validate_same_shape(prediction, target, name1="prediction", name2="target")
         loss = self.criterion(prediction, target)
         indicator = self.indicator(prediction, target)
         if self.detach_indicator:

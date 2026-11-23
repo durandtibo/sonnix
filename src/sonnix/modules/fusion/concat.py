@@ -37,6 +37,8 @@ class ConcatFusion(BaseFusion):
         ```
     """
 
+    _same_shape = False
+
     def __init__(self, dim: int = -1) -> None:
         super().__init__()
         validate_int(dim, name="dim")
