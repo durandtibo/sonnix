@@ -1344,7 +1344,7 @@ the user.</p>
 </tr>
 <tr>
 <td>P4</td>
-<td><strong>Strict shapes.</strong> Two tensors of the same role must have the same shape (<code>ValueError</code> naming both): the prediction and the target, the inputs of a sum, average or product fusion, the two branches of a residual block. A layer or an encoder checks the dimension it consumes and names the argument (<code>n</code>, <code>n_features</code>, <code>normalized_shape</code>, <code>channel_dim</code>). Nothing broadcasts silently: a size-1 dimension is not expanded. A wrapper of an arbitrary criterion (<code>TransformedLoss</code>, <code>MulticlassFlatten</code>) leaves the policy to the wrapped module.</td>
+<td><strong>Strict shapes.</strong> Two tensors of the same role must have the same shape (<code>ValueError</code> naming both): the prediction and the target, the inputs of a sum, average or product fusion, the two branches of a residual block. A layer or an encoder checks the dimension it consumes and names the argument (<code>n</code>, <code>n_features</code>, <code>normalized_shape</code>, <code>channel_dim</code>). Nothing broadcasts silently: a size-1 dimension is not expanded. A wrapper that reshapes (<code>MulticlassFlatten</code>) checks the shapes it relies on; a wrapper that only forwards (<code>TransformedLoss</code>) leaves the policy to the wrapped module.</td>
 </tr>
 <tr>
 <td>P5</td>
