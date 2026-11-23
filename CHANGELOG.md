@@ -40,9 +40,9 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 | `sonnix.modules.numerical._utils.NumericalEncoder`                                                 | `sonnix.modules.BaseNumericalEncoder` (#452)                                                                |
 | `general_robust_regression_loss(p, t)` / `GeneralRobustRegressionLoss()` (`alpha=2`): `(x/c)²`      | `0.5 * (x/c)²`, continuous with `alpha != 2`; `scale=s / sqrt(2)` gives the old value (fourth target state step 2, #469) |
 | `safe_exp(1e8, preserve_gradient=True)`: `8.9e6`; `safe_log(-1e30, ...)`: `-inf`; `inf` input: `nan` | the value of `safe_exp(x)` / `safe_log(x)`; gradient `1` (`0` at an infinite input) (fourth target state step 2, #469) |
-| `is_loss_decreasing*(num_iterations=0)`, `lr=nan`, `max_norm=-1`, `random_seed=1.5`, `DummyDataset(feature_size=2.5)` | `ValueError` / `TypeError` naming the argument (fourth target state step 3, #470) |
-| `load_state_dict_to_module(..., strict="yes")`, `register_tensor(..., learnable="yes")`              | `TypeError` (fourth target state step 3, #470) |
-| `Clamp(0, 1).min_val` (`int`)                                                                        | `0.0` (`float`) (fourth target state step 3, #470) |
+| `is_loss_decreasing*(num_iterations=0)`, `lr=nan`, `max_norm=-1`, `random_seed=1.5`, `DummyDataset(feature_size=2.5)` | `ValueError` / `TypeError` naming the argument (fourth target state step 3, #471) |
+| `load_state_dict_to_module(..., strict="yes")`, `register_tensor(..., learnable="yes")`              | `TypeError` (fourth target state step 3, #471) |
+| `Clamp(0, 1).min_val` (`int`)                                                                        | `0.0` (`float`) (fourth target state step 3, #471) |
 | `sonnix.functional.loss.X`, `sonnix.utils.mode.X`, `sonnix.testing.loss.X`                         | `sonnix.functional.X`, `sonnix.utils.X`, `sonnix.testing.X` (#452)                                          |
 | `binary_focal_loss(p, t_long)` and the three other binary losses (`RuntimeError`)                  | work: an integer or `bool` target is converted to the dtype of the prediction (#454)                        |
 | `safe_log(0)`, `SafeLog()(0)` in `float16`: `-inf`                                                 | `-9.7` (`eps` raised to the smallest normal number of the dtype) (#460)                                     |
@@ -60,7 +60,7 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
-- Validate the whole surface (fourth target state step 3, #470). `sonnix.testing`
+- Validate the whole surface (fourth target state step 3, #471). `sonnix.testing`
   and `sonnix.utils` check their scalar arguments like the modules do:
   `is_loss_decreasing*` require `num_iterations >= 1` and an integer
   `random_seed`, `max_norm` is `None` or finite and strictly positive,
