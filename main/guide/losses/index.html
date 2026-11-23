@@ -621,6 +621,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#general-robust-loss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General robust loss
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#guards-and-the-dtype" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1273,6 +1284,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#general-robust-loss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General robust loss
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#guards-and-the-dtype" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1367,6 +1389,18 @@ strategies and validates the value, so a custom loss only has to call it:</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce_loss</span>
 
 <span class="n">reduce_loss</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">"batchmean"</span><span class="p">)</span>  <span class="c1"># tensor(3.)</span>
+</code></pre></div>
+<h2 id="general-robust-loss">General robust loss<a class="headerlink" href="#general-robust-loss" title="Permanent link">&para;</a></h2>
+<p><code>general_robust_regression_loss</code> (<code>GeneralRobustRegressionLoss</code>) is Barron's
+loss. The limit cases of <code>alpha</code> use their own formula, and the loss is
+continuous in <code>alpha</code>: <code>alpha=2</code> is <code>0.5 * (x / scale) ** 2</code>, half of the
+squared error, like the value of <code>alpha=1.99</code> and <code>alpha=2.0001</code>. The default
+<code>alpha=2.0</code> is therefore half of <code>torch.nn.functional.mse_loss</code>; use
+<code>scale=s / sqrt(2)</code> to get the squared error of scale <code>s</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">general_robust_regression_loss</span>
+
+<span class="n">general_robust_regression_loss</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">3.0</span><span class="p">]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># tensor(4.5000)</span>
 </code></pre></div>
 <h2 id="guards-and-the-dtype">Guards and the dtype<a class="headerlink" href="#guards-and-the-dtype" title="Permanent link">&para;</a></h2>
 <p>The losses that divide by a quantity or take a logarithm have an <code>eps</code>

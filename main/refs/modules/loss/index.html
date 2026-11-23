@@ -2946,8 +2946,9 @@ module.</p>
                 <p>The shape parameter that controls the robustness of the
 loss. It is a Python float, not a tensor. <code>-inf</code> is
 supported (Welsch loss), <code>NaN</code> and <code>+inf</code> are not. The limit cases <code>alpha=2</code>
-(<code>x^2</code>) and <code>alpha=0</code> (<code>log(0.5 * x^2 + 1)</code>) are used
-when <code>alpha</code> is within <code>1e-5</code> of 2 or 0.</p>
+(<code>0.5 * x^2</code>) and <code>alpha=0</code> (<code>log(0.5 * x^2 + 1)</code>) are used
+when <code>alpha</code> is within <code>1e-5</code> of 2 or 0, so the loss is
+continuous in <code>alpha</code>.</p>
               </div>
             </td>
             <td>

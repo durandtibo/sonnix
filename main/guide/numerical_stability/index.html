@@ -1269,7 +1269,10 @@ every module.</p>
   not remove <code>nan</code>: a <code>nan</code> input stays <code>nan</code>.</li>
 <li><strong>Logarithm.</strong> <code>safe_log</code> clamps the input to <code>min_val</code>; with
   <code>preserve_gradient=True</code> the gradient of the unclamped function is used, so
-  at <code>x = 0</code> the gradient is <code>1 / min_val</code>, which is large.</li>
+  at <code>x = 0</code> the gradient is <code>1 / min_val</code>, which is large. The option changes
+  the gradient only: the value is the one of the clamped input for every input,
+  including <code>inf</code> (<code>safe_exp(inf, preserve_gradient=True)</code> is finite). The
+  gradient is <code>0</code> at an infinite input.</li>
 <li><strong>Powers.</strong> <code>safe_pow</code> is <code>torch.pow</code> with a gradient of <code>0</code> at <code>0</code>, instead
   of <code>nan</code>, and nothing else: a negative input with a fractional exponent is
   <code>nan</code>, like <code>torch.pow</code>. Use it instead of <code>x ** p</code> or <code>sqrt</code> when the input

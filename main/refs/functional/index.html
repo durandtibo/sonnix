@@ -2657,7 +2657,8 @@ not finite in the dtype of <code>input</code>
             <td>
               <div class="doc-md-description">
                 <p>If <code>True</code>, the gradient is computed as
-if the input was not clamped (straight-through).</p>
+if the input was not clamped (straight-through). The
+value does not depend on this option.</p>
               </div>
             </td>
             <td>
@@ -2920,7 +2921,8 @@ number of the dtype of <code>input</code>
             <td>
               <div class="doc-md-description">
                 <p>If <code>True</code>, the gradient is computed as
-if the input was not clamped (straight-through).</p>
+if the input was not clamped (straight-through). The
+value does not depend on this option.</p>
               </div>
             </td>
             <td>
@@ -3926,7 +3928,7 @@ and scaled in at least <code>float32</code>, because the square of a
 difference larger than <code>255 * scale</code> overflows in <code>float16</code>.
 The loss is cast back to the dtype of <code>prediction</code>, so it is
 <code>inf</code> if it is larger than the maximum of this dtype (for
-example <code>alpha=2</code> with a difference of <code>300</code> in <code>float16</code>).</p>
+example <code>alpha=2</code> with a difference of <code>400</code> in <code>float16</code>).</p>
 </details>
 
 <details class="note" open>
@@ -3991,8 +3993,9 @@ zero for the elements whose loss is larger than <code>max_val</code>.</p>
 loss. It is a Python float, not a tensor. <code>-inf</code> is supported (Welsch loss),
 <code>NaN</code> and <code>+inf</code> are not. The limit
 cases <code>alpha=2</code>
-(<code>x^2</code>), <code>alpha=0</code> (<code>log(0.5 * x^2 + 1)</code>) are
-used when <code>alpha</code> is within <code>1e-5</code> of 0 or 2.</p>
+(<code>0.5 * x^2</code>), <code>alpha=0</code> (<code>log(0.5 * x^2 + 1)</code>) are
+used when <code>alpha</code> is within <code>1e-5</code> of 0 or 2, so the
+loss is continuous in <code>alpha</code>.</p>
               </div>
             </td>
             <td>
@@ -8201,7 +8204,7 @@ and scaled in at least <code>float32</code>, because the square of a
 difference larger than <code>255 * scale</code> overflows in <code>float16</code>.
 The loss is cast back to the dtype of <code>prediction</code>, so it is
 <code>inf</code> if it is larger than the maximum of this dtype (for
-example <code>alpha=2</code> with a difference of <code>300</code> in <code>float16</code>).</p>
+example <code>alpha=2</code> with a difference of <code>400</code> in <code>float16</code>).</p>
 </details>
 
 <details class="note" open>
@@ -8266,8 +8269,9 @@ zero for the elements whose loss is larger than <code>max_val</code>.</p>
 loss. It is a Python float, not a tensor. <code>-inf</code> is supported (Welsch loss),
 <code>NaN</code> and <code>+inf</code> are not. The limit
 cases <code>alpha=2</code>
-(<code>x^2</code>), <code>alpha=0</code> (<code>log(0.5 * x^2 + 1)</code>) are
-used when <code>alpha</code> is within <code>1e-5</code> of 0 or 2.</p>
+(<code>0.5 * x^2</code>), <code>alpha=0</code> (<code>log(0.5 * x^2 + 1)</code>) are
+used when <code>alpha</code> is within <code>1e-5</code> of 0 or 2, so the
+loss is continuous in <code>alpha</code>.</p>
               </div>
             </td>
             <td>
@@ -10272,7 +10276,8 @@ not finite in the dtype of <code>input</code>
             <td>
               <div class="doc-md-description">
                 <p>If <code>True</code>, the gradient is computed as
-if the input was not clamped (straight-through).</p>
+if the input was not clamped (straight-through). The
+value does not depend on this option.</p>
               </div>
             </td>
             <td>
@@ -10450,7 +10455,8 @@ number of the dtype of <code>input</code>
             <td>
               <div class="doc-md-description">
                 <p>If <code>True</code>, the gradient is computed as
-if the input was not clamped (straight-through).</p>
+if the input was not clamped (straight-through). The
+value does not depend on this option.</p>
               </div>
             </td>
             <td>
