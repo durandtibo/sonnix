@@ -455,10 +455,10 @@ logits variants of the focal and Poly-1 losses (`einsum` skipped: slower than `b
 
 ## Appendix D: status of this revision
 
-| Step | Pull request | Notes   |
-| ---- | ------------ | ------- |
-| 1    | #468         | gates; D6 not applied (needs approval) |
-| 2    | #469         | F1, F2 |
+| Step | Pull request | Notes                                                                                      |
+| ---- | ------------ | ------------------------------------------------------------------------------------------ |
+| 1    | #468         | gates; D6 not applied (needs approval)                                                     |
+| 2    | #469         | F1, F2                                                                                     |
 | 3    | #471         | F4, F5, F11; also validates `random_seed` and `rng_seed` (the signature rule reaches them) |
-| 4    | #472         | F3 |
-| 5    | #473         | F10 (D3 applied) |
+| 4    | #472         | F3                                                                                         |
+| 5    | #473         | F10 (D3 applied)                                                                           |
