@@ -9,15 +9,19 @@ from coola.validation import validate_finite, validate_ge
 
 
 def safe_pow(input: torch.Tensor, exponent: float) -> torch.Tensor:  # noqa: A002
-    r"""Compute ``input ** exponent`` for non-negative values with a finite
-    gradient at zero.
+    r"""Compute ``input ** exponent`` with a finite gradient at zero.
 
-    For an exponent in ``(0, 1)``, the derivative of the power is
-    infinite at zero and ``inf * 0`` gives a ``NaN`` gradient. The
-    zeros are masked before the power so the gradient is zero there.
+    This function is ``torch.pow`` with a gradient of ``0`` at ``0``
+    and nothing else. For an exponent in ``(0, 1)``, the derivative of
+    the power is infinite at zero and ``inf * 0`` gives a ``NaN``
+    gradient. The zeros are masked before the power so the gradient is
+    zero there. A negative input is not masked: the result is ``NaN``
+    for a non-integer exponent, like ``torch.pow``, and the power for
+    an integer exponent (``safe_pow(-2, 2)`` is ``4``).
 
     Args:
-        input: The non-negative input tensor.
+        input: The input tensor. Use the absolute value if it can be
+            negative and the exponent is not an integer.
         exponent: The exponent, which must be non-negative.
 
     Returns:
@@ -46,5 +50,5 @@ def safe_pow(input: torch.Tensor, exponent: float) -> torch.Tensor:  # noqa: A00
     validate_ge(exponent, 0, name="exponent")
     if exponent == 0:
         return torch.ones_like(input)
-    is_positive = input > 0
-    return torch.where(is_positive, torch.where(is_positive, input, 1.0).pow(exponent), 0.0)
+    is_nonzero = input != 0
+    return torch.where(is_nonzero, torch.where(is_nonzero, input, 1.0).pow(exponent), 0.0)

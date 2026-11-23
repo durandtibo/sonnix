@@ -6,7 +6,7 @@ from torch import nn
 
 from tests.registry import MODULE_CASES, ModuleCase
 
-DTYPES = (torch.float32, torch.float64, torch.bfloat16)
+DTYPES = (torch.float32, torch.float64, torch.float16, torch.bfloat16)
 DIFFERENTIABLE_CASES = [case for case in MODULE_CASES if case.differentiable]
 
 

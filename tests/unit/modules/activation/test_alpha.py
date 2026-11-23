@@ -93,6 +93,26 @@ def test_exp_sin_forward_init_2(device: str) -> None:
 ##############################
 
 
+def test_gaussian_float16_large_input_alpha_gradient_is_finite() -> None:
+    # exp(-0.5 * (x / alpha) ** 2) is 0 for a large x, and so is its gradient.
+    module = Gaussian(dtype=torch.float16)
+    module(torch.tensor([1000.0], dtype=torch.float16)).sum().backward()
+    assert module.alpha.grad.equal(torch.zeros(1, dtype=torch.float16))
+
+
+def test_gaussian_float16_large_input_is_zero() -> None:
+    assert Gaussian(dtype=torch.float16)(torch.tensor([1000.0], dtype=torch.float16)).equal(
+        torch.zeros(1, dtype=torch.float16)
+    )
+
+
+def test_gaussian_forward_alpha_gradient_value() -> None:
+    # d/dalpha exp(-0.5 * (x / alpha)^2) at x=1, alpha=1 is exp(-0.5)
+    module = Gaussian()
+    module(torch.ones(1)).sum().backward()
+    assert module.alpha.grad.allclose(torch.tensor([0.6065306597126334]))
+
+
 def test_gaussian_str() -> None:
     assert str(Gaussian()).startswith("Gaussian(")
 

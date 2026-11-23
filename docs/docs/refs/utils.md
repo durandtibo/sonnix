@@ -22,4 +22,8 @@
 
 ## ::: sonnix.utils.register_tensor
 
+## ::: sonnix.utils.resolve_eps
+
+## ::: sonnix.utils.resolve_max_exponent
+
 ## ::: sonnix.utils.unfreeze_module

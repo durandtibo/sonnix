@@ -43,6 +43,14 @@ def general_robust_regression_loss(
         function.
 
     Note:
+        The difference between the prediction and the target is squared
+        and scaled in at least ``float32``, because the square of a
+        difference larger than ``255 * scale`` overflows in ``float16``.
+        The loss is cast back to the dtype of ``prediction``, so it is
+        ``inf`` if it is larger than the maximum of this dtype (for
+        example ``alpha=2`` with a difference of ``300`` in ``float16``).
+
+    Note:
         If ``max_val`` is set, the loss is clamped, so the gradient is
         zero for the elements whose loss is larger than ``max_val``.
 
@@ -89,7 +97,9 @@ def general_robust_regression_loss(
     """
     validate_general_robust_params(alpha, scale, max_val)
     validate_same_shape(prediction, target, name1="prediction", name2="target")
-    squared_error = prediction.sub(target).div(scale).pow(2)
+    # The square of a large difference overflows in ``float16``: compute in at least ``float32``.
+    dtype = torch.promote_types(prediction.dtype, torch.float32)
+    squared_error = prediction.sub(target).to(dtype).div(scale).pow(2)
     if abs(alpha - 2) < _ALPHA_EPS:
         loss = squared_error
     elif abs(alpha) < _ALPHA_EPS:
@@ -102,4 +112,6 @@ def general_robust_regression_loss(
         loss = (alpha / 2 * squared_error.div(b).log1p()).expm1().mul(b / alpha)
     if max_val is not None:
         loss = loss.clamp(max=max_val)
+    if prediction.is_floating_point():
+        loss = loss.to(prediction.dtype)
     return reduce_loss(loss, reduction=reduction)

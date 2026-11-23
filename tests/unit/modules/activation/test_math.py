@@ -458,3 +458,11 @@ def test_pow_invalid_exponent(exponent: float) -> None:
 def test_pow_exponent_not_a_number() -> None:
     with pytest.raises(TypeError, match=r"exponent must be a real number"):
         Pow("a")
+
+
+def test_safe_exp_float16_large_input_is_finite() -> None:
+    assert SafeExp()(torch.tensor([1000.0], dtype=torch.float16)).isfinite().all()
+
+
+def test_safe_log_float16_zero_is_finite() -> None:
+    assert SafeLog()(torch.zeros(1, dtype=torch.float16)).isfinite().all()

@@ -193,7 +193,7 @@ class ExpSin(BaseAlphaActivation):
 class Gaussian(BaseAlphaActivation):
     r"""Implement the Gaussian activation layer.
 
-    Formula: ``exp(-0.5 * x^2 / alpha^2)``
+    Formula: ``exp(-0.5 * (x / alpha)^2)``
 
     Note: the output is ``nan`` or ``inf`` if ``alpha`` reaches ``0``,
     which can happen during training when ``alpha`` is learnable.
@@ -236,7 +236,7 @@ class Gaussian(BaseAlphaActivation):
         validate_non_zero(init, name="init")
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
-        return input.pow(2).mul(-0.5).div(self._broadcast_alpha(input).pow(2)).exp()
+        return input.div(self._broadcast_alpha(input)).pow(2).mul(-0.5).exp()
 
 
 class Laplacian(BaseAlphaActivation):

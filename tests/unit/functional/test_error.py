@@ -273,3 +273,29 @@ def test_error_functions_broadcast_shapes_are_rejected(func: Callable[..., torch
 def test_error_functions_scalar_target_is_rejected(func: Callable[..., torch.Tensor]) -> None:
     with pytest.raises(ValueError, match=r"prediction and target must have the same shape"):
         func(torch.ones(3), torch.ones(()))
+
+
+@pytest.mark.parametrize("func", [absolute_relative_error, symmetric_absolute_relative_error])
+def test_relative_errors_float16_zero_target_is_finite(
+    func: Callable[..., torch.Tensor],
+) -> None:
+    # The default eps (1e-8) is 0 in float16: it is raised to the smallest normal number.
+    assert func(torch.zeros(2, dtype=torch.float16), torch.zeros(2, dtype=torch.float16)).equal(
+        torch.zeros(2, dtype=torch.float16)
+    )
+
+
+@pytest.mark.parametrize("func", [absolute_relative_error, symmetric_absolute_relative_error])
+def test_relative_errors_float16_zero_target_gradient_is_finite(
+    func: Callable[..., torch.Tensor],
+) -> None:
+    prediction = torch.zeros(2, dtype=torch.float16, requires_grad=True)
+    func(prediction, torch.zeros(2, dtype=torch.float16)).sum().backward()
+    assert prediction.grad.isfinite().all()
+
+
+def test_absolute_relative_error_float16_zero_target_value() -> None:
+    # 1 / 6.1035e-05 = 16384
+    assert absolute_relative_error(
+        torch.ones(1, dtype=torch.float16), torch.zeros(1, dtype=torch.float16)
+    ).equal(torch.tensor([16384.0], dtype=torch.float16))

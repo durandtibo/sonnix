@@ -284,3 +284,64 @@ def test_general_robust_regression_loss_invalid_alpha(alpha: float) -> None:
 def test_general_robust_regression_loss_invalid_max_val(max_val: float) -> None:
     with pytest.raises(ValueError, match=r"max_val must be greater than 0"):
         general_robust_regression_loss(torch.ones(2, 3), torch.ones(2, 3), max_val=max_val)
+
+
+@pytest.mark.parametrize(
+    ("alpha", "expected"), [(1.0, 299.0), (0.0, 10.7109375), (-float("inf"), 1.0)]
+)
+def test_general_robust_regression_loss_float16_large_difference_is_finite(
+    alpha: float, expected: float
+) -> None:
+    # The difference of 300 is squared in float32: its square (9e4) is not finite in float16.
+    loss = general_robust_regression_loss(
+        torch.tensor([300.0], dtype=torch.float16),
+        torch.zeros(1, dtype=torch.float16),
+        alpha=alpha,
+    )
+    assert loss.equal(torch.tensor(expected, dtype=torch.float16))
+
+
+def test_general_robust_regression_loss_float16_large_difference_gradient_is_finite() -> None:
+    prediction = torch.tensor([300.0], dtype=torch.float16, requires_grad=True)
+    general_robust_regression_loss(
+        prediction, torch.zeros(1, dtype=torch.float16), alpha=1.0
+    ).backward()
+    assert prediction.grad.equal(torch.tensor([1.0], dtype=torch.float16))
+
+
+def test_general_robust_regression_loss_float16_loss_above_the_maximum_is_inf() -> None:
+    # 300 ** 2 = 90000 is larger than the maximum of float16 (65504).
+    loss = general_robust_regression_loss(
+        torch.tensor([300.0], dtype=torch.float16), torch.zeros(1, dtype=torch.float16)
+    )
+    assert loss.isinf().all()
+
+
+def test_general_robust_regression_loss_float16_loss_above_the_maximum_gradient_is_finite() -> None:
+    prediction = torch.tensor([300.0], dtype=torch.float16, requires_grad=True)
+    general_robust_regression_loss(prediction, torch.zeros(1, dtype=torch.float16)).backward()
+    assert prediction.grad.equal(torch.tensor([600.0], dtype=torch.float16))
+
+
+def test_general_robust_regression_loss_float16_max_val_clips_in_float32() -> None:
+    loss = general_robust_regression_loss(
+        torch.tensor([300.0], dtype=torch.float16),
+        torch.zeros(1, dtype=torch.float16),
+        max_val=100.0,
+    )
+    assert loss.equal(torch.tensor(100.0, dtype=torch.float16))
+
+
+@pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16, torch.float32, torch.float64])
+def test_general_robust_regression_loss_keeps_the_dtype(dtype: torch.dtype) -> None:
+    loss = general_robust_regression_loss(
+        torch.ones(2, 3, dtype=dtype), torch.zeros(2, 3, dtype=dtype), reduction="none"
+    )
+    assert loss.dtype == dtype
+
+
+def test_general_robust_regression_loss_integer_prediction_is_float32() -> None:
+    loss = general_robust_regression_loss(
+        torch.ones(2, 3, dtype=torch.long), torch.zeros(2, 3), reduction="none"
+    )
+    assert loss.dtype == torch.float32

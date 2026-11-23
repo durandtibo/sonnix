@@ -248,3 +248,10 @@ def test_callable_repr_method() -> None:
 
 def test_callable_repr_callable_object() -> None:
     assert _callable_repr(nn.Identity()) == "Identity()"
+
+
+def test_relative_loss_float16_zero_is_finite() -> None:
+    loss = RelativeLoss(nn.L1Loss(reduction="none"))
+    assert loss(torch.zeros(2, dtype=torch.float16), torch.zeros(2, dtype=torch.float16)).equal(
+        torch.zeros((), dtype=torch.float16)
+    )

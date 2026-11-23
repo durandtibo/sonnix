@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from coola.validation import validate_isinstance
 
 from sonnix.functional.reduction import reduce_loss
+from sonnix.utils import resolve_eps
 from sonnix.validation import validate_positive, validate_same_shape
 
 if TYPE_CHECKING:
@@ -55,7 +56,9 @@ def poisson_regression_loss(
         target: The count target values. The values must be
             non-negative (zero is allowed).
         eps: An arbitrary small finite, strictly positive number to avoid
-            undefined results when the count is zero.
+            undefined results when the count is zero. It is raised to the
+            smallest normal number of the dtype of ``prediction`` (``1e-8``
+            is ``0`` in ``float16``).
         log_input: If ``True``, the predictions are the logarithm of
             the rate.
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
@@ -89,6 +92,6 @@ def poisson_regression_loss(
     if log_input:
         loss = prediction.exp() - target.mul(prediction)
     else:
-        rate = prediction.clamp(min=eps)
+        rate = prediction.clamp(min=resolve_eps(eps, prediction))
         loss = rate - target.mul(rate.log())
     return reduce_loss(loss, reduction=reduction)
