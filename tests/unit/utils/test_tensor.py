@@ -17,6 +17,19 @@ from sonnix.utils.tensor import (
 #####################################
 
 
+@pytest.mark.parametrize("learnable", [1, 0, "yes", None])
+def test_register_tensor_rejects_a_learnable_that_is_not_a_bool(learnable: object) -> None:
+    with pytest.raises(TypeError, match=r"learnable must be an instance of bool"):
+        register_tensor(nn.Module(), "alpha", torch.ones(2), learnable=learnable)
+
+
+def test_register_tensor_does_not_register_when_learnable_is_invalid() -> None:
+    module = nn.Module()
+    with pytest.raises(TypeError, match=r"learnable must be an instance of bool"):
+        register_tensor(module, "alpha", torch.ones(2), learnable="yes")
+    assert not hasattr(module, "alpha")
+
+
 def test_register_tensor_learnable_is_a_parameter() -> None:
     module = nn.Module()
     register_tensor(module, "alpha", torch.ones(2), learnable=True)

@@ -8,6 +8,8 @@ __all__ = ["load_state_dict_to_module"]
 import logging
 from typing import TYPE_CHECKING, Any
 
+from coola.validation import validate_isinstance
+
 if TYPE_CHECKING:
     from torch import nn
 
@@ -142,6 +144,9 @@ def load_state_dict_to_module(
             keys in ``state_dict`` match the keys returned by this
             module's ``torch.nn.Module.state_dict`` function.
 
+    Raises:
+        TypeError: If ``strict`` is not a ``bool``.
+
     Example:
         ```pycon
         >>> import torch
@@ -164,6 +169,7 @@ def load_state_dict_to_module(
 
         ```
     """
+    validate_isinstance(strict, bool, name="strict")
     module_keys = set(module.state_dict().keys())
     try:
         result = module.load_state_dict(state_dict, strict=strict)

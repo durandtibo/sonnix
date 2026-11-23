@@ -193,3 +193,18 @@ def test_load_state_dict_to_module_prefixed(state_dict: dict) -> None:
 def test_load_state_dict_to_module_strict_is_keyword_only() -> None:
     with pytest.raises(TypeError, match=r"takes 2 positional arguments but 3 were given"):
         load_state_dict_to_module(LINEAR_STATE_DICT, nn.Linear(4, 5), False)
+
+
+@pytest.mark.parametrize("strict", [1, 0, "yes", None])
+def test_load_state_dict_to_module_rejects_a_strict_that_is_not_a_bool(strict: object) -> None:
+    module = nn.Linear(4, 5)
+    with pytest.raises(TypeError, match=r"strict must be an instance of bool"):
+        load_state_dict_to_module(module.state_dict(), module, strict=strict)
+
+
+def test_load_state_dict_to_module_does_not_load_when_strict_is_invalid() -> None:
+    module = nn.Linear(4, 5)
+    weight = module.weight.detach().clone()
+    with pytest.raises(TypeError, match=r"strict must be an instance of bool"):
+        load_state_dict_to_module(LINEAR_STATE_DICT, module, strict="yes")
+    assert module.weight.equal(weight)

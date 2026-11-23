@@ -220,9 +220,9 @@ def test_safe_log_float16_gradient_is_finite() -> None:
     assert x.grad.isfinite().all()
 
 
-#############################################################
-#     Tests for the value of the option preserve_gradient   #
-#############################################################
+###############################################################
+#     Tests for the value of the option preserve_gradient     #
+###############################################################
 
 
 @pytest.mark.parametrize("value", [1e8, 1e30, float("inf"), -1e30, float("-inf"), 25.0, -3.0])
@@ -283,9 +283,9 @@ def test_safe_exp_does_not_mutate_the_input(preserve_gradient: bool) -> None:
     assert x.equal(torch.tensor([1e8, -1.0]))
 
 
-#############################
-#     Tests for _clamp      #
-#############################
+############################
+#     Tests for _clamp     #
+############################
 
 
 def test_clamp_without_preserve_gradient_has_a_zero_gradient_outside() -> None:

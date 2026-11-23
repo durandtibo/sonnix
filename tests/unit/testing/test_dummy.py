@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-import torch
 
 from sonnix.testing.dummy import DummyDataset
 
@@ -38,12 +37,22 @@ def test_dummy_dataset_different_seed_differs() -> None:
     assert not DummyDataset(rng_seed=1)[0]["feature"].equal(DummyDataset(rng_seed=2)[0]["feature"])
 
 
-@pytest.mark.parametrize(("feature_size", "num_examples"), [(3.0, 5), (3, 5.0), ("3", "5")])
-def test_dummy_dataset_numeric_arguments_are_converted_to_int(
-    feature_size: object, num_examples: object
-) -> None:
-    dataset = DummyDataset(feature_size=feature_size, num_examples=num_examples)
-    assert dataset[0]["feature"].shape == torch.Size([3])
+@pytest.mark.parametrize("name", ["feature_size", "num_examples", "rng_seed"])
+@pytest.mark.parametrize("value", [2.5, 3.0, True, "3"])
+def test_dummy_dataset_rejects_a_non_integer(name: str, value: object) -> None:
+    with pytest.raises(TypeError, match=rf"{name} must be an int"):
+        DummyDataset(**{name: value})
+
+
+@pytest.mark.parametrize("name", ["feature_size", "num_examples"])
+@pytest.mark.parametrize("value", [0, -1])
+def test_dummy_dataset_rejects_a_size_lower_than_1(name: str, value: int) -> None:
+    with pytest.raises(ValueError, match=rf"{name} must be greater than or equal to 1"):
+        DummyDataset(**{name: value})
+
+
+def test_dummy_dataset_accepts_a_size_of_1() -> None:
+    assert len(DummyDataset(feature_size=1, num_examples=1)) == 1
 
 
 def test_dummy_dataset_repr() -> None:

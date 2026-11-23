@@ -10,6 +10,7 @@ import math
 from typing import TYPE_CHECKING
 
 import torch
+from coola.validation import validate_isinstance
 from torch import nn
 
 if TYPE_CHECKING:
@@ -31,6 +32,9 @@ def register_tensor(module: nn.Module, name: str, tensor: Tensor, *, learnable: 
         learnable: If ``True``, the tensor is registered as a
             parameter, otherwise as a buffer.
 
+    Raises:
+        TypeError: If ``learnable`` is not a ``bool``.
+
     Example:
         ```pycon
         >>> import torch
@@ -46,6 +50,7 @@ def register_tensor(module: nn.Module, name: str, tensor: Tensor, *, learnable: 
 
         ```
     """
+    validate_isinstance(learnable, bool, name="learnable")
     if learnable:
         module.register_parameter(name, nn.Parameter(tensor.detach().clone()))
     else:

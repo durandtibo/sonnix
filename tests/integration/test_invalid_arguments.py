@@ -1,6 +1,12 @@
-r"""Test that every public function and module rejects an invalid
-argument, with the same exception type and message for a function and
-its module (properties P2 and P6).
+r"""Test that every public function and module rejects an argument that is
+out of its range, with the same exception type and message for a function
+and its module (property P2).
+
+The type and the finiteness of the scalar arguments are tested for every
+public object by ``test_scalar_arguments.py``, which walks the signatures.
+This file lists what the signature cannot tell: the range of an argument
+(``gamma >= 0``), the arguments that are not scalars and the exceptions
+of the generic rule.
 
 ``INVALID_ARGUMENTS`` maps a function and its module to the invalid
 keyword arguments and the expected exception. ``MODULE_ARGUMENTS`` lists
@@ -34,20 +40,11 @@ def _op(function: Callable[..., Any]) -> Callable[..., Any]:
     return lambda **kwargs: function(torch.ones(2, 3), **kwargs)
 
 
-def _number(name: str, *, invalid: tuple[Any, ...], match: str) -> list[tuple[dict, type, str]]:
-    r"""Return the rows of a number argument: the values of ``invalid``
-    raise a ``ValueError`` and a string raises a ``TypeError``."""
-    return [
-        *[({name: value}, ValueError, match) for value in invalid],
-        ({name: "a"}, TypeError, rf"{name} must be a real number"),
-    ]
+def _range(name: str, *, invalid: tuple[Any, ...], match: str) -> list[tuple[dict, type, str]]:
+    r"""Return the rows of an argument that is out of its range: the
+    values of ``invalid`` raise a ``ValueError``."""
+    return [({name: value}, ValueError, match) for value in invalid]
 
-
-def _flag(name: str) -> list[tuple[dict, type, str]]:
-    return [({name: 1}, TypeError, rf"{name} must be an instance of bool")]
-
-
-NOT_FINITE = (NAN, INF)
 
 # (id, function call, module call, [(invalid keyword arguments, exception, message)])
 INVALID_ARGUMENTS = [
@@ -56,10 +53,7 @@ INVALID_ARGUMENTS = [
         _loss(sf.binary_focal_loss),
         sm.BinaryFocalLoss,
         [
-            *_number(
-                "alpha", invalid=(*NOT_FINITE, -0.1, 2.0), match=r"alpha must be in the range"
-            ),
-            *_number("gamma", invalid=NOT_FINITE, match=r"gamma must be finite"),
+            *_range("alpha", invalid=(-0.1, 2.0), match=r"alpha must be in the range"),
             ({"gamma": -1.0}, ValueError, r"gamma must be greater than or equal to 0"),
             ({"reduction": "bad"}, ValueError, r"reduction must be one of"),
         ],
@@ -69,8 +63,7 @@ INVALID_ARGUMENTS = [
         _loss(sf.binary_focal_loss_with_logits),
         sm.BinaryFocalLossWithLogits,
         [
-            *_number("alpha", invalid=(*NOT_FINITE, 2.0), match=r"alpha must be in the range"),
-            *_number("gamma", invalid=NOT_FINITE, match=r"gamma must be finite"),
+            *_range("alpha", invalid=(2.0,), match=r"alpha must be in the range"),
             ({"gamma": -1.0}, ValueError, r"gamma must be greater than or equal to 0"),
         ],
     ),
@@ -78,22 +71,23 @@ INVALID_ARGUMENTS = [
         "binary_poly1_loss",
         _loss(sf.binary_poly1_loss),
         sm.BinaryPoly1Loss,
-        _number("alpha", invalid=(*NOT_FINITE, -INF), match=r"alpha must be finite"),
+        _range("alpha", invalid=(-INF,), match=r"alpha must be finite"),
     ),
     (
         "binary_poly1_loss_with_logits",
         _loss(sf.binary_poly1_loss_with_logits),
         sm.BinaryPoly1LossWithLogits,
-        _number("alpha", invalid=(*NOT_FINITE, -INF), match=r"alpha must be finite"),
+        _range("alpha", invalid=(-INF,), match=r"alpha must be finite"),
     ),
     (
         "general_robust_regression_loss",
         _loss(sf.general_robust_regression_loss),
         sm.GeneralRobustRegressionLoss,
         [
-            *_number("alpha", invalid=(NAN, INF), match=r"alpha cannot be NaN or \+inf"),
-            *_number("scale", invalid=(*NOT_FINITE, 0.0, -1.0), match=r"scale must be"),
-            *_number("max_val", invalid=(*NOT_FINITE, 0.0, -1.0), match=r"max_val must be"),
+            # ``alpha`` accepts ``-inf`` (the Welsch loss), so the generic rule skips it.
+            *_range("alpha", invalid=(NAN, INF), match=r"alpha cannot be NaN or \+inf"),
+            *_range("scale", invalid=(0.0, -1.0), match=r"scale must be"),
+            *_range("max_val", invalid=(0.0, -1.0), match=r"max_val must be"),
         ],
     ),
     (
@@ -101,7 +95,7 @@ INVALID_ARGUMENTS = [
         _loss(sf.log_cosh_loss),
         sm.LogCoshLoss,
         [
-            *_number("scale", invalid=(*NOT_FINITE, 0.0, -1.0), match=r"scale must be"),
+            *_range("scale", invalid=(0.0, -1.0), match=r"scale must be"),
             ({"reduction": "bad"}, ValueError, r"reduction must be one of"),
         ],
     ),
@@ -109,50 +103,31 @@ INVALID_ARGUMENTS = [
         "poisson_regression_loss",
         _loss(sf.poisson_regression_loss),
         sm.PoissonRegressionLoss,
-        [
-            *_number("eps", invalid=(*NOT_FINITE, 0.0, -1.0), match=r"eps must be"),
-            *_flag("log_input"),
-        ],
+        _range("eps", invalid=(0.0, -1.0), match=r"eps must be"),
     ),
     (
         "quantile_regression_loss",
         _loss(sf.quantile_regression_loss),
         sm.QuantileRegressionLoss,
-        _number("q", invalid=(*NOT_FINITE, -0.1, 2.0), match=r"q must be in the range"),
+        _range("q", invalid=(-0.1, 2.0), match=r"q must be in the range"),
     ),
     (
         "relative_loss",
         _loss(sf.relative_loss),
         partial(sm.RelativeLoss, nn.MSELoss(reduction="none")),
-        [
-            *_number("eps", invalid=(*NOT_FINITE, 0.0, -1.0), match=r"eps must be"),
-        ],
-    ),
-    (
-        "safe_exp",
-        _op(sf.safe_exp),
-        sm.SafeExp,
-        [
-            *_number("max_val", invalid=NOT_FINITE, match=r"max_val must be finite"),
-            *_flag("preserve_gradient"),
-        ],
+        _range("eps", invalid=(0.0, -1.0), match=r"eps must be"),
     ),
     (
         "safe_log",
         _op(sf.safe_log),
         sm.SafeLog,
-        [
-            *_number("min_val", invalid=(*NOT_FINITE, 0.0, -1.0), match=r"min_val must be"),
-            *_flag("preserve_gradient"),
-        ],
+        _range("min_val", invalid=(0.0, -1.0), match=r"min_val must be"),
     ),
     (
         "safe_pow",
         _op(sf.safe_pow),
         sm.SafePow,
-        [
-            *_number("exponent", invalid=(*NOT_FINITE, -1.0), match=r"exponent must be"),
-        ],
+        _range("exponent", invalid=(-1.0,), match=r"exponent must be"),
     ),
 ]
 
@@ -211,57 +186,11 @@ def test_function_and_module_raise_the_same_error(
 #     Tests for the modules only   #
 ####################################
 
-_RESOLVED = [
-    (INF, ValueError, r"must be finite"),
-    (NAN, ValueError, r"must be finite"),
-    ("a", TypeError, r"must be a real number"),
-]
-ALPHA_ACTIVATIONS = [
-    sm.ExpSin,
-    sm.Gaussian,
-    sm.Laplacian,
-    sm.MultiQuadratic,
-    sm.Quadratic,
-    sm.Snake,
-]
 ENCODER_TENSOR = torch.tensor([[1.0, 2.0]])
 CREATE_INPUT = torch.arange(6, dtype=torch.float).view(6, 1)
 
 # (id, build, invalid keyword arguments, exception, message)
 MODULE_ARGUMENTS = [
-    *[
-        (f"{cls.__name__}-learnable", cls, {"learnable": 1}, TypeError, r"learnable must be")
-        for cls in ALPHA_ACTIVATIONS
-    ],
-    *[
-        (f"{cls.__name__}-init-{value}", cls, {"init": value}, exception, match)
-        for cls in ALPHA_ACTIVATIONS
-        for value, exception, match in _RESOLVED
-    ],
-    *[
-        (f"ConcatFusion-dim-{value!r}", sm.ConcatFusion, {"dim": value}, TypeError, r"dim must be")
-        for value in (1.5, True)
-    ],
-    *[
-        (
-            f"ToCategoricalLabel-dim-{value!r}",
-            sm.ToCategoricalLabel,
-            {"dim": value},
-            TypeError,
-            r"dim must be",
-        )
-        for value in (1.5, True)
-    ],
-    *[
-        (f"ToBinaryLabel-{value}", sm.ToBinaryLabel, {"threshold": value}, exception, match)
-        for value, exception, match in _RESOLVED
-    ],
-    *[
-        (f"Clamp-{name}-{value}", sm.Clamp, {name: value}, exception, match)
-        for name in ("min_val", "max_val")
-        for value, exception, match in _RESOLVED
-    ],
-    ("Clamp-both-nan", sm.Clamp, {"min_val": NAN, "max_val": NAN}, ValueError, r"min_val must be"),
     *[
         (f"ToDtype-{value!r}", sm.ToDtype, {"dtype": value}, exception, match)
         for value, exception, match in (
@@ -271,25 +200,6 @@ MODULE_ARGUMENTS = [
             (float, TypeError, r"dtype must be an instance of"),
         )
     ],
-    *[
-        (f"ReLUn-{value}", sm.ReLUn, {"max_val": value}, exception, match)
-        for value, exception, match in _RESOLVED
-    ],
-    *[
-        (f"Pow-{value}", sm.Pow, {"exponent": value}, exception, match)
-        for value, exception, match in _RESOLVED
-    ],
-    *[
-        (f"{cls.__name__}-{value}", partial(cls, 5), {"alpha_init_value": value}, exception, match)
-        for cls in (sm.DynamicAsinh, sm.DynamicTanh)
-        for value, exception, match in _RESOLVED
-    ],
-    *[
-        (f"{cls.__name__}-bias", partial(cls, 5), {"bias": 1}, TypeError, r"bias must be")
-        for cls in (sm.DynamicAsinh, sm.DynamicTanh, sm.ScaleAndShift)
-    ],
-    ("NLinear-bias", partial(sm.NLinear, 2, 3, 4), {"bias": 1}, TypeError, r"bias must be"),
-    ("ExU-bias", partial(sm.ExU, 3, 4), {"bias": 1}, TypeError, r"bias must be"),
     *[
         (
             f"{cls.__name__}-{value}",
@@ -316,26 +226,6 @@ MODULE_ARGUMENTS = [
         for name in ("frequency", "phase_shift")
         for value in (NAN, INF)
     ],
-    *[
-        (
-            f"{cls.__name__}-learnable",
-            partial(cls, **kwargs),
-            {"learnable": 1},
-            TypeError,
-            r"learnable must be",
-        )
-        for cls, kwargs in (
-            (sm.AsinhNumericalEncoder, {"scale": ENCODER_TENSOR}),
-            (
-                sm.CosSinNumericalEncoder,
-                {"frequency": ENCODER_TENSOR, "phase_shift": ENCODER_TENSOR},
-            ),
-            (
-                sm.AsinhCosSinNumericalEncoder,
-                {"frequency": ENCODER_TENSOR, "phase_shift": ENCODER_TENSOR},
-            ),
-        )
-    ],
 ]
 
 
@@ -355,16 +245,6 @@ def test_module_only_raises(
 ########################################
 
 CREATE_ARGUMENTS = [
-    *[
-        (
-            f"Asinh-feature_size-{value!r}",
-            partial(sm.AsinhNumericalEncoder.create, "linspace", scale_range=(1.0, 2.0)),
-            {"feature_size": value},
-            TypeError,
-            r"feature_size must be an int",
-        )
-        for value in (2.5, True)
-    ],
     (
         "Asinh-feature_size-0",
         partial(sm.AsinhNumericalEncoder.create, "linspace", scale_range=(1.0, 2.0)),
@@ -372,17 +252,6 @@ CREATE_ARGUMENTS = [
         ValueError,
         r"feature_size must be greater than or equal to 1",
     ),
-    *[
-        (
-            f"{cls.__name__}-n_frequencies-{value!r}",
-            partial(cls.create, "linspace", frequency_range=(1.0, 2.0)),
-            {"n_frequencies": value},
-            TypeError,
-            r"n_frequencies must be an int",
-        )
-        for cls in (sm.CosSinNumericalEncoder, sm.AsinhCosSinNumericalEncoder)
-        for value in (2.5, True)
-    ],
     (
         "CosSin-n_frequencies-0",
         partial(sm.CosSinNumericalEncoder.create, "linspace", frequency_range=(1.0, 2.0)),
@@ -391,29 +260,12 @@ CREATE_ARGUMENTS = [
         r"n_frequencies must be greater than or equal to 1",
     ),
     (
-        "CosSin-n_features-2.5",
-        partial(sm.CosSinNumericalEncoder.create, "linspace", 3, frequency_range=(1.0, 2.0)),
-        {"n_features": 2.5},
-        TypeError,
-        r"n_features must be an int",
-    ),
-    (
         "CosSin-inf-range",
         partial(sm.CosSinNumericalEncoder.create, "linspace", 3),
         {"frequency_range": (1.0, INF)},
         ValueError,
         r"max_frequency must be finite",
     ),
-    *[
-        (
-            f"Piecewise-n_bins-{value!r}",
-            partial(sm.PiecewiseLinearNumericalEncoder.from_quantiles, CREATE_INPUT),
-            {"n_bins": value},
-            TypeError,
-            r"n_bins must be an int",
-        )
-        for value in (2.5, True)
-    ],
 ]
 
 

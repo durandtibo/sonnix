@@ -31,9 +31,9 @@ class Clamp(torch.nn.Module):
         ```pycon
         >>> import torch
         >>> from sonnix.modules import Clamp
-        >>> m = Clamp(min_val=-1, max_val=2)
+        >>> m = Clamp(min_val=-1.0, max_val=2.0)
         >>> m
-        Clamp(min_val=-1, max_val=2)
+        Clamp(min_val=-1.0, max_val=2.0)
         >>> out = m(torch.tensor([[-2.0, -1.0, 0.0], [1.0, 2.0, 3.0]]))
         >>> out
         tensor([[-1., -1.,  0.], [ 1.,  2.,  2.]])
@@ -50,8 +50,8 @@ class Clamp(torch.nn.Module):
         if min_val is not None and max_val is not None and min_val > max_val:
             msg = f"min_val ({min_val}) must be lower than or equal to max_val ({max_val})"
             raise ValueError(msg)
-        self.min_val = min_val
-        self.max_val = max_val
+        self.min_val = None if min_val is None else float(min_val)
+        self.max_val = None if max_val is None else float(max_val)
 
     def extra_repr(self) -> str:
         return f"min_val={self.min_val}, max_val={self.max_val}"
