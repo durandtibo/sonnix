@@ -23,7 +23,7 @@
   ops (`src/sonnix/{functional,modules,utils,testing}`). Dependencies are
   managed with `uv`.
 - `review/target_state.md` is the target design of the package and the plan of
-  the changes to reach it (properties P1-P17, findings, steps, decisions).
+  the changes to reach it (properties P1-P19, findings, steps, decisions).
 
 ## Workflow
 

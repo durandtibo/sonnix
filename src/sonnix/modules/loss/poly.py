@@ -17,7 +17,7 @@ from sonnix.modules.loss.base import BaseLoss
 if TYPE_CHECKING:
     import torch
 
-    from sonnix.functional.reduction import Reduction
+    from sonnix.functional import Reduction
 
 
 class _BinaryPoly1Loss(BaseLoss):

@@ -11,7 +11,7 @@ from torch import nn
 from sonnix.validation import validate_loss_reduction_strategy
 
 if TYPE_CHECKING:
-    from sonnix.functional.reduction import Reduction
+    from sonnix.functional import Reduction
 
 
 class BaseLoss(nn.Module):

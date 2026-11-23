@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     import torch
     from torch import nn
 
-    from sonnix.functional.reduction import Reduction
+    from sonnix.functional import Reduction
 
 
 def _callable_repr(function: Callable) -> str:

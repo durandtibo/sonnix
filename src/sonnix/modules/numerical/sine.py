@@ -20,7 +20,7 @@ from sonnix.modules.numerical._utils import (
     resolve_range,
 )
 from sonnix.modules.numerical.base import BaseNumericalEncoder
-from sonnix.utils.tensor import register_tensor
+from sonnix.utils import register_tensor
 from sonnix.validation import validate_same_shape
 
 if TYPE_CHECKING:

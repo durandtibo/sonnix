@@ -457,7 +457,7 @@ logits variants of the focal and Poly-1 losses (`einsum` skipped: slower than `b
 
 | Step | Pull request | Notes   |
 | ---- | ------------ | ------- |
-| 1    |              | pending |
+| 1    | #468         | gates; D6 not applied (needs approval) |
 | 2    |              | pending |
 | 3    |              | pending |
 | 4    |              | pending |

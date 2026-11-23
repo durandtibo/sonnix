@@ -25,7 +25,7 @@ from coola.validation import (
 )
 from torch import nn
 
-from sonnix.utils.tensor import register_tensor
+from sonnix.utils import register_tensor
 
 if TYPE_CHECKING:
     from torch import Tensor

@@ -351,6 +351,17 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
 
 ### Changed
 
+- Gates that keep the properties true (fourth target state step 1, #468): the 12
+  imports of another package use the flat path (`from sonnix.functional import
+  Reduction`, `from sonnix.utils import register_tensor`, `module_mode`); new
+  tests check the flat cross-package imports, that `src` has no suppression
+  (`noqa: A002` for the argument `input` is the only exception), that the
+  `README.md` and the `python` blocks of the guides run, that the descriptions
+  of the reference tables are the first line of the docstrings, and that the
+  rules of `docs/docs/conventions.md` and of `review/target_state.md` agree.
+  `conventions.md` gets the properties P18 (easy to maintain) and P19 (matches
+  its definition). No value changes.
+
 - Simplifications without a change of behaviour (third target state step 5,
   #463): the probability and the logits variants of `binary_focal_loss` and of
   `binary_poly1_loss` share one private core each (`_focal`, `_poly1`), so they

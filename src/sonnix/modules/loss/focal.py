@@ -16,7 +16,7 @@ from sonnix.validation import validate_focal_params
 if TYPE_CHECKING:
     import torch
 
-    from sonnix.functional.reduction import Reduction
+    from sonnix.functional import Reduction
 
 
 class _BinaryFocalLoss(BaseLoss):

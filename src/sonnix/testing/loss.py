@@ -12,7 +12,7 @@ from coola.random import random_seed as torch_seed
 from torch.nn.utils import clip_grad_norm_
 from torch.optim import SGD, Adam, Optimizer
 
-from sonnix.utils.mode import module_mode
+from sonnix.utils import module_mode
 
 if TYPE_CHECKING:
     from collections.abc import Callable

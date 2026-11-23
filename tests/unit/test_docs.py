@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import doctest
 import importlib
 import inspect
 import re
+import runpy
 from pathlib import Path
 
 import pytest
@@ -158,3 +160,92 @@ def test_get_parameters_of_a_class_skips_self_and_variadic() -> None:
             pass
 
     assert _get_parameters(Dummy) == ["a", "b"]
+
+
+########################################
+#     Tests for the markdown files     #
+########################################
+
+ROOT = Path(__file__).parents[2]
+GUIDE_FILES = sorted((ROOT / "docs" / "docs").rglob("*.md"))
+PYTHON_BLOCK = re.compile(r"^```python\n(.*?)^```", flags=re.MULTILINE | re.DOTALL)
+
+
+def test_readme_examples_run() -> None:
+    # ``doctest.testfile`` runs the ``>>>`` lines of the README.
+    result = doctest.testfile(
+        str(ROOT / "README.md"), module_relative=False, optionflags=doctest.ELLIPSIS
+    )
+    assert result.failed == 0
+
+
+@pytest.mark.parametrize("path", GUIDE_FILES, ids=lambda path: path.name)
+def test_guide_python_blocks_run(path: Path, tmp_path: Path) -> None:
+    # The blocks of a file run as one script, like the cells of a notebook.
+    script = tmp_path / "script.py"
+    script.write_text("\n".join(PYTHON_BLOCK.findall(path.read_text())))
+    runpy.run_path(str(script))
+
+
+def test_python_block_regex_finds_the_blocks() -> None:
+    text = "a\n```python\nx = 1\n```\nb\n```python\ny = 2\n```\n"
+    assert PYTHON_BLOCK.findall(text) == ["x = 1\n", "y = 2\n"]
+
+
+def _normalize(text: str) -> str:
+    # The reference tables and the docstrings differ by the backticks.
+    return " ".join(text.replace("`", "").split())
+
+
+def _get_first_line(obj: object) -> str:
+    return _normalize(inspect.getdoc(obj).split("\n\n")[0])
+
+
+TABLE_ROW = re.compile(r"^\| \[`(\w+)`\]\(#sonnix\.(\w+)\.\w+\) +\| (.+?) +\|$", flags=re.MULTILINE)
+TABLE_ROWS = [
+    (package, name, description) for name, package, description in TABLE_ROW.findall(REFS_TEXT)
+]
+
+
+@pytest.mark.parametrize(("package", "name", "description"), TABLE_ROWS)
+def test_reference_row_is_the_first_line_of_the_docstring(
+    package: str, name: str, description: str
+) -> None:
+    assert _normalize(description) == _get_first_line(_get_object(package, name))
+
+
+def test_reference_table_has_rows() -> None:
+    assert len(TABLE_ROWS) > 0
+
+
+def test_normalize_removes_backticks_and_extra_spaces() -> None:
+    assert _normalize("Use ``a``  and `b`.") == "Use a and b."
+
+
+#######################################
+#     Tests for the design rules      #
+#######################################
+
+RULE_ROW = re.compile(r"^\| (P\d+) +\| \*\*(.+?)\*\*", flags=re.MULTILINE)
+
+
+def _get_rules(path: Path) -> dict[str, str]:
+    # The number and the bold title of each rule; a title may end with a period.
+    return {number: title.rstrip(".") for number, title in RULE_ROW.findall(path.read_text())}
+
+
+def test_conventions_and_target_state_have_the_same_rules() -> None:
+    assert _get_rules(ROOT / "docs" / "docs" / "conventions.md") == _get_rules(
+        ROOT / "review" / "target_state.md"
+    )
+
+
+def test_claude_md_names_the_last_property() -> None:
+    last = max(_get_rules(ROOT / "docs" / "docs" / "conventions.md"), key=lambda p: int(p[1:]))
+    assert f"properties P1-{last}" in (ROOT / "CLAUDE.md").read_text()
+
+
+def test_get_rules_strips_the_period_of_the_title(tmp_path: Path) -> None:
+    path = tmp_path / "rules.md"
+    path.write_text("| P1  | **Title.** Text |\n| P2 | **Other** Text |\n")
+    assert _get_rules(path) == {"P1": "Title", "P2": "Other"}
