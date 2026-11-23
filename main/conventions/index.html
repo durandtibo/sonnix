@@ -1302,8 +1302,10 @@
   dimension) and <code>feature_size</code> (the size of the encoding of one feature), as
   shown in their representation.</li>
 <li><code>normalized_shape</code> follows <code>torch.nn.LayerNorm</code>.</li>
-<li>Counts are named <code>n_&lt;things&gt;</code> (<code>n_features</code>, <code>n_bins</code>, <code>n_frequencies</code>, <code>n</code> for
-  <code>NLinear</code>). <code>num_parameters</code> is the name of <code>torch.nn.PReLU</code> and stays.</li>
+<li>Counts are named <code>n_&lt;things&gt;</code> (<code>n_features</code>, <code>n_bins</code>, <code>n_frequencies</code>,
+  <code>n_examples</code>, <code>n_iterations</code>, <code>n</code> for <code>NLinear</code>). <code>num_parameters</code> is the name
+  of <code>torch.nn.PReLU</code> and stays, like the helpers <code>num_parameters</code> and
+  <code>num_learnable_parameters</code> of <code>sonnix.utils</code>.</li>
 <li>The hyperparameters of a module are public attributes named like
   the constructor arguments.</li>
 <li>Options of the functions are keyword-only. A module takes positionally its

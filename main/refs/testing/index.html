@@ -1366,7 +1366,7 @@
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>num_examples</code>
+                <code>n_examples</code>
             </td>
             <td>
                   <code><span title="int">int</span></code>
@@ -1415,7 +1415,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If <code>feature_size</code>, <code>num_examples</code> or <code>rng_seed</code>
+                <p>If <code>feature_size</code>, <code>n_examples</code> or <code>rng_seed</code>
 is not an integer (a <code>bool</code> is rejected).</p>
               </div>
             </td>
@@ -1426,7 +1426,7 @@ is not an integer (a <code>bool</code> is rejected).</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If <code>feature_size</code> or <code>num_examples</code> is lower
+                <p>If <code>feature_size</code> or <code>n_examples</code> is lower
 than 1.</p>
               </div>
             </td>
@@ -1438,7 +1438,7 @@ than 1.</p>
 <details class="example" open>
   <summary>Example</summary>
   <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">DummyDataset</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">DummyDataset</span><span class="p">(</span><span class="n">num_examples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">feature_size</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">DummyDataset</span><span class="p">(</span><span class="n">n_examples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">feature_size</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">{'feature': tensor([...]), 'target': tensor([...])}</span>
 </code></pre></div>
@@ -1487,7 +1487,7 @@ than 1.</p>
     <span class="n">feature</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span>
     <span class="n">target</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">num_iterations</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">n_iterations</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">random_seed</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">1548783767065776748</span><span class="p">,</span>
     <span class="n">max_norm</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="bool">bool</span></span>
@@ -1592,7 +1592,7 @@ input tensor and a single output tensor.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>num_iterations</code>
+                <code>n_iterations</code>
             </td>
             <td>
                   <code><span title="int">int</span></code>
@@ -1685,7 +1685,7 @@ otherwise <code>False</code>.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If <code>num_iterations</code> or <code>random_seed</code> is not an
+                <p>If <code>n_iterations</code> or <code>random_seed</code> is not an
 integer, or <code>max_norm</code> is not a number.</p>
               </div>
             </td>
@@ -1696,7 +1696,7 @@ integer, or <code>max_norm</code> is not a number.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If <code>num_iterations</code> is lower than 1, or if
+                <p>If <code>n_iterations</code> is lower than 1, or if
 <code>max_norm</code> is not <code>None</code> and not finite and strictly
 positive.</p>
               </div>
@@ -1743,7 +1743,7 @@ positive.</p>
     <span class="n">target</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">lr</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">0.0003</span><span class="p">,</span>
-    <span class="n">num_iterations</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">n_iterations</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">random_seed</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">1548783767065776748</span><span class="p">,</span>
     <span class="n">max_norm</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="bool">bool</span></span>
@@ -1849,7 +1849,7 @@ input tensor and a single output tensor.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>num_iterations</code>
+                <code>n_iterations</code>
             </td>
             <td>
                   <code><span title="int">int</span></code>
@@ -1943,7 +1943,7 @@ otherwise <code>False</code>.</p>
             <td>
               <div class="doc-md-description">
                 <p>If <code>lr</code> or <code>max_norm</code> is not a number, or if
-<code>num_iterations</code> or <code>random_seed</code> is not an integer.</p>
+<code>n_iterations</code> or <code>random_seed</code> is not an integer.</p>
               </div>
             </td>
           </tr>
@@ -1954,7 +1954,7 @@ otherwise <code>False</code>.</p>
             <td>
               <div class="doc-md-description">
                 <p>If <code>lr</code> is not finite and strictly positive, if
-<code>num_iterations</code> is lower than 1, or if <code>max_norm</code> is not
+<code>n_iterations</code> is lower than 1, or if <code>max_norm</code> is not
 <code>None</code> and not finite and strictly positive.</p>
               </div>
             </td>
@@ -1998,7 +1998,7 @@ otherwise <code>False</code>.</p>
     <span class="n">target</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">lr</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
-    <span class="n">num_iterations</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">n_iterations</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">random_seed</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">1548783767065776748</span><span class="p">,</span>
     <span class="n">max_norm</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="bool">bool</span></span>
@@ -2104,7 +2104,7 @@ input tensor and a single output tensor.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>num_iterations</code>
+                <code>n_iterations</code>
             </td>
             <td>
                   <code><span title="int">int</span></code>
@@ -2198,7 +2198,7 @@ otherwise <code>False</code>.</p>
             <td>
               <div class="doc-md-description">
                 <p>If <code>lr</code> or <code>max_norm</code> is not a number, or if
-<code>num_iterations</code> or <code>random_seed</code> is not an integer.</p>
+<code>n_iterations</code> or <code>random_seed</code> is not an integer.</p>
               </div>
             </td>
           </tr>
@@ -2209,7 +2209,7 @@ otherwise <code>False</code>.</p>
             <td>
               <div class="doc-md-description">
                 <p>If <code>lr</code> is not finite and strictly positive, if
-<code>num_iterations</code> is lower than 1, or if <code>max_norm</code> is not
+<code>n_iterations</code> is lower than 1, or if <code>max_norm</code> is not
 <code>None</code> and not finite and strictly positive.</p>
               </div>
             </td>
