@@ -137,7 +137,7 @@ class CosSinNumericalEncoder(BaseNumericalEncoder):
     def create(
         cls,
         spacing: Literal["rand", "linspace", "logspace"],
-        num_frequencies: int,
+        n_frequencies: int,
         *,
         frequency_range: tuple[float, float] | None = None,
         value_range: tuple[float, float] | None = None,
@@ -159,7 +159,7 @@ class CosSinNumericalEncoder(BaseNumericalEncoder):
             spacing: The way the frequencies are spread in the range.
                 ``"rand"``: uniformly sampled, ``"linspace"``: evenly
                 spaced, ``"logspace"``: evenly spaced in the log space.
-            num_frequencies: The number of frequencies.
+            n_frequencies: The number of frequencies.
             frequency_range: The ``(min_frequency, max_frequency)``
                 range. The minimum has to be strictly positive and the
                 maximum has to be greater than or equal to the minimum.
@@ -186,11 +186,11 @@ class CosSinNumericalEncoder(BaseNumericalEncoder):
             An instantiated encoder with ``n_features`` features.
 
         Raises:
-            TypeError: if ``num_frequencies`` or ``n_features`` is not
+            TypeError: if ``n_frequencies`` or ``n_features`` is not
                 an integer.
             ValueError: if ``spacing`` is not valid, if both or none of
                 ``frequency_range`` and ``value_range`` are given, or if
-                the range, ``num_frequencies`` or ``n_features`` are
+                the range, ``n_frequencies`` or ``n_features`` are
                 invalid.
 
         Example:
@@ -198,17 +198,17 @@ class CosSinNumericalEncoder(BaseNumericalEncoder):
             >>> import torch
             >>> from sonnix.modules import CosSinNumericalEncoder
             >>> m = CosSinNumericalEncoder.create(
-            ...     "linspace", num_frequencies=5, frequency_range=(0.1, 1.0)
+            ...     "linspace", n_frequencies=5, frequency_range=(0.1, 1.0)
             ... )
             >>> m
             CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
             >>> m = CosSinNumericalEncoder.create(
-            ...     "logspace", num_frequencies=5, value_range=(0.1, 10.0)
+            ...     "logspace", n_frequencies=5, value_range=(0.1, 10.0)
             ... )
             >>> m
             CosSinNumericalEncoder(frequency=(1, 5), phase_shift=(1, 5), learnable=False)
             >>> m = CosSinNumericalEncoder.create(
-            ...     "rand", num_frequencies=5, frequency_range=(0.1, 1.0), generator=42
+            ...     "rand", n_frequencies=5, frequency_range=(0.1, 1.0), generator=42
             ... )
             >>> m.frequency.shape
             torch.Size([1, 5])
@@ -216,11 +216,11 @@ class CosSinNumericalEncoder(BaseNumericalEncoder):
             ```
         """
         min_frequency, max_frequency = resolve_range("frequency", frequency_range, value_range)
-        validate_int(num_frequencies, name="num_frequencies")
-        validate_ge(num_frequencies, 1, name="num_frequencies")
+        validate_int(n_frequencies, name="n_frequencies")
+        validate_ge(n_frequencies, 1, name="n_frequencies")
         frequency = create_spaced_values(
             spacing,
-            num_frequencies,
+            n_frequencies,
             min_frequency,
             max_frequency,
             n_features=n_features,

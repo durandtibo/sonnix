@@ -416,8 +416,18 @@ def test_cos_sin_numerical_encoder_create_two_ranges() -> None:
         CosSinNumericalEncoder.create("linspace", 3, frequency_range=(0.2, 1), value_range=(0.2, 1))
 
 
-def test_cos_sin_numerical_encoder_create_invalid_num_frequencies() -> None:
-    with pytest.raises(ValueError, match=r"num_frequencies must be greater than or equal to 1"):
+def test_cos_sin_numerical_encoder_create_num_frequencies_is_renamed() -> None:
+    with pytest.raises(TypeError, match=r"unexpected keyword argument 'num_frequencies'"):
+        CosSinNumericalEncoder.create("linspace", num_frequencies=3, frequency_range=(0.2, 1))
+
+
+def test_cos_sin_numerical_encoder_create_n_frequencies_keyword() -> None:
+    encoder = CosSinNumericalEncoder.create("linspace", n_frequencies=3, frequency_range=(0.2, 1))
+    assert encoder.feature_size == 6
+
+
+def test_cos_sin_numerical_encoder_create_invalid_n_frequencies() -> None:
+    with pytest.raises(ValueError, match=r"n_frequencies must be greater than or equal to 1"):
         CosSinNumericalEncoder.create("linspace", 0, frequency_range=(0.2, 1))
 
 

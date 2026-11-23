@@ -12,6 +12,8 @@
   dimension) and `feature_size` (the size of the encoding of one feature), as
   shown in their representation.
 - `normalized_shape` follows `torch.nn.LayerNorm`.
+- Counts are named `n_<things>` (`n_features`, `n_bins`, `n_frequencies`, `n` for
+  `NLinear`). `num_parameters` is the name of `torch.nn.PReLU` and stays.
 - The hyperparameters of a module are public attributes named like
   the constructor arguments.
 - Options of the functions are keyword-only. A module takes positionally its

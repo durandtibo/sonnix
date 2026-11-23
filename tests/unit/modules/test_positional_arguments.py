@@ -54,8 +54,8 @@ def test_positional_parameters_of_the_constructor(case: ModuleCase) -> None:
     ("callable_", "expected"),
     [
         (AsinhNumericalEncoder.create, ("spacing", "feature_size")),
-        (CosSinNumericalEncoder.create, ("spacing", "num_frequencies")),
-        (AsinhCosSinNumericalEncoder.create, ("spacing", "num_frequencies")),
+        (CosSinNumericalEncoder.create, ("spacing", "n_frequencies")),
+        (AsinhCosSinNumericalEncoder.create, ("spacing", "n_frequencies")),
         (PiecewiseLinearNumericalEncoder.from_quantiles, ("x", "n_bins")),
     ],
 )
