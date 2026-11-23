@@ -16,7 +16,7 @@ from sonnix.modules.numerical._utils import (
     resolve_range,
 )
 from sonnix.modules.numerical.base import BaseNumericalEncoder
-from sonnix.utils.tensor import register_tensor
+from sonnix.utils import register_tensor
 
 if TYPE_CHECKING:
     from typing import Self

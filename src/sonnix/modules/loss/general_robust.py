@@ -14,7 +14,7 @@ from sonnix.validation import validate_general_robust_params
 if TYPE_CHECKING:
     import torch
 
-    from sonnix.functional.reduction import Reduction
+    from sonnix.functional import Reduction
 
 
 class GeneralRobustRegressionLoss(BaseLoss):

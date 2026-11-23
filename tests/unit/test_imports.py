@@ -84,3 +84,75 @@ def test_no_object_is_exported_by_two_packages() -> None:
 @pytest.mark.parametrize("path", FOLDER_INITS, ids=lambda path: str(path.parent.name))
 def test_folder_has_no_all(path: Path) -> None:
     assert "__all__" not in path.read_text()
+
+
+###############################################
+#     Tests for the cross-package imports     #
+###############################################
+
+SOURCE_ROOT = Path(sonnix.__path__[0])
+# ``from sonnix.<package>.<module> import``: a module path of another package.
+MODULE_PATH_IMPORT = re.compile(r"^\s*from sonnix\.(\w+)\.[a-z]\w* import ", flags=re.MULTILINE)
+# ``functional`` defines ``Reduction`` in the lowest layer (``validation``) and exports it.
+ALLOWED_MODULE_PATH_IMPORTS = {("functional/reduction.py", "validation")}
+
+
+def _get_package(path: Path) -> str:
+    return path.relative_to(SOURCE_ROOT).parts[0]
+
+
+def _get_cross_package_imports(path: Path) -> set[str]:
+    package = _get_package(path)
+    imported = set(MODULE_PATH_IMPORT.findall(path.read_text())) - {package}
+    relative = path.relative_to(SOURCE_ROOT).as_posix()
+    return {name for name in imported if (relative, name) not in ALLOWED_MODULE_PATH_IMPORTS}
+
+
+@pytest.mark.parametrize(
+    "path", SOURCE_FILES, ids=lambda path: path.relative_to(SOURCE_ROOT).as_posix()
+)
+def test_cross_package_imports_use_the_flat_path(path: Path) -> None:
+    assert _get_cross_package_imports(path) == set()
+
+
+def test_module_path_import_detects_a_module_path() -> None:
+    assert MODULE_PATH_IMPORT.findall("    from sonnix.utils.tensor import register_tensor\n") == [
+        "utils"
+    ]
+
+
+def test_module_path_import_ignores_the_flat_path() -> None:
+    assert MODULE_PATH_IMPORT.findall("from sonnix.utils import register_tensor\n") == []
+
+
+######################################
+#     Tests for the suppressions     #
+######################################
+
+SUPPRESSION = re.compile(r"noqa(?!: A002\b)|type: ?ignore|ty: ?ignore|pragma: ?no cover")
+
+
+@pytest.mark.parametrize(
+    "path", SOURCE_FILES, ids=lambda path: path.relative_to(SOURCE_ROOT).as_posix()
+)
+def test_source_has_no_suppression(path: Path) -> None:
+    # ``noqa: A002`` (the argument ``input``, the name of ``torch.nn``) is the only exception.
+    assert SUPPRESSION.search(path.read_text()) is None
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "x = 1  # noqa: E501",
+        "x = 1  # noqa",
+        "x = 1  # type: ignore",
+        "x = 1  # ty: ignore[a]",
+        "x = 1  # pragma: no cover",
+    ],
+)
+def test_suppression_detects(line: str) -> None:
+    assert SUPPRESSION.search(line) is not None
+
+
+def test_suppression_allows_a002() -> None:
+    assert SUPPRESSION.search("def f(input):  # noqa: A002") is None
