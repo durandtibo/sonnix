@@ -69,11 +69,11 @@ def test_quantile_regression_loss_median_is_half_of_l1_loss(reduction: str) -> N
 
 
 @pytest.mark.parametrize("reduction", REDUCTIONS[:3])
-def test_general_robust_regression_loss_alpha_2_equals_mse_loss(reduction: str) -> None:
+def test_general_robust_regression_loss_alpha_2_equals_half_mse_loss(reduction: str) -> None:
     prediction, target = _normal_pair()
     assert general_robust_regression_loss(
         prediction, target, alpha=2.0, reduction=reduction
-    ).allclose(mse_loss(prediction, target, reduction=reduction))
+    ).allclose(0.5 * mse_loss(prediction, target, reduction=reduction))
 
 
 @pytest.mark.parametrize("reduction", REDUCTIONS[:3])

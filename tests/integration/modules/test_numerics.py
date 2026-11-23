@@ -6,6 +6,7 @@ from itertools import product
 import pytest
 import torch
 
+from sonnix.modules import SafeExp, SafeLog
 from tests.registry import EDGE_VALUES, FUNCTION_CASES, MODULE_CASES, ModuleCase
 
 DTYPES = (torch.float16, torch.bfloat16)
@@ -65,3 +66,24 @@ def test_finite_wherever_float32_fits(case: ModuleCase, edge: str, dtype: torch.
         for g_ref, g in zip(grads_ref, grads, strict=True)
     ]
     assert all(bool(x.all()) for x in finite)
+
+
+@pytest.mark.parametrize("dtype", DTYPES)
+@pytest.mark.parametrize("edge", EDGE_VALUES)
+@pytest.mark.parametrize("module", [SafeExp, SafeLog])
+def test_finite_wherever_float32_fits_with_preserve_gradient(
+    module: type[torch.nn.Module], edge: str, dtype: torch.dtype
+) -> None:
+    # The option ``preserve_gradient`` changes the gradient only: the output stays finite.
+    x = torch.full((2, 3), EDGE_VALUES[edge], dtype=dtype)
+    x[0] = -x[0]
+    assert module(preserve_gradient=True)(x).isfinite().all()
+
+
+@pytest.mark.parametrize("dtype", DTYPES)
+@pytest.mark.parametrize("module", [SafeExp, SafeLog])
+def test_preserve_gradient_keeps_the_value_on_an_infinite_input(
+    module: type[torch.nn.Module], dtype: torch.dtype
+) -> None:
+    x = torch.tensor([-torch.inf, torch.inf], dtype=dtype)
+    assert module(preserve_gradient=True)(x).equal(module()(x))

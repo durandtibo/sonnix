@@ -4,15 +4,52 @@ from __future__ import annotations
 
 __all__ = ["safe_exp", "safe_log"]
 
-from typing import TYPE_CHECKING
-
+import torch
 from coola.validation import validate_finite, validate_isinstance
 
 from sonnix.utils import resolve_eps, resolve_max_exponent
 from sonnix.validation import validate_positive
 
-if TYPE_CHECKING:
-    import torch
+
+def _clamp(
+    input: torch.Tensor,  # noqa: A002
+    *,
+    min_val: float | None = None,
+    max_val: float | None = None,
+    preserve_gradient: bool,
+) -> torch.Tensor:
+    r"""Clamp the elements, and optionally keep the gradient of the input.
+
+    Args:
+        input: The input tensor.
+        min_val: The minimum value, or ``None`` for no lower bound.
+        max_val: The maximum value, or ``None`` for no upper bound.
+        preserve_gradient: If ``True``, the value is the clamped value
+            and the gradient is the one of the identity
+            (straight-through estimator).
+
+    Returns:
+        The clamped tensor. Its value does not depend on
+            ``preserve_gradient``.
+
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional.activation.math import _clamp
+        >>> _clamp(torch.tensor([-1e30, 0.5, torch.inf]), min_val=0.0, max_val=1.0,
+        ...        preserve_gradient=True)
+        tensor([0.0000, 0.5000, 1.0000])
+
+        ```
+    """
+    clamped = input.clamp(min=min_val, max=max_val)
+    if not preserve_gradient:
+        return clamped
+    # The value of ``clamped`` and the gradient of ``input`` (identity). ``input - input.detach()``
+    # is 0 for a finite input and ``nan`` for an infinite one, which is replaced by 0. It avoids
+    # ``input + (clamped - input).detach()``, which loses ``clamped`` by cancellation when
+    # ``|input|`` is large.
+    return clamped.detach() + torch.where(input.isfinite(), input - input.detach(), 0.0)
 
 
 def safe_exp(
@@ -41,7 +78,8 @@ def safe_exp(
             not finite in the dtype of ``input``
             (see ``sonnix.utils.resolve_max_exponent``).
         preserve_gradient: If ``True``, the gradient is computed as
-            if the input was not clamped (straight-through).
+            if the input was not clamped (straight-through). The
+            value does not depend on this option.
 
     Returns:
         A tensor with the exponential of the elements.
@@ -63,9 +101,9 @@ def safe_exp(
     """
     validate_finite(max_val, name="max_val")
     validate_isinstance(preserve_gradient, bool, name="preserve_gradient")
-    clamped = input.clamp(max=resolve_max_exponent(max_val, input))
-    if preserve_gradient:
-        clamped = input + (clamped - input).detach()
+    clamped = _clamp(
+        input, max_val=resolve_max_exponent(max_val, input), preserve_gradient=preserve_gradient
+    )
     return clamped.exp()
 
 
@@ -100,7 +138,8 @@ def safe_log(
             number of the dtype of ``input``
             (see ``sonnix.utils.resolve_eps``).
         preserve_gradient: If ``True``, the gradient is computed as
-            if the input was not clamped (straight-through).
+            if the input was not clamped (straight-through). The
+            value does not depend on this option.
 
     Returns:
         A tensor with the natural logarithm of the elements.
@@ -121,7 +160,7 @@ def safe_log(
     """
     validate_positive(min_val, name="min_val")
     validate_isinstance(preserve_gradient, bool, name="preserve_gradient")
-    clamped = input.clamp(min=resolve_eps(min_val, input))
-    if preserve_gradient:
-        clamped = input + (clamped - input).detach()
+    clamped = _clamp(
+        input, min_val=resolve_eps(min_val, input), preserve_gradient=preserve_gradient
+    )
     return clamped.log()

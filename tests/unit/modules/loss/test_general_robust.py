@@ -187,7 +187,7 @@ def test_general_robust_regression_loss_forward_alpha_2_scale_1() -> None:
             prediction=torch.ones(2, 3, dtype=torch.float),
             target=-torch.ones(2, 3, dtype=torch.float),
         ),
-        torch.tensor(4.0),
+        torch.tensor(2.0),
     )
 
 
@@ -198,7 +198,7 @@ def test_general_robust_regression_loss_forward_alpha_2_scale_2() -> None:
             prediction=torch.ones(2, 3, dtype=torch.float),
             target=-torch.ones(2, 3, dtype=torch.float),
         ),
-        torch.tensor(1.0),
+        torch.tensor(0.5),
     )
 
 
@@ -275,7 +275,7 @@ def test_general_robust_regression_loss_forward_reduction_mean() -> None:
             prediction=torch.tensor([[0, 1, 2], [2, 1, 0]], dtype=torch.float),
             target=torch.tensor([[0, 1, 2], [1, 1, 1]], dtype=torch.float),
         ),
-        torch.tensor(1 / 3),
+        torch.tensor(0.16666666666666666),
     )
 
 
@@ -286,7 +286,7 @@ def test_general_robust_regression_loss_forward_reduction_none() -> None:
             prediction=torch.tensor([[0, 1, 2], [2, 1, 0]], dtype=torch.float),
             target=torch.tensor([[0, 1, 2], [1, 1, 1]], dtype=torch.float),
         ),
-        torch.tensor([[0.0, 0.0, 0.0], [1.0, 0.0, 1.0]]),
+        torch.tensor([[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]),
     )
 
 

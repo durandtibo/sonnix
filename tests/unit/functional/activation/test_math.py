@@ -6,6 +6,7 @@ from coola.equality import objects_are_allclose, objects_are_equal
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import safe_exp, safe_log
+from sonnix.functional.activation.math import _clamp
 
 SHAPES = [(2,), (2, 3), (2, 3, 4), (2, 3, 4, 5)]
 
@@ -217,3 +218,91 @@ def test_safe_log_float16_gradient_is_finite() -> None:
     x = torch.zeros(1, dtype=torch.float16, requires_grad=True)
     safe_log(x, preserve_gradient=True).backward()
     assert x.grad.isfinite().all()
+
+
+#############################################################
+#     Tests for the value of the option preserve_gradient   #
+#############################################################
+
+
+@pytest.mark.parametrize("value", [1e8, 1e30, float("inf"), -1e30, float("-inf"), 25.0, -3.0])
+def test_safe_exp_preserve_gradient_keeps_the_value(value: float) -> None:
+    x = torch.tensor([value])
+    assert safe_exp(x, preserve_gradient=True).equal(safe_exp(x))
+
+
+@pytest.mark.parametrize("value", [1e8, 1e30, float("inf"), -1e30, float("-inf"), 0.0, 2.0])
+def test_safe_log_preserve_gradient_keeps_the_value(value: float) -> None:
+    x = torch.tensor([value])
+    assert safe_log(x, preserve_gradient=True).equal(safe_log(x))
+
+
+def test_safe_exp_preserve_gradient_large_input_value() -> None:
+    # ``exp(20)``, not ``exp(16)`` that the cancellation of ``input + (clamped - input)`` gave.
+    assert safe_exp(torch.tensor([1e8]), preserve_gradient=True).allclose(
+        torch.tensor([485165184.0])
+    )
+
+
+def test_safe_log_preserve_gradient_large_negative_input_value() -> None:
+    assert safe_log(torch.tensor([-1e30]), preserve_gradient=True).allclose(
+        torch.tensor([-18.4207])
+    )
+
+
+def test_safe_exp_preserve_gradient_large_input_gradient_is_the_clamped_exp() -> None:
+    x = torch.tensor([1e8], requires_grad=True)
+    safe_exp(x, preserve_gradient=True).backward()
+    assert x.grad.allclose(torch.tensor([485165184.0]))
+
+
+def test_safe_exp_preserve_gradient_infinite_input_gradient_is_zero() -> None:
+    x = torch.tensor([float("inf")], requires_grad=True)
+    safe_exp(x, preserve_gradient=True).backward()
+    assert x.grad.equal(torch.tensor([0.0]))
+
+
+def test_safe_log_preserve_gradient_infinite_input_gradient_is_zero() -> None:
+    x = torch.tensor([float("-inf")], requires_grad=True)
+    safe_log(x, preserve_gradient=True).backward()
+    assert x.grad.equal(torch.tensor([0.0]))
+
+
+def test_safe_exp_preserve_gradient_nan_stays_nan() -> None:
+    assert safe_exp(torch.tensor([float("nan")]), preserve_gradient=True).isnan().all()
+
+
+def test_safe_log_preserve_gradient_nan_stays_nan() -> None:
+    assert safe_log(torch.tensor([float("nan")]), preserve_gradient=True).isnan().all()
+
+
+@pytest.mark.parametrize("preserve_gradient", [True, False])
+def test_safe_exp_does_not_mutate_the_input(preserve_gradient: bool) -> None:
+    x = torch.tensor([1e8, -1.0])
+    safe_exp(x, preserve_gradient=preserve_gradient)
+    assert x.equal(torch.tensor([1e8, -1.0]))
+
+
+#############################
+#     Tests for _clamp      #
+#############################
+
+
+def test_clamp_without_preserve_gradient_has_a_zero_gradient_outside() -> None:
+    x = torch.tensor([5.0], requires_grad=True)
+    _clamp(x, max_val=1.0, preserve_gradient=False).backward()
+    assert x.grad.equal(torch.tensor([0.0]))
+
+
+def test_clamp_with_preserve_gradient_has_the_identity_gradient() -> None:
+    x = torch.tensor([5.0], requires_grad=True)
+    _clamp(x, max_val=1.0, preserve_gradient=True).backward()
+    assert x.grad.equal(torch.tensor([1.0]))
+
+
+@pytest.mark.parametrize("preserve_gradient", [True, False])
+def test_clamp_min_and_max(preserve_gradient: bool) -> None:
+    x = torch.tensor([-2.0, 0.5, 2.0])
+    assert _clamp(x, min_val=0.0, max_val=1.0, preserve_gradient=preserve_gradient).equal(
+        torch.tensor([0.0, 0.5, 1.0])
+    )

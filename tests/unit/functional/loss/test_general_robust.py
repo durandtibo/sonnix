@@ -129,7 +129,7 @@ def test_general_robust_regression_loss_alpha_2_scale_1() -> None:
         target=-torch.ones(2, 3),
         alpha=2.0,
         scale=1.0,
-    ).equal(torch.tensor(4.0))
+    ).equal(torch.tensor(2.0))
 
 
 def test_general_robust_regression_loss_alpha_2_scale_2() -> None:
@@ -138,7 +138,7 @@ def test_general_robust_regression_loss_alpha_2_scale_2() -> None:
         target=-torch.ones(2, 3),
         alpha=2.0,
         scale=2.0,
-    ).equal(torch.tensor(1.0))
+    ).equal(torch.tensor(0.5))
 
 
 def test_general_robust_regression_loss_alpha_1_scale_1() -> None:
@@ -213,7 +213,7 @@ def test_general_robust_regression_loss_reduction_mean() -> None:
         target=torch.tensor([[0.0, 1.0, 2.0], [1.0, 1.0, 1.0]]),
         reduction="mean",
     ).allclose(
-        torch.tensor(1 / 3),
+        torch.tensor(0.16666666666666666),
     )
 
 
@@ -222,7 +222,7 @@ def test_general_robust_regression_loss_reduction_sum() -> None:
         prediction=torch.tensor([[0.0, 1.0, 2.0], [2.0, 1.0, 0.0]]),
         target=torch.tensor([[0.0, 1.0, 2.0], [1.0, 1.0, 1.0]]),
         reduction="sum",
-    ).equal(torch.tensor(2.0))
+    ).equal(torch.tensor(1.0))
 
 
 def test_general_robust_regression_loss_reduction_none() -> None:
@@ -230,16 +230,16 @@ def test_general_robust_regression_loss_reduction_none() -> None:
         prediction=torch.tensor([[0.0, 1.0, 2.0], [2.0, 1.0, 0.0]]),
         target=torch.tensor([[0.0, 1.0, 2.0], [1.0, 1.0, 1.0]]),
         reduction="none",
-    ).equal(torch.tensor([[0.0, 0.0, 0.0], [1.0, 0.0, 1.0]]))
+    ).equal(torch.tensor([[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]))
 
 
 def test_general_robust_regression_loss_max() -> None:
     assert general_robust_regression_loss(
         prediction=torch.tensor([[0.0, 1.0, 2.0], [2.0, 1.0, 0.0]]),
         target=torch.tensor([[0.0, 1.0, 2.0], [1.0, 1.0, 1.0]]),
-        max_val=0.5,
+        max_val=0.25,
         reduction="none",
-    ).equal(torch.tensor([[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]))
+    ).equal(torch.tensor([[0.0, 0.0, 0.0], [0.25, 0.0, 0.25]]))
 
 
 @pytest.mark.parametrize("alpha", [1e-3, -1e-3, 1e-7])
@@ -310,17 +310,17 @@ def test_general_robust_regression_loss_float16_large_difference_gradient_is_fin
 
 
 def test_general_robust_regression_loss_float16_loss_above_the_maximum_is_inf() -> None:
-    # 300 ** 2 = 90000 is larger than the maximum of float16 (65504).
+    # 0.5 * 400 ** 2 = 80000 is larger than the maximum of float16 (65504).
     loss = general_robust_regression_loss(
-        torch.tensor([300.0], dtype=torch.float16), torch.zeros(1, dtype=torch.float16)
+        torch.tensor([400.0], dtype=torch.float16), torch.zeros(1, dtype=torch.float16)
     )
     assert loss.isinf().all()
 
 
 def test_general_robust_regression_loss_float16_loss_above_the_maximum_gradient_is_finite() -> None:
-    prediction = torch.tensor([300.0], dtype=torch.float16, requires_grad=True)
+    prediction = torch.tensor([400.0], dtype=torch.float16, requires_grad=True)
     general_robust_regression_loss(prediction, torch.zeros(1, dtype=torch.float16)).backward()
-    assert prediction.grad.equal(torch.tensor([600.0], dtype=torch.float16))
+    assert prediction.grad.equal(torch.tensor([400.0], dtype=torch.float16))
 
 
 def test_general_robust_regression_loss_float16_max_val_clips_in_float32() -> None:
@@ -345,3 +345,66 @@ def test_general_robust_regression_loss_integer_prediction_is_float32() -> None:
         torch.ones(2, 3, dtype=torch.long), torch.zeros(2, 3), reduction="none"
     )
     assert loss.dtype == torch.float32
+
+
+#######################################################
+#     Tests for the definition of the Barron loss     #
+#######################################################
+
+# ``x`` is the difference of the prediction and of the target; the ``scale`` is 1.
+X_VALUES = [0.5, 1.0, 3.0]
+
+
+def _barron(x: float, alpha: float) -> float:
+    # The naive formula of the paper, in float64.
+    x = torch.tensor(x, dtype=torch.float64)
+    if alpha == float("-inf"):
+        return (1 - torch.exp(-0.5 * x**2)).item()
+    if alpha == 2:
+        return (0.5 * x**2).item()
+    if alpha == 0:
+        return torch.log(0.5 * x**2 + 1).item()
+    b = abs(alpha - 2)
+    return (b / alpha * ((x**2 / b + 1) ** (alpha / 2) - 1)).item()
+
+
+def _loss(x: float, alpha: float) -> float:
+    prediction = torch.tensor([x], dtype=torch.float64)
+    target = torch.zeros(1, dtype=torch.float64)
+    return general_robust_regression_loss(prediction, target, alpha=alpha).item()
+
+
+@pytest.mark.parametrize("x", X_VALUES)
+@pytest.mark.parametrize("alpha", [-float("inf"), -2.0, 0.0, 1.0, 2.0, 3.0])
+def test_general_robust_regression_loss_equals_the_reference(x: float, alpha: float) -> None:
+    assert _loss(x, alpha) == pytest.approx(_barron(x, alpha), rel=1e-12)
+
+
+@pytest.mark.parametrize("x", X_VALUES)
+@pytest.mark.parametrize("delta", [-1e-4, 1e-4])
+def test_general_robust_regression_loss_is_continuous_at_alpha_2(x: float, delta: float) -> None:
+    assert abs(_loss(x, 2.0) - _loss(x, 2.0 + delta)) < 1e-2
+
+
+@pytest.mark.parametrize("x", X_VALUES)
+@pytest.mark.parametrize("delta", [-1e-4, 1e-4])
+def test_general_robust_regression_loss_is_continuous_at_alpha_0(x: float, delta: float) -> None:
+    assert abs(_loss(x, 0.0) - _loss(x, delta)) < 1e-2
+
+
+@pytest.mark.parametrize("x", X_VALUES)
+def test_general_robust_regression_loss_is_continuous_at_alpha_minus_inf(x: float) -> None:
+    assert abs(_loss(x, -float("inf")) - _loss(x, -1e3)) < 1e-2
+
+
+@pytest.mark.parametrize(("x", "expected"), [(1.0, 0.5), (3.0, 4.5)])
+def test_general_robust_regression_loss_alpha_2_is_half_the_squared_error(
+    x: float, expected: float
+) -> None:
+    assert _loss(x, 2.0) == expected
+
+
+def test_general_robust_regression_loss_alpha_2_gradient_is_the_difference() -> None:
+    prediction = torch.tensor([3.0], requires_grad=True)
+    general_robust_regression_loss(prediction, torch.zeros(1), alpha=2.0).backward()
+    assert prediction.grad.equal(torch.tensor([3.0]))

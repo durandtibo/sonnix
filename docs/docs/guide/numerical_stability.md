@@ -20,7 +20,10 @@ every module.
   not remove `nan`: a `nan` input stays `nan`.
 - **Logarithm.** `safe_log` clamps the input to `min_val`; with
   `preserve_gradient=True` the gradient of the unclamped function is used, so
-  at `x = 0` the gradient is `1 / min_val`, which is large.
+  at `x = 0` the gradient is `1 / min_val`, which is large. The option changes
+  the gradient only: the value is the one of the clamped input for every input,
+  including `inf` (`safe_exp(inf, preserve_gradient=True)` is finite). The
+  gradient is `0` at an infinite input.
 - **Powers.** `safe_pow` is `torch.pow` with a gradient of `0` at `0`, instead
   of `nan`, and nothing else: a negative input with a fractional exponent is
   `nan`, like `torch.pow`. Use it instead of `x ** p` or `sqrt` when the input

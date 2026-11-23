@@ -237,6 +237,7 @@ class SafeExp(nn.Module):
         preserve_gradient: If ``True``, the gradient is computed as
             if the input was not clamped (straight-through). By
             default, ``clamp`` gives a zero gradient outside the range.
+            The value of the output does not depend on this option.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.
@@ -300,6 +301,7 @@ class SafeLog(nn.Module):
         preserve_gradient: If ``True``, the gradient is computed as
             if the input was not clamped (straight-through). By
             default, ``clamp`` gives a zero gradient outside the range.
+            The value of the output does not depend on this option.
 
     Shape:
         - Input: ``(*)``, where ``*`` means any number of dimensions.

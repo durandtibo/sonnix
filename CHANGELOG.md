@@ -38,6 +38,8 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 | `reduce_loss(x, "sum")`; `safe_pow(x=t, exponent=2)`                                               | `reduce_loss(x, reduction="sum")`; `safe_pow(input=t, exponent=2)` (#450)                                   |
 | `BaseBinaryFocalLoss`, `BaseBinaryPoly1Loss`                                                       | subclass `BaseLoss` (#451)                                                                                  |
 | `sonnix.modules.numerical._utils.NumericalEncoder`                                                 | `sonnix.modules.BaseNumericalEncoder` (#452)                                                                |
+| `general_robust_regression_loss(p, t)` / `GeneralRobustRegressionLoss()` (`alpha=2`): `(x/c)²`      | `0.5 * (x/c)²`, continuous with `alpha != 2`; `scale=s / sqrt(2)` gives the old value (fourth target state step 2, #469) |
+| `safe_exp(1e8, preserve_gradient=True)`: `8.9e6`; `safe_log(-1e30, ...)`: `-inf`; `inf` input: `nan` | the value of `safe_exp(x)` / `safe_log(x)`; gradient `1` (`0` at an infinite input) (fourth target state step 2, #469) |
 | `sonnix.functional.loss.X`, `sonnix.utils.mode.X`, `sonnix.testing.loss.X`                         | `sonnix.functional.X`, `sonnix.utils.X`, `sonnix.testing.X` (#452)                                          |
 | `binary_focal_loss(p, t_long)` and the three other binary losses (`RuntimeError`)                  | work: an integer or `bool` target is converted to the dtype of the prediction (#454)                        |
 | `safe_log(0)`, `SafeLog()(0)` in `float16`: `-inf`                                                 | `-9.7` (`eps` raised to the smallest normal number of the dtype) (#460)                                     |
@@ -55,6 +57,18 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- Two numerical bugs (fourth target state step 2, #469). The general robust
+  regression loss with `alpha=2` is `0.5 * (x / scale) ** 2` (Barron's
+  definition and the limit of the general formula) instead of `(x / scale) ** 2`,
+  so the loss is continuous in `alpha` and the default loss, and its gradient,
+  are halved; `scale=s / sqrt(2)` reproduces the old value. `safe_exp`,
+  `safe_log`, `SafeExp` and `SafeLog` with `preserve_gradient=True` return the
+  value of the clamped input for every input (before, `safe_exp(1e8)` was
+  `exp(16)`, `safe_log(-1e30)` was `-inf` and an infinite input gave `nan`);
+  the gradient is the identity, and `0` at an infinite input. New tests compare
+  the robust loss with the formula of the paper in `float64` and check its
+  continuity at `alpha=2`, `0` and `-inf`, and check that the option does not
+  change the value.
 - `num_frequencies` becomes `n_frequencies` in the `create` class method of
   `CosSinNumericalEncoder` and `AsinhCosSinNumericalEncoder`, so that every
   count is named `n_<things>` (`n_features`, `n_bins`, `n_frequencies`, `n`);
