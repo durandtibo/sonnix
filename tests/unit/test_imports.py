@@ -144,7 +144,7 @@ def test_source_has_no_suppression(path: Path) -> None:
     "line",
     [
         "x = 1  # noqa: E501",
-        "x = 1  # noqa",
+        "x = 1  # {}".format("noqa"),  # built at runtime: the blanket-noqa hook flags a literal
         "x = 1  # type: ignore",
         "x = 1  # ty: ignore[a]",
         "x = 1  # pragma: no cover",

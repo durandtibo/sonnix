@@ -143,6 +143,7 @@ def test_get_documented_arguments_of_a_function() -> None:
         Returns:
             Nothing.
         """
+        del a, b
 
     assert _get_documented_arguments(function) == ["a", "b"]
 
@@ -150,6 +151,7 @@ def test_get_documented_arguments_of_a_function() -> None:
 def test_get_documented_arguments_without_args() -> None:
     def function() -> None:
         r"""Do nothing."""
+        return
 
     assert _get_documented_arguments(function) == []
 

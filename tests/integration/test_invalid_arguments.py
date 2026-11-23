@@ -1,12 +1,12 @@
-r"""Test that every public function and module rejects an argument that is
-out of its range, with the same exception type and message for a function
-and its module (property P2).
+r"""Test that every public function and module rejects an argument that
+is out of its range, with the same exception type and message for a
+function and its module (property P2).
 
 The type and the finiteness of the scalar arguments are tested for every
-public object by ``test_scalar_arguments.py``, which walks the signatures.
-This file lists what the signature cannot tell: the range of an argument
-(``gamma >= 0``), the arguments that are not scalars and the exceptions
-of the generic rule.
+public object by ``test_scalar_arguments.py``, which walks the
+signatures. This file lists what the signature cannot tell: the range of
+an argument (``gamma >= 0``), the arguments that are not scalars and the
+exceptions of the generic rule.
 
 ``INVALID_ARGUMENTS`` maps a function and its module to the invalid
 keyword arguments and the expected exception. ``MODULE_ARGUMENTS`` lists

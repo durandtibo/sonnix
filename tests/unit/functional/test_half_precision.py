@@ -57,7 +57,8 @@ def _zeros() -> tuple[torch.Tensor, torch.Tensor]:
 
 
 def _tiny() -> tuple[torch.Tensor, torch.Tensor]:
-    r"""Return two tensors of ``1e-10``, which is ``0`` in half precision."""
+    r"""Return two tensors of ``1e-10``, which is ``0`` in half
+    precision."""
     return torch.full((4, 6), 1e-10), torch.full((4, 6), 1e-10)
 
 

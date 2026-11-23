@@ -58,8 +58,8 @@ def register_tensor(module: nn.Module, name: str, tensor: Tensor, *, learnable: 
 
 
 def resolve_eps(eps: float, tensor: Tensor) -> float:
-    r"""Raise a guard to the smallest positive normal number of the
-    dtype of a tensor.
+    r"""Raise a guard to the smallest positive normal number of the dtype
+    of a tensor.
 
     A small guard such as ``1e-8`` is ``0`` in ``float16`` (the
     smallest normal number is ``6.1e-5``), so a division or a
