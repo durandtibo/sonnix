@@ -1158,32 +1158,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sonnix.validation.validate_abs_range" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        validate_abs_range
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#sonnix.validation.validate_focal_params" class="md-nav__link">
     <span class="md-ellipsis">
       
         validate_focal_params
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sonnix.validation.validate_frequency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        validate_frequency
       
     </span>
   </a>
@@ -1213,10 +1191,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sonnix.validation.validate_moment_order" class="md-nav__link">
+  <a href="#sonnix.validation.validate_positive" class="md-nav__link">
     <span class="md-ellipsis">
       
-        validate_moment_order
+        validate_positive
       
     </span>
   </a>
@@ -1326,32 +1304,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sonnix.validation.validate_abs_range" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        validate_abs_range
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#sonnix.validation.validate_focal_params" class="md-nav__link">
     <span class="md-ellipsis">
       
         validate_focal_params
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sonnix.validation.validate_frequency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        validate_frequency
       
     </span>
   </a>
@@ -1381,10 +1337,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sonnix.validation.validate_moment_order" class="md-nav__link">
+  <a href="#sonnix.validation.validate_positive" class="md-nav__link">
     <span class="md-ellipsis">
       
-        validate_moment_order
+        validate_positive
       
     </span>
   </a>
@@ -1481,106 +1437,6 @@
 <div class="doc doc-object doc-function">
 
 
-<h2 id="sonnix.validation.validate_abs_range" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">sonnix.validation.validate_abs_range</span>
-
-
-<a href="#sonnix.validation.validate_abs_range" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">validate_abs_range</span><span class="p">(</span>
-    <span class="n">min_abs_value</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">max_abs_value</span><span class="p">:</span> <span class="n"><span title="float">float</span></span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
-</code></pre></div>
-
-    <div class="doc doc-contents first">
-
-        <p>Validate the value range parameters.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>min_abs_value</code>
-            </td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The minimum absolute value to encode.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>max_abs_value</code>
-            </td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The maximum absolute value to encode.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<p><span class="doc-section-title">Raises:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="ValueError">ValueError</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>if <code>min_abs_value</code> is not strictly positive or
-if <code>max_abs_value</code> is lower than <code>min_abs_value</code>.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<details class="example" open>
-  <summary>Example</summary>
-  <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_abs_range</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_abs_range</span><span class="p">(</span><span class="n">min_abs_value</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_abs_value</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
-</code></pre></div>
-</details>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
 <h2 id="sonnix.validation.validate_focal_params" class="doc doc-heading">
             <span class="doc doc-object-name doc-function-name">sonnix.validation.validate_focal_params</span>
 
@@ -1633,7 +1489,8 @@ if <code>max_abs_value</code> is lower than <code>min_abs_value</code>.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The focusing parameter. It has to be non-negative.</p>
+                <p>The focusing parameter. It has to be finite and
+non-negative.</p>
               </div>
             </td>
             <td>
@@ -1653,6 +1510,16 @@ if <code>max_abs_value</code> is lower than <code>min_abs_value</code>.</p>
         </tr>
       </thead>
       <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if one of the parameters is not a real number.</p>
+              </div>
+            </td>
+          </tr>
           <tr class="doc-section-item">
             <td>
                   <code><span title="ValueError">ValueError</span></code>
@@ -1671,125 +1538,6 @@ if <code>max_abs_value</code> is lower than <code>min_abs_value</code>.</p>
   <summary>Example</summary>
   <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_focal_params</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">validate_focal_params</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-</code></pre></div>
-</details>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="sonnix.validation.validate_frequency" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">sonnix.validation.validate_frequency</span>
-
-
-<a href="#sonnix.validation.validate_frequency" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">validate_frequency</span><span class="p">(</span>
-    <span class="n">num_frequencies</span><span class="p">:</span> <span class="n"><span title="int">int</span></span><span class="p">,</span>
-    <span class="n">min_frequency</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">max_frequency</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
-</code></pre></div>
-
-    <div class="doc doc-contents first">
-
-        <p>Validate the frequency parameters.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>num_frequencies</code>
-            </td>
-            <td>
-                  <code><span title="int">int</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The number of frequencies.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>min_frequency</code>
-            </td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The minimum frequency.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>max_frequency</code>
-            </td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The maximum frequency.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<p><span class="doc-section-title">Raises:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="ValueError">ValueError</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>if <code>num_frequencies</code> is lower than 1, if
-<code>min_frequency</code> is not strictly positive or if
-<code>max_frequency</code> is lower than <code>min_frequency</code>.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<details class="example" open>
-  <summary>Example</summary>
-  <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_frequency</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_frequency</span><span class="p">(</span><span class="n">num_frequencies</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">min_frequency</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_frequency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 </code></pre></div>
 </details>
 
@@ -1852,7 +1600,8 @@ if <code>max_abs_value</code> is lower than <code>min_abs_value</code>.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The scale parameter. It has to be strictly positive.</p>
+                <p>The scale parameter. It has to be finite and strictly
+positive.</p>
               </div>
             </td>
             <td>
@@ -1869,7 +1618,8 @@ if <code>max_abs_value</code> is lower than <code>min_abs_value</code>.</p>
             <td>
               <div class="doc-md-description">
                 <p>The max value to clip the loss, or <code>None</code> to
-disable the clipping. It has to be strictly positive.</p>
+disable the clipping. It has to be finite and strictly
+positive.</p>
               </div>
             </td>
             <td>
@@ -1889,6 +1639,16 @@ disable the clipping. It has to be strictly positive.</p>
         </tr>
       </thead>
       <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if one of the parameters is not a real number.</p>
+              </div>
+            </td>
+          </tr>
           <tr class="doc-section-item">
             <td>
                   <code><span title="ValueError">ValueError</span></code>
@@ -2000,17 +1760,19 @@ and <code>'batchmean'</code>.</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="sonnix.validation.validate_moment_order" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">sonnix.validation.validate_moment_order</span>
+<h2 id="sonnix.validation.validate_positive" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">sonnix.validation.validate_positive</span>
 
 
-<a href="#sonnix.validation.validate_moment_order" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">validate_moment_order</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="n"><span title="int">int</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<a href="#sonnix.validation.validate_positive" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">validate_positive</span><span class="p">(</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">"value"</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents first">
 
-        <p>Validate the order of the moment mean indicator.</p>
+        <p>Validate that a value is a finite number strictly greater than 0.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2026,18 +1788,34 @@ and <code>'batchmean'</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>k</code>
+                <code>value</code>
             </td>
             <td>
-                  <code><span title="int">int</span></code>
+                  <code><span title="float">float</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The order.</p>
+                <p>The value to validate.</p>
               </div>
             </td>
             <td>
                 <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the value, used in the error message.</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;value&#39;</code>
             </td>
           </tr>
       </tbody>
@@ -2059,7 +1837,8 @@ and <code>'batchmean'</code>.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if the order is not an integer.</p>
+                <p>If <code>value</code> is not a real number (a <code>bool</code> is
+rejected).</p>
               </div>
             </td>
           </tr>
@@ -2069,7 +1848,8 @@ and <code>'batchmean'</code>.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if the order is lower than 1.</p>
+                <p>If <code>value</code> is <code>NaN</code>, infinite, or not strictly
+positive.</p>
               </div>
             </td>
           </tr>
@@ -2079,8 +1859,8 @@ and <code>'batchmean'</code>.</p>
 
 <details class="example" open>
   <summary>Example</summary>
-  <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_moment_order</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_moment_order</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_positive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_positive</span><span class="p">(</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"eps"</span><span class="p">)</span>
 </code></pre></div>
 </details>
 

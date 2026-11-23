@@ -2490,6 +2490,16 @@ Classification Loss Functions"
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>alpha</code> is not a number.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
@@ -2688,6 +2698,16 @@ Classification Loss Functions"
         </tr>
       </thead>
       <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>alpha</code> is not a number.</p>
+              </div>
+            </td>
+          </tr>
           <tr class="doc-section-item">
             <td>
                   <code><span title="ValueError">ValueError</span></code>
@@ -2935,7 +2955,7 @@ quadratic bowl near 0.</p>
             <td>
               <div class="doc-md-description">
                 <p>The max value to clip the loss before to compute the
-reduction. It has to be strictly positive.
+reduction. It has to be finite and strictly positive.
 <code>None</code> means no clipping is used.</p>
               </div>
             </td>
@@ -2980,12 +3000,22 @@ reduction. It has to be strictly positive.
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha</code>, <code>scale</code> or <code>max_val</code> is not a number.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
               <div class="doc-md-description">
                 <p>if <code>alpha</code> is <code>NaN</code> or <code>+inf</code>, or if <code>scale</code> or
-<code>max_val</code> is not strictly positive.</p>
+<code>max_val</code> is not finite and strictly positive.</p>
               </div>
             </td>
           </tr>
@@ -3135,11 +3165,21 @@ See <code>sonnix.functional.log_cosh_loss</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>scale</code> is not a number.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if <code>scale</code> is not greater than 0 or if the
+                <p>if <code>scale</code> is not finite and strictly positive or if the
 reduction is not valid.</p>
               </div>
             </td>
@@ -3346,7 +3386,7 @@ predictions are the logarithm of the rate.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>An arbitrary small strictly positive number to avoid
+                <p>An arbitrary small finite, strictly positive number to avoid
 undefined results when the count is zero.</p>
               </div>
             </td>
@@ -3408,11 +3448,21 @@ the rate and <code>eps</code> is not used.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>eps</code> is not a number or <code>log_input</code> is not a <code>bool</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if <code>eps</code> is not strictly positive.</p>
+                <p>if <code>eps</code> is not finite and strictly positive.</p>
               </div>
             </td>
           </tr>
@@ -3671,7 +3721,7 @@ its options. If <code>None</code>,
             </td>
             <td>
               <div class="doc-md-description">
-                <p>An arbitrary small strictly positive number to avoid
+                <p>An arbitrary small finite, strictly positive number to avoid
 undefined results when the indicator is zero.</p>
               </div>
             </td>
@@ -3746,11 +3796,21 @@ indicator, which can reward shrinking it (e.g. with
           </tr>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>eps</code> is not a number or <code>detach_indicator</code> is not a <code>bool</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if <code>eps</code> is not strictly positive.</p>
+                <p>if <code>eps</code> is not finite and strictly positive.</p>
               </div>
             </td>
           </tr>

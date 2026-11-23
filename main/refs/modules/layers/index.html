@@ -1811,7 +1811,7 @@ additive bias.</p>
             <td>
               <div class="doc-md-description">
                 <p>if <code>in_features</code> or <code>out_features</code> is not an
-integer.</p>
+integer, or if <code>bias</code> is not a <code>bool</code>.</p>
               </div>
             </td>
           </tr>
@@ -2054,7 +2054,7 @@ additive bias.</p>
             <td>
               <div class="doc-md-description">
                 <p>if <code>n</code>, <code>in_features</code> or <code>out_features</code> is
-not an integer.</p>
+not an integer, or if <code>bias</code> is not a <code>bool</code>.</p>
               </div>
             </td>
           </tr>
@@ -2474,7 +2474,7 @@ default floating point type.</p>
             <td>
               <div class="doc-md-description">
                 <p>if a dimension of <code>normalized_shape</code> is not an
-integer.</p>
+integer, or if <code>bias</code> is not a <code>bool</code>.</p>
               </div>
             </td>
           </tr>
@@ -2748,6 +2748,16 @@ labels.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>threshold</code> is not a number or <code>dim</code> is not an integer.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
@@ -2936,6 +2946,29 @@ from scores.</p>
             </td>
             <td>
                   <code>-1</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>dim</code> is not an integer.</p>
+              </div>
             </td>
           </tr>
       </tbody>

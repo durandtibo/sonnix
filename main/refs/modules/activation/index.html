@@ -2171,7 +2171,7 @@ default floating point type.</p>
             <td>
               <div class="doc-md-description">
                 <p>if <code>num_parameters</code> or <code>channel_dim</code> is not an
-integer.</p>
+integer, or if <code>learnable</code> is not a <code>bool</code>.</p>
               </div>
             </td>
           </tr>
@@ -2384,6 +2384,40 @@ default floating point type.</p>
     </table>
 
 
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha_init_value</code> is not a number or <code>bias</code> is
+not a <code>bool</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha_init_value</code> is not finite.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
 <details class="shape" open>
   <summary>Shape</summary>
   <ul>
@@ -2538,11 +2572,22 @@ default floating point type.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>min_val</code> or <code>max_val</code> is not a number.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if <code>min_val</code> is greater than <code>max_val</code>.</p>
+                <p>if <code>min_val</code> or <code>max_val</code> is not finite, or if
+<code>min_val</code> is greater than <code>max_val</code>.</p>
               </div>
             </td>
           </tr>
@@ -2716,6 +2761,40 @@ default floating point type.</p>
             </td>
             <td>
                   <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha_init_value</code> is not a number or <code>bias</code> is
+not a <code>bool</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha_init_value</code> is not finite.</p>
+              </div>
             </td>
           </tr>
       </tbody>
@@ -2897,6 +2976,40 @@ default floating point type.</p>
             </td>
             <td>
                   <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha_init_value</code> is not a number or <code>bias</code> is
+not a <code>bool</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha_init_value</code> is not finite.</p>
+              </div>
             </td>
           </tr>
       </tbody>
@@ -3660,6 +3773,16 @@ is infinite at <code>0</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>exponent</code> is not a number.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
@@ -3864,11 +3987,21 @@ ECCV 2022. (http://arxiv.org/pdf/2111.15135)
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>max_val</code> is not a number.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if <code>max_val</code> is negative.</p>
+                <p>if <code>max_val</code> is negative or not finite.</p>
               </div>
             </td>
           </tr>
@@ -4083,6 +4216,17 @@ default, <code>clamp</code> gives a zero gradient outside the range.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>max_val</code> is not a number or <code>preserve_gradient</code> is not a
+<code>bool</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
@@ -4237,11 +4381,22 @@ default, <code>clamp</code> gives a zero gradient outside the range.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>min_val</code> is not a number or <code>preserve_gradient</code> is not a
+<code>bool</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                   <code><span title="ValueError">ValueError</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if <code>min_val</code> is not strictly positive.</p>
+                <p>if <code>min_val</code> is not finite and strictly positive.</p>
               </div>
             </td>
           </tr>
