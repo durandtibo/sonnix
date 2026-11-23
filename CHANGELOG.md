@@ -7,42 +7,60 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Migration
 
-| Before                                                                            | After                                                                                                       |
-| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `log_cosh_loss(p, t, 2.0)`                                                        | `log_cosh_loss(p, t, scale=2.0)` (every function option is keyword-only)                                    |
-| `AsinhMSELoss()`                                                                  | `TransformedLoss(nn.MSELoss(), prediction_transform=Asinh(), target_transform=Asinh())`                     |
-| `AsinhSmoothL1Loss(beta=0.5)`                                                     | the same with `nn.SmoothL1Loss(beta=0.5)`                                                                   |
-| `MSLELoss()`                                                                      | the same with `Log1p()`                                                                                     |
-| `RelativeMSELoss(indicator=GeometricMeanIndicator())`                             | `RelativeLoss(nn.MSELoss(reduction="none"), indicator=geometric_mean_indicator)`                            |
-| `MomentMeanIndicator(k=2)`                                                        | `partial(moment_mean_indicator, k=2)`                                                                       |
-| `sonnix.modules.loss.X` (and `.activation`, `.fusion`, ...)                       | `sonnix.modules.X`                                                                                          |
-| `DynamicTanh(...).weight` / state dict key `weight`                               | `.affine.weight` / key `affine.weight`                                                                      |
-| `forward(x=...)` / `forward(scalar=...)` / `forward(scores=...)`                  | `forward(input=...)` (positional calls are unchanged)                                                       |
-| `View(shape)`                                                                     | `nn.Flatten`, `nn.Unflatten`, or `x.reshape` in the model's `forward`                                       |
-| `sonnix.utils.loss.is_loss_decreasing*`                                           | `sonnix.testing.is_loss_decreasing*` (flat path since #452)                                                 |
-| `sonnix.factory.resolve_dataset` / `resolve_optimizer`                            | `coola.factory.resolve_object(config, Dataset)` / `(config, Optimizer)`                                     |
-| `utils.iterator.get_named_modules`, `top_module_mode`                             | removed (`module.named_modules()`, `module_mode`)                                                           |
-| `utils.random.resolve_torch_generator`                                            | `coola.random.make_torch_generator`                                                                         |
-| `BinaryPoly1Loss(alpha=nan)`, `SafeExp(max_val=-1)`, ...                          | `ValueError`                                                                                                |
-| `quantile_regression_loss(p[4,3], t[1,3])`                                        | `ValueError` (shapes differ); broadcast explicitly with `expand`                                            |
-| `AsinhNumericalEncoder(ones(1, 3))(x[5, 4])` (broadcast)                          | `AsinhNumericalEncoder.create(..., n_features=4)(x)`                                                        |
-| `log_cosh_loss(p, t, scale=inf)`, `SafeLog(min_val=inf)`, `Clamp(nan, nan)`, ...  | `ValueError` (every float hyperparameter is finite and in its range) (#447)                                 |
-| `ConcatFusion(dim=1.5)`, `create(num_frequencies=2.5)`, `from_quantiles(x, 2.5)`  | `TypeError` naming the argument (#447)                                                                      |
-| `AsinhNumericalEncoder(tensor_with_nan)`, `ScaleAndShift(4, bias=1)`              | `ValueError` / `TypeError` (#447)                                                                           |
-| `validate_abs_range`, `validate_frequency`, `validate_moment_order`               | removed: `validate_int` + `validate_ge`, or `resolve_range` (#447)                                          |
-| `PiecewiseLinearNumericalEncoder(bins=...)`, `from_quantiles(x, n_bins=k)`        | `PiecewiseLinearNumericalEncoder(edges=...)`, `from_quantiles(x, n_bins=k - 1)` for the same encoder (#449) |
-| state dict key `width` of the piecewise encoder                                   | removed (derived); a checkpoint with `width` loads with `strict=False`; an old `edges` does not load (#449) |
-| `BinaryFocalLoss(0.25, 2.0)`                                                      | `BinaryFocalLoss(0.25, gamma=2.0)` (#450)                                                                   |
-| `GeneralRobustRegressionLoss(2.0, 1.0, 5.0)`                                      | `GeneralRobustRegressionLoss(2.0, scale=1.0, max_val=5.0)` (#450)                                           |
-| `RelativeLoss(criterion, indicator, 1e-6)`                                        | `RelativeLoss(criterion, indicator=indicator, eps=1e-6)` (#450)                                             |
-| `reduce_loss(x, "sum")`; `safe_pow(x=t, exponent=2)`                              | `reduce_loss(x, reduction="sum")`; `safe_pow(input=t, exponent=2)` (#450)                                   |
-| `BaseBinaryFocalLoss`, `BaseBinaryPoly1Loss`                                      | subclass `BaseLoss` (#451)                                                                                  |
-| `sonnix.modules.numerical._utils.NumericalEncoder`                                | `sonnix.modules.BaseNumericalEncoder` (#452)                                                                |
-| `sonnix.functional.loss.X`, `sonnix.utils.mode.X`, `sonnix.testing.loss.X`        | `sonnix.functional.X`, `sonnix.utils.X`, `sonnix.testing.X` (#452)                                          |
-| `binary_focal_loss(p, t_long)` and the three other binary losses (`RuntimeError`) | work: an integer or `bool` target is converted to the dtype of the prediction (#454)                        |
+| Before                                                                                             | After                                                                                                       |
+| -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `log_cosh_loss(p, t, 2.0)`                                                                         | `log_cosh_loss(p, t, scale=2.0)` (every function option is keyword-only)                                    |
+| `AsinhMSELoss()`                                                                                   | `TransformedLoss(nn.MSELoss(), prediction_transform=Asinh(), target_transform=Asinh())`                     |
+| `AsinhSmoothL1Loss(beta=0.5)`                                                                      | the same with `nn.SmoothL1Loss(beta=0.5)`                                                                   |
+| `MSLELoss()`                                                                                       | the same with `Log1p()`                                                                                     |
+| `RelativeMSELoss(indicator=GeometricMeanIndicator())`                                              | `RelativeLoss(nn.MSELoss(reduction="none"), indicator=geometric_mean_indicator)`                            |
+| `MomentMeanIndicator(k=2)`                                                                         | `partial(moment_mean_indicator, k=2)`                                                                       |
+| `sonnix.modules.loss.X` (and `.activation`, `.fusion`, ...)                                        | `sonnix.modules.X`                                                                                          |
+| `DynamicTanh(...).weight` / state dict key `weight`                                                | `.affine.weight` / key `affine.weight`                                                                      |
+| `forward(x=...)` / `forward(scalar=...)` / `forward(scores=...)`                                   | `forward(input=...)` (positional calls are unchanged)                                                       |
+| `View(shape)`                                                                                      | `nn.Flatten`, `nn.Unflatten`, or `x.reshape` in the model's `forward`                                       |
+| `sonnix.utils.loss.is_loss_decreasing*`                                                            | `sonnix.testing.is_loss_decreasing*` (flat path since #452)                                                 |
+| `sonnix.factory.resolve_dataset` / `resolve_optimizer`                                             | `coola.factory.resolve_object(config, Dataset)` / `(config, Optimizer)`                                     |
+| `utils.iterator.get_named_modules`, `top_module_mode`                                              | removed (`module.named_modules()`, `module_mode`)                                                           |
+| `utils.random.resolve_torch_generator`                                                             | `coola.random.make_torch_generator`                                                                         |
+| `BinaryPoly1Loss(alpha=nan)`, `SafeExp(max_val=-1)`, ...                                           | `ValueError`                                                                                                |
+| `quantile_regression_loss(p[4,3], t[1,3])`                                                         | `ValueError` (shapes differ); broadcast explicitly with `expand`                                            |
+| `AsinhNumericalEncoder(ones(1, 3))(x[5, 4])` (broadcast)                                           | `AsinhNumericalEncoder.create(..., n_features=4)(x)`                                                        |
+| `log_cosh_loss(p, t, scale=inf)`, `SafeLog(min_val=inf)`, `Clamp(nan, nan)`, ...                   | `ValueError` (every float hyperparameter is finite and in its range) (#447)                                 |
+| `ConcatFusion(dim=1.5)`, `create(num_frequencies=2.5)`, `from_quantiles(x, 2.5)`                   | `TypeError` naming the argument (#447)                                                                      |
+| `AsinhNumericalEncoder(tensor_with_nan)`, `ScaleAndShift(4, bias=1)`                               | `ValueError` / `TypeError` (#447)                                                                           |
+| `validate_abs_range`, `validate_frequency`, `validate_moment_order`                                | removed: `validate_int` + `validate_ge`, or `resolve_range` (#447)                                          |
+| `PiecewiseLinearNumericalEncoder(bins=...)`, `from_quantiles(x, n_bins=k)`                         | `PiecewiseLinearNumericalEncoder(edges=...)`, `from_quantiles(x, n_bins=k - 1)` for the same encoder (#449) |
+| state dict key `width` of the piecewise encoder                                                    | removed (derived); a checkpoint with `width` loads with `strict=False`; an old `edges` does not load (#449) |
+| `BinaryFocalLoss(0.25, 2.0)`                                                                       | `BinaryFocalLoss(0.25, gamma=2.0)` (#450)                                                                   |
+| `GeneralRobustRegressionLoss(2.0, 1.0, 5.0)`                                                       | `GeneralRobustRegressionLoss(2.0, scale=1.0, max_val=5.0)` (#450)                                           |
+| `RelativeLoss(criterion, indicator, 1e-6)`                                                         | `RelativeLoss(criterion, indicator=indicator, eps=1e-6)` (#450)                                             |
+| `reduce_loss(x, "sum")`; `safe_pow(x=t, exponent=2)`                                               | `reduce_loss(x, reduction="sum")`; `safe_pow(input=t, exponent=2)` (#450)                                   |
+| `BaseBinaryFocalLoss`, `BaseBinaryPoly1Loss`                                                       | subclass `BaseLoss` (#451)                                                                                  |
+| `sonnix.modules.numerical._utils.NumericalEncoder`                                                 | `sonnix.modules.BaseNumericalEncoder` (#452)                                                                |
+| `sonnix.functional.loss.X`, `sonnix.utils.mode.X`, `sonnix.testing.loss.X`                         | `sonnix.functional.X`, `sonnix.utils.X`, `sonnix.testing.X` (#452)                                          |
+| `binary_focal_loss(p, t_long)` and the three other binary losses (`RuntimeError`)                  | work: an integer or `bool` target is converted to the dtype of the prediction (#454)                        |
+| `safe_log(0)`, `SafeLog()(0)` in `float16`: `-inf`                                                 | `-9.7` (`eps` raised to the smallest normal number of the dtype) (#460)                                     |
+| `poisson_regression_loss`, `relative_loss`, `absolute_relative_error` on `0` in `float16`: `nan`   | finite (same rule) (#460)                                                                                   |
+| `safe_exp(x)` in `float16` for `x > 11.09`: `inf`; `safe_exp(x, max_val=100)` in `float32`: `inf`  | finite: `max_val` is lowered to `log(finfo.max) - 1` (#460)                                                 |
+| `general_robust_regression_loss` in `float16`, `\|p - t\| / scale > 255`: `inf` and `nan` gradient | computed in `float32`, cast back (#460)                                                                     |
+| `Gaussian` gradient of `alpha` in `float16` for large `\|x\|`: `nan`                               | `0` (#460)                                                                                                  |
+| `safe_pow(negative, 0.5)`: `0`; `safe_pow(-2, 2)`: `0`                                             | `nan` (like `torch.pow`); `4` (#460)                                                                        |
+| `ScaleAndShift(5)(x[3, 1])`, `DynamicTanh`, `DynamicAsinh`                                         | `ValueError` naming `normalized_shape`; use `x.expand(3, 5)` to broadcast on purpose (#461)                 |
+| `SumFusion()(a[4, 3], b[4, 1])`, `AverageFusion`, `MultiplicationFusion`                           | `ValueError` naming both shapes; `expand` first (#461)                                                      |
+| `ResidualBlock` with branches of different shapes                                                  | `ValueError` naming `skip` and `residual` (#461)                                                            |
+| `Gaussian(3)(x[4, 1])`, `Gaussian(3, channel_dim=1)(x[5])` (broadcast, `IndexError`)               | `ValueError` naming `channel_dim` and `num_parameters` (#461)                                               |
+| `from sonnix.validation import Reduction`                                                          | `from sonnix.functional import Reduction` (#462)                                                            |
+| `CosSinNumericalEncoder.create("linspace", num_frequencies=8, ...)`                                | `create("linspace", n_frequencies=8, ...)` (#464)                                                           |
 
 ### Breaking changes
 
+- `num_frequencies` becomes `n_frequencies` in the `create` class method of
+  `CosSinNumericalEncoder` and `AsinhCosSinNumericalEncoder`, so that every
+  count is named `n_<things>` (`n_features`, `n_bins`, `n_frequencies`, `n`);
+  `num_parameters` is the name of `torch.nn.PReLU` and stays. The migration
+  table lists the changes of the third revision with their pull requests (third
+  target state step 6, #464).
 - One public path for `Reduction` (third target state step 4, #462):
   `sonnix.validation` no longer exports `Reduction`; import it from
   `sonnix.functional` (`from sonnix.functional import Reduction`).

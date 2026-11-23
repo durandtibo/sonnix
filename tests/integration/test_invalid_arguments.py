@@ -374,21 +374,21 @@ CREATE_ARGUMENTS = [
     ),
     *[
         (
-            f"{cls.__name__}-num_frequencies-{value!r}",
+            f"{cls.__name__}-n_frequencies-{value!r}",
             partial(cls.create, "linspace", frequency_range=(1.0, 2.0)),
-            {"num_frequencies": value},
+            {"n_frequencies": value},
             TypeError,
-            r"num_frequencies must be an int",
+            r"n_frequencies must be an int",
         )
         for cls in (sm.CosSinNumericalEncoder, sm.AsinhCosSinNumericalEncoder)
         for value in (2.5, True)
     ],
     (
-        "CosSin-num_frequencies-0",
+        "CosSin-n_frequencies-0",
         partial(sm.CosSinNumericalEncoder.create, "linspace", frequency_range=(1.0, 2.0)),
-        {"num_frequencies": 0},
+        {"n_frequencies": 0},
         ValueError,
-        r"num_frequencies must be greater than or equal to 1",
+        r"n_frequencies must be greater than or equal to 1",
     ),
     (
         "CosSin-n_features-2.5",

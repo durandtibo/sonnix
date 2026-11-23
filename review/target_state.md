@@ -535,4 +535,4 @@ bases, integer targets in the binary losses, the `repr` of `RelativeLoss`.
 | 3    | #461          | done        |
 | 4    | #462          | done        |
 | 5    | #463          | done; `einsum` skipped (slower than `bmm`) |
-| 6    |              | not started |
+| 6    | #464         | done        |

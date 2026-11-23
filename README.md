@@ -110,7 +110,7 @@ A numerical encoder, which maps each feature to a vector:
 ```pycon
 >>> import torch
 >>> from sonnix.modules import CosSinNumericalEncoder
->>> m = CosSinNumericalEncoder.create("linspace", num_frequencies=5, frequency_range=(0.1, 1.0))
+>>> m = CosSinNumericalEncoder.create("linspace", n_frequencies=5, frequency_range=(0.1, 1.0))
 >>> m(torch.randn(4, 1)).shape
 torch.Size([4, 1, 10])
 
