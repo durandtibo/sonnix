@@ -1693,8 +1693,11 @@ the <a href="../"><code>sonnix.modules</code></a> overview.</p>
 
         <p>Define the base class of the modules that fuse several tensors
 into one tensor.</p>
-<p>It checks that there is at least one input, then calls <code>fuse</code>.
-The subclasses implement <code>fuse</code>.</p>
+<p>It checks that there is at least one input, and that all the
+inputs have the same shape (nothing broadcasts), then calls
+<code>fuse</code>. The subclasses implement <code>fuse</code>. A subclass that
+accepts inputs of different shapes (<code>ConcatFusion</code>) sets the
+class attribute <code>_same_shape</code> to <code>False</code>.</p>
 
 
 <p><span class="doc-section-title">Raises:</span></p>
@@ -1712,7 +1715,8 @@ The subclasses implement <code>fuse</code>.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if <code>forward</code> is called without input.</p>
+                <p>if <code>forward</code> is called without input, or if an
+input does not have the shape of the first input.</p>
               </div>
             </td>
           </tr>

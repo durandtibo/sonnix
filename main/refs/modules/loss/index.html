@@ -3850,7 +3850,9 @@ indicator, which can reward shrinking it (e.g. with
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if <code>eps</code> is not finite and strictly positive.</p>
+                <p>if <code>eps</code> is not finite and strictly positive, or if
+<code>prediction</code> and <code>target</code> do not have the same shape
+(checked before the criterion is called).</p>
               </div>
             </td>
           </tr>

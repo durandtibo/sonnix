@@ -2301,6 +2301,31 @@ must come from a trusted source. See <code>sonnix.factory</code>.</p>
     </table>
 
 
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if the output of <code>skip</code> and the output of
+<code>residual</code> do not have the same shape (nothing
+broadcasts).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
 <details class="example" open>
   <summary>Example</summary>
   <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
@@ -2485,7 +2510,8 @@ integer, or if <code>bias</code> is not a <code>bool</code>.</p>
             <td>
               <div class="doc-md-description">
                 <p>if a dimension of <code>normalized_shape</code> is lower
-than 1.</p>
+than 1, or if the last dimensions of the input are not
+<code>normalized_shape</code> (a size-1 dimension is not expanded).</p>
               </div>
             </td>
           </tr>
@@ -2496,8 +2522,10 @@ than 1.</p>
 <details class="shape" open>
   <summary>Shape</summary>
   <ul>
-<li>Input: <code>(N, *)</code>, where <code>*</code> means any number of dimensions.</li>
-<li>Output: <code>(N, *)</code>, same shape as the input.</li>
+<li>Input: <code>(N, *, normalized_shape)</code>, where <code>*</code> means any
+  number of dimensions. The last dimensions are
+  <code>normalized_shape</code>, like <code>torch.nn.LayerNorm</code>.</li>
+<li>Output: <code>(N, *, normalized_shape)</code>, same shape as the input.</li>
 </ul>
 </details>
 
