@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
+import pytest
 import torch
 from coola.equality import objects_are_allclose, objects_are_equal
 from torch import nn
@@ -68,3 +69,56 @@ def test_flatten_multiclass_cross_entropy() -> None:
     loss = net(torch.ones(6, 2, 4, requires_grad=True), torch.zeros(6, 2, dtype=torch.long))
     loss.backward()
     assert objects_are_allclose(loss, torch.tensor(1.3862943649291992), atol=1e-6)
+
+
+#############################################################
+#     Tests for the shapes checked by MulticlassFlatten     #
+#############################################################
+
+
+def test_flatten_multiclass_forward_same_number_of_elements_raises() -> None:
+    # ``(2, 6, 3)`` and ``(4, 3)`` flatten to ``(12, 3)`` and ``(12,)`` but the rows are unrelated.
+    net = MulticlassFlatten(Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0)))
+    with pytest.raises(
+        ValueError,
+        match=r"prediction must have the shape of target plus a class dimension, "
+        r"got \(2, 6, 3\) and \(4, 3\)",
+    ):
+        net(torch.ones(2, 6, 3), torch.zeros(4, 3))
+
+
+def test_flatten_multiclass_forward_different_number_of_elements_raises() -> None:
+    net = MulticlassFlatten(Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0)))
+    with pytest.raises(ValueError, match=r"got \(4, 3, 5\) and \(4, 2\)"):
+        net(torch.ones(4, 3, 5), torch.zeros(4, 2))
+
+
+def test_flatten_multiclass_forward_target_with_a_class_dimension_raises() -> None:
+    net = MulticlassFlatten(Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0)))
+    with pytest.raises(ValueError, match=r"got \(4, 3\) and \(4, 3\)"):
+        net(torch.ones(4, 3), torch.zeros(4, 3))
+
+
+def test_flatten_multiclass_forward_scalar_prediction_raises() -> None:
+    net = MulticlassFlatten(Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0)))
+    with pytest.raises(ValueError, match=r"got \(\) and \(\)"):
+        net(torch.tensor(1.0), torch.tensor(0))
+
+
+def test_flatten_multiclass_forward_does_not_call_the_module_when_the_shapes_differ() -> None:
+    module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
+    with pytest.raises(ValueError, match=r"prediction must have the shape of target"):
+        MulticlassFlatten(module)(torch.ones(2, 6, 3), torch.zeros(4, 3))
+    module.assert_not_called()
+
+
+def test_flatten_multiclass_forward_one_dimensional_target() -> None:
+    module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
+    MulticlassFlatten(module)(torch.ones(5, 3), torch.zeros(5))
+    assert objects_are_equal(module.call_args.args, (torch.ones(5, 3), torch.zeros(5)))
+
+
+def test_flatten_multiclass_forward_empty_batch() -> None:
+    module = Mock(spec=torch.nn.Module, return_value=torch.tensor(1.0))
+    MulticlassFlatten(module)(torch.ones(0, 3, 5), torch.zeros(0, 3))
+    assert module.call_args.args[0].shape == (0, 5)

@@ -43,6 +43,7 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 | `is_loss_decreasing*(num_iterations=0)`, `lr=nan`, `max_norm=-1`, `random_seed=1.5`, `DummyDataset(feature_size=2.5)` | `ValueError` / `TypeError` naming the argument (fourth target state step 3, #471) |
 | `load_state_dict_to_module(..., strict="yes")`, `register_tensor(..., learnable="yes")`              | `TypeError` (fourth target state step 3, #471) |
 | `Clamp(0, 1).min_val` (`int`)                                                                        | `0.0` (`float`) (fourth target state step 3, #471) |
+| `MulticlassFlatten(c)(p[2, 6, 3], t[4, 3])` (silent); `(p[4, 3, 5], t[4, 2])` (`RuntimeError`) | `ValueError` naming both shapes (fourth target state step 4, #472) |
 | `sonnix.functional.loss.X`, `sonnix.utils.mode.X`, `sonnix.testing.loss.X`                         | `sonnix.functional.X`, `sonnix.utils.X`, `sonnix.testing.X` (#452)                                          |
 | `binary_focal_loss(p, t_long)` and the three other binary losses (`RuntimeError`)                  | work: an integer or `bool` target is converted to the dtype of the prediction (#454)                        |
 | `safe_log(0)`, `SafeLog()(0)` in `float16`: `-inf`                                                 | `-9.7` (`eps` raised to the smallest normal number of the dtype) (#460)                                     |
@@ -60,6 +61,16 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- `MulticlassFlatten` checks what it reshapes (fourth target state step 4,
+  #472): `forward` raises a `ValueError` naming both shapes when the shape of
+  the prediction is not the shape of the target plus a class dimension.
+  Before, `prediction (2, 6, 3)` with `target (4, 3)` had the same number of
+  elements once flattened, so the loss paired unrelated rows, and
+  `prediction (4, 3, 5)` with `target (4, 2)` raised a bare `RuntimeError`.
+  The module is in the test registry (export, compile, dtype, purity, state
+  and shape tests), and `conventions.md` says that a wrapper that reshapes
+  checks its shapes while a wrapper that only forwards (`TransformedLoss`)
+  leaves the policy to the wrapped module.
 - Validate the whole surface (fourth target state step 3, #471). `sonnix.testing`
   and `sonnix.utils` check their scalar arguments like the modules do:
   `is_loss_decreasing*` require `num_iterations >= 1` and an integer

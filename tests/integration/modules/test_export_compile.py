@@ -17,7 +17,6 @@ NOT_REGISTERED = {
     "BaseFusion",
     "BaseLoss",
     "BaseNumericalEncoder",
-    "MulticlassFlatten",
 }
 
 ##################################

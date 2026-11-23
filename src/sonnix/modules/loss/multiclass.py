@@ -32,6 +32,10 @@ class MulticlassFlatten(nn.Module):
             the flattened prediction and target as inputs and returns
             a tensor.
 
+    Raises:
+        ValueError: If the shape of ``prediction`` is not the shape of
+            ``target`` plus a class dimension (checked in ``forward``).
+
     Example:
         ```pycon
         >>> import torch
@@ -53,5 +57,11 @@ class MulticlassFlatten(nn.Module):
         self.module: nn.Module = resolve_module(module)
 
     def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        if prediction.ndim == 0 or prediction.shape[:-1] != target.shape:
+            msg = (
+                "prediction must have the shape of target plus a class dimension, "
+                f"got {tuple(prediction.shape)} and {tuple(target.shape)}"
+            )
+            raise ValueError(msg)
         target = torch.flatten(target)
         return self.module(prediction.reshape(target.numel(), prediction.shape[-1]), target)
