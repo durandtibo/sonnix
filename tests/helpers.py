@@ -5,12 +5,14 @@ from __future__ import annotations
 __all__ = [
     "DEVICES_WITHOUT_MPS",
     "ExamplePair",
+    "get_scalar_parameters",
     "make_generator",
     "normal_pair",
     "positive_pair",
     "probability_pair",
 ]
 
+import inspect
 from dataclasses import dataclass
 from typing import Any
 
@@ -74,3 +76,29 @@ def probability_pair(
         torch.rand(*shape, generator=generator, dtype=dtype) * 0.8 + 0.1,
         torch.rand(*shape, generator=generator, dtype=dtype),
     )
+
+
+_SCALAR_TYPES = ("int", "float", "bool")
+
+
+def get_scalar_parameters(target: Any) -> dict[str, str]:
+    r"""Return the scalar parameters of a function, a class or a method.
+
+    A parameter is scalar if its annotation is ``int``, ``float`` or ``bool``,
+    optionally with ``None`` (``float | None``). The annotation of a tensor,
+    a module, a string or a union of other types makes the parameter exempt.
+
+    Args:
+        target: A function, a method or a class (its ``__init__``).
+
+    Returns:
+        The name and the scalar type (``'int'``, ``'float'`` or ``'bool'``)
+            of each scalar parameter.
+    """
+    function = target.__init__ if inspect.isclass(target) else target
+    scalars = {}
+    for name, parameter in inspect.signature(function).parameters.items():
+        kinds = {part.strip() for part in str(parameter.annotation).split("|")} - {"None"}
+        if len(kinds) == 1 and kinds <= set(_SCALAR_TYPES):
+            scalars[name] = kinds.pop()
+    return scalars

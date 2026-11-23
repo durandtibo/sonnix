@@ -222,9 +222,9 @@ def test_normalize_removes_backticks_and_extra_spaces() -> None:
     assert _normalize("Use ``a``  and `b`.") == "Use a and b."
 
 
-#######################################
-#     Tests for the design rules      #
-#######################################
+######################################
+#     Tests for the design rules     #
+######################################
 
 RULE_ROW = re.compile(r"^\| (P\d+) +\| \*\*(.+?)\*\*", flags=re.MULTILINE)
 

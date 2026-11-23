@@ -84,7 +84,7 @@ class BaseDynamicNorm(nn.Module, ABC):
         validate_finite(alpha_init_value, name="alpha_init_value")
         self.affine = ScaleAndShift(normalized_shape, bias=bias, device=device, dtype=dtype)
         self.normalized_shape = self.affine.normalized_shape
-        self.alpha_init_value = alpha_init_value
+        self.alpha_init_value = float(alpha_init_value)
         self.alpha: nn.Parameter = nn.Parameter(torch.empty(1, device=device, dtype=dtype))
         self.reset_parameters()
 

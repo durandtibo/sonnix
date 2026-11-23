@@ -86,7 +86,7 @@ class GeneralRobustRegressionLoss(BaseLoss):
         validate_general_robust_params(alpha, scale, max_val)
         self.alpha = float(alpha)
         self.scale = float(scale)
-        self.max_val = max_val
+        self.max_val = None if max_val is None else float(max_val)
 
     def extra_repr(self) -> str:
         return (

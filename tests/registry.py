@@ -7,16 +7,26 @@ A new module is covered by the registry-driven tests (``export``,
 
 from __future__ import annotations
 
-__all__ = ["EDGE_VALUES", "FUNCTION_CASES", "MODULE_CASES", "ModuleCase"]
+__all__ = [
+    "ACCEPTS_NON_FINITE",
+    "CALL_CASES",
+    "EDGE_VALUES",
+    "EXEMPT_FROM_SCALAR_CHECKS",
+    "FUNCTION_CASES",
+    "MODULE_CASES",
+    "CallCase",
+    "ModuleCase",
+]
 
+import inspect
 from dataclasses import dataclass
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import torch
 from torch import nn
 
-from sonnix import functional as sf, modules as sm
+from sonnix import functional as sf, modules as sm, testing as st, utils as su
 from tests.helpers import make_generator, normal_pair, positive_pair
 
 if TYPE_CHECKING:
@@ -180,7 +190,10 @@ POSITIONAL: dict[str, tuple[str, ...]] = {
 
 
 def _builder(cls: type[nn.Module], *args: object, **kwargs: object) -> Callable[..., nn.Module]:
-    return lambda **extra: cls(*args, **kwargs, **extra)
+    # The positional arguments are bound to their names, so that a keyword argument of the call
+    # replaces the base value of the same argument (``Pow(2.0)`` then ``build(exponent=nan)``).
+    base = {**dict(zip(inspect.signature(cls).parameters, args, strict=False)), **kwargs}
+    return lambda **extra: cls(**{**base, **extra})
 
 
 def _case(
@@ -431,3 +444,185 @@ FUNCTION_CASES: tuple[ModuleCase, ...] = (
     _function_case("reversed_relative_indicator", sf.reversed_relative_indicator),
     _function_case("safe_pow", lambda x, y: sf.safe_pow(x, 2.0).add(sf.safe_pow(y, 0.5))),
 )
+
+
+@dataclass(frozen=True)
+class CallCase:
+    r"""Describe a valid call of a public function, class or class method.
+
+    The test of the scalar arguments walks the signature of ``target`` and
+    calls ``call`` with one invalid argument at a time (property P2).
+
+    Attributes:
+        name: The public name (``Class.method`` for a class method), used as the
+            test id.
+        target: The object whose signature lists the arguments: a function, a
+            class (its ``__init__``) or a class method.
+        call: A function that makes a valid call. The keyword arguments replace
+            the argument of the same name.
+    """
+
+    name: str
+    target: Callable[..., Any]
+    call: Callable[..., Any]
+
+    def __repr__(self) -> str:
+        return self.name
+
+
+def _two(function: Callable[..., Any]) -> Callable[..., Any]:
+    # A loss or an indicator: ``function(prediction, target, **kwargs)``.
+    return lambda **kwargs: function(torch.ones(2, 3), torch.ones(2, 3), **kwargs)
+
+
+def _one(function: Callable[..., Any]) -> Callable[..., Any]:
+    # A single-tensor operation: ``function(input, **kwargs)``.
+    return lambda **kwargs: function(torch.ones(2, 3), **kwargs)
+
+
+def _case_of(name: str, target: Callable[..., Any], call: Callable[..., Any]) -> CallCase:
+    return CallCase(name=name, target=target, call=call)
+
+
+def _register_tensor(**kwargs: object) -> None:
+    su.register_tensor(nn.Module(), "alpha", torch.ones(2), **{"learnable": True, **kwargs})
+
+
+def _load_state_dict_to_module(**kwargs: object) -> None:
+    module = nn.Linear(2, 3)
+    su.load_state_dict_to_module(module.state_dict(), module, **kwargs)
+
+
+def _is_loss_decreasing(**kwargs: object) -> bool:
+    module = nn.Linear(2, 1)
+    return st.is_loss_decreasing(
+        module,
+        nn.MSELoss(),
+        torch.optim.SGD(module.parameters(), lr=0.01),
+        torch.ones(4, 2),
+        torch.ones(4, 1),
+        **kwargs,
+    )
+
+
+def _is_loss_decreasing_with(function: Callable[..., bool]) -> Callable[..., bool]:
+    return lambda **kwargs: function(
+        nn.Linear(2, 1), nn.MSELoss(), torch.ones(4, 2), torch.ones(4, 1), **kwargs
+    )
+
+
+_ENCODER_INPUT = torch.arange(6, dtype=torch.float).view(6, 1)
+
+# The functions, the utilities, the helpers of ``testing`` and the ``create`` class methods that
+# take a scalar argument, with a valid call. The modules are added from ``MODULE_CASES``.
+_OTHER_CALL_CASES: tuple[CallCase, ...] = (
+    _case_of(
+        "absolute_relative_error", sf.absolute_relative_error, _two(sf.absolute_relative_error)
+    ),
+    _case_of("binary_focal_loss", sf.binary_focal_loss, _two(sf.binary_focal_loss)),
+    _case_of(
+        "binary_focal_loss_with_logits",
+        sf.binary_focal_loss_with_logits,
+        _two(sf.binary_focal_loss_with_logits),
+    ),
+    _case_of("binary_poly1_loss", sf.binary_poly1_loss, _two(sf.binary_poly1_loss)),
+    _case_of(
+        "binary_poly1_loss_with_logits",
+        sf.binary_poly1_loss_with_logits,
+        _two(sf.binary_poly1_loss_with_logits),
+    ),
+    _case_of(
+        "general_robust_regression_loss",
+        sf.general_robust_regression_loss,
+        _two(sf.general_robust_regression_loss),
+    ),
+    _case_of("log_cosh_loss", sf.log_cosh_loss, _two(sf.log_cosh_loss)),
+    _case_of("moment_mean_indicator", sf.moment_mean_indicator, _two(sf.moment_mean_indicator)),
+    _case_of(
+        "poisson_regression_loss", sf.poisson_regression_loss, _two(sf.poisson_regression_loss)
+    ),
+    _case_of(
+        "quantile_regression_loss", sf.quantile_regression_loss, _two(sf.quantile_regression_loss)
+    ),
+    _case_of("relative_loss", sf.relative_loss, _two(sf.relative_loss)),
+    _case_of("safe_exp", sf.safe_exp, _one(sf.safe_exp)),
+    _case_of("safe_log", sf.safe_log, _one(sf.safe_log)),
+    _case_of(
+        "safe_pow",
+        sf.safe_pow,
+        lambda **kwargs: sf.safe_pow(torch.ones(2, 3), **{"exponent": 2.0, **kwargs}),
+    ),
+    _case_of(
+        "symmetric_absolute_relative_error",
+        sf.symmetric_absolute_relative_error,
+        _two(sf.symmetric_absolute_relative_error),
+    ),
+    _case_of("register_tensor", su.register_tensor, _register_tensor),
+    _case_of("load_state_dict_to_module", su.load_state_dict_to_module, _load_state_dict_to_module),
+    _case_of("DummyDataset", st.DummyDataset, st.DummyDataset),
+    _case_of("is_loss_decreasing", st.is_loss_decreasing, _is_loss_decreasing),
+    _case_of(
+        "is_loss_decreasing_with_adam",
+        st.is_loss_decreasing_with_adam,
+        _is_loss_decreasing_with(st.is_loss_decreasing_with_adam),
+    ),
+    _case_of(
+        "is_loss_decreasing_with_sgd",
+        st.is_loss_decreasing_with_sgd,
+        _is_loss_decreasing_with(st.is_loss_decreasing_with_sgd),
+    ),
+    _case_of(
+        "AsinhNumericalEncoder.create",
+        sm.AsinhNumericalEncoder.create,
+        lambda **kwargs: sm.AsinhNumericalEncoder.create(
+            **{"spacing": "linspace", "feature_size": 3, "scale_range": (1.0, 2.0), **kwargs}
+        ),
+    ),
+    *[
+        _case_of(
+            f"{cls.__name__}.create",
+            cls.create,
+            lambda cls=cls, **kwargs: cls.create(
+                **{
+                    "spacing": "linspace",
+                    "n_frequencies": 3,
+                    "frequency_range": (1.0, 2.0),
+                    **kwargs,
+                }
+            ),
+        )
+        for cls in (sm.CosSinNumericalEncoder, sm.AsinhCosSinNumericalEncoder)
+    ],
+    _case_of(
+        "PiecewiseLinearNumericalEncoder.from_quantiles",
+        sm.PiecewiseLinearNumericalEncoder.from_quantiles,
+        lambda **kwargs: sm.PiecewiseLinearNumericalEncoder.from_quantiles(
+            **{"x": _ENCODER_INPUT, "n_bins": 2, **kwargs}
+        ),
+    ),
+)
+
+# Every public module of the registry, built with its valid arguments.
+CALL_CASES: tuple[CallCase, ...] = (
+    *[_case_of(case.name, getattr(sm, case.name), case.build) for case in MODULE_CASES],
+    *_OTHER_CALL_CASES,
+)
+
+# The ``float`` arguments that accept a non-finite value, with the reason. The key is
+# ``<name>.<argument>``.
+ACCEPTS_NON_FINITE: dict[str, str] = {
+    "general_robust_regression_loss.alpha": "-inf is the Welsch loss",
+    "GeneralRobustRegressionLoss.alpha": "-inf is the Welsch loss",
+}
+
+# The public names with a scalar argument that the test of the scalar arguments does not call,
+# with the reason.
+EXEMPT_FROM_SCALAR_CHECKS: dict[str, str] = {
+    "BaseAlphaActivation": "abstract; its subclasses are called",
+    "BaseDynamicNorm": "abstract; its subclasses are called",
+    "validate_focal_params": "a validator: it is the check",
+    "validate_general_robust_params": "a validator: it is the check",
+    "validate_positive": "a validator: it is the check",
+    "resolve_eps": "the caller validated the argument (documented precondition)",
+    "resolve_max_exponent": "the caller validated the argument (documented precondition)",
+}

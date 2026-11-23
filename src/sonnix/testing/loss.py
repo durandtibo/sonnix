@@ -9,10 +9,12 @@ import logging
 from typing import TYPE_CHECKING
 
 from coola.random import random_seed as torch_seed
+from coola.validation import validate_ge, validate_int
 from torch.nn.utils import clip_grad_norm_
 from torch.optim import SGD, Adam, Optimizer
 
 from sonnix.utils import module_mode
+from sonnix.validation import validate_positive
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -55,6 +57,13 @@ def is_loss_decreasing(
         ``True`` if the loss decreased after some iterations,
             otherwise ``False``.
 
+    Raises:
+        TypeError: If ``num_iterations`` or ``random_seed`` is not an
+            integer, or ``max_norm`` is not a number.
+        ValueError: If ``num_iterations`` is lower than 1, or if
+            ``max_norm`` is not ``None`` and not finite and strictly
+            positive.
+
     Example:
         ```pycon
         >>> import torch
@@ -73,6 +82,11 @@ def is_loss_decreasing(
 
         ```
     """
+    validate_int(num_iterations, name="num_iterations")
+    validate_ge(num_iterations, 1, name="num_iterations")
+    validate_int(random_seed, name="random_seed")
+    if max_norm is not None:
+        validate_positive(max_norm, name="max_norm")
     with module_mode(module):
         module.eval()
         with torch_seed(random_seed):
@@ -130,6 +144,13 @@ def is_loss_decreasing_with_adam(
         ``True`` if the loss decreased after some iterations,
             otherwise ``False``.
 
+    Raises:
+        TypeError: If ``lr`` or ``max_norm`` is not a number, or if
+            ``num_iterations`` or ``random_seed`` is not an integer.
+        ValueError: If ``lr`` is not finite and strictly positive, if
+            ``num_iterations`` is lower than 1, or if ``max_norm`` is not
+            ``None`` and not finite and strictly positive.
+
     Example:
         ```pycon
         >>> import torch
@@ -146,6 +167,7 @@ def is_loss_decreasing_with_adam(
 
         ```
     """
+    validate_positive(lr, name="lr")
     return is_loss_decreasing(
         module=module,
         criterion=criterion,
@@ -192,6 +214,13 @@ def is_loss_decreasing_with_sgd(
         ``True`` if the loss decreased after some iterations,
             otherwise ``False``.
 
+    Raises:
+        TypeError: If ``lr`` or ``max_norm`` is not a number, or if
+            ``num_iterations`` or ``random_seed`` is not an integer.
+        ValueError: If ``lr`` is not finite and strictly positive, if
+            ``num_iterations`` is lower than 1, or if ``max_norm`` is not
+            ``None`` and not finite and strictly positive.
+
     Example:
         ```pycon
         >>> import torch
@@ -208,6 +237,7 @@ def is_loss_decreasing_with_sgd(
 
         ```
     """
+    validate_positive(lr, name="lr")
     return is_loss_decreasing(
         module=module,
         criterion=criterion,

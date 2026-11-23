@@ -27,6 +27,8 @@ from sonnix.modules import (
     Squeeze,
     ToBinaryLabel,
 )
+from tests.helpers import get_scalar_parameters
+from tests.registry import MODULE_CASES, ModuleCase
 
 ################################################
 #     Tests for the public hyperparameters     #
@@ -92,3 +94,31 @@ def test_hyperparameter_is_shown_by_repr(module: nn.Module, name: str, value: ob
 
 def test_callable_hyperparameter_is_shown_by_repr() -> None:
     assert "indicator=classical_relative_indicator" in repr(RelativeLoss(nn.MSELoss()))
+
+
+##################################################################
+#     Tests for the type of the scalar hyperparameters (P11)     #
+##################################################################
+
+# A ``float`` argument given as an ``int`` is stored as a ``float``: ``1`` is valid for every
+# ``float`` argument of the modules of the registry.
+FLOAT_ATTRIBUTES = [
+    pytest.param(case, name, id=f"{case.name}-{name}")
+    for case in MODULE_CASES
+    for name, kind in get_scalar_parameters(type(case.build())).items()
+    if kind == "float" and hasattr(case.build(), name)
+]
+
+
+@pytest.mark.parametrize(("case", "name"), FLOAT_ATTRIBUTES)
+def test_float_hyperparameter_is_stored_as_a_float(case: ModuleCase, name: str) -> None:
+    assert type(getattr(case.build(**{name: 1}), name)) is float
+
+
+@pytest.mark.parametrize("name", ["min_val", "max_val"])
+def test_clamp_keeps_none(name: str) -> None:
+    assert getattr(Clamp(**{name: None}), name) is None
+
+
+def test_general_robust_regression_loss_keeps_a_max_val_of_none() -> None:
+    assert GeneralRobustRegressionLoss(max_val=None).max_val is None

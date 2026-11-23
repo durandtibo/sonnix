@@ -12,6 +12,7 @@ __all__ = ["DummyDataset"]
 
 import torch
 from coola.random import make_torch_generator
+from coola.validation import validate_ge, validate_int
 from torch.utils.data import Dataset
 
 
@@ -22,6 +23,12 @@ class DummyDataset(Dataset[dict[str, torch.Tensor]]):
         feature_size: The feature size.
         num_examples: The number of examples.
         rng_seed: The random seed used to generate the features.
+
+    Raises:
+        TypeError: If ``feature_size``, ``num_examples`` or ``rng_seed``
+            is not an integer (a ``bool`` is rejected).
+        ValueError: If ``feature_size`` or ``num_examples`` is lower
+            than 1.
 
     Example:
         ```pycon
@@ -36,8 +43,12 @@ class DummyDataset(Dataset[dict[str, torch.Tensor]]):
     def __init__(
         self, feature_size: int = 4, num_examples: int = 8, rng_seed: int = 5476923051063844987
     ) -> None:
-        self._feature_size = int(feature_size)
-        self._num_examples = int(num_examples)
+        for name, value in (("feature_size", feature_size), ("num_examples", num_examples)):
+            validate_int(value, name=name)
+            validate_ge(value, 1, name=name)
+        validate_int(rng_seed, name="rng_seed")
+        self._feature_size = feature_size
+        self._num_examples = num_examples
         self._rng_seed = rng_seed
 
         self._features = torch.randn(
