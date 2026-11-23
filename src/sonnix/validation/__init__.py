@@ -11,7 +11,6 @@ from __future__ import annotations
 
 __all__ = [
     "VALID_REDUCTIONS",
-    "Reduction",
     "validate_focal_params",
     "validate_general_robust_params",
     "validate_loss_reduction_strategy",
@@ -21,7 +20,6 @@ __all__ = [
 
 from sonnix.validation.loss import (
     VALID_REDUCTIONS,
-    Reduction,
     validate_focal_params,
     validate_general_robust_params,
     validate_loss_reduction_strategy,

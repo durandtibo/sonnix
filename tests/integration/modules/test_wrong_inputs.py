@@ -17,6 +17,7 @@ NO_WRONG_INPUTS = {
     "RectifierAsinhUnit": "elementwise: accepts any shape",
     "SafeExp": "elementwise: accepts any shape",
     "SafeLog": "elementwise: accepts any shape",
+    "SafePow": "elementwise: accepts any shape",
     "Sin": "elementwise: accepts any shape",
     "Sinh": "elementwise: accepts any shape",
     "Square": "elementwise: accepts any shape",

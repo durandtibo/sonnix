@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 import torch
-from coola.equality import objects_are_allclose
+from coola.equality import objects_are_allclose, objects_are_equal
 from coola.utils.tensor import get_available_devices
 
 from sonnix.modules import (
@@ -14,6 +14,7 @@ from sonnix.modules import (
     Pow,
     SafeExp,
     SafeLog,
+    SafePow,
     Sin,
     Sinh,
     Square,
@@ -466,3 +467,82 @@ def test_safe_exp_float16_large_input_is_finite() -> None:
 
 def test_safe_log_float16_zero_is_finite() -> None:
     assert SafeLog()(torch.zeros(1, dtype=torch.float16)).isfinite().all()
+
+
+#############################
+#     Tests for SafePow     #
+#############################
+
+
+def test_safe_pow_str() -> None:
+    assert str(SafePow(0.5)) == "SafePow(exponent=0.5)"
+
+
+def test_safe_pow_exponent_is_positional() -> None:
+    assert SafePow(2).exponent == 2.0
+
+
+def test_safe_pow_exponent_zero() -> None:
+    assert objects_are_equal(SafePow(0.0)(torch.tensor([0.0, 2.0])), torch.ones(2))
+
+
+@pytest.mark.parametrize("device", get_available_devices())
+def test_safe_pow_forward(device: str) -> None:
+    out = SafePow(0.5).to(device=device)(torch.tensor([0.0, 4.0, 9.0], device=device))
+    assert objects_are_equal(out, torch.tensor([0.0, 2.0, 3.0], device=device))
+
+
+@pytest.mark.parametrize("shape", SHAPES)
+def test_safe_pow_forward_shape(shape: tuple[int, ...]) -> None:
+    assert SafePow(2.0)(torch.ones(*shape)).shape == shape
+
+
+def test_safe_pow_forward_gradient_at_zero_is_zero() -> None:
+    x = torch.zeros(1, requires_grad=True)
+    SafePow(0.5)(x).backward()
+    assert objects_are_equal(x.grad, torch.zeros(1))
+
+
+def test_safe_pow_forward_gradient_value() -> None:
+    # d/dx sqrt(x) = 1 / (2 * sqrt(x)) at x=4
+    x = torch.tensor([4.0], requires_grad=True)
+    SafePow(0.5)(x).backward()
+    assert objects_are_equal(x.grad, torch.tensor([0.25]))
+
+
+def test_safe_pow_forward_negative_input_fractional_exponent_is_nan() -> None:
+    assert SafePow(0.5)(torch.tensor([-4.0])).isnan().all()
+
+
+def test_safe_pow_forward_negative_input_integer_exponent_is_the_power() -> None:
+    assert objects_are_equal(SafePow(2)(torch.tensor([-2.0])), torch.tensor([4.0]))
+
+
+def test_safe_pow_forward_float16_zero_gradient_is_zero() -> None:
+    x = torch.zeros(1, dtype=torch.float16, requires_grad=True)
+    SafePow(0.5)(x).backward()
+    assert objects_are_equal(x.grad, torch.zeros(1, dtype=torch.float16))
+
+
+def test_pow_gradient_at_zero_is_not_finite() -> None:
+    # ``Pow`` is the plain ``torch.pow``: ``SafePow`` is the module with a finite gradient.
+    x = torch.zeros(1, requires_grad=True)
+    Pow(0.5)(x).backward()
+    assert x.grad.isinf().all()
+
+
+@pytest.mark.parametrize("exponent", [-1.0, -0.5])
+def test_safe_pow_negative_exponent(exponent: float) -> None:
+    with pytest.raises(ValueError, match=r"exponent must be greater than or equal to 0"):
+        SafePow(exponent)
+
+
+@pytest.mark.parametrize("exponent", [float("nan"), float("inf")])
+def test_safe_pow_not_finite_exponent(exponent: float) -> None:
+    with pytest.raises(ValueError, match=r"exponent must be finite"):
+        SafePow(exponent)
+
+
+def test_safe_pow_exponent_type() -> None:
+    with pytest.raises(TypeError, match=r"exponent must be a real number"):
+        SafePow("a")

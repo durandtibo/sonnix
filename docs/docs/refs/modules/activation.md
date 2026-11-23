@@ -25,6 +25,7 @@ the [`sonnix.modules`](index.md) overview.
 | [`RectifierAsinhUnit`](#sonnix.modules.RectifierAsinhUnit)   |
 | [`SafeExp`](#sonnix.modules.SafeExp)                         |
 | [`SafeLog`](#sonnix.modules.SafeLog)                         |
+| [`SafePow`](#sonnix.modules.SafePow)                         |
 | [`Sin`](#sonnix.modules.Sin)                                 |
 | [`Sinh`](#sonnix.modules.Sinh)                               |
 | [`Snake`](#sonnix.modules.Snake)                             |
@@ -70,6 +71,8 @@ the [`sonnix.modules`](index.md) overview.
 ## ::: sonnix.modules.SafeExp
 
 ## ::: sonnix.modules.SafeLog
+
+## ::: sonnix.modules.SafePow
 
 ## ::: sonnix.modules.Sin
 

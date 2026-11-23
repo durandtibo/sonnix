@@ -10,6 +10,8 @@
 
 ## Loss functions
 
+### ::: sonnix.functional.Reduction
+
 ### ::: sonnix.functional.binary_focal_loss
 
 ### ::: sonnix.functional.binary_focal_loss_with_logits

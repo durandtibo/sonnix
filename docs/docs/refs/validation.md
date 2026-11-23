@@ -1,7 +1,5 @@
 # sonnix.validation
 
-## ::: sonnix.validation.Reduction
-
 ## ::: sonnix.validation.VALID_REDUCTIONS
 
 ## ::: sonnix.validation.validate_focal_params
