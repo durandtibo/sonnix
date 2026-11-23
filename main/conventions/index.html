@@ -1336,7 +1336,7 @@ the user.</p>
 </tr>
 <tr>
 <td>P2</td>
-<td><strong>Validate early and completely.</strong> Every hyperparameter is checked for type (a <code>bool</code> is not an <code>int</code>), finiteness and range, before it is stored or converted, with <code>coola.validation</code> or a <code>sonnix.validation</code> helper. A float is finite unless its docstring says otherwise. The function checks at call time; the module checks in <code>__init__</code> with the same helper and message.</td>
+<td><strong>Validate early and completely.</strong> Every scalar hyperparameter of every public object (functions, modules, <code>sonnix.utils</code>, <code>sonnix.testing</code>, <code>create</code> class methods) is checked for type (a <code>bool</code> is not an <code>int</code>), finiteness and range, before it is stored or converted, with <code>coola.validation</code> or a <code>sonnix.validation</code> helper. A float is finite unless its docstring says otherwise. The function checks at call time; the module checks in <code>__init__</code> with the same helper and message.</td>
 </tr>
 <tr>
 <td>P3</td>
@@ -1372,7 +1372,7 @@ the user.</p>
 </tr>
 <tr>
 <td>P11</td>
-<td><strong>Introspectable.</strong> Every hyperparameter, including a callable or a submodule, is a public attribute named like the constructor argument and is shown by <code>repr</code>.</td>
+<td><strong>Introspectable.</strong> Every hyperparameter, including a callable or a submodule, is a public attribute named like the constructor argument and is shown by <code>repr</code>. A scalar hyperparameter is stored as a plain Python value of its declared type (a <code>float</code> argument is a <code>float</code>).</td>
 </tr>
 <tr>
 <td>P12</td>
