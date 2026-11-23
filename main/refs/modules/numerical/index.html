@@ -1135,6 +1135,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sonnix.modules.BaseNumericalEncoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BaseNumericalEncoder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BaseNumericalEncoder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sonnix.modules.BaseNumericalEncoder.n_features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        n_features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#sonnix.modules.CosSinNumericalEncoder" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1496,6 +1524,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sonnix.modules.BaseNumericalEncoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BaseNumericalEncoder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BaseNumericalEncoder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sonnix.modules.BaseNumericalEncoder.n_features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        n_features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#sonnix.modules.CosSinNumericalEncoder" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1627,7 +1683,7 @@
 
 
 <h1 id="numerical-encoders">Numerical encoders<a class="headerlink" href="#numerical-encoders" title="Permanent link">&para;</a></h1>
-<p>Modules that embed numerical features. See also
+<p>Modules that embed numerical features and their base class. See also
 the <a href="../"><code>sonnix.modules</code></a> overview.</p>
 <table>
 <thead>
@@ -1644,6 +1700,10 @@ the <a href="../"><code>sonnix.modules</code></a> overview.</p>
 <tr>
 <td><a href="#sonnix.modules.AsinhNumericalEncoder"><code>AsinhNumericalEncoder</code></a></td>
 <td>Implement a numerical encoder using the inverse hyperbolic sine (asinh).</td>
+</tr>
+<tr>
+<td><a href="#sonnix.modules.BaseNumericalEncoder"><code>BaseNumericalEncoder</code></a></td>
+<td>Define the base class of the numerical encoders.</td>
 </tr>
 <tr>
 <td><a href="#sonnix.modules.CosSinNumericalEncoder"><code>CosSinNumericalEncoder</code></a></td>
@@ -1858,7 +1918,7 @@ parameters are learnable, otherwise they are frozen.</p>
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="sonnix.modules.numerical._utils.NumericalEncoder">NumericalEncoder</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="sonnix.modules.BaseNumericalEncoder (sonnix.modules.numerical.base.BaseNumericalEncoder)" href="#sonnix.modules.BaseNumericalEncoder">BaseNumericalEncoder</a></code></p>
 
 
 
@@ -2384,6 +2444,130 @@ invalid.</p>
 
 
 
+<h2 id="sonnix.modules.BaseNumericalEncoder" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">sonnix.modules.BaseNumericalEncoder</span>
+
+
+<a href="#sonnix.modules.BaseNumericalEncoder" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="torch.nn.Module">Module</span></code>, <code><span title="abc.ABC">ABC</span></code></p>
+
+
+
+        <p>Define the base class of the numerical encoders.</p>
+<p>A numerical encoder embeds each of the <code>n_features</code> numerical
+features of the input into a vector. The input has the shape
+<code>(*, n_features)</code>. The last dimension has to be <code>n_features</code>: a
+size of 1 is not broadcast. The subclasses implement the property
+<code>n_features</code> and the method <code>_encode</code>, which receives an input
+that was already checked.</p>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if the input has no dimension or if its last
+dimension is not <code>n_features</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.modules</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseNumericalEncoder</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">SquareEncoder</span><span class="p">(</span><span class="n">BaseNumericalEncoder</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nd">@property</span>
+<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="nf">n_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="mi">2</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="nb">input</span><span class="p">,</span> <span class="nb">input</span><span class="o">.</span><span class="n">square</span><span class="p">()],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">SquareEncoder</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]]))</span>
+<span class="go">tensor([[[ 1.,  1.],</span>
+<span class="go">         [ 2.,  4.]],</span>
+<span class="go">        [[ 3.,  9.],</span>
+<span class="go">         [ 4., 16.]]])</span>
+</code></pre></div>
+</details>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="sonnix.modules.BaseNumericalEncoder.n_features" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">sonnix.modules.BaseNumericalEncoder.n_features</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#sonnix.modules.BaseNumericalEncoder.n_features" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">n_features</span><span class="p">:</span> <span class="n"><span title="int">int</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return the input feature size.</p>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="sonnix.modules.CosSinNumericalEncoder" class="doc doc-heading">
             <span class="doc doc-object-name doc-class-name">sonnix.modules.CosSinNumericalEncoder</span>
 
@@ -2393,7 +2577,7 @@ invalid.</p>
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="sonnix.modules.numerical._utils.NumericalEncoder">NumericalEncoder</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="sonnix.modules.BaseNumericalEncoder (sonnix.modules.numerical.base.BaseNumericalEncoder)" href="#sonnix.modules.BaseNumericalEncoder">BaseNumericalEncoder</a></code></p>
 
 
 
@@ -2962,7 +3146,7 @@ invalid.</p>
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="sonnix.modules.numerical._utils.NumericalEncoder">NumericalEncoder</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="sonnix.modules.BaseNumericalEncoder (sonnix.modules.numerical.base.BaseNumericalEncoder)" href="#sonnix.modules.BaseNumericalEncoder">BaseNumericalEncoder</a></code></p>
 
 
 
