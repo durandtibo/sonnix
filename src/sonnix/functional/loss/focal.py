@@ -80,11 +80,7 @@ def binary_focal_loss(
     target = cast_target(target, prediction)
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
     p_t = probability_of_target(prediction, target)
-    loss = ce_loss * safe_pow(1 - p_t, gamma)
-
-    if alpha is not None:
-        loss = class_weight(alpha, target) * loss
-    return reduce_loss(loss, reduction=reduction)
+    return _focal(ce_loss, p_t, target, alpha=alpha, gamma=gamma, reduction=reduction)
 
 
 def binary_focal_loss_with_logits(
@@ -148,8 +144,53 @@ def binary_focal_loss_with_logits(
     target = cast_target(target, prediction)
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
     p_t = probability_of_target(prediction.sigmoid(), target)
-    loss = ce_loss * safe_pow(1 - p_t, gamma)
+    return _focal(ce_loss, p_t, target, alpha=alpha, gamma=gamma, reduction=reduction)
 
+
+def _focal(
+    ce_loss: torch.Tensor,
+    p_t: torch.Tensor,
+    target: torch.Tensor,
+    *,
+    alpha: float | None,
+    gamma: float,
+    reduction: Reduction,
+) -> torch.Tensor:
+    r"""Compute the focal loss from the cross entropy.
+
+    It is the part that the probability variant and the logits variant
+    of the binary focal loss have in common: the two variants only
+    differ by the way they compute ``ce_loss`` and ``p_t``.
+
+    Args:
+        ce_loss: The element-wise binary cross entropy.
+        p_t: The probability of the target class.
+        target: The targets, with the same shape as ``ce_loss``.
+        alpha: The weighting factor, or ``None`` to disable the
+            weighting.
+        gamma: The focusing parameter.
+        reduction: The reduction strategy.
+
+    Returns:
+        The focal loss, reduced with ``reduction``.
+
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional.loss.focal import _focal
+        >>> _focal(
+        ...     torch.tensor([0.5, 2.0]),
+        ...     torch.tensor([0.5, 0.5]),
+        ...     torch.tensor([1.0, 0.0]),
+        ...     alpha=None,
+        ...     gamma=2.0,
+        ...     reduction="none",
+        ... )
+        tensor([0.1250, 0.5000])
+
+        ```
+    """
+    loss = ce_loss * safe_pow(1 - p_t, gamma)
     if alpha is not None:
         loss = class_weight(alpha, target) * loss
     return reduce_loss(loss, reduction=reduction)

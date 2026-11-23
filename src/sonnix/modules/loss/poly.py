@@ -91,11 +91,8 @@ class BinaryPoly1Loss(_BinaryPoly1Loss):
         Args:
             prediction: The float tensor with predictions as
                 probabilities for each example.
-            target: A tensor with the same shape as ``prediction``.
-                It stores the binary classification label for each
-                element in inputs (0 for the negative class and 1 for
-                the positive class). An integer or ``bool`` tensor is
-                converted to the dtype of ``prediction``.
+            target: The binary labels, with the same shape as
+                ``prediction``. See ``sonnix.functional.binary_poly1_loss``.
 
         Returns:
             The loss value(s). The shape of the tensor depends on the
@@ -160,11 +157,8 @@ class BinaryPoly1LossWithLogits(_BinaryPoly1Loss):
             prediction: The float tensor with predictions as
                 unnormalized scores (often referred to as logits) for
                 each example.
-            target: A tensor with the same shape as ``prediction``.
-                It stores the binary classification label for each
-                element in inputs (0 for the negative class and 1 for
-                the positive class). An integer or ``bool`` tensor is
-                converted to the dtype of ``prediction``.
+            target: The binary labels, with the same shape as
+                ``prediction``. See ``sonnix.functional.binary_poly1_loss_with_logits``.
 
         Returns:
             The loss value(s). The shape of the tensor depends on the

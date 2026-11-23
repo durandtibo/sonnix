@@ -79,8 +79,7 @@ def binary_poly1_loss(
     target = cast_target(target, prediction)
     ce_loss = binary_cross_entropy(prediction, target, reduction="none")
     p_t = probability_of_target(prediction, target)
-    loss = ce_loss + alpha * (1 - p_t)
-    return reduce_loss(loss, reduction=reduction)
+    return _poly1(ce_loss, p_t, alpha=alpha, reduction=reduction)
 
 
 def binary_poly1_loss_with_logits(
@@ -143,5 +142,37 @@ def binary_poly1_loss_with_logits(
     target = cast_target(target, prediction)
     ce_loss = binary_cross_entropy_with_logits(prediction, target, reduction="none")
     p_t = probability_of_target(prediction.sigmoid(), target)
+    return _poly1(ce_loss, p_t, alpha=alpha, reduction=reduction)
+
+
+def _poly1(
+    ce_loss: torch.Tensor, p_t: torch.Tensor, *, alpha: float, reduction: Reduction
+) -> torch.Tensor:
+    r"""Compute the Poly-1 loss from the cross entropy.
+
+    It is the part that the probability variant and the logits variant
+    of the binary Poly-1 loss have in common: the two variants only
+    differ by the way they compute ``ce_loss`` and ``p_t``.
+
+    Args:
+        ce_loss: The element-wise binary cross entropy.
+        p_t: The probability of the target class.
+        alpha: The coefficient of the first polynomial term.
+        reduction: The reduction strategy.
+
+    Returns:
+        ``ce_loss + alpha * (1 - p_t)``, reduced with ``reduction``.
+
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.functional.loss.poly import _poly1
+        >>> _poly1(
+        ...     torch.tensor([0.5, 2.0]), torch.tensor([0.5, 0.25]), alpha=1.0, reduction="none"
+        ... )
+        tensor([1.0000, 2.7500])
+
+        ```
+    """
     loss = ce_loss + alpha * (1 - p_t)
     return reduce_loss(loss, reduction=reduction)

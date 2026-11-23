@@ -92,7 +92,7 @@ class NLinear(nn.Module):
     def reset_parameters(self) -> None:
         # Same initialization as ``torch.nn.Linear``: uniform in
         # [-1/sqrt(in_features), 1/sqrt(in_features)] for both parameters.
-        bound = 1 / math.sqrt(self.in_features) if self.in_features > 0 else 0
+        bound = 1 / math.sqrt(self.in_features)
         init.uniform_(self.weight, -bound, bound)
         if self.bias is not None:
             init.uniform_(self.bias, -bound, bound)

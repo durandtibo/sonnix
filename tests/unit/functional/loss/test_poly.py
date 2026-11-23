@@ -5,6 +5,7 @@ import torch
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import binary_poly1_loss, binary_poly1_loss_with_logits
+from sonnix.functional.loss.poly import _poly1
 from tests.helpers import make_generator
 
 SHAPES = [(2,), (2, 3), (2, 3, 4)]
@@ -223,4 +224,59 @@ def test_binary_poly1_loss_with_logits_soft_target_reduction_none() -> None:
     target = torch.rand(6, 5, generator=generator, dtype=torch.float64)
     assert binary_poly1_loss_with_logits(logits, target, reduction="none").allclose(
         binary_poly1_loss(logits.sigmoid(), target, reduction="none")
+    )
+
+
+############################
+#     Tests for _poly1     #
+############################
+
+CE_LOSS = torch.tensor([0.5, 2.0])
+P_T = torch.tensor([0.5, 0.25])
+
+
+def test_poly1_alpha_one() -> None:
+    # ce_loss + 1 * (1 - p_t)
+    assert _poly1(CE_LOSS, P_T, alpha=1.0, reduction="none").equal(torch.tensor([1.0, 2.75]))
+
+
+def test_poly1_alpha_zero_is_the_cross_entropy() -> None:
+    assert _poly1(CE_LOSS, P_T, alpha=0.0, reduction="none").equal(CE_LOSS)
+
+
+def test_poly1_alpha_two() -> None:
+    assert _poly1(CE_LOSS, P_T, alpha=2.0, reduction="none").equal(torch.tensor([1.5, 3.5]))
+
+
+def test_poly1_negative_alpha() -> None:
+    assert _poly1(CE_LOSS, P_T, alpha=-1.0, reduction="none").equal(torch.tensor([0.0, 1.25]))
+
+
+@pytest.mark.parametrize(
+    ("reduction", "expected"),
+    [("sum", 3.75), ("mean", 1.875), ("batchmean", 1.875)],
+)
+def test_poly1_reduction(reduction: str, expected: float) -> None:
+    assert _poly1(CE_LOSS, P_T, alpha=1.0, reduction=reduction).equal(torch.tensor(expected))
+
+
+def test_poly1_gradient_of_p_t() -> None:
+    p_t = torch.tensor([0.5, 0.25], requires_grad=True)
+    _poly1(CE_LOSS, p_t, alpha=2.0, reduction="sum").backward()
+    assert p_t.grad.equal(torch.tensor([-2.0, -2.0]))
+
+
+def test_poly1_does_not_modify_the_inputs() -> None:
+    ce_loss, p_t = CE_LOSS.clone(), P_T.clone()
+    _poly1(ce_loss, p_t, alpha=1.0, reduction="none")
+    assert ce_loss.equal(CE_LOSS)
+    assert p_t.equal(P_T)
+
+
+def test_binary_poly1_loss_with_logits_matches_the_probability_variant() -> None:
+    generator = make_generator()
+    logits = torch.randn(4, 3, generator=generator)
+    target = torch.randint(0, 2, (4, 3), generator=generator).float()
+    assert binary_poly1_loss_with_logits(logits, target).allclose(
+        binary_poly1_loss(logits.sigmoid(), target)
     )
