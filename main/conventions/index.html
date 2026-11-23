@@ -1282,15 +1282,17 @@
 <li><code>normalized_shape</code> follows <code>torch.nn.LayerNorm</code>.</li>
 <li>The hyperparameters of a module are public attributes named like
   the constructor arguments.</li>
-<li>Options of the functions are keyword-only; so are the options of the modules,
-  except the one defining hyperparameter
-  (<code>LogCoshLoss(2.0)</code>, like <code>nn.LeakyReLU(0.1)</code>).</li>
+<li>Options of the functions are keyword-only. A module takes positionally its
+  structural arguments (sizes, wrapped modules, tensors) and at most one
+  hyperparameter, the defining one (<code>LogCoshLoss(2.0)</code>, like
+  <code>nn.LeakyReLU(0.1)</code>); the other options are keyword-only.</li>
 <li><code>TransformedLoss</code> takes <code>prediction_transform</code> and <code>target_transform</code>: the
   modules applied to the prediction and to the target before the criterion.</li>
 </ul>
 <h2 id="design-rules">Design rules<a class="headerlink" href="#design-rules" title="Permanent link">&para;</a></h2>
 <p>Each rule holds for every public object. The target design is described in
-<code>review/target_state.md</code>.</p>
+<code>review/target_state.md</code>; the rules P2, P3, P8, P11, P12 and P16 are being
+enforced step by step.</p>
 <table>
 <thead>
 <tr>
@@ -1301,63 +1303,67 @@
 <tbody>
 <tr>
 <td>P1</td>
-<td><strong>Function/module duality.</strong> A loss or a parametrised op with numerical content is a function in <code>sonnix.functional</code> and a module in <code>sonnix.modules</code> that only calls the function.</td>
+<td><strong>Function/module duality.</strong> Every loss, and every op that needs numerical care (<code>safe_exp</code>, <code>safe_log</code>, <code>safe_pow</code>), is a stateless function in <code>sonnix.functional</code> <strong>and</strong> a module (when it has hyperparameters) in <code>sonnix.modules</code> that stores the hyperparameters and calls the function. A module with learnable state or without numerical care (an activation, a layer) has no function. A <code>forward</code> is one call.</td>
 </tr>
 <tr>
 <td>P2</td>
-<td><strong>Validate once, fail early.</strong> The function validates all its arguments; the module calls the same validator in <code>__init__</code>.</td>
+<td><strong>Validate early and completely.</strong> Every hyperparameter is checked for type (a <code>bool</code> is not an <code>int</code>), finiteness and range, before it is stored or converted, with <code>coola.validation</code> or a <code>sonnix.validation</code> helper. A float is finite unless its docstring says otherwise. The function checks at call time; the module checks in <code>__init__</code> with the same helper and message.</td>
 </tr>
 <tr>
 <td>P3</td>
-<td><strong>Uniform call signature.</strong> Losses: <code>(prediction, target, *, &lt;options&gt;, reduction)</code>. Single-tensor ops: <code>(input, *, &lt;options&gt;)</code>. Options of the functions are keyword-only; a module may take its defining hyperparameter positionally, like <code>torch.nn</code>.</td>
+<td><strong>Uniform call signature.</strong> Losses: <code>(prediction, target, *, &lt;options&gt;, reduction)</code>. Single-tensor ops: <code>(input, *, &lt;options&gt;)</code>. Options of a function are keyword-only. A module takes positionally its structural arguments and at most one hyperparameter (the defining one); the rest is keyword-only. The tensor of a <code>forward</code> is <code>input</code>.</td>
 </tr>
 <tr>
 <td>P4</td>
-<td><strong>Strict shapes.</strong> Two tensors of the same role must have the same shape (<code>ValueError</code> naming both shapes). Nothing broadcasts silently.</td>
+<td><strong>Strict shapes.</strong> Two tensors of the same role must have the same shape (<code>ValueError</code> naming both shapes). A layer or an encoder checks the dimension it consumes and names the argument. Nothing broadcasts silently.</td>
 </tr>
 <tr>
 <td>P5</td>
-<td><strong>One reduction contract.</strong> Losses accept <code>none</code>/<code>mean</code>/<code>sum</code>/<code>batchmean</code>, validated by <code>reduce_loss</code>; the default is <code>mean</code>.</td>
+<td><strong>One reduction contract.</strong> Losses accept <code>none</code>/<code>mean</code>/<code>sum</code>/<code>batchmean</code>, validated by <code>reduce_loss</code>; the default is <code>mean</code>; <code>none</code> keeps the shape of the elementwise loss; <code>reduction</code> is keyword-only.</td>
 </tr>
 <tr>
 <td>P6</td>
-<td><strong>Numerically safe.</strong> Finite outputs and gradients for finite inputs in <code>float16</code>/<code>bfloat16</code>/<code>float32</code>; exceptions are documented in the docstring.</td>
+<td><strong>Numerically safe.</strong> Finite outputs and gradients for finite inputs the dtype can represent, in <code>float16</code>/<code>bfloat16</code>/<code>float32</code>, and for every valid hyperparameter; exceptions are documented in the docstring.</td>
 </tr>
 <tr>
 <td>P7</td>
-<td><strong>Pure.</strong> A forward never mutates its inputs and has no hidden state.</td>
+<td><strong>Pure.</strong> A function or a forward never mutates its inputs and has no hidden state.</td>
 </tr>
 <tr>
 <td>P8</td>
-<td><strong>Frozen = buffer.</strong> Tensors that are not trained are buffers, never <code>Parameter(requires_grad=False)</code>.</td>
+<td><strong>Complete state, by construction.</strong> The <code>state_dict</code> holds the parameters and buffers that define the behaviour, and nothing derived. A tensor derived from persistent state is non-persistent and recomputed after <code>load_state_dict</code>. A frozen tensor is a buffer with the same name as the learnable one, never <code>Parameter(requires_grad=False)</code>. Round trip: <code>m2.load_state_dict(m1.state_dict())</code> makes <code>m2</code> behave as <code>m1</code>.</td>
 </tr>
 <tr>
 <td>P9</td>
-<td><strong>Device and dtype.</strong> A module that creates tensors takes <code>device</code> and <code>dtype</code> and keeps the input dtype.</td>
+<td><strong>Device and dtype.</strong> A module that creates tensors takes <code>device</code> and <code>dtype</code>, follows <code>.to()</code>/<code>.half()</code>, and the output dtype is the input dtype.</td>
 </tr>
 <tr>
 <td>P10</td>
-<td><strong>Export and compile.</strong> Every registered module passes <code>torch.export</code> and <code>torch.compile(fullgraph=True)</code>.</td>
+<td><strong>Export and compile.</strong> Every registered module passes <code>torch.export</code> and <code>torch.compile(fullgraph=True)</code> on CPU: no <code>.item()</code>, no data-dependent Python branch in a <code>forward</code>.</td>
 </tr>
 <tr>
 <td>P11</td>
-<td><strong>Introspectable.</strong> Hyperparameters are public attributes named like the constructor arguments and are shown by <code>repr</code>.</td>
+<td><strong>Introspectable.</strong> Every hyperparameter, including a callable or a submodule, is a public attribute named like the constructor argument and is shown by <code>repr</code>.</td>
 </tr>
 <tr>
 <td>P12</td>
-<td><strong>One public path.</strong> The public API is what the <code>__init__.py</code> of <code>sonnix.{functional,modules,utils,validation,factory,testing}</code> exports.</td>
+<td><strong>One public path.</strong> <code>sonnix.{functional,modules,validation,factory,utils,testing}</code> each export their API from <code>__init__.py</code> (<code>__all__</code>), and nothing else is public. The sub-folders have no <code>__all__</code>. Docs, docstrings and examples import from the flat path. Every exported name is listed in <code>docs/docs/refs</code> and has an <code>Example</code> that runs.</td>
 </tr>
 <tr>
 <td>P13</td>
-<td><strong>Layered imports.</strong> <code>testing → modules → functional → validation</code>; <code>utils</code>, <code>factory</code> and <code>validation</code> are independent of each other. Enforced by import-linter.</td>
+<td><strong>Layered imports.</strong> <code>testing → modules → functional → validation</code>; <code>utils</code>, <code>factory</code> and <code>validation</code> import no other sonnix package; no cycle. Enforced by import-linter.</td>
 </tr>
 <tr>
 <td>P14</td>
-<td><strong>Configuration is trusted input.</strong> An argument typed <code>Module \| dict</code> calls its <code>_target_</code>; its docstring carries a <code>Warning</code>.</td>
+<td><strong>Configuration is trusted input.</strong> <code>sonnix.factory</code> imports and calls a <code>_target_</code> before it checks the type of the result. An argument typed <code>Module \| dict</code> says so in a <code>Warning</code>.</td>
 </tr>
 <tr>
 <td>P15</td>
 <td><strong>Optional means lazy.</strong> Only <code>torch</code> and <code>coola</code> are imported at module level.</td>
+</tr>
+<tr>
+<td>P16</td>
+<td><strong>Earned names.</strong> A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use or that tests them. A fixed-argument composition of other public objects or of a <code>torch.nn</code> object is a recipe in the guide, not a class. A base class is public only if users are meant to subclass it.</td>
 </tr>
 </tbody>
 </table>
