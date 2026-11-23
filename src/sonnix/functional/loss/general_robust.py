@@ -48,7 +48,7 @@ def general_robust_regression_loss(
         difference larger than ``255 * scale`` overflows in ``float16``.
         The loss is cast back to the dtype of ``prediction``, so it is
         ``inf`` if it is larger than the maximum of this dtype (for
-        example ``alpha=2`` with a difference of ``300`` in ``float16``).
+        example ``alpha=2`` with a difference of ``400`` in ``float16``).
 
     Note:
         If ``max_val`` is set, the loss is clamped, so the gradient is
@@ -61,8 +61,9 @@ def general_robust_regression_loss(
             loss. It is a Python float, not a tensor. ``-inf`` is supported (Welsch loss),
             ``NaN`` and ``+inf`` are not. The limit
             cases ``alpha=2``
-            (``x^2``), ``alpha=0`` (``log(0.5 * x^2 + 1)``) are
-            used when ``alpha`` is within ``1e-5`` of 0 or 2.
+            (``0.5 * x^2``), ``alpha=0`` (``log(0.5 * x^2 + 1)``) are
+            used when ``alpha`` is within ``1e-5`` of 0 or 2, so the
+            loss is continuous in ``alpha``.
         scale: The scale parameter that controls the size of the loss's
             quadratic bowl near 0.
         max_val: The max value to clip the loss before to compute the
@@ -101,7 +102,8 @@ def general_robust_regression_loss(
     dtype = torch.promote_types(prediction.dtype, torch.float32)
     squared_error = prediction.sub(target).to(dtype).div(scale).pow(2)
     if abs(alpha - 2) < _ALPHA_EPS:
-        loss = squared_error
+        # Barron: rho(x, 2, c) = 0.5 * (x / c) ** 2, the limit of the general formula.
+        loss = squared_error.mul(0.5)
     elif abs(alpha) < _ALPHA_EPS:
         loss = squared_error.mul(0.5).log1p()
     elif alpha == float("-inf"):

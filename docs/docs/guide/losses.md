@@ -39,6 +39,22 @@ from sonnix.functional import reduce_loss
 reduce_loss(torch.ones(4, 3), reduction="batchmean")  # tensor(3.)
 ```
 
+## General robust loss
+
+`general_robust_regression_loss` (`GeneralRobustRegressionLoss`) is Barron's
+loss. The limit cases of `alpha` use their own formula, and the loss is
+continuous in `alpha`: `alpha=2` is `0.5 * (x / scale) ** 2`, half of the
+squared error, like the value of `alpha=1.99` and `alpha=2.0001`. The default
+`alpha=2.0` is therefore half of `torch.nn.functional.mse_loss`; use
+`scale=s / sqrt(2)` to get the squared error of scale `s`.
+
+```python
+import torch
+from sonnix.functional import general_robust_regression_loss
+
+general_robust_regression_loss(torch.tensor([3.0]), torch.zeros(1), alpha=2.0)  # tensor(4.5000)
+```
+
 ## Guards and the dtype
 
 The losses that divide by a quantity or take a logarithm have an `eps`
