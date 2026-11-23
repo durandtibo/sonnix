@@ -3145,11 +3145,15 @@ data type.</p>
                 <code>dtype</code>
             </td>
             <td>
-                  <code><span title="torch.dtype">dtype</span></code>
+                  <code><span title="torch.dtype">dtype</span> | <span title="str">str</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The target data type.</p>
+                <p>The target data type, as a <code>torch.dtype</code> or as its
+name (for example <code>"float32"</code> or <code>"int64"</code>). A name
+can be written in a configuration, which cannot contain a
+<code>torch.dtype</code>. The attribute <code>dtype</code> is always a
+<code>torch.dtype</code>.</p>
               </div>
             </td>
             <td>
@@ -3183,7 +3187,18 @@ data type.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>if <code>dtype</code> is not a <code>torch.dtype</code>.</p>
+                <p>if <code>dtype</code> is not a <code>torch.dtype</code> or a string.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>dtype</code> is a string that is not the name of a
+<code>torch.dtype</code>.</p>
               </div>
             </td>
           </tr>
@@ -3202,6 +3217,8 @@ data type.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span>
 <span class="go">tensor([[ 2., -1.,  0.],</span>
 <span class="go">        [ 1.,  2.,  3.]], dtype=torch.float64)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ToDtype</span><span class="p">(</span><span class="s2">"int64"</span><span class="p">)</span>
+<span class="go">ToDtype(dtype=torch.int64)</span>
 </code></pre></div>
 </details>
 
@@ -3252,6 +3269,7 @@ data type.</p>
 
         <p>Implement a <code>torch.nn.Module</code> to convert a tensor to a float
 tensor (<code>torch.float32</code>).</p>
+<p>It is <code>ToDtype(torch.float32)</code> with a name that is easier to find.</p>
 
 
 <details class="shape" open>
@@ -3323,6 +3341,7 @@ tensor (<code>torch.float32</code>).</p>
 
         <p>Implement a <code>torch.nn.Module</code> to convert a tensor to a long
 tensor (<code>torch.int64</code>).</p>
+<p>It is <code>ToDtype(torch.int64)</code> with a name that is easier to find.</p>
 
 
 <details class="shape" open>

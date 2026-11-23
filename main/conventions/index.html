@@ -1363,7 +1363,7 @@ enforced step by step.</p>
 </tr>
 <tr>
 <td>P16</td>
-<td><strong>Earned names.</strong> A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use or that tests them. A fixed-argument composition of other public objects or of a <code>torch.nn</code> object is a recipe in the guide, not a class. A base class is public only if users are meant to subclass it.</td>
+<td><strong>Earned names.</strong> A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use or that tests them. A fixed-argument composition of other public objects or of a <code>torch.nn</code> object is a recipe in the guide, unless users look for it by name (<code>ReLUn</code>, <code>Square</code>, <code>ToFloat</code>): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.</td>
 </tr>
 </tbody>
 </table>

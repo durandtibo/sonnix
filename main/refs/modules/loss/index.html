@@ -1018,28 +1018,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#sonnix.modules.BaseBinaryFocalLoss" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        BaseBinaryFocalLoss
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sonnix.modules.BaseBinaryPoly1Loss" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        BaseBinaryPoly1Loss
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#sonnix.modules.BaseLoss" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1429,28 +1407,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#sonnix.modules.BaseBinaryFocalLoss" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        BaseBinaryFocalLoss
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sonnix.modules.BaseBinaryPoly1Loss" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        BaseBinaryPoly1Loss
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#sonnix.modules.BaseLoss" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1671,7 +1627,7 @@
 
 
 <h1 id="losses">Losses<a class="headerlink" href="#losses" title="Permanent link">&para;</a></h1>
-<p>Loss modules and the shared base classes. See also
+<p>Loss modules and the base class of the losses that have a reduction. See also
 the <a href="../"><code>sonnix.modules</code></a> overview.</p>
 <table>
 <thead>
@@ -1681,14 +1637,6 @@ the <a href="../"><code>sonnix.modules</code></a> overview.</p>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><a href="#sonnix.modules.BaseBinaryFocalLoss"><code>BaseBinaryFocalLoss</code></a></td>
-<td>Define the base class of the binary focal losses.</td>
-</tr>
-<tr>
-<td><a href="#sonnix.modules.BaseBinaryPoly1Loss"><code>BaseBinaryPoly1Loss</code></a></td>
-<td>Define the base class of the binary Poly-1 losses.</td>
-</tr>
 <tr>
 <td><a href="#sonnix.modules.BaseLoss"><code>BaseLoss</code></a></td>
 <td>Define the base class of the loss modules that have a reduction.</td>
@@ -1740,232 +1688,6 @@ the <a href="../"><code>sonnix.modules</code></a> overview.</p>
 </tbody>
 </table>
 
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="sonnix.modules.BaseBinaryFocalLoss" class="doc doc-heading">
-            <span class="doc doc-object-name doc-class-name">sonnix.modules.BaseBinaryFocalLoss</span>
-
-
-<a href="#sonnix.modules.BaseBinaryFocalLoss" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents first">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="sonnix.modules.BaseLoss (sonnix.modules.loss.base.BaseLoss)" href="#sonnix.modules.BaseLoss">BaseLoss</a></code></p>
-
-
-
-        <p>Define the base class of the binary focal losses.</p>
-<p>It validates and stores the hyperparameters shared by
-<code>BinaryFocalLoss</code> and <code>BinaryFocalLossWithLogits</code>.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>alpha</code>
-            </td>
-            <td>
-                  <code><span title="float">float</span> | None</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The weighting factor, which must be in the range
-<code>[0, 1]</code>. <code>None</code> disables the weighting.</p>
-              </div>
-            </td>
-            <td>
-                  <code>0.25</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>gamma</code>
-            </td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The focusing parameter, which must be positive
-(<code>&gt;=0</code>).</p>
-              </div>
-            </td>
-            <td>
-                  <code>2.0</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>reduction</code>
-            </td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="sonnix.functional.Reduction
-
-
-  
-      module-attribute
-   (sonnix.functional.reduction.Reduction)" href="../../functional/#sonnix.functional.Reduction">Reduction</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The reduction strategy: <code>'none'</code>, <code>'mean'</code>, <code>'sum'</code> or
-<code>'batchmean'</code>. See <code>sonnix.functional.reduce_loss</code> for the details.</p>
-              </div>
-            </td>
-            <td>
-                  <code>&#39;mean&#39;</code>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="sonnix.modules.BaseBinaryPoly1Loss" class="doc doc-heading">
-            <span class="doc doc-object-name doc-class-name">sonnix.modules.BaseBinaryPoly1Loss</span>
-
-
-<a href="#sonnix.modules.BaseBinaryPoly1Loss" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents first">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="sonnix.modules.BaseLoss (sonnix.modules.loss.base.BaseLoss)" href="#sonnix.modules.BaseLoss">BaseLoss</a></code></p>
-
-
-
-        <p>Define the base class of the binary Poly-1 losses.</p>
-<p>It stores the hyperparameters shared by <code>BinaryPoly1Loss</code> and
-<code>BinaryPoly1LossWithLogits</code>.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>alpha</code>
-            </td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The weight of the <code>(1 - p_t)</code> term, where <code>p_t</code> is the
-probability of the target class. The loss is
-<code>cross_entropy + alpha * (1 - p_t)</code>.</p>
-              </div>
-            </td>
-            <td>
-                  <code>1.0</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>reduction</code>
-            </td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="sonnix.functional.Reduction
-
-
-  
-      module-attribute
-   (sonnix.functional.reduction.Reduction)" href="../../functional/#sonnix.functional.Reduction">Reduction</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The reduction strategy: <code>'none'</code>, <code>'mean'</code>, <code>'sum'</code> or
-<code>'batchmean'</code>. See <code>sonnix.functional.reduce_loss</code> for the details.</p>
-              </div>
-            </td>
-            <td>
-                  <code>&#39;mean&#39;</code>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
 
 <div class="doc doc-object doc-class">
 
@@ -2104,15 +1826,118 @@ probability of the target class. The loss is
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="sonnix.modules.BaseBinaryFocalLoss (sonnix.modules.loss.focal.BaseBinaryFocalLoss)" href="#sonnix.modules.BaseBinaryFocalLoss">BaseBinaryFocalLoss</a></code></p>
+              Bases: <code><span title="sonnix.modules.loss.focal._BinaryFocalLoss">_BinaryFocalLoss</span></code></p>
 
 
 
         <p>Implementation of the binary focal loss.</p>
 <p>Based on "focal loss for Dense Object Detection"
 (https://arxiv.org/pdf/1708.02002.pdf)</p>
-<p>The constructor arguments (<code>alpha</code>, <code>gamma</code> and <code>reduction</code>) are the ones of
-<code>BaseBinaryFocalLoss</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>alpha</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The weighting factor, which must be in the range
+<code>[0, 1]</code>. <code>None</code> disables the weighting.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.25</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>gamma</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The focusing parameter, which must be finite and
+non-negative (<code>&gt;=0</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>2.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>reduction</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="sonnix.functional.Reduction
+
+
+  
+      module-attribute
+   (sonnix.functional.reduction.Reduction)" href="../../functional/#sonnix.functional.Reduction">Reduction</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The reduction strategy: <code>'none'</code>, <code>'mean'</code>, <code>'sum'</code> or
+<code>'batchmean'</code>. See <code>sonnix.functional.reduce_loss</code> for the details.</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;mean&#39;</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha</code> or <code>gamma</code> is not a number.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha</code> is not in <code>[0, 1]</code>, if <code>gamma</code> is
+negative or not finite, or if the reduction is not valid.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
 <details class="shape" open>
@@ -2280,15 +2105,118 @@ the shape of the tensor is the same that the inputs.</p>
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="sonnix.modules.BaseBinaryFocalLoss (sonnix.modules.loss.focal.BaseBinaryFocalLoss)" href="#sonnix.modules.BaseBinaryFocalLoss">BaseBinaryFocalLoss</a></code></p>
+              Bases: <code><span title="sonnix.modules.loss.focal._BinaryFocalLoss">_BinaryFocalLoss</span></code></p>
 
 
 
         <p>Implementation of the binary focal loss.</p>
 <p>Based on "focal loss for Dense Object Detection"
 (https://arxiv.org/pdf/1708.02002.pdf)</p>
-<p>The constructor arguments (<code>alpha</code>, <code>gamma</code> and <code>reduction</code>) are the ones of
-<code>BaseBinaryFocalLoss</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>alpha</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The weighting factor, which must be in the range
+<code>[0, 1]</code>. <code>None</code> disables the weighting.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.25</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>gamma</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The focusing parameter, which must be finite and
+non-negative (<code>&gt;=0</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>2.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>reduction</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="sonnix.functional.Reduction
+
+
+  
+      module-attribute
+   (sonnix.functional.reduction.Reduction)" href="../../functional/#sonnix.functional.Reduction">Reduction</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The reduction strategy: <code>'none'</code>, <code>'mean'</code>, <code>'sum'</code> or
+<code>'batchmean'</code>. See <code>sonnix.functional.reduce_loss</code> for the details.</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;mean&#39;</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha</code> or <code>gamma</code> is not a number.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>alpha</code> is not in <code>[0, 1]</code>, if <code>gamma</code> is
+negative or not finite, or if the reduction is not valid.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
 <details class="shape" open>
@@ -2457,7 +2385,7 @@ the shape of the tensor is the same that the inputs.</p>
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="sonnix.modules.BaseBinaryPoly1Loss (sonnix.modules.loss.poly.BaseBinaryPoly1Loss)" href="#sonnix.modules.BaseBinaryPoly1Loss">BaseBinaryPoly1Loss</a></code></p>
+              Bases: <code><span title="sonnix.modules.loss.poly._BinaryPoly1Loss">_BinaryPoly1Loss</span></code></p>
 
 
 
@@ -2465,8 +2393,61 @@ the shape of the tensor is the same that the inputs.</p>
 <p>Based on "PolyLoss: A Polynomial Expansion Perspective of
 Classification Loss Functions"
 (https://arxiv.org/pdf/2204.12511)</p>
-<p>The constructor arguments (<code>alpha</code> and <code>reduction</code>) are the ones of
-<code>BaseBinaryPoly1Loss</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>alpha</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The weight of the <code>(1 - p_t)</code> term, where <code>p_t</code> is the
+probability of the target class. The loss is
+<code>cross_entropy + alpha * (1 - p_t)</code>. It must be finite.</p>
+              </div>
+            </td>
+            <td>
+                  <code>1.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>reduction</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="sonnix.functional.Reduction
+
+
+  
+      module-attribute
+   (sonnix.functional.reduction.Reduction)" href="../../functional/#sonnix.functional.Reduction">Reduction</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The reduction strategy: <code>'none'</code>, <code>'mean'</code>, <code>'sum'</code> or
+<code>'batchmean'</code>. See <code>sonnix.functional.reduce_loss</code> for the details.</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;mean&#39;</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
 <details class="shape" open>
@@ -2667,7 +2648,7 @@ the inputs.</p>
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="sonnix.modules.BaseBinaryPoly1Loss (sonnix.modules.loss.poly.BaseBinaryPoly1Loss)" href="#sonnix.modules.BaseBinaryPoly1Loss">BaseBinaryPoly1Loss</a></code></p>
+              Bases: <code><span title="sonnix.modules.loss.poly._BinaryPoly1Loss">_BinaryPoly1Loss</span></code></p>
 
 
 
@@ -2675,8 +2656,61 @@ the inputs.</p>
 <p>Based on "PolyLoss: A Polynomial Expansion Perspective of
 Classification Loss Functions"
 (https://arxiv.org/pdf/2204.12511)</p>
-<p>The constructor arguments (<code>alpha</code> and <code>reduction</code>) are the ones of
-<code>BaseBinaryPoly1Loss</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>alpha</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The weight of the <code>(1 - p_t)</code> term, where <code>p_t</code> is the
+probability of the target class. The loss is
+<code>cross_entropy + alpha * (1 - p_t)</code>. It must be finite.</p>
+              </div>
+            </td>
+            <td>
+                  <code>1.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>reduction</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="sonnix.functional.Reduction
+
+
+  
+      module-attribute
+   (sonnix.functional.reduction.Reduction)" href="../../functional/#sonnix.functional.Reduction">Reduction</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The reduction strategy: <code>'none'</code>, <code>'mean'</code>, <code>'sum'</code> or
+<code>'batchmean'</code>. See <code>sonnix.functional.reduce_loss</code> for the details.</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;mean&#39;</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
 <details class="shape" open>
