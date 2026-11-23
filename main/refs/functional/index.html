@@ -4710,12 +4710,14 @@ on the reduction strategy.</p>
 
 
 <a href="#sonnix.functional.reduce_loss" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span> <span class="n">reduction</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="sonnix.functional.Reduction
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">reduce_loss</span><span class="p">(</span>
+    <span class="n">loss</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">reduction</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="sonnix.functional.Reduction
 
 
   
       module-attribute
-   (sonnix.validation.loss.Reduction)" href="#sonnix.functional.Reduction">Reduction</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
+   (sonnix.validation.loss.Reduction)" href="#sonnix.functional.Reduction">Reduction</a></span> <span class="o">=</span> <span class="s2">"mean"</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
 </code></pre></div>
 
     <div class="doc doc-contents first">
@@ -4737,14 +4739,14 @@ on the reduction strategy.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>tensor</code>
+                <code>loss</code>
             </td>
             <td>
                   <code><span title="torch.Tensor">Tensor</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The input tensor to reduce.</p>
+                <p>The loss tensor to reduce.</p>
               </div>
             </td>
             <td>
@@ -4765,7 +4767,8 @@ on the reduction strategy.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The reduction strategy. The valid values are
+                <p>The reduction strategy. The default is <code>'mean'</code>.
+The valid values are
 <code>'mean'</code>, <code>'none'</code>,  <code>'sum'</code>, and <code>'batchmean'</code>.
 <code>'none'</code>: no reduction will be applied, <code>'mean'</code>: the
 sum will be divided by the number of elements in the
@@ -4775,7 +4778,7 @@ first dimension.</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>&#39;mean&#39;</code>
             </td>
           </tr>
       </tbody>
@@ -4834,12 +4837,12 @@ reduction strategy.</p>
   <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce_loss</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">"none"</span><span class="p">)</span>
 <span class="go">tensor([[0., 1., 2.],</span>
 <span class="go">        [3., 4., 5.]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="s2">"sum"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">"sum"</span><span class="p">)</span>
 <span class="go">tensor(15.)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
 <span class="go">tensor(2.5000)</span>
 </code></pre></div>
 </details>
@@ -6467,12 +6470,12 @@ same shape and data type as the inputs.</p>
 
 
 <a href="#sonnix.functional.safe_pow" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">safe_pow</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span> <span class="n">exponent</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">safe_pow</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span> <span class="n">exponent</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
 </code></pre></div>
 
     <div class="doc doc-contents first">
 
-        <p>Compute <code>x ** exponent</code> for non-negative values with a finite
+        <p>Compute <code>input ** exponent</code> for non-negative values with a finite
 gradient at zero.</p>
 <p>For an exponent in <code>(0, 1)</code>, the derivative of the power is
 infinite at zero and <code>inf * 0</code> gives a <code>NaN</code> gradient. The
@@ -6492,7 +6495,7 @@ zeros are masked before the power so the gradient is zero there.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>x</code>
+                <code>input</code>
             </td>
             <td>
                   <code><span title="torch.Tensor">Tensor</span></code>
@@ -6541,8 +6544,8 @@ zeros are masked before the power so the gradient is zero there.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The tensor <code>x ** exponent</code>, which is exactly <code>0</code> where
-<code>x</code> is <code>0</code>, except for <code>exponent=0</code> where it is
+                <p>The tensor <code>input ** exponent</code>, which is exactly <code>0</code> where
+<code>input</code> is <code>0</code>, except for <code>exponent=0</code> where it is
 <code>1</code> everywhere.</p>
               </div>
             </td>
@@ -9588,12 +9591,14 @@ elements, and zero for the negative elements.</p>
 
 
 <a href="#sonnix.functional.reduce_loss" class="headerlink" title="Permanent link">&para;</a></h4>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span> <span class="n">reduction</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="sonnix.functional.Reduction
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">reduce_loss</span><span class="p">(</span>
+    <span class="n">loss</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">reduction</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="sonnix.functional.Reduction
 
 
   
       module-attribute
-   (sonnix.validation.loss.Reduction)" href="#sonnix.functional.Reduction">Reduction</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
+   (sonnix.validation.loss.Reduction)" href="#sonnix.functional.Reduction">Reduction</a></span> <span class="o">=</span> <span class="s2">"mean"</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -9615,14 +9620,14 @@ elements, and zero for the negative elements.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>tensor</code>
+                <code>loss</code>
             </td>
             <td>
                   <code><span title="torch.Tensor">Tensor</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The input tensor to reduce.</p>
+                <p>The loss tensor to reduce.</p>
               </div>
             </td>
             <td>
@@ -9643,7 +9648,8 @@ elements, and zero for the negative elements.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The reduction strategy. The valid values are
+                <p>The reduction strategy. The default is <code>'mean'</code>.
+The valid values are
 <code>'mean'</code>, <code>'none'</code>,  <code>'sum'</code>, and <code>'batchmean'</code>.
 <code>'none'</code>: no reduction will be applied, <code>'mean'</code>: the
 sum will be divided by the number of elements in the
@@ -9653,7 +9659,7 @@ first dimension.</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>&#39;mean&#39;</code>
             </td>
           </tr>
       </tbody>
@@ -9712,12 +9718,12 @@ reduction strategy.</p>
   <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce_loss</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">"none"</span><span class="p">)</span>
 <span class="go">tensor([[0., 1., 2.],</span>
 <span class="go">        [3., 4., 5.]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="s2">"sum"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">"sum"</span><span class="p">)</span>
 <span class="go">tensor(15.)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reduce_loss</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
 <span class="go">tensor(2.5000)</span>
 </code></pre></div>
 </details>
@@ -10421,12 +10427,12 @@ if the input was not clamped (straight-through).</p>
 
 
 <a href="#sonnix.functional.safe_pow" class="headerlink" title="Permanent link">&para;</a></h4>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">safe_pow</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span> <span class="n">exponent</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">safe_pow</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">,</span> <span class="n">exponent</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Compute <code>x ** exponent</code> for non-negative values with a finite
+        <p>Compute <code>input ** exponent</code> for non-negative values with a finite
 gradient at zero.</p>
 <p>For an exponent in <code>(0, 1)</code>, the derivative of the power is
 infinite at zero and <code>inf * 0</code> gives a <code>NaN</code> gradient. The
@@ -10446,7 +10452,7 @@ zeros are masked before the power so the gradient is zero there.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>x</code>
+                <code>input</code>
             </td>
             <td>
                   <code><span title="torch.Tensor">Tensor</span></code>
@@ -10495,8 +10501,8 @@ zeros are masked before the power so the gradient is zero there.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The tensor <code>x ** exponent</code>, which is exactly <code>0</code> where
-<code>x</code> is <code>0</code>, except for <code>exponent=0</code> where it is
+                <p>The tensor <code>input ** exponent</code>, which is exactly <code>0</code> where
+<code>input</code> is <code>0</code>, except for <code>exponent=0</code> where it is
 <code>1</code> everywhere.</p>
               </div>
             </td>

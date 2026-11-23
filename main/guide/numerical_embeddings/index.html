@@ -1281,6 +1281,12 @@ has shape <code>(*, n_features, feature_size)</code>.</p>
 <p>The classes have a <code>create</code> (or <code>from_quantiles</code>) class method that builds the
 encoder from the data or from a range, with one set of parameters
 per feature (<code>n_features</code>).</p>
+<p><code>PiecewiseLinearNumericalEncoder</code> takes the <code>edges</code> of the segments, a tensor
+of shape <code>(n_features, n_edges)</code>: it has <code>n_edges - 1</code> segments (bins) per
+feature, so <code>feature_size == n_edges - 1</code>. <code>from_quantiles(x, n_bins)</code> builds
+<code>n_bins</code> segments from the <code>n_bins + 1</code> quantiles, so <code>feature_size == n_bins</code>.
+The edges are the only state of the encoder (<code>state_dict</code>); the widths of the
+segments are computed from them, also after <code>load_state_dict</code>.</p>
 <h2 id="embedding-of-numerical-features">Embedding of numerical features<a class="headerlink" href="#embedding-of-numerical-features" title="Permanent link">&para;</a></h2>
 <p>An encoder is usually followed by <code>NLinear</code>, which applies a different linear
 layer to each feature. The composition below turns a table of <code>n_features</code>
