@@ -1330,7 +1330,7 @@ the user.</p>
 <tbody>
 <tr>
 <td>P1</td>
-<td><strong>Function/module duality.</strong> Every loss, and every op that needs numerical care (<code>safe_exp</code>, <code>safe_log</code>, <code>safe_pow</code>), is a stateless function in <code>sonnix.functional</code> <strong>and</strong> a module (when it has hyperparameters) in <code>sonnix.modules</code> that stores the hyperparameters and calls the function. A module with learnable state or without numerical care (an activation, a layer) has no function. A <code>forward</code> is one call.</td>
+<td><strong>Function/module duality.</strong> Every loss, and every op that needs numerical care (<code>safe_exp</code>, <code>safe_log</code>, <code>safe_pow</code>), is a stateless function in <code>sonnix.functional</code> <strong>and</strong> a module in <code>sonnix.modules</code> that stores the hyperparameters and calls the function: the losses, <code>safe_exp</code>/<code>SafeExp</code>, <code>safe_log</code>/<code>SafeLog</code>, <code>safe_pow</code>/<code>SafePow</code>. A module with learnable state or without numerical care (an activation, a layer) has no function. A function that users look for by name (<code>rectifier_asinh_unit</code>, the errors, the indicators) may have no module (P16). A <code>forward</code> is one call.</td>
 </tr>
 <tr>
 <td>P2</td>
@@ -1342,7 +1342,7 @@ the user.</p>
 </tr>
 <tr>
 <td>P4</td>
-<td><strong>Strict shapes.</strong> Two tensors of the same role must have the same shape (<code>ValueError</code> naming both shapes). A layer or an encoder checks the dimension it consumes and names the argument. Nothing broadcasts silently.</td>
+<td><strong>Strict shapes.</strong> Two tensors of the same role must have the same shape (<code>ValueError</code> naming both): the prediction and the target, the inputs of a sum, average or product fusion, the two branches of a residual block. A layer or an encoder checks the dimension it consumes and names the argument (<code>n</code>, <code>n_features</code>, <code>normalized_shape</code>, <code>channel_dim</code>). Nothing broadcasts silently: a size-1 dimension is not expanded. A wrapper of an arbitrary criterion (<code>TransformedLoss</code>, <code>MulticlassFlatten</code>) leaves the policy to the wrapped module.</td>
 </tr>
 <tr>
 <td>P5</td>
@@ -1350,7 +1350,7 @@ the user.</p>
 </tr>
 <tr>
 <td>P6</td>
-<td><strong>Numerically safe.</strong> Finite outputs and gradients for finite inputs the dtype can represent, in <code>float16</code>/<code>bfloat16</code>/<code>float32</code>, and for every valid hyperparameter; exceptions are documented in the docstring.</td>
+<td><strong>Numerically safe.</strong> For <code>float16</code>, <code>bfloat16</code>, <code>float32</code> and <code>float64</code>: wherever the <code>float32</code> result and its gradient are representable in the dtype, the output and the gradient are finite. A default hyperparameter is valid in every dtype (a guard <code>eps</code> or <code>min_val</code> is raised to the smallest normal number of the dtype; the <code>max_val</code> of <code>safe_exp</code> is lowered so that <code>exp</code> is finite). An unbounded input is squared or exponentiated in at least <code>float32</code>. A hyperparameter that can still overflow (an exponent) is documented.</td>
 </tr>
 <tr>
 <td>P7</td>
@@ -1362,11 +1362,11 @@ the user.</p>
 </tr>
 <tr>
 <td>P9</td>
-<td><strong>Device and dtype.</strong> A module that creates tensors takes <code>device</code> and <code>dtype</code>, follows <code>.to()</code>/<code>.half()</code>, and the output dtype is the input dtype.</td>
+<td><strong>Device and dtype.</strong> A module that creates tensors takes <code>device</code> and <code>dtype</code>. After <code>module.to(dtype)</code> every floating tensor of the module has <code>dtype</code> and the output has the dtype of the input. A module whose dtype differs from the dtype of the input follows the promotion rules of <code>torch</code> (<code>NLinear</code> raises, like <code>torch.nn.Linear</code>): that case is not guaranteed.</td>
 </tr>
 <tr>
 <td>P10</td>
-<td><strong>Export and compile.</strong> Every registered module passes <code>torch.export</code> and <code>torch.compile(fullgraph=True)</code> on CPU: no <code>.item()</code>, no data-dependent Python branch in a <code>forward</code>.</td>
+<td><strong>Export and compile.</strong> Every registered module passes <code>torch.export</code> (also with a dynamic batch dimension) and <code>torch.compile(fullgraph=True)</code> on CPU: no <code>.item()</code>, no data-dependent Python branch in a <code>forward</code>. A shape check on static dimensions is allowed.</td>
 </tr>
 <tr>
 <td>P11</td>
@@ -1374,7 +1374,7 @@ the user.</p>
 </tr>
 <tr>
 <td>P12</td>
-<td><strong>One public path.</strong> <code>sonnix.{functional,modules,validation,factory,utils,testing}</code> each export their API from <code>__init__.py</code> (<code>__all__</code>), and nothing else is public. The sub-folders have no <code>__all__</code>. Docs, docstrings and examples import from the flat path. Every exported name is listed in <code>docs/docs/refs</code> and has an <code>Example</code> that runs.</td>
+<td><strong>One public path.</strong> Every public object has one public path. <code>sonnix.{functional,modules,validation,factory,utils,testing}</code> each export their API from <code>__init__.py</code> (<code>__all__</code>); a name is exported by one package; the sub-folders have no <code>__all__</code>. Docs, docstrings and examples import from the flat path. Every exported name is listed under its own package in <code>docs/docs/refs</code> and has an <code>Example</code> that runs.</td>
 </tr>
 <tr>
 <td>P13</td>
@@ -1391,6 +1391,10 @@ the user.</p>
 <tr>
 <td>P16</td>
 <td><strong>Earned names.</strong> A public name is a loss, a layer, an activation, an encoder, an op with numerical care, or a helper that these use, that tests them, or that users of the library need. A fixed-argument composition of other public objects or of a <code>torch.nn</code> object is a recipe in the guide, unless users look for it by name (<code>ReLUn</code>, <code>Square</code>, <code>ToFloat</code>): then a thin wrapper is allowed and its docstring names the composition. A base class is public only if users are meant to subclass it.</td>
+</tr>
+<tr>
+<td>P17</td>
+<td><strong>Honest documentation.</strong> A docstring says what the code does: the <code>Args:</code> block lists exactly the arguments of the signature, a <code>Raises:</code> block names what the code raises, and a guarantee stated in a docstring or in the guide ("no <code>inf</code>", "raises <code>ValueError</code>") has a test. <code>CLAUDE.md</code> points only to documents that are true; an obsolete review file is deleted.</td>
 </tr>
 </tbody>
 </table>

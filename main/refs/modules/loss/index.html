@@ -3769,26 +3769,6 @@ undefined results when the indicator is zero.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>detach_indicator</code>
-            </td>
-            <td>
-                  <code><span title="bool">bool</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>If <code>True</code>, the indicator is detached from
-the graph so no gradient flows through the denominator.
-By default (<code>False</code>) the gradients flow through the
-indicator, which can reward shrinking it (e.g. with
-<code>reversed_relative_indicator</code>).</p>
-              </div>
-            </td>
-            <td>
-                  <code>False</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
                 <code>reduction</code>
             </td>
             <td>
@@ -3807,6 +3787,26 @@ indicator, which can reward shrinking it (e.g. with
             </td>
             <td>
                   <code>&#39;mean&#39;</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>detach_indicator</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>True</code>, the indicator is detached from
+the graph so no gradient flows through the denominator.
+By default (<code>False</code>) the gradients flow through the
+indicator, which can reward shrinking it (e.g. with
+<code>reversed_relative_indicator</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
             </td>
           </tr>
       </tbody>
