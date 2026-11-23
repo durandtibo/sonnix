@@ -133,6 +133,29 @@ def _pair_logits() -> tuple[torch.Tensor, ...]:
     )
 
 
+def _multiclass_inputs() -> tuple[torch.Tensor, ...]:
+    # The scores ``(4, 3, 5)`` and the classes ``(4, 3)`` (as floating point numbers).
+    generator = make_generator()
+    return (
+        torch.randn(4, 3, 5, generator=generator),
+        torch.randint(0, 5, (4, 3), generator=generator).float(),
+    )
+
+
+def _wrong_multiclass_inputs() -> tuple[torch.Tensor, ...]:
+    # The target has the number of elements of the flattened scores but not their shape.
+    return torch.zeros(2, 6, 3), torch.zeros(4, 3)
+
+
+class _ClassIndexLoss(nn.Module):
+    r"""Compute the cross entropy with class indices that are given as
+    floating point numbers, because the tests of the registry cast every
+    input to the tested dtype."""
+
+    def forward(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        return nn.functional.cross_entropy(prediction, target.long())
+
+
 def _wrong_pair() -> tuple[torch.Tensor, ...]:
     # Two tensors of the same role with different shapes (a size-1 dimension is not expanded).
     return torch.zeros(4, 3), torch.zeros(4, 1)
@@ -166,6 +189,7 @@ POSITIONAL: dict[str, tuple[str, ...]] = {
     "GeneralRobustRegressionLoss": ("alpha",),
     "Laplacian": _ALPHA_ACTIVATION,
     "LogCoshLoss": ("scale",),
+    "MulticlassFlatten": ("module",),
     "MultiQuadratic": _ALPHA_ACTIVATION,
     "NLinear": ("n", "in_features", "out_features"),
     "PiecewiseLinearNumericalEncoder": ("edges",),
@@ -229,6 +253,7 @@ def _lazy_case(
     make_inputs: Callable[[], tuple[torch.Tensor, ...]],
     make_args: Callable[[], tuple[object, ...]],
     *,
+    fixed: tuple[int, ...] = (),
     wrong_inputs: Callable[[], tuple[torch.Tensor, ...]] | None = None,
 ) -> ModuleCase:
     # The arguments are built for every module: a submodule shared between
@@ -238,6 +263,7 @@ def _lazy_case(
         build=lambda **extra: cls(*make_args(), **extra),
         make_inputs=make_inputs,
         positional=POSITIONAL.get(cls.__name__, ()),
+        fixed=fixed,
         wrong_inputs=wrong_inputs,
     )
 
@@ -406,6 +432,13 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
         wrong_inputs=_wrong_pair,
     ),
     _lazy_case(sm.TransformedLoss, _pair_normal, lambda: (nn.MSELoss(), sm.Asinh(), sm.Asinh())),
+    _lazy_case(
+        sm.MulticlassFlatten,
+        _multiclass_inputs,
+        lambda: (_ClassIndexLoss(),),
+        fixed=(1,),
+        wrong_inputs=_wrong_multiclass_inputs,
+    ),
 )
 
 
