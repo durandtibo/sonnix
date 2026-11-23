@@ -132,7 +132,7 @@ def test_raises_quote_only_parameters(package: str, name: str) -> None:
 
 
 def test_get_documented_arguments_of_a_function() -> None:
-    def function(a: int, *, b: int = 0) -> None:
+    def function(a: int, *, b: int = 0) -> None:  # noqa: ARG001
         r"""Do nothing.
 
         Args:
@@ -143,7 +143,7 @@ def test_get_documented_arguments_of_a_function() -> None:
         Returns:
             Nothing.
         """
-        del a, b
+        return
 
     assert _get_documented_arguments(function) == ["a", "b"]
 
