@@ -1274,7 +1274,7 @@ every module.</p>
   of <code>nan</code>, and nothing else: a negative input with a fractional exponent is
   <code>nan</code>, like <code>torch.pow</code>. Use it instead of <code>x ** p</code> or <code>sqrt</code> when the input
   can be <code>0</code> and a gradient is needed, and give it the absolute value if the
-  input can be negative.</li>
+  input can be negative. <code>SafePow</code> is the module.</li>
 <li><strong>Squares.</strong> <code>general_robust_regression_loss</code> squares the difference in at
   least <code>float32</code> and casts the loss back, because <code>(p - t) / scale</code> squared
   overflows in <code>float16</code> for a difference above <code>255 * scale</code>. <code>Gaussian</code> computes
