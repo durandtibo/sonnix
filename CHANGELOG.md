@@ -43,7 +43,7 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
-- Strict shapes (third target state step 3, #PR): nothing broadcasts silently
+- Strict shapes (third target state step 3, #461): nothing broadcasts silently
   any more. `ScaleAndShift`, `DynamicTanh` and `DynamicAsinh` raise a
   `ValueError` naming `normalized_shape` when the last dimensions of the input
   are not `normalized_shape` (`ScaleAndShift(5)(x[3, 1])` no longer returns
@@ -246,7 +246,7 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
   raises a `ValueError` on inputs with a wrong shape (the modules that accept
   any shape are listed with the reason), and a `torch.export` test with a
   dynamic batch dimension for every registered module (third target state
-  step 3, #PR).
+  step 3, #461).
 - `sonnix.utils.resolve_eps` and `sonnix.utils.resolve_max_exponent`, the two
   helpers that adapt a guard to the dtype of a tensor. New registry tests: every
   module and every function without a module is finite on zeros, tiny and large
