@@ -17,7 +17,8 @@ def safe_pow(input: torch.Tensor, exponent: float) -> torch.Tensor:  # noqa: A00
     gradient. The zeros are masked before the power so the gradient is
     zero there. A negative input is not masked: the result is ``NaN``
     for a non-integer exponent, like ``torch.pow``, and the power for
-    an integer exponent (``safe_pow(-2, 2)`` is ``4``).
+    an integer exponent (``safe_pow(-2, 2)`` is ``4``). The module is
+    ``sonnix.modules.SafePow``.
 
     Args:
         input: The input tensor. Use the absolute value if it can be

@@ -71,6 +71,16 @@ def test_public_name_is_importable_from_the_package(package: str, name: str) -> 
     assert hasattr(importlib.import_module(f"sonnix.{package}"), name)
 
 
+def test_no_object_is_exported_by_two_packages() -> None:
+    # One public path: an object that is exported by two packages (``Reduction`` was exported by
+    # ``sonnix.functional`` and by ``sonnix.validation``) has two public paths.
+    objects = [
+        id(getattr(importlib.import_module(f"sonnix.{package}"), name))
+        for package, name in PUBLIC_NAMES
+    ]
+    assert len(objects) == len(set(objects))
+
+
 @pytest.mark.parametrize("path", FOLDER_INITS, ids=lambda path: str(path.parent.name))
 def test_folder_has_no_all(path: Path) -> None:
     assert "__all__" not in path.read_text()

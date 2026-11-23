@@ -168,6 +168,7 @@ POSITIONAL: dict[str, tuple[str, ...]] = {
     "ResidualBlock": ("residual", "skip"),
     "SafeExp": ("max_val",),
     "SafeLog": ("min_val",),
+    "SafePow": ("exponent",),
     "ScaleAndShift": ("normalized_shape",),
     "Snake": _ALPHA_ACTIVATION,
     "Squeeze": ("dim",),
@@ -300,6 +301,7 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
     _case(sm.RectifierAsinhUnit, _normal(4, 3)),
     _case(sm.SafeExp, _normal(4, 3)),
     _case(sm.SafeLog, _positive(4, 3)),
+    _case(sm.SafePow, _positive(4, 3), 0.5),
     _case(sm.Sin, _normal(4, 3)),
     _case(sm.Sinh, _normal(4, 3)),
     _case(

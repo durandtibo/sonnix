@@ -11,16 +11,17 @@ __all__ = [
     "Pow",
     "SafeExp",
     "SafeLog",
+    "SafePow",
     "Sin",
     "Sinh",
     "Square",
 ]
 
 import torch
-from coola.validation import validate_finite, validate_isinstance
+from coola.validation import validate_finite, validate_ge, validate_isinstance
 from torch import nn
 
-from sonnix.functional import safe_exp, safe_log
+from sonnix.functional import safe_exp, safe_log, safe_pow
 from sonnix.validation import validate_positive
 
 
@@ -177,7 +178,9 @@ class Pow(nn.Module):
         exponent (for example ``Pow(exponent=0.5)`` on negative inputs),
         and no error is raised. Clamp or shift the inputs if they can be
         negative. The gradient of a power with an exponent in ``(0, 1)``
-        is infinite at ``0``.
+        is infinite at ``0``: use ``SafePow`` to get a gradient of ``0``
+        there. ``Pow`` is the plain ``torch.pow``, and it is the only one
+        that accepts a negative exponent.
 
     Args:
         exponent: The exponent. It must be a finite number.
@@ -222,9 +225,10 @@ class SafeExp(nn.Module):
     elements.
 
     The values that are higher than the specified maximum value are
-    set to this maximum value. Using a not too large positive value
-    leads to an output tensor without Inf. A ``NaN`` input stays
-    ``NaN``.
+    set to this maximum value. The maximum value is lowered to
+    ``log(finfo.max) - 1`` when ``exp`` of it is not finite in the
+    dtype of the input, so the output has no Inf. A ``NaN`` input
+    stays ``NaN``. See ``sonnix.functional.safe_exp``.
 
     Args:
         max_val: The maximum value before to compute the exponential.
@@ -278,8 +282,10 @@ class SafeLog(nn.Module):
     of the elements.
 
     The values that are lower than the specified minimum value are set
-    to this minimum value. Using a small positive value leads to an
-    output tensor without NaN or Inf. A ``NaN`` input stays ``NaN``.
+    to this minimum value. The minimum value is raised to the smallest
+    positive normal number of the dtype of the input when it is lower,
+    so the output has no NaN or Inf. A ``NaN`` input stays ``NaN``.
+    See ``sonnix.functional.safe_log``.
 
     Note:
         With ``preserve_gradient=True``, the gradient is the one of the
@@ -332,6 +338,60 @@ class SafeLog(nn.Module):
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
         return safe_log(input, min_val=self.min_val, preserve_gradient=self.preserve_gradient)
+
+
+class SafePow(nn.Module):
+    r"""Implement a ``torch.nn.Module`` to raise the input to a power with
+    a finite gradient at zero.
+
+    This module is ``torch.pow`` with a gradient of ``0`` at ``0`` and
+    nothing else: the result is ``nan`` for a negative input and a
+    non-integer exponent, like ``torch.pow``. For an exponent in
+    ``(0, 1)``, the derivative of the power is infinite at zero, and
+    ``Pow`` gives a ``NaN`` gradient there. See
+    ``sonnix.functional.safe_pow``.
+
+    Args:
+        exponent: The exponent, which must be finite and non-negative.
+            ``Pow`` accepts a negative exponent.
+
+    Shape:
+        - Input: ``(*)``, where ``*`` means any number of dimensions.
+        - Output: ``(*)``, same shape as the input.
+
+    Raises:
+        TypeError: If ``exponent`` is not a number.
+        ValueError: If ``exponent`` is negative or not finite.
+
+    Example:
+        ```pycon
+        >>> import torch
+        >>> from sonnix.modules import SafePow
+        >>> m = SafePow(exponent=0.5)
+        >>> m
+        SafePow(exponent=0.5)
+        >>> x = torch.tensor([0.0, 4.0, 9.0], requires_grad=True)
+        >>> out = m(x)
+        >>> out
+        tensor([0., 2., 3.], grad_fn=<WhereBackward0>)
+        >>> out.sum().backward()
+        >>> x.grad
+        tensor([0.0000, 0.2500, 0.1667])
+
+        ```
+    """
+
+    def __init__(self, exponent: float) -> None:
+        super().__init__()
+        validate_finite(exponent, name="exponent")
+        validate_ge(exponent, 0, name="exponent")
+        self.exponent = float(exponent)
+
+    def extra_repr(self) -> str:
+        return f"exponent={self.exponent}"
+
+    def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        return safe_pow(input, exponent=self.exponent)
 
 
 class Sin(nn.Module):

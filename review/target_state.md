@@ -533,6 +533,6 @@ bases, integer targets in the binary losses, the `repr` of `RelativeLoss`.
 | 1    | #459         | done        |
 | 2    | #460         | done        |
 | 3    | #461          | done        |
-| 4    |              | not started |
+| 4    | #462          | done        |
 | 5    |              | not started |
 | 6    |              | not started |

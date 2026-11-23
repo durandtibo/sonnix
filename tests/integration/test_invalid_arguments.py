@@ -146,6 +146,14 @@ INVALID_ARGUMENTS = [
             *_flag("preserve_gradient"),
         ],
     ),
+    (
+        "safe_pow",
+        _op(sf.safe_pow),
+        sm.SafePow,
+        [
+            *_number("exponent", invalid=(*NOT_FINITE, -1.0), match=r"exponent must be"),
+        ],
+    ),
 ]
 
 FUNCTION_ROWS = [

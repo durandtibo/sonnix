@@ -59,7 +59,7 @@ not removed because the library itself does not use it. It contains:
   `mean`, `sum`, `batchmean`).
 - **Activations**: parametric activations (`Snake`, `Gaussian`, `Laplacian`,
   `Quadratic`, `MultiQuadratic`, `ExpSin`), `ReLUn`, `SquaredReLU`, `Asinh` and
-  safe `exp`/`log` modules.
+  safe `exp`/`log`/`pow` modules.
 - **Numerical encoders**: `CosSinNumericalEncoder`,
   `AsinhCosSinNumericalEncoder`, `AsinhNumericalEncoder` and
   `PiecewiseLinearNumericalEncoder` to embed numerical features.

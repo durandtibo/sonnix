@@ -15,18 +15,13 @@ PUBLIC_NAMES = [
     for package in PACKAGES
     for name in getattr(importlib.import_module(f"sonnix.{package}"), "__all__", [])
 ]
-# Names that are exported by two packages and documented under one of them. Step 4 of
-# ``review/target_state.md`` removes ``sonnix.validation.Reduction``, and this exception with it.
-KNOWN_EXCEPTIONS = {("functional", "Reduction")}
 
 ############################################
 #     Tests for the reference coverage     #
 ############################################
 
 
-@pytest.mark.parametrize(
-    ("package", "name"), [pair for pair in PUBLIC_NAMES if pair not in KNOWN_EXCEPTIONS]
-)
+@pytest.mark.parametrize(("package", "name"), PUBLIC_NAMES)
 def test_public_name_is_documented_under_its_package(package: str, name: str) -> None:
     # A name is listed explicitly by a ``::: sonnix.<package>.<name>`` directive of its own package.
     assert re.search(rf"^#+ ::: sonnix\.{package}\.{name}$", REFS_TEXT, flags=re.MULTILINE)
