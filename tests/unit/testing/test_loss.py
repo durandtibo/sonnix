@@ -192,7 +192,7 @@ def test_is_loss_decreasing_with_adam_max_norm_is_forwarded() -> None:
 #############################################
 
 
-def test_is_loss_decreasing_num_iterations_is_keyword_only() -> None:
+def test_is_loss_decreasing_n_iterations_is_keyword_only() -> None:
     module = nn.Linear(4, 6)
     with pytest.raises(TypeError, match=r"positional argument"):
         is_loss_decreasing(
@@ -220,7 +220,7 @@ def _train_with_dropout(random_seed: int) -> torch.Tensor:
         optimizer=SGD(module.parameters(), lr=0.1),
         feature=torch.ones(8, 4),
         target=torch.ones(8, 6),
-        num_iterations=3,
+        n_iterations=3,
         random_seed=random_seed,
     )
     return module[0].weight.detach().clone()
@@ -262,8 +262,8 @@ ALL_FUNCTIONS = [is_loss_decreasing, *FUNCTIONS]
 def test_is_loss_decreasing_rejects_a_number_of_iterations_lower_than_1(
     function: Callable[..., bool], value: int
 ) -> None:
-    with pytest.raises(ValueError, match=r"num_iterations must be greater than or equal to 1"):
-        _call(function, num_iterations=value)
+    with pytest.raises(ValueError, match=r"n_iterations must be greater than or equal to 1"):
+        _call(function, n_iterations=value)
 
 
 @pytest.mark.parametrize("function", ALL_FUNCTIONS)
@@ -271,8 +271,8 @@ def test_is_loss_decreasing_rejects_a_number_of_iterations_lower_than_1(
 def test_is_loss_decreasing_rejects_a_non_integer_number_of_iterations(
     function: Callable[..., bool], value: object
 ) -> None:
-    with pytest.raises(TypeError, match=r"num_iterations must be an int"):
-        _call(function, num_iterations=value)
+    with pytest.raises(TypeError, match=r"n_iterations must be an int"):
+        _call(function, n_iterations=value)
 
 
 @pytest.mark.parametrize("function", ALL_FUNCTIONS)
@@ -347,6 +347,6 @@ def test_is_loss_decreasing_does_not_train_when_an_argument_is_invalid(
 ) -> None:
     module = nn.Linear(4, 2)
     weight = module.weight.detach().clone()
-    with pytest.raises(ValueError, match=r"num_iterations must be greater than or equal to 1"):
-        function(module, nn.MSELoss(), torch.rand(8, 4), torch.rand(8, 2), num_iterations=0)
+    with pytest.raises(ValueError, match=r"n_iterations must be greater than or equal to 1"):
+        function(module, nn.MSELoss(), torch.rand(8, 4), torch.rand(8, 2), n_iterations=0)
     assert module.weight.equal(weight)
