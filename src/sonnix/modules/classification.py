@@ -21,7 +21,7 @@ class ToBinaryLabel(nn.Module):
             labels.
 
     Raises:
-        TypeError: If ``threshold`` is not a number or ``dim`` is not an integer.
+        TypeError: If ``threshold`` is not a number.
         ValueError: If ``threshold`` is not finite.
 
     Example:

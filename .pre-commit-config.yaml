@@ -96,6 +96,12 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+      - id: pyright
+        name: pyright
+        entry: uv run inv types.check --complete
+        language: system
+        types: [python]
+        pass_filenames: false
       # Enforces the package layering contract defined in pyproject.toml.
       - id: import-linter
         name: import-linter

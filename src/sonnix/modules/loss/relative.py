@@ -81,13 +81,13 @@ class RelativeLoss(BaseLoss):
             ``classical_relative_indicator`` is used.
         eps: An arbitrary small finite, strictly positive number to avoid
             undefined results when the indicator is zero.
+        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
+            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
         detach_indicator: If ``True``, the indicator is detached from
             the graph so no gradient flows through the denominator.
             By default (``False``) the gradients flow through the
             indicator, which can reward shrinking it (e.g. with
             ``reversed_relative_indicator``).
-        reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
-            ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
     Raises:
         TypeError: if ``indicator`` is not callable.

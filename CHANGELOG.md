@@ -226,9 +226,20 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
   names one by one, document `rectifier_asinh_unit` and the relative loss
   indicators as `sonnix.functional.<name>`, and `utils.md` no longer renders
   `sonnix.testing.loss` (revised target state step 1, #446).
+- Third revision of the design rules (P1-P17) in `docs/docs/conventions.md`,
+  and two tests over the six `__all__`: the `Args:` block of every public
+  function and class lists exactly the arguments of its signature, and a
+  `Raises:` block quotes only parameters. Every exported name is documented
+  under its own package. `review/suggestions.md` (obsolete) is deleted, the
+  `pre-commit` configuration runs `pyright`, and `docs/docs/index.md` includes
+  `README.md` (third target state step 1, #459).
 
 ### Fixed
 
+- Docstrings: `Pow` documents `exponent`, `ToBinaryLabel` no longer says it
+  raises for a `dim` that does not exist, and the `Args:` of `RelativeLoss` and
+  `is_loss_decreasing_with_sgd` follow the order of the signature (third target
+  state step 1, #459).
 - The four binary losses (`binary_focal_loss`, `binary_focal_loss_with_logits`,
   `binary_poly1_loss`, `binary_poly1_loss_with_logits`, and their modules)
   convert an integer or `bool` target to the dtype of the prediction. Before,

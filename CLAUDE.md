@@ -22,8 +22,8 @@
 - The project is `sonnix`, a library of PyTorch modules, losses and functional
   ops (`src/sonnix/{functional,modules,utils,testing}`). Dependencies are
   managed with `uv`.
-- `review/suggestions.md` is the codebase review that lists known
-  issues and priorities.
+- `review/target_state.md` is the target design of the package and the plan of
+  the changes to reach it (properties P1-P17, findings, steps, decisions).
 
 ## Workflow
 
