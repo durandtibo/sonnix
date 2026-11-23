@@ -1,4 +1,4 @@
-**PLEASE REMOVE THE TEMPLATE DESCRIPTION BEFORE SUBMITTING**
+# Please remove the template description before submitting
 
 ## Describe your changes
 

@@ -1,55 +1,63 @@
 # `sonnix`: target state and the changes to reach it
 
-Date: 2026-11-22, on `main` at `fa8e72a`. This is the fourth revision. The first one (twelve steps,
-#413-#440), the second one (nine steps, #446-#455) and the third one (six steps, #459-#464) are
-merged; their history is in [Appendix C](#appendix-c-history-of-the-previous-revisions) and in
+Date: 2026-11-22, on `main` at `fa8e72a`. This is the fourth revision. The first
+one (twelve steps, #413-#440), the second one (nine steps, #446-#455) and the
+third one (six steps, #459-#464) are merged; their history is in
+[Appendix C](#appendix-c-history-of-the-previous-revisions) and in
 `CHANGELOG.md`.
 
-This document describes the design `sonnix` should have and the steps to get there from `main`. It
-follows the format of
+This document describes the design `sonnix` should have and the steps to get
+there from `main`. It follows the format of
 [`coola/review/recursive.md`](https://github.com/durandtibo/coola/blob/main/review/recursive.md):
-properties, constraints, findings, design, public API, dependents, evidence, plan, tests, decisions.
-The properties come first: every choice below exists to make one of them true **by construction**
-(one helper, one registry test, one signature-driven test) instead of by the discipline of each
-class.
+properties, constraints, findings, design, public API, dependents, evidence,
+plan, tests, decisions. The properties come first: every choice below exists to
+make one of them true **by construction** (one helper, one registry test, one
+signature-driven test) instead of by the discipline of each class.
 
-What this revision is about. The first three revisions fixed the structure (shapes, validation,
-signatures, state, public paths) and the numerics on edge inputs. The seventeen properties hold on
-the surface the tests reach. This revision runs them on the surface the tests do not reach, and
-finds four things: a special-case formula that is discontinuous (F1), the gradient-preserving mode
-of `safe_exp` and `safe_log` that returns wrong values (F2), a wrapper that reshapes without
-checking (F3), and two packages (`utils`, `testing`) that the validation fuzz of the second revision
-never covered (F4). The common cause of the last one is that the checks which keep the properties
-true are partly **hand-written tables**, so the next object can escape them silently. That is the
-new property **P18, easy to maintain**, and the reason why most steps below replace a table by a
-rule derived from the signature or the registry.
+What this revision is about. The first three revisions fixed the structure
+(shapes, validation, signatures, state, public paths) and the numerics on edge
+inputs. The seventeen properties hold on the surface the tests reach. This
+revision runs them on the surface the tests do not reach, and finds four things:
+a special-case formula that is discontinuous (F1), the gradient-preserving mode
+of `safe_exp` and `safe_log` that returns wrong values (F2), a wrapper that
+reshapes without checking (F3), and two packages (`utils`, `testing`) that the
+validation fuzz of the second revision never covered (F4). The common cause of
+the last one is that the checks which keep the properties true are partly
+**hand-written tables**, so the next object can escape them silently. That is
+the new property **P18, easy to maintain**, and the reason why most steps below
+replace a table by a rule derived from the signature or the registry.
 
-Scope: all of `src/` (7,438 lines in 68 files; about 1,700 lines of code once docstrings, comments
-and blank lines are removed), `tests/` (15,124 lines, 11,143 tests), the documentation (613 lines of
-markdown with `README.md`), `CLAUDE.md`, `pyproject.toml`, the workflow names, `review/`. Items
-marked **[probe]** were reproduced today by running code in the scratchpad (outside the repository);
-**[prototype]** means the proposed fix was run in a throw-away script and gave the stated result;
-**[reading]** comes from the source. Nothing in the repository was changed except this file.
+Scope: all of `src/` (7,438 lines in 68 files; about 1,700 lines of code once
+docstrings, comments and blank lines are removed), `tests/` (15,124 lines,
+11,143 tests), the documentation (613 lines of markdown with `README.md`),
+`CLAUDE.md`, `pyproject.toml`, the workflow names, `review/`. Items marked
+**[probe]** were reproduced today by running code in the scratchpad (outside the
+repository); **[prototype]** means the proposed fix was run in a throw-away
+script and gave the stated result; **[reading]** comes from the source. Nothing
+in the repository was changed except this file.
 
-Baseline on `main`: `ruff check` clean; `inv types.check --complete` clean (`ty` and `pyright`, 0
-errors); `lint-imports` 3 contracts kept; `xdoctest` 126/126; `pytest tests` 11,143 passed, 3
-skipped, in 22 s; `mkdocs build --strict` passes (its only message: Material for MkDocs reaches end
-of life on 2027-05-05). The `python` and `pycon` examples of `README.md` and of the guides run
-[probe], but no CI job runs them (F7).
+Baseline on `main`: `ruff check` clean; `inv types.check --complete` clean (`ty`
+and `pyright`, 0 errors); `lint-imports` 3 contracts kept; `xdoctest` 126/126;
+`pytest tests` 11,143 passed, 3 skipped, in 22 s; `mkdocs build --strict` passes
+(its only message: Material for MkDocs reaches end of life on 2027-05-05). The
+`python` and `pycon` examples of `README.md` and of the guides run [probe], but
+no CI job runs them (F7).
 
 ## 1. Properties of the package
 
-`sonnix` is a library of PyTorch building blocks that `torch.nn` does not provide: losses,
-parametric activations, numerical-feature encoders and a few layers. It is used by other codebases
-(decision #453), so a public name is useful if a user needs it, not only if `sonnix` calls it. The
-API has three tiers: `sonnix.functional` (stateless operations), `sonnix.modules` (the
-`torch.nn.Module` wrappers and layers) and the support packages (`validation`, `factory`, `utils`,
-`testing`). 110 public names: 25 / 58 / 6 / 14 / 3 / 4.
+`sonnix` is a library of PyTorch building blocks that `torch.nn` does not
+provide: losses, parametric activations, numerical-feature encoders and a few
+layers. It is used by other codebases (decision #453), so a public name is
+useful if a user needs it, not only if `sonnix` calls it. The API has three
+tiers: `sonnix.functional` (stateless operations), `sonnix.modules` (the
+`torch.nn.Module` wrappers and layers) and the support packages (`validation`,
+`factory`, `utils`, `testing`). 110 public names: 25 / 58 / 6 / 14 / 3 / 4.
 
-Each property is a rule that holds for **every** public object, with the mechanism that makes it
-true and the test that proves it. A property without a test is a wish. The column "Today" is the
-result of this review. P1-P17 keep their number; P2, P4, P6, P11 and P17 are made more precise; P18
-and P19 are new.
+Each property is a rule that holds for **every** public object, with the
+mechanism that makes it true and the test that proves it. A property without a
+test is a wish. The column "Today" is the result of this review. P1-P17 keep
+their number; P2, P4, P6, P11 and P17 are made more precise; P18 and P19 are
+new.
 
 | #   | Property                            | Rule                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Enforced by                                                                                                                                       | Today                           |
 | --- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
@@ -73,30 +81,37 @@ and P19 are new.
 | P18 | **Easy to maintain** (new)          | A rule lives in one place and an object is added or changed in the fewest places. (1) **One mechanism per rule**: validation, reduction, shape check, dtype guard, state registration and a core shared by two variants are one helper, never a copy in a class. (2) **One source per fact**: a description, a rule or a number is written once; the other places are generated or checked against it by a test. (3) **A new object is one source entry, one `__all__` line, one reference directive and one registry entry**; every other test is derived from the registry or from the signature, and a missing entry fails a test. (4) **No suppression** (`noqa`, `type: ignore`, `ty: ignore`, `pragma: no cover`) in `src`. (5) **Small surface**: two hard dependencies, every declared `torch` version tested. | registry completeness tests; signature-driven tests (new); suppression and flat-import tests (new); import-linter; the CI matrix `torch` 2.4-2.15 | **partly** (F4-F6, F8, F9, F12) |
 | P19 | **Matches its definition** (new)    | Every loss and op equals its reference on typical inputs (the `torch` equivalent or a naive formula in `float64`). A formula with limit cases (`alpha=2`, `alpha=0`, `alpha=-inf` of the robust loss) is **continuous** across the switch. An option that is only about the gradient (`preserve_gradient`) does not change the value.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | reference tests (exist for most); continuity test at the branch points and value test of `preserve_gradient` (new)                                | **not true** (F1, F2)           |
 
-Not guaranteed, and documented as such: bit-exact results across `torch` versions; behaviour on GPU
-in CI (no GPU job; the CUDA tests run locally before a release); a learnable `alpha` that crosses
-`0` (decision D9 of the third revision: documented, not changed); a result that the dtype cannot
-represent (`Square` of `1000` in `float16`, `exp(100)` in `float32`); the probability variants of
-the binary losses with a prediction of exactly `0` or `1` in `float16` (use the `*_with_logits`
-variants); a module fed a dtype other than its own (P9); the gradient at a non-finite input.
+Not guaranteed, and documented as such: bit-exact results across `torch`
+versions; behaviour on GPU in CI (no GPU job; the CUDA tests run locally before
+a release); a learnable `alpha` that crosses `0` (decision D9 of the third
+revision: documented, not changed); a result that the dtype cannot represent
+(`Square` of `1000` in `float16`, `exp(100)` in `float32`); the probability
+variants of the binary losses with a prediction of exactly `0` or `1` in
+`float16` (use the `*_with_logits` variants); a module fed a dtype other than
+its own (P9); the gradient at a non-finite input.
 
 ## 2. Constraints
 
-1. **Simple and easy to maintain (P18).** A property is made true by **one** helper, one registry
-   rule or one signature-driven test, not by a check written in each class or a row written by hand.
-   A step that adds a rule also removes the table it replaces. Net size is in Appendix A.
-2. **Breaking changes are fine.** The version is `0.0.1a0`: no shim, no deprecation period. Each
-   breaking change is listed in `CHANGELOG.md` (migration table) with the PR number.
-3. **Same numerics for valid calls**, except where a finding names it (F1: the default `alpha=2`
-   loss halves; F2: `preserve_gradient=True` on large inputs). Each such change has a regression
-   test that fails without the fix (`git stash push src`).
-4. **No slower than today.** The default path of every function is unchanged. The new validation is
-   on `utils` and `testing`, not on a forward pass; `resolve_eps` and `resolve_max_exponent` (on the
-   forward path) get no validation. The `preserve_gradient=True` path adds one `where` and one
+1. **Simple and easy to maintain (P18).** A property is made true by **one**
+   helper, one registry rule or one signature-driven test, not by a check
+   written in each class or a row written by hand. A step that adds a rule also
+   removes the table it replaces. Net size is in Appendix A.
+2. **Breaking changes are fine.** The version is `0.0.1a0`: no shim, no
+   deprecation period. Each breaking change is listed in `CHANGELOG.md`
+   (migration table) with the PR number.
+3. **Same numerics for valid calls**, except where a finding names it (F1: the
+   default `alpha=2` loss halves; F2: `preserve_gradient=True` on large inputs).
+   Each such change has a regression test that fails without the fix
+   (`git stash push src`).
+4. **No slower than today.** The default path of every function is unchanged.
+   The new validation is on `utils` and `testing`, not on a forward pass;
+   `resolve_eps` and `resolve_max_exponent` (on the forward path) get no
+   validation. The `preserve_gradient=True` path adds one `where` and one
    `detach`.
-5. **Closed decisions are not reopened.** The helpers of `sonnix.utils`, `DummyDataset`, the named
-   wrappers, the three errors and `rectifier_asinh_unit` are **kept** (#451, #453). This revision
-   removes and adds no public name.
+5. **Closed decisions are not reopened.** The helpers of `sonnix.utils`,
+   `DummyDataset`, the named wrappers, the three errors and
+   `rectifier_asinh_unit` are **kept** (#451, #453). This revision removes and
+   adds no public name.
 6. **Follow `CLAUDE.md` and `docs/docs/conventions.md`.**
 7. **`torch` and `coola` are the only hard dependencies.**
 
@@ -117,15 +132,17 @@ variants); a module fed a dtype other than its own (P9); the gradient at a non-f
 | F11 | **Four scalar attributes keep the value as given** while every other hyperparameter is `float(...)`: `Clamp.min_val`, `Clamp.max_val`, `GeneralRobustRegressionLoss.max_val`, `BaseDynamicNorm.alpha_init_value` (`Clamp(0, 1).min_val` is an `int`). `repr` and the registry test of attributes cannot tell.                                                                                                                                                                                                                                                                               | [probe]             |
 | F12 | **The rules are written three times**: `docs/docs/conventions.md` (P1-P17), the table of this document, and the sentence "properties P1-P17" in `CLAUDE.md`. Adding P18 and P19 means three edits, and nothing checks that they agree.                                                                                                                                                                                                                                                                                                                                                      | [reading]           |
 
-What is already right and must not regress: the validation of every hyperparameter of the 57 classes
-and of the functions; keyword-only options and the registry check of positional arguments; the state
-round trip and the derived buffers of the piecewise encoder; strict shapes in the losses, fusions,
-residual block and encoders; function/module parity; the registry-driven export, compile, purity,
-dtype, edge-input and hyperparameter tests; the dtype-aware guards; the import-linter layering;
-`mkdocs build --strict`; the CI matrix over every `torch` from 2.4 to 2.15. The 52 registered
-modules also run, with the same values, on an **empty batch**, after `copy.deepcopy`, after
-`torch.save`/`torch.load`, under CPU `bfloat16` autocast and on a non-contiguous input [probe]: no
-failure.
+What is already right and must not regress: the validation of every
+hyperparameter of the 57 classes and of the functions; keyword-only options and
+the registry check of positional arguments; the state round trip and the derived
+buffers of the piecewise encoder; strict shapes in the losses, fusions, residual
+block and encoders; function/module parity; the registry-driven export, compile,
+purity, dtype, edge-input and hyperparameter tests; the dtype-aware guards; the
+import-linter layering; `mkdocs build --strict`; the CI matrix over every
+`torch` from 2.4 to 2.15. The 52 registered modules also run, with the same
+values, on an **empty batch**, after `copy.deepcopy`, after
+`torch.save`/`torch.load`, under CPU `bfloat16` autocast and on a non-contiguous
+input [probe]: no failure.
 
 ## 4. Design
 
@@ -142,9 +159,10 @@ sonnix
 └── testing/      is_loss_decreasing*, DummyDataset                       (imports: anything; nothing imports it)
 ```
 
-Nothing moves. The import-linter contracts do not change. A merge of the three files that hold
-`safe_exp`, `safe_log` and `safe_pow` was considered and rejected (D8): the layout is not public,
-each file is one concept, and a move hides the diff of F2.
+Nothing moves. The import-linter contracts do not change. A merge of the three
+files that hold `safe_exp`, `safe_log` and `safe_pow` was considered and
+rejected (D8): the layout is not public, each file is one concept, and a move
+hides the diff of F2.
 
 ### 4.2 The robust loss is continuous (P19; F1)
 
@@ -153,24 +171,25 @@ if abs(alpha - 2) < _ALPHA_EPS:
     loss = squared_error.mul(0.5)  # Barron: rho(x, 2, c) = 0.5 * (x / c) ** 2
 ```
 
-The docstring says `alpha=2` is `0.5 * x^2`; the guide says that the default loss is half the
-squared error. Values [prototype of the formula]:
+The docstring says `alpha=2` is `0.5 * x^2`; the guide says that the default
+loss is half the squared error. Values [prototype of the formula]:
 
 | `x` (`scale=1`) | `alpha=1.99` | `alpha=2.0001` | `alpha=2` today | `alpha=2` target |
 | --------------- | ------------ | -------------- | --------------- | ---------------- |
 | `1`             | `0.4909`     | `0.5002`       | `1.0`           | `0.5`            |
 | `3`             | `4.3712`     | `4.5023`       | `9.0`           | `4.5`            |
 
-Tests (P19): a naive Barron formula in `float64` against the function for `alpha` in
-`{-inf, -2, 0, 1, 2, 3}` and three values of `x`; continuity: the loss at `alpha=2` is within `1e-2`
-of the loss at `2 ± 1e-3`, and the same at `0` and at `-1e3` against `-inf`. The two tests that pin
-`4.0` and `1.0` become `2.0` and `0.5`. Migration: the value and the gradient of the default loss
+Tests (P19): a naive Barron formula in `float64` against the function for
+`alpha` in `{-inf, -2, 0, 1, 2, 3}` and three values of `x`; continuity: the
+loss at `alpha=2` is within `1e-2` of the loss at `2 ± 1e-3`, and the same at
+`0` and at `-1e3` against `-inf`. The two tests that pin `4.0` and `1.0` become
+`2.0` and `0.5`. Migration: the value and the gradient of the default loss
 halve; `scale=s / sqrt(2)` reproduces the old `alpha=2` value.
 
 ### 4.3 `preserve_gradient` keeps the value (P19, P6; F2)
 
-One private helper in `functional/activation/math.py`, used by `safe_exp` and `safe_log` (no other
-module imports it):
+One private helper in `functional/activation/math.py`, used by `safe_exp` and
+`safe_log` (no other module imports it):
 
 ```python
 def _clamp(input, *, min_val=None, max_val=None, preserve_gradient):
@@ -182,12 +201,13 @@ def _clamp(input, *, min_val=None, max_val=None, preserve_gradient):
     return clamped.detach() + torch.where(input.isfinite(), input - input.detach(), 0.0)
 ```
 
-[prototype] `1e8`, `1e30` and `inf` clamp to `20.0` (today `exp(16)`, `1.0`, `nan` after `exp`);
-`-1e30` and `-inf` clamp to `1e-8` (today `-inf`, `nan` after `log`). The gradient is `1` for a
-finite input and equal to today's on `[-3, 0, 5, 25, 100]`; at an infinite input it is `0` (not
-guaranteed, section 1). `torch.export` and `torch.compile(fullgraph=True)` pass. The default path
-(`preserve_gradient=False`) is unchanged. The guide states that the value does not depend on the
-option.
+[prototype] `1e8`, `1e30` and `inf` clamp to `20.0` (today `exp(16)`, `1.0`,
+`nan` after `exp`); `-1e30` and `-inf` clamp to `1e-8` (today `-inf`, `nan`
+after `log`). The gradient is `1` for a finite input and equal to today's on
+`[-3, 0, 5, 25, 100]`; at an infinite input it is `0` (not guaranteed, section
+1). `torch.export` and `torch.compile(fullgraph=True)` pass. The default path
+(`preserve_gradient=False`) is unchanged. The guide states that the value does
+not depend on the option.
 
 ### 4.4 `MulticlassFlatten` checks its shapes (P4; F3)
 
@@ -197,10 +217,11 @@ if prediction.shape[:-1] != target.shape:
     raise ValueError(msg)
 ```
 
-A static-shape comparison: it passes `torch.export`. The module gets a `wrong_inputs` entry in the
-registry. `TransformedLoss` is unchanged (it only forwards).
+A static-shape comparison: it passes `torch.export`. The module gets a
+`wrong_inputs` entry in the registry. `TransformedLoss` is unchanged (it only
+forwards).
 
-### 4.5 Validation of the whole surface and a signature-driven test (P2, P18; F4, F5, F11)
+### 4.5 Validation of every argument and a signature test (P2, P18; F4, F5, F11)
 
 | Site                                                      | Argument                                 | Check                                                        |
 | --------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
@@ -211,52 +232,62 @@ registry. `TransformedLoss` is unchanged (it only forwards).
 | `load_state_dict_to_module`, `register_tensor`            | `strict`, `learnable`                    | `validate_isinstance(..., bool)`                             |
 | `Clamp`, `GeneralRobustRegressionLoss`, `BaseDynamicNorm` | `min_val`, `max_val`, `alpha_init_value` | stored as `float(...)` (`None` stays `None`)                 |
 
-The hand-written table becomes a rule. A registry of callables with a valid base call
-(`MODULE_CASES` and `FUNCTION_CASES` already hold them; a short `UTILITY_CASES` adds `utils`,
-`testing` and the `create` class methods) feeds **one** test that walks the signature:
+The hand-written table becomes a rule. A registry of callables with a valid base
+call (`MODULE_CASES` and `FUNCTION_CASES` already hold them; a short
+`UTILITY_CASES` adds `utils`, `testing` and the `create` class methods) feeds
+**one** test that walks the signature:
 
-- an `int` parameter rejects `2.5`, `True` and `"a"` with a `TypeError` that names the parameter;
-- a `float` parameter rejects `"a"` (`TypeError`) and `nan`, `inf` (`ValueError`), unless it is in
-  `ACCEPTS_NON_FINITE` with a reason (`alpha` of the robust loss accepts `-inf`);
+- an `int` parameter rejects `2.5`, `True` and `"a"` with a `TypeError` that
+  names the parameter;
+- a `float` parameter rejects `"a"` (`TypeError`) and `nan`, `inf`
+  (`ValueError`), unless it is in `ACCEPTS_NON_FINITE` with a reason (`alpha` of
+  the robust loss accepts `-inf`);
 - a `bool` parameter rejects `1` with a `TypeError`;
-- the other parameters (tensors, modules, strings, dtypes, callables) are exempt as a class; their
-  checks are the shape, state and factory tests.
+- the other parameters (tensors, modules, strings, dtypes, callables) are exempt
+  as a class; their checks are the shape, state and factory tests.
 
-A scalar parameter that is not validated fails at once, so adding an option cannot escape P2. The
-test covers the 118 scalar parameters of the six `__all__` [probe]. The range rows (`gamma >= 0`,
-`q` in `[0, 1]`) stay in the table, which shrinks by the type and finiteness rows. A second test
-asserts that every `float`/`int`/`bool` parameter of the six `__all__` is reached by a case
+A scalar parameter that is not validated fails at once, so adding an option
+cannot escape P2. The test covers the 118 scalar parameters of the six `__all__`
+[probe]. The range rows (`gamma >= 0`, `q` in `[0, 1]`) stay in the table, which
+shrinks by the type and finiteness rows. A second test asserts that every
+`float`/`int`/`bool` parameter of the six `__all__` is reached by a case
 (completeness).
 
 ### 4.6 Gates that keep P12, P17 and P18 true (F6, F7, F8, F9, F12)
 
-All in the existing files `tests/unit/test_docs.py` and `tests/unit/test_imports.py` (they mirror no
-module, like the tests that are already there):
+All in the existing files `tests/unit/test_docs.py` and
+`tests/unit/test_imports.py` (they mirror no module, like the tests that are
+already there):
 
-- **Markdown examples run**: `doctest.testfile` on `README.md` and on the guides, and `exec` of each
-  `python` block of `docs/docs`. 10 lines, no new dependency.
-- **Reference tables follow the docstrings**: every row `| [`Name`](#...) | description |` equals
-  the first line of the docstring of `Name` (backticks normalised). The table stays (it is a useful
-  index); it can no longer drift (D5).
-- **Flat cross-package imports**: an `ast` walk of `src/sonnix`; a `from sonnix.<a>.<module> import`
-  in package `<b>` with `<a> != <b>` fails, except `sonnix.validation.loss` in
-  `functional/reduction.py` (named, with the reason). The 12 sites of F8 are changed to
-  `from sonnix.functional import Reduction`, `from sonnix.utils import register_tensor`,
-  `module_mode`.
-- **No suppression**: `src` contains no `noqa`, `type: ignore`, `ty: ignore` or `pragma: no cover`.
-  With D6 approved the 46 `# noqa: A002` go away through
-  `lint.flake8-builtins.builtins-ignorelist = ["input"]`; without it the test allows `A002` and
-  nothing else.
-- **One source for the rules**: `conventions.md` holds the full text of the rules (it is published);
-  this document keeps the table (its format asks for the properties first). A test compares the
-  numbers and the bold titles of both tables. `CLAUDE.md` says "properties P1-P19".
+- **Markdown examples run**: `doctest.testfile` on `README.md` and on the
+  guides, and `exec` of each `python` block of `docs/docs`. 10 lines, no new
+  dependency.
+- **Reference tables follow the docstrings**: every row
+  `| [`Name`](#...) | description |` equals the first line of the docstring of
+  `Name` (backticks normalised). The table stays (it is a useful index); it can
+  no longer drift (D5).
+- **Flat cross-package imports**: an `ast` walk of `src/sonnix`; a
+  `from sonnix.<a>.<module> import` in package `<b>` with `<a> != <b>` fails,
+  except `sonnix.validation.loss` in `functional/reduction.py` (named, with the
+  reason). The 12 sites of F8 are changed to
+  `from sonnix.functional import Reduction`,
+  `from sonnix.utils import register_tensor`, `module_mode`.
+- **No suppression**: `src` contains no `noqa`, `type: ignore`, `ty: ignore` or
+  `pragma: no cover`. With D6 approved the 46 `# noqa: A002` go away through
+  `lint.flake8-builtins.builtins-ignorelist = ["input"]`; without it the test
+  allows `A002` and nothing else.
+- **One source for the rules**: `conventions.md` holds the full text of the
+  rules (it is published); this document keeps the table (its format asks for
+  the properties first). A test compares the numbers and the bold titles of both
+  tables. `CLAUDE.md` says "properties P1-P19".
 
 ### 4.7 Names (F10)
 
-`DummyDataset(n_examples=...)` and `is_loss_decreasing*(n_iterations=...)`; the private
-`create_spaced_values(n_values=...)`. The rule in `conventions.md`: arguments that count are
-`n_<things>`; `num_parameters` (the `torch.nn.PReLU` argument) and the helpers `num_parameters`,
-`num_learnable_parameters` stay (D3).
+`DummyDataset(n_examples=...)` and `is_loss_decreasing*(n_iterations=...)`; the
+private `create_spaced_values(n_values=...)`. The rule in `conventions.md`:
+arguments that count are `n_<things>`; `num_parameters` (the `torch.nn.PReLU`
+argument) and the helpers `num_parameters`, `num_learnable_parameters` stay
+(D3).
 
 ## 5. Public API after the change
 
@@ -294,8 +325,8 @@ module, like the tests that are already there):
 
 ## 7. Evidence
 
-Probes and prototypes ran in the scratchpad; the commands are not in the repository. `torch 2.15.0`,
-CPU, Python 3.14.
+Probes and prototypes ran in the scratchpad; the commands are not in the
+repository. `torch 2.15.0`, CPU, Python 3.14.
 
 | Case                                                                                                  | `main`                            | Prototype / target          |
 | ----------------------------------------------------------------------------------------------------- | --------------------------------- | --------------------------- |
@@ -321,43 +352,51 @@ CPU, Python 3.14.
 
 ## 8. Changes to reach the target state
 
-One branch and one pull request per step (`CLAUDE.md`), small and reviewable on its own. Every step
-updates `CHANGELOG.md`, the docs it touches and the tests, and runs `ruff`,
-`inv types.check --complete`, `pytest tests`, `xdoctest src/sonnix all` and, for a step that changes
-`docs/`, `mkdocs build --strict`. Steps 1, 2, 3 and 4 are independent and can start from `main` in
-parallel; 5 needs 3 (same files in `testing/`).
+One branch and one pull request per step (`CLAUDE.md`), small and reviewable on
+its own. Every step updates `CHANGELOG.md`, the docs it touches and the tests,
+and runs `ruff`, `inv types.check --complete`, `pytest tests`,
+`xdoctest src/sonnix all` and, for a step that changes `docs/`,
+`mkdocs build --strict`. Steps 1, 2, 3 and 4 are independent and can start from
+`main` in parallel; 5 needs 3 (same files in `testing/`).
 
-1. **Gates and one source (non-breaking).** F6-F9, F12: the five tests of 4.6 and the 12 imports
-   they require; P18 and P19 in `conventions.md` and `CLAUDE.md`; `builtins-ignorelist` if D6 is
-   approved. _Why first: the rules are written before the code changes._ P19 is written as "not
-   true" until step 2.
-2. **Two bugs (breaking numerics).** F1, F2: 4.2 and 4.3 with their regression tests (each fails on
-   `main` with `git stash push src`), the migration rows, the guide.
-3. **Validate the whole surface (breaking: invalid values raise).** F4, F5, F11: the table and the
-   signature-driven test of 4.5; the range-independent rows of the hand-written table are deleted in
-   the same PR.
+1. **Gates and one source (non-breaking).** F6-F9, F12: the five tests of 4.6
+   and the 12 imports they require; P18 and P19 in `conventions.md` and
+   `CLAUDE.md`; `builtins-ignorelist` if D6 is approved. _Why first: the rules
+   are written before the code changes._ P19 is written as "not true" until
+   step 2.
+2. **Two bugs (breaking numerics).** F1, F2: 4.2 and 4.3 with their regression
+   tests (each fails on `main` with `git stash push src`), the migration rows,
+   the guide.
+3. **Validate the whole surface (breaking: invalid values raise).** F4, F5, F11:
+   the table and the signature-driven test of 4.5; the range-independent rows of
+   the hand-written table are deleted in the same PR.
 4. **`MulticlassFlatten` (breaking: mismatched shapes raise).** F3: 4.4.
 5. **Names (breaking, small).** F10: 4.7 (D3), `conventions.md`, migration rows.
 
-Steps 2, 3 and 4 are the only ones that change the behaviour of calls that worked. Steps 1 and 5
-change no value.
+Steps 2, 3 and 4 are the only ones that change the behaviour of calls that
+worked. Steps 1 and 5 change no value.
 
 ## 9. Tests and gates
 
-The unit-test rules of `CLAUDE.md` apply to everything added (one behaviour per test, `match` on
-every `pytest.raises`, seeded data, no local imports, literal expected values, a regression test for
-each bug, 100 % coverage of the lines added or changed). The tests added by this revision are
-**derived**: a new object or option is covered by one registry entry, and a missing entry fails.
+The unit-test rules of `CLAUDE.md` apply to everything added (one behaviour per
+test, `match` on every `pytest.raises`, seeded data, no local imports, literal
+expected values, a regression test for each bug, 100 % coverage of the lines
+added or changed). The tests added by this revision are **derived**: a new
+object or option is covered by one registry entry, and a missing entry fails.
 
-- **P19**: reference formula in `float64` for the robust loss; continuity at `alpha = 2, 0, -inf`;
-  `safe_exp`/`safe_log` with `preserve_gradient=True` equal the plain value on `1e8`, `1e30`, `inf`,
-  `-inf`; the same cases added to `test_finite_wherever_float32_fits` (P6).
-- **P2**: `test_invalid_scalar_argument(callable, parameter, value)` over the signatures;
-  completeness test; literal messages for the new checks of 4.5; `float` attributes of `Clamp`,
-  `GeneralRobustRegressionLoss`, `BaseDynamicNorm` (P11).
-- **P4**: `wrong_inputs` for `MulticlassFlatten`; the two shapes of F3 are the regression tests.
+- **P19**: reference formula in `float64` for the robust loss; continuity at
+  `alpha = 2, 0, -inf`; `safe_exp`/`safe_log` with `preserve_gradient=True`
+  equal the plain value on `1e8`, `1e30`, `inf`, `-inf`; the same cases added to
+  `test_finite_wherever_float32_fits` (P6).
+- **P2**: `test_invalid_scalar_argument(callable, parameter, value)` over the
+  signatures; completeness test; literal messages for the new checks of 4.5;
+  `float` attributes of `Clamp`, `GeneralRobustRegressionLoss`,
+  `BaseDynamicNorm` (P11).
+- **P4**: `wrong_inputs` for `MulticlassFlatten`; the two shapes of F3 are the
+  regression tests.
 - **P12, P17, P18**: the five gates of 4.6.
-- **Docs**: `xdoctest src/sonnix all`, `mkdocs build --strict`, the notebook job.
+- **Docs**: `xdoctest src/sonnix all`, `mkdocs build --strict`, the notebook
+  job.
 
 ## 10. Decisions for the maintainers
 
@@ -372,28 +411,35 @@ each bug, 100 % coverage of the lines added or changed). The tests added by this
 | D7  | One source for the rules: `conventions.md` has the text, this document the table, a test compares them? | **Yes.** The format needs the properties at the top of this document; the published page needs them too; the test removes the drift.                                        |
 | D8  | Merge `functional/activation/math.py` and `functional/power.py` into one `safe` module?                 | **No.** The layout is not public, each file is one concept, and the move costs test renames and hides the diff of F2.                                                       |
 
-Closed decisions (answered by the maintainers, not reopened): keep the named wrappers `ToFloat`,
-`ToLong`, `ReLUn`, `Square`, the three errors and `rectifier_asinh_unit` (#451); keep the helpers of
-`sonnix.utils`, `load_state_dict_to_module` and `DummyDataset` (#453); `validate_positive` in
+Closed decisions (answered by the maintainers, not reopened): keep the named
+wrappers `ToFloat`, `ToLong`, `ReLUn`, `Square`, the three errors and
+`rectifier_asinh_unit` (#451); keep the helpers of `sonnix.utils`,
+`load_state_dict_to_module` and `DummyDataset` (#453); `validate_positive` in
 `sonnix.validation`, `edges` and `n_bins` as segments, integer targets cast,
-`Clamp(min_val, max_val)` positional, `sonnix.factory` kept, no folder move for the top-level
-modules (second revision); `float16` is a supported dtype, `Reduction` is exported by `functional`,
-`SafePow` exists, strict shapes in the fusions (third revision).
+`Clamp(min_val, max_val)` positional, `sonnix.factory` kept, no folder move for
+the top-level modules (second revision); `float16` is a supported dtype,
+`Reduction` is exported by `functional`, `SafePow` exists, strict shapes in the
+fusions (third revision).
 
 ## 11. Not covered
 
-- New losses and layers (`Tweedie`, `Dice`/`Tversky`, `SwiGLU`/`GeGLU`, a multiclass focal loss):
-  the target gives the rules a new object follows (P1-P19, Appendix B), not which objects to add.
-- Sample weights, masks and `ignore_index` in the losses: a feature with its own design (the shape
-  of the weights against `reduction`).
-- A parametrisation of a learnable `alpha` that crosses `0`: it needs an experiment, not a rule.
-- **A stable release.** `coola>=2.0.0a5` is a pre-release; `sonnix` cannot leave `0.0.1a0` before
-  `coola` 2.0 is stable, or before the dependency is relaxed.
-- **The documentation toolchain.** Material for MkDocs reaches end of life on 2027-05-05 (the build
-  prints it); its successor is a tooling migration, tracked outside this document.
-- The size of some test files (`test_nlinear.py` has 1,657 tests, a five-axis cross-product, for a
-  130-line module): the whole suite runs in 22 s, so no action; revisit if it passes a minute.
-- Packaging and CI (the workflows, a GPU job): tracked in `.github/GUIDELINES.md`.
+- New losses and layers (`Tweedie`, `Dice`/`Tversky`, `SwiGLU`/`GeGLU`, a
+  multiclass focal loss): the target gives the rules a new object follows
+  (P1-P19, Appendix B), not which objects to add.
+- Sample weights, masks and `ignore_index` in the losses: a feature with its own
+  design (the shape of the weights against `reduction`).
+- A parametrisation of a learnable `alpha` that crosses `0`: it needs an
+  experiment, not a rule.
+- **A stable release.** `coola>=2.0.0a5` is a pre-release; `sonnix` cannot leave
+  `0.0.1a0` before `coola` 2.0 is stable, or before the dependency is relaxed.
+- **The documentation toolchain.** Material for MkDocs reaches end of life on
+  2027-05-05 (the build prints it); its successor is a tooling migration,
+  tracked outside this document.
+- The size of some test files (`test_nlinear.py` has 1,657 tests, a five-axis
+  cross-product, for a 130-line module): the whole suite runs in 22 s, so no
+  action; revisit if it passes a minute.
+- Packaging and CI (the workflows, a GPU job): tracked in
+  `.github/GUIDELINES.md`.
 
 ## Appendix A: size of the package
 
@@ -408,50 +454,60 @@ modules (second revision); `float16` is a supported dtype, `Reduction` is export
 | `tests`                             | 15,124      | ~15,250     | +~250 gates and rules, −~120 hand-written rows (estimate)      |
 | `review/`                           | 538         | ~330        | this file replaces the previous revision                       |
 
-Lines of code without docstrings, comments and blank lines: about 1,700 in 68 files.
+Lines of code without docstrings, comments and blank lines: about 1,700 in 68
+files.
 
 ## Appendix B: checklist for a new public object
 
-1. Is it a fixed-argument composition of existing public objects or of a `torch.nn` object? Then it
-   is a recipe in the guide, unless users look for it by name (P16).
-2. Function first if it is a loss or needs numerical care; the module calls it (P1).
-3. Every scalar hyperparameter: type, finiteness, range, before it is stored, stored as its declared
-   type; the module uses the same helper (P2, P11). The signature-driven test fails if one is
-   missing.
-4. Signature `(prediction, target, *, options, reduction)` or `(input, *, options)`; a module's
-   positional arguments are listed in its registry entry (P3).
-5. Two same-role tensors: `validate_same_shape`; a layer checks the dimension it consumes; a wrapper
-   that reshapes checks the shapes; nothing broadcasts (P4). Loss: `reduce_loss` (P5).
-6. A guard goes through `resolve_eps` / `resolve_max_exponent`; an unbounded square or exponential
-   is computed in at least `float32`; every option passes the edge rule in `float16` (P6).
-7. A formula with limit cases is checked against a reference and for continuity at the switch (P19).
-8. A trained tensor that can be frozen: `register_tensor`; anything derived is non-persistent (P8).
-   `device` and `dtype` if the module creates tensors (P9).
+1. Is it a fixed-argument composition of existing public objects or of a
+   `torch.nn` object? Then it is a recipe in the guide, unless users look for it
+   by name (P16).
+2. Function first if it is a loss or needs numerical care; the module calls it
+   (P1).
+3. Every scalar hyperparameter: type, finiteness, range, before it is stored,
+   stored as its declared type; the module uses the same helper (P2, P11). The
+   signature-driven test fails if one is missing.
+4. Signature `(prediction, target, *, options, reduction)` or
+   `(input, *, options)`; a module's positional arguments are listed in its
+   registry entry (P3).
+5. Two same-role tensors: `validate_same_shape`; a layer checks the dimension it
+   consumes; a wrapper that reshapes checks the shapes; nothing broadcasts (P4).
+   Loss: `reduce_loss` (P5).
+6. A guard goes through `resolve_eps` / `resolve_max_exponent`; an unbounded
+   square or exponential is computed in at least `float32`; every option passes
+   the edge rule in `float16` (P6).
+7. A formula with limit cases is checked against a reference and for continuity
+   at the switch (P19).
+8. A trained tensor that can be frozen: `register_tensor`; anything derived is
+   non-persistent (P8). `device` and `dtype` if the module creates tensors (P9).
 9. Public attributes named like the arguments, shown in `repr` (P11).
-10. One registry entry (`positional`, `other`, `wrong_inputs`): export, compile, dtype, purity,
-    parity, round-trip, shape, edge and invalid-argument tests come for free (P10, P18).
-11. Export it from the flat `__init__.py` of **one** package, import it from the flat path
-    elsewhere, document it under that package in `docs/docs/refs` with an `Args:` that matches the
-    signature and an example that runs (P12, P17).
+10. One registry entry (`positional`, `other`, `wrong_inputs`): export, compile,
+    dtype, purity, parity, round-trip, shape, edge and invalid-argument tests
+    come for free (P10, P18).
+11. Export it from the flat `__init__.py` of **one** package, import it from the
+    flat path elsewhere, document it under that package in `docs/docs/refs` with
+    an `Args:` that matches the signature and an example that runs (P12, P17).
 
 ## Appendix C: history of the previous revisions
 
-First revision (2026-11-06, twelve steps, all merged): #413 properties and layering, #414 validation
-gaps and strict shapes, #415 keyword-only options, #417 composition losses deleted, #418 `input` for
-every forward, #419 dynamic norms by composition, #420 encoder range logic, #422 packages
-reorganized, #423 `_validate_init` hook, #424 migration notes, #439 `resolve_range`, #440 copied
-`Args:` removed.
+First revision (2026-11-06, twelve steps, all merged): #413 properties and
+layering, #414 validation gaps and strict shapes, #415 keyword-only
+options, #417 composition losses deleted, #418 `input` for every forward, #419
+dynamic norms by composition, #420 encoder range logic, #422 packages
+reorganized, #423 `_validate_init` hook, #424 migration notes, #439
+`resolve_range`, #440 copied `Args:` removed.
 
-Second revision (2026-11-22, nine steps, all merged): #446 properties and docs, #447 validation of
-every hyperparameter, #449 complete state (`register_tensor`, `edges`), #450 uniform signatures,
-#451 surface area, #452 one public path, #453 helpers kept, #454 integer targets, #455 migration
-table.
+Second revision (2026-11-22, nine steps, all merged): #446 properties and
+docs, #447 validation of every hyperparameter, #449 complete state
+(`register_tensor`, `edges`), #450 uniform signatures, #451 surface area, #452
+one public path, #453 helpers kept, #454 integer targets, #455 migration table.
 
-Third revision (2026-11-22, six steps, all merged): #459 honest documentation, #460 dtype-aware
-guards and the `float16` failures, #461 strict shapes in the layers, fusions and residual block,
-#462 `SafePow` and `Reduction` exported by `functional` only, #463 one core for the probability and
-logits variants of the focal and Poly-1 losses (`einsum` skipped: slower than `bmm`), #464
-`n_frequencies` and the migration table.
+Third revision (2026-11-22, six steps, all merged): #459 honest
+documentation, #460 dtype-aware guards and the `float16` failures, #461 strict
+shapes in the layers, fusions and residual block, #462 `SafePow` and `Reduction`
+exported by `functional` only, #463 one core for the probability and logits
+variants of the focal and Poly-1 losses (`einsum` skipped: slower than
+`bmm`), #464 `n_frequencies` and the migration table.
 
 ## Appendix D: status of this revision
 
