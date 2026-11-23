@@ -351,7 +351,7 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
 
 ### Changed
 
-- Gates that keep the properties true (fourth target state step 1): the 12
+- Gates that keep the properties true (fourth target state step 1, #468): the 12
   imports of another package use the flat path (`from sonnix.functional import
   Reduction`, `from sonnix.utils import register_tensor`, `module_mode`); new
   tests check the flat cross-package imports, that `src` has no suppression
