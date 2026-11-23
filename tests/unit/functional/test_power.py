@@ -50,3 +50,36 @@ def test_safe_pow_negative_exponent() -> None:
 
 def test_safe_pow_input_keyword() -> None:
     assert objects_are_equal(safe_pow(input=torch.tensor([4.0]), exponent=0.5), torch.tensor([2.0]))
+
+
+def test_safe_pow_negative_input_fractional_exponent_is_nan() -> None:
+    # Like ``torch.pow``: the input is not masked, so the invalid power is not hidden.
+    assert safe_pow(torch.tensor([-4.0]), 0.5).isnan().all()
+
+
+def test_safe_pow_negative_input_integer_exponent_is_the_power() -> None:
+    assert objects_are_equal(safe_pow(torch.tensor([-2.0]), 2.0), torch.tensor([4.0]))
+
+
+def test_safe_pow_negative_input_odd_exponent_is_the_power() -> None:
+    assert objects_are_equal(safe_pow(torch.tensor([-2.0]), 3.0), torch.tensor([-8.0]))
+
+
+def test_safe_pow_mixed_input_values() -> None:
+    assert objects_are_equal(
+        safe_pow(torch.tensor([-4.0, 0.0, 4.0]), 0.5),
+        torch.tensor([float("nan"), 0.0, 2.0]),
+        equal_nan=True,
+    )
+
+
+def test_safe_pow_negative_input_integer_exponent_gradient() -> None:
+    x = torch.tensor([-2.0], requires_grad=True)
+    safe_pow(x, 2.0).backward()
+    assert objects_are_equal(x.grad, torch.tensor([-4.0]))
+
+
+def test_safe_pow_zero_gradient_is_zero_for_a_negative_neighbour() -> None:
+    x = torch.tensor([-1.0, 0.0], requires_grad=True)
+    safe_pow(x, 3.0).sum().backward()
+    assert objects_are_equal(x.grad, torch.tensor([3.0, 0.0]))

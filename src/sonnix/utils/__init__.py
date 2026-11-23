@@ -19,6 +19,8 @@ __all__ = [
     "num_learnable_parameters",
     "num_parameters",
     "register_tensor",
+    "resolve_eps",
+    "resolve_max_exponent",
     "unfreeze_module",
 ]
 
@@ -33,4 +35,4 @@ from sonnix.utils.params import (
     unfreeze_module,
 )
 from sonnix.utils.state_dict import load_state_dict_to_module
-from sonnix.utils.tensor import register_tensor
+from sonnix.utils.tensor import register_tensor, resolve_eps, resolve_max_exponent

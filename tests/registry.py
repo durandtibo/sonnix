@@ -7,19 +7,28 @@ A new module is covered by the registry-driven tests (``export``,
 
 from __future__ import annotations
 
-__all__ = ["MODULE_CASES", "ModuleCase"]
+__all__ = ["EDGE_VALUES", "FUNCTION_CASES", "MODULE_CASES", "ModuleCase"]
 
 from dataclasses import dataclass
+from functools import partial
 from typing import TYPE_CHECKING
 
 import torch
 from torch import nn
 
-from sonnix import modules as sm
+from sonnix import functional as sf, modules as sm
 from tests.helpers import make_generator, normal_pair, positive_pair
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+# The edge inputs of the numerical tests (property P6): the value of every floating input.
+EDGE_VALUES: dict[str, float] = {
+    "zeros": 0.0,
+    "tiny": 1e-10,
+    "large": 1e3,
+    "negative_large": -1e3,
+}
 
 
 @dataclass(frozen=True)
@@ -47,6 +56,11 @@ class ModuleCase:
             positional: the structural arguments (sizes, wrapped
             modules, tensors) and at most one hyperparameter, the
             defining one. The other arguments are keyword-only.
+        fixed: The indices of the inputs that the edge tests keep as
+            they are (the labels of a binary loss).
+        edges: The names of the edge inputs (keys of ``EDGE_VALUES``)
+            that are valid for the module. A probability is not valid
+            at ``1000``, for example.
     """
 
     name: str
@@ -57,6 +71,8 @@ class ModuleCase:
     has_learnable_option: bool = False
     derived: tuple[str, ...] = ()
     positional: tuple[str, ...] = ()
+    fixed: tuple[int, ...] = ()
+    edges: tuple[str, ...] = tuple(EDGE_VALUES)
 
     def __repr__(self) -> str:
         return self.name
@@ -162,6 +178,8 @@ def _case(
     other: Callable[..., nn.Module] | None = None,
     has_learnable_option: bool = False,
     derived: tuple[str, ...] = (),
+    fixed: tuple[int, ...] = (),
+    edges: tuple[str, ...] = tuple(EDGE_VALUES),
     **kwargs: object,
 ) -> ModuleCase:
     return ModuleCase(
@@ -173,6 +191,8 @@ def _case(
         has_learnable_option=has_learnable_option,
         derived=derived,
         positional=POSITIONAL.get(cls.__name__, ()),
+        fixed=fixed,
+        edges=edges,
     )
 
 
@@ -199,6 +219,12 @@ def _piecewise_inputs() -> tuple[torch.Tensor, ...]:
 # The first feature has a duplicated edge (a step segment).
 _EDGES = torch.tensor([[0.0, 1.0, 1.0, 3.0], [-1.0, 0.0, 1.0, 5.0], [0.0, 2.0, 4.0, 6.0]])
 _OTHER_EDGES = torch.tensor([[0.0, 1.0, 2.0, 3.0], [-2.0, 0.0, 2.0, 4.0], [1.0, 2.0, 3.0, 6.0]])
+
+# A probability is between 0 and 1, so ``large`` and ``negative_large`` are not valid. At ``0``
+# (and at ``tiny``, which is ``0`` in ``float16``) the ``binary_cross_entropy`` of ``torch``
+# divides by ``0`` in ``float16`` and its gradient is ``nan``: it is documented as not guaranteed
+# (the ``*_with_logits`` variants are tested instead).
+_PROBABILITY_EDGES = ()
 
 MODULE_CASES: tuple[ModuleCase, ...] = (
     # activations
@@ -315,14 +341,51 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
         derived=("start", "width", "is_step", "lower", "upper"),
     ),
     # losses
-    _case(sm.BinaryFocalLoss, _pair_probability),
-    _case(sm.BinaryFocalLossWithLogits, _pair_logits),
-    _case(sm.BinaryPoly1Loss, _pair_probability),
-    _case(sm.BinaryPoly1LossWithLogits, _pair_logits),
-    _case(sm.GeneralRobustRegressionLoss, _pair_normal),
+    _case(sm.BinaryFocalLoss, _pair_probability, fixed=(1,), edges=_PROBABILITY_EDGES),
+    _case(sm.BinaryFocalLossWithLogits, _pair_logits, fixed=(1,)),
+    _case(sm.BinaryPoly1Loss, _pair_probability, fixed=(1,), edges=_PROBABILITY_EDGES),
+    _case(sm.BinaryPoly1LossWithLogits, _pair_logits, fixed=(1,)),
+    _case(sm.GeneralRobustRegressionLoss, _pair_normal, alpha=1.0),
     _case(sm.LogCoshLoss, _pair_normal),
     _case(sm.PoissonRegressionLoss, _pair_positive),
     _case(sm.QuantileRegressionLoss, _pair_normal),
-    _lazy_case(sm.RelativeLoss, _pair_positive, lambda: (nn.MSELoss(reduction="none"),)),
+    _lazy_case(sm.RelativeLoss, _pair_positive, lambda: (nn.L1Loss(reduction="none"),)),
     _lazy_case(sm.TransformedLoss, _pair_normal, lambda: (nn.MSELoss(), sm.Asinh(), sm.Asinh())),
+)
+
+
+class _FunctionModule(nn.Module):
+    r"""Wrap a function of ``sonnix.functional`` in a module, to run it with
+    the tests of the registry."""
+
+    def __init__(self, function: Callable[..., torch.Tensor]) -> None:
+        super().__init__()
+        self.function = function
+
+    def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
+        return self.function(*inputs)
+
+
+def _function_case(name: str, function: Callable[..., torch.Tensor]) -> ModuleCase:
+    return ModuleCase(
+        name=name,
+        build=lambda: _FunctionModule(function),
+        make_inputs=_pair_normal,
+    )
+
+
+# The functions of ``sonnix.functional`` without a module: the errors, the indicators and
+# ``safe_pow``. They go through the numerical tests of the registry (property P6).
+FUNCTION_CASES: tuple[ModuleCase, ...] = (
+    _function_case("absolute_error", sf.absolute_error),
+    _function_case("absolute_relative_error", sf.absolute_relative_error),
+    _function_case("symmetric_absolute_relative_error", sf.symmetric_absolute_relative_error),
+    _function_case("arithmetical_mean_indicator", sf.arithmetical_mean_indicator),
+    _function_case("classical_relative_indicator", sf.classical_relative_indicator),
+    _function_case("geometric_mean_indicator", sf.geometric_mean_indicator),
+    _function_case("maximum_mean_indicator", sf.maximum_mean_indicator),
+    _function_case("minimum_mean_indicator", sf.minimum_mean_indicator),
+    _function_case("moment_mean_indicator", partial(sf.moment_mean_indicator, k=2)),
+    _function_case("reversed_relative_indicator", sf.reversed_relative_indicator),
+    _function_case("safe_pow", lambda x, y: sf.safe_pow(x, 2.0).add(sf.safe_pow(y, 0.5))),
 )

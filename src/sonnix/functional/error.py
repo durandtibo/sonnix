@@ -7,6 +7,7 @@ __all__ = ["absolute_error", "absolute_relative_error", "symmetric_absolute_rela
 
 from typing import TYPE_CHECKING
 
+from sonnix.utils import resolve_eps
 from sonnix.validation import validate_positive, validate_same_shape
 
 if TYPE_CHECKING:
@@ -57,7 +58,8 @@ def absolute_relative_error(prediction: Tensor, target: Tensor, *, eps: float = 
         target: The target tensor, which must have the same shape and
             data type as ``prediction``.
         eps: An arbitrary small finite, strictly positive number to avoid
-            undefined results when the target is zero.
+            undefined results when the target is zero. It is raised to the
+            smallest normal number of the dtype of ``target``.
 
     Returns:
         The absolute relative error tensor, which has the same shape
@@ -81,7 +83,7 @@ def absolute_relative_error(prediction: Tensor, target: Tensor, *, eps: float = 
     """
     validate_positive(eps, name="eps")
     validate_same_shape(prediction, target, name1="prediction", name2="target")
-    return target.sub(prediction).div(target.abs().clamp(min=eps)).abs()
+    return target.sub(prediction).div(target.abs().clamp(min=resolve_eps(eps, target))).abs()
 
 
 def symmetric_absolute_relative_error(
@@ -95,7 +97,8 @@ def symmetric_absolute_relative_error(
         target: The target tensor, which must have the same shape and
             data type as ``prediction``.
         eps: An arbitrary small finite, strictly positive number to avoid
-            undefined results when the target is zero.
+            undefined results when the target is zero. It is raised to the
+            smallest normal number of the dtype of ``target``.
 
     Returns:
         The symmetric absolute relative error tensor, which has the
@@ -120,5 +123,7 @@ def symmetric_absolute_relative_error(
     validate_positive(eps, name="eps")
     validate_same_shape(prediction, target, name1="prediction", name2="target")
     return (
-        target.sub(prediction).div(target.abs().add(prediction.abs()).mul(0.5).clamp(min=eps)).abs()
+        target.sub(prediction)
+        .div(target.abs().add(prediction.abs()).mul(0.5).clamp(min=resolve_eps(eps, target)))
+        .abs()
     )

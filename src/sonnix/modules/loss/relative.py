@@ -80,7 +80,8 @@ class RelativeLoss(BaseLoss):
             its options. If ``None``,
             ``classical_relative_indicator`` is used.
         eps: An arbitrary small finite, strictly positive number to avoid
-            undefined results when the indicator is zero.
+            undefined results when the indicator is zero. It is raised to
+            the smallest normal number of the dtype of the indicator.
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
         detach_indicator: If ``True``, the indicator is detached from

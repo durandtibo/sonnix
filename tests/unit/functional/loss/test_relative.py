@@ -421,3 +421,27 @@ def test_moment_mean_indicator_gradient_matches_unscaled_formula() -> None:
 def test_moment_mean_indicator_incorrect_k_type(k: object) -> None:
     with pytest.raises(TypeError, match=r"k must be an int"):
         moment_mean_indicator(torch.randn(2, 3), torch.randn(2, 3), k=k)
+
+
+def test_relative_loss_float16_zero_indicator_is_finite() -> None:
+    # The default eps (1e-8) is 0 in float16: it is raised to the smallest normal number.
+    loss = relative_loss(
+        torch.zeros(2, dtype=torch.float16),
+        torch.zeros(2, dtype=torch.float16),
+        reduction="none",
+    )
+    assert loss.equal(torch.zeros(2, dtype=torch.float16))
+
+
+def test_relative_loss_float16_zero_indicator_gradient_is_finite() -> None:
+    indicator = torch.zeros(2, dtype=torch.float16, requires_grad=True)
+    relative_loss(torch.ones(2, dtype=torch.float16), indicator).backward()
+    assert indicator.grad.isfinite().all()
+
+
+def test_relative_loss_float16_nonzero_loss_zero_indicator_value() -> None:
+    # 1 / 6.1035e-05 = 16384
+    loss = relative_loss(
+        torch.ones(1, dtype=torch.float16), torch.zeros(1, dtype=torch.float16), reduction="none"
+    )
+    assert loss.equal(torch.tensor([16384.0], dtype=torch.float16))

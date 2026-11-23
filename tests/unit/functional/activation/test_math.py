@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 import torch
-from coola.equality import objects_are_allclose
+from coola.equality import objects_are_allclose, objects_are_equal
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import safe_exp, safe_log
@@ -139,3 +139,81 @@ def test_safe_exp_nan_stays_nan() -> None:
 def test_safe_exp_invalid_max_val(max_val: float) -> None:
     with pytest.raises(ValueError, match=r"max_val must be finite"):
         safe_exp(torch.ones(2, 3), max_val=max_val)
+
+
+#########################################
+#     Tests for the dtype of guards     #
+#########################################
+
+
+def test_safe_exp_float16_is_finite_for_a_large_input() -> None:
+    assert safe_exp(torch.tensor([1000.0], dtype=torch.float16)).isfinite().all()
+
+
+def test_safe_exp_float16_large_input_value() -> None:
+    # exp(log(65504) - 1), rounded to float16
+    assert objects_are_equal(
+        safe_exp(torch.tensor([1000.0], dtype=torch.float16)),
+        torch.tensor([24192.0], dtype=torch.float16),
+    )
+
+
+def test_safe_exp_float16_keeps_a_small_max_val() -> None:
+    assert objects_are_allclose(
+        safe_exp(torch.tensor([1000.0], dtype=torch.float16), max_val=1.0),
+        torch.tensor([2.71875], dtype=torch.float16),
+    )
+
+
+def test_safe_exp_float32_large_max_val_is_finite() -> None:
+    assert safe_exp(torch.tensor([1000.0]), max_val=100.0).isfinite().all()
+
+
+def test_safe_exp_float32_large_max_val_value() -> None:
+    # exp(log(float32 max) - 1)
+    assert objects_are_allclose(
+        safe_exp(torch.tensor([1000.0]), max_val=100.0), torch.tensor([1.2518291037928049e38])
+    )
+
+
+@pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16, torch.float32, torch.float64])
+def test_safe_exp_is_finite_in_every_dtype(dtype: torch.dtype) -> None:
+    assert safe_exp(torch.tensor([1e4], dtype=dtype), max_val=1e4).isfinite().all()
+
+
+def test_safe_exp_float16_gradient_is_finite() -> None:
+    x = torch.tensor([1000.0], dtype=torch.float16, requires_grad=True)
+    safe_exp(x, preserve_gradient=True).backward()
+    assert x.grad.isfinite().all()
+
+
+def test_safe_log_float16_zero_is_finite() -> None:
+    # log(6.1035e-05), the smallest normal number of float16
+    assert objects_are_equal(
+        safe_log(torch.zeros(1, dtype=torch.float16)),
+        torch.tensor([-9.703125], dtype=torch.float16),
+    )
+
+
+def test_safe_log_float16_keeps_a_large_min_val() -> None:
+    assert objects_are_allclose(
+        safe_log(torch.zeros(1, dtype=torch.float16), min_val=1e-2),
+        torch.tensor([-4.60546875], dtype=torch.float16),
+    )
+
+
+def test_safe_log_bfloat16_keeps_the_default_min_val() -> None:
+    assert objects_are_equal(
+        safe_log(torch.zeros(1, dtype=torch.bfloat16)),
+        torch.tensor([-18.375], dtype=torch.bfloat16),
+    )
+
+
+def test_safe_log_float32_keeps_the_default_min_val() -> None:
+    assert objects_are_allclose(safe_log(torch.zeros(1)), torch.tensor([-18.420680743952367]))
+
+
+def test_safe_log_float16_gradient_is_finite() -> None:
+    x = torch.zeros(1, dtype=torch.float16, requires_grad=True)
+    safe_log(x, preserve_gradient=True).backward()
+    assert x.grad.isfinite().all()

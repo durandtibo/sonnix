@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from coola.validation import validate_finite, validate_isinstance
 
+from sonnix.utils import resolve_eps, resolve_max_exponent
 from sonnix.validation import validate_positive
 
 if TYPE_CHECKING:
@@ -23,8 +24,10 @@ def safe_exp(
     r"""Compute safely the exponential of the elements.
 
     The values that are higher than the specified maximum value are
-    set to this maximum value. Using a not too large positive value
-    leads to an output tensor without Inf. A ``NaN`` input stays
+    set to this maximum value. The maximum value is lowered to
+    ``log(finfo.max) - 1`` when ``exp`` of it is not finite in the
+    dtype of ``input`` (``10.09`` in ``float16``, ``87.7`` in
+    ``float32``), so the output has no Inf. A ``NaN`` input stays
     ``NaN``.
 
     Note:
@@ -34,7 +37,9 @@ def safe_exp(
 
     Args:
         input: The input tensor.
-        max_val: The maximum value.
+        max_val: The maximum value. It is lowered if ``exp`` of it is
+            not finite in the dtype of ``input``
+            (see ``sonnix.utils.resolve_max_exponent``).
         preserve_gradient: If ``True``, the gradient is computed as
             if the input was not clamped (straight-through).
 
@@ -58,7 +63,7 @@ def safe_exp(
     """
     validate_finite(max_val, name="max_val")
     validate_isinstance(preserve_gradient, bool, name="preserve_gradient")
-    clamped = input.clamp(max=max_val)
+    clamped = input.clamp(max=resolve_max_exponent(max_val, input))
     if preserve_gradient:
         clamped = input + (clamped - input).detach()
     return clamped.exp()
@@ -73,8 +78,10 @@ def safe_log(
     r"""Compute safely the natural logarithm of the elements.
 
     The values that are lower than the specified minimum value are set
-    to this minimum value. Using a small positive value leads to an
-    output tensor without NaN or Inf. A ``NaN`` input stays ``NaN``.
+    to this minimum value. The minimum value is raised to the smallest
+    positive normal number of the dtype of ``input`` when it is lower
+    (``6.1e-05`` in ``float16``, as ``1e-8`` is ``0`` there), so the
+    output has no NaN or Inf. A ``NaN`` input stays ``NaN``.
 
     Note:
         ``clamp`` has a zero gradient for the values outside of the
@@ -89,7 +96,9 @@ def safe_log(
 
     Args:
         input: The input tensor.
-        min_val: The minimum value.
+        min_val: The minimum value. It is raised to the smallest normal
+            number of the dtype of ``input``
+            (see ``sonnix.utils.resolve_eps``).
         preserve_gradient: If ``True``, the gradient is computed as
             if the input was not clamped (straight-through).
 
@@ -112,7 +121,7 @@ def safe_log(
     """
     validate_positive(min_val, name="min_val")
     validate_isinstance(preserve_gradient, bool, name="preserve_gradient")
-    clamped = input.clamp(min=min_val)
+    clamped = input.clamp(min=resolve_eps(min_val, input))
     if preserve_gradient:
         clamped = input + (clamped - input).detach()
     return clamped.log()

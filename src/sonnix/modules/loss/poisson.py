@@ -33,7 +33,8 @@ class PoissonRegressionLoss(BaseLoss):
 
     Args:
         eps: An arbitrary small finite, strictly positive number to avoid
-            undefined results when the count is zero.
+            undefined results when the count is zero. It is raised to the
+            smallest normal number of the dtype of ``prediction``.
         log_input: If ``True``, the predictions are the logarithm of
             the rate and ``eps`` is not used.
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or

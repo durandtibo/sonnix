@@ -228,6 +228,8 @@ class SafeExp(nn.Module):
 
     Args:
         max_val: The maximum value before to compute the exponential.
+            It is lowered if ``exp`` of it is not finite in the dtype
+            of the input.
         preserve_gradient: If ``True``, the gradient is computed as
             if the input was not clamped (straight-through). By
             default, ``clamp`` gives a zero gradient outside the range.
@@ -287,6 +289,8 @@ class SafeLog(nn.Module):
 
     Args:
         min_val: The minimum value before to compute the logarithm natural.
+            It is raised to the smallest normal number of the dtype of
+            the input.
         preserve_gradient: If ``True``, the gradient is computed as
             if the input was not clamped (straight-through). By
             default, ``clamp`` gives a zero gradient outside the range.

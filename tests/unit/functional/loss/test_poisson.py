@@ -133,3 +133,18 @@ def test_poisson_regression_loss_log_input_negative_prediction_gradient() -> Non
     poisson_regression_loss(prediction, torch.tensor([1.0]), log_input=True).backward()
     # exp(-5) - 1
     assert prediction.grad.allclose(torch.tensor([-0.9932620530009145]))
+
+
+def test_poisson_regression_loss_float16_zero_prediction_is_finite() -> None:
+    # The default eps (1e-8) is raised to 6.1035e-05, the smallest normal number of float16.
+    loss = poisson_regression_loss(
+        torch.zeros(2, dtype=torch.float16),
+        torch.tensor([0.0, 1.0], dtype=torch.float16),
+        reduction="none",
+    )
+    assert loss.equal(torch.tensor([6.103515625e-05, 9.703125], dtype=torch.float16))
+
+
+def test_poisson_regression_loss_float32_keeps_the_default_eps() -> None:
+    loss = poisson_regression_loss(torch.zeros(1), torch.ones(1), reduction="none")
+    assert loss.allclose(torch.tensor([18.420680743952367]))

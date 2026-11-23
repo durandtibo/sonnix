@@ -20,6 +20,7 @@ from coola.validation import validate_ge, validate_int
 
 from sonnix.functional.power import safe_pow
 from sonnix.functional.reduction import reduce_loss
+from sonnix.utils import resolve_eps
 from sonnix.validation import validate_positive, validate_same_shape
 
 if TYPE_CHECKING:
@@ -47,7 +48,8 @@ def relative_loss(
             the target.
         indicator: The indicator values.
         eps: An arbitrary small finite, strictly positive number to avoid
-            undefined results when the indicator is zero.
+            undefined results when the indicator is zero. It is raised to
+            the smallest normal number of the dtype of ``indicator``.
         reduction: The reduction strategy: ``'none'``, ``'mean'``, ``'sum'`` or
             ``'batchmean'``. See `sonnix.functional.reduce_loss` for the details.
 
@@ -79,7 +81,9 @@ def relative_loss(
     """
     validate_positive(eps, name="eps")
     validate_same_shape(loss, indicator, name1="loss", name2="indicator")
-    return reduce_loss(loss.div(indicator.clamp(min=eps)), reduction=reduction)
+    return reduce_loss(
+        loss.div(indicator.clamp(min=resolve_eps(eps, indicator))), reduction=reduction
+    )
 
 
 def arithmetical_mean_indicator(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:

@@ -45,10 +45,25 @@ def _logit() -> tuple[torch.Tensor, torch.Tensor]:
     return prediction / 30, target
 
 
-def _scaled() -> tuple[torch.Tensor, torch.Tensor]:
-    r"""Return seeded tensors with values in ``[-30, 30]``."""
+def _extreme() -> tuple[torch.Tensor, torch.Tensor]:
+    r"""Return seeded tensors with values in ``[-1000, 1000]``."""
     prediction, target = _large()
-    return prediction / 10, target / 10
+    return prediction * (1000 / 300), target * (1000 / 300)
+
+
+def _zeros() -> tuple[torch.Tensor, torch.Tensor]:
+    r"""Return two tensors of zeros."""
+    return torch.zeros(4, 6), torch.zeros(4, 6)
+
+
+def _tiny() -> tuple[torch.Tensor, torch.Tensor]:
+    r"""Return two tensors of ``1e-10``, which is ``0`` in half precision."""
+    return torch.full((4, 6), 1e-10), torch.full((4, 6), 1e-10)
+
+
+def _general_robust(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+    # ``alpha=2`` is the squared error, which ``float16`` cannot hold for a difference of 300.
+    return sf.general_robust_regression_loss(prediction, target, alpha=1.0)
 
 
 def _relative_geometric(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -70,7 +85,7 @@ CASES = {
     "absolute_relative_error": (sf.absolute_relative_error, _large),
     "symmetric_absolute_relative_error": (sf.symmetric_absolute_relative_error, _large),
     "log_cosh_loss": (sf.log_cosh_loss, _large),
-    "general_robust_regression_loss": (sf.general_robust_regression_loss, _scaled),
+    "general_robust_regression_loss": (_general_robust, _extreme),
     "poisson_regression_loss": (sf.poisson_regression_loss, _positive),
     "quantile_regression_loss": (sf.quantile_regression_loss, _large),
     "binary_focal_loss": (sf.binary_focal_loss, _probability),
@@ -83,9 +98,24 @@ CASES = {
 }
 
 
-#########################################################
-#     Tests of the functions in half precision          #
-#########################################################
+# The functions that accept any real input: they are also run on zeros and on tiny values.
+EDGE_CASES = [
+    "absolute_error",
+    "absolute_relative_error",
+    "symmetric_absolute_relative_error",
+    "log_cosh_loss",
+    "general_robust_regression_loss",
+    "poisson_regression_loss",
+    "quantile_regression_loss",
+    "geometric_mean_indicator",
+    "relative_loss_geometric",
+    "relative_loss_moment",
+]
+
+
+#####################################################
+#     Tests of the functions in half precision      #
+#####################################################
 
 
 @pytest.mark.parametrize("dtype", HALF_DTYPES)
@@ -104,3 +134,23 @@ def test_half_precision_matches_float32(name: str, dtype: torch.dtype) -> None:
     expected = function(prediction, target)
     out = function(prediction.to(dtype), target.to(dtype))
     assert out.float().allclose(expected, rtol=5e-2, atol=expected.abs().max().item() * 1e-2)
+
+
+@pytest.mark.parametrize("dtype", HALF_DTYPES)
+@pytest.mark.parametrize("make_inputs", [_zeros, _tiny])
+@pytest.mark.parametrize("name", EDGE_CASES)
+def test_half_precision_edge_inputs_are_finite(
+    name: str, make_inputs: Callable[[], tuple[torch.Tensor, torch.Tensor]], dtype: torch.dtype
+) -> None:
+    prediction, target = make_inputs()
+    assert CASES[name][0](prediction.to(dtype), target.to(dtype)).isfinite().all()
+
+
+@pytest.mark.parametrize("dtype", HALF_DTYPES)
+def test_half_precision_general_robust_extreme_inputs_gradient_is_finite(
+    dtype: torch.dtype,
+) -> None:
+    prediction, target = _extreme()
+    prediction = prediction.to(dtype).requires_grad_()
+    _general_robust(prediction, target.to(dtype)).backward()
+    assert prediction.grad.isfinite().all()

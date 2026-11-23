@@ -43,6 +43,19 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
+- Numerics in half precision (third target state step 2, #460): the default
+  guards are raised to the smallest normal number of the dtype
+  (`resolve_eps`: `safe_log`, `SafeLog`, `poisson_regression_loss`,
+  `relative_loss`, `absolute_relative_error`,
+  `symmetric_absolute_relative_error`), `safe_exp` lowers `max_val` so that the
+  output is finite (`resolve_max_exponent`), `general_robust_regression_loss`
+  computes in at least `float32`, and `Gaussian` computes
+  `exp(-0.5 * (x / alpha) ** 2)`. The results in `float16` that were `inf` or
+  `nan` are finite (`safe_log(0)` is `-9.7`, not `-inf`); `float32`, `float64`
+  and `bfloat16` are unchanged for the default arguments, except that
+  `safe_exp(x, max_val=100)` in `float32` is now finite. `safe_pow` masks the
+  zeros only (`input != 0`): `safe_pow(-4, 0.5)` is `nan` like `torch.pow`, and
+  `safe_pow(-2, 2)` is `4` (it was `0`).
 - One public path for every package (revised target state step 6, #452):
   `sonnix.utils` and `sonnix.testing` export their API (`from sonnix.utils
 import module_mode, register_tensor, ...`, `from sonnix.testing import
@@ -215,6 +228,12 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
 
 ### Added
 
+- `sonnix.utils.resolve_eps` and `sonnix.utils.resolve_max_exponent`, the two
+  helpers that adapt a guard to the dtype of a tensor. New registry tests: every
+  module and every function without a module is finite on zeros, tiny and large
+  inputs wherever the `float32` result is representable (`float16` and
+  `bfloat16`), and `float16` is added to the dtype tests (third target state
+  step 2, #460).
 - Design rules (P1-P15) in `docs/docs/conventions.md`; import-linter contracts
   for `factory` (independent packages, `functional` does not import
   `modules`/`factory`, `testing` on top of the layers); tests that every
@@ -236,6 +255,10 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
 
 ### Fixed
 
+- The guide `numerical_stability.md` describes what the code does (guards that
+  follow the dtype, finite `safe_exp`, the cases that are not guaranteed) and
+  `losses.md` documents that `eps` is raised to the dtype (third target state
+  step 2, #460).
 - Docstrings: `Pow` documents `exponent`, `ToBinaryLabel` no longer says it
   raises for a `dim` that does not exist, and the `Args:` of `RelativeLoss` and
   `is_loss_decreasing_with_sgd` follow the order of the signature (third target

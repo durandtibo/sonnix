@@ -39,6 +39,16 @@ from sonnix.functional import reduce_loss
 reduce_loss(torch.ones(4, 3), reduction="batchmean")  # tensor(3.)
 ```
 
+## Guards and the dtype
+
+The losses that divide by a quantity or take a logarithm have an `eps`
+(`poisson_regression_loss`, `relative_loss`, `absolute_relative_error`,
+`symmetric_absolute_relative_error`). The default `1e-8` is `0` in `float16`, so
+`eps` is raised to the smallest normal number of the dtype of the tensor
+(`6.1e-05` in `float16`) when it is lower. A value that is already large enough
+is kept, and `float32`, `float64` and `bfloat16` are not changed. See
+[Numerical stability](numerical_stability.md).
+
 ## Composing losses
 
 A loss that is a composition of a `torch.nn` criterion and a transform is a
