@@ -228,3 +228,50 @@ def test_average_fusion_forward_values() -> None:
         ),
         torch.tensor([3.0, 3.0]),
     )
+
+
+#############################################
+#     Tests for the shape of the inputs     #
+#############################################
+
+FUSIONS = [AverageFusion, MultiplicationFusion, SumFusion]
+
+
+@pytest.mark.parametrize("module", FUSIONS)
+def test_aggregation_fusion_size_one_dimension_is_not_expanded(
+    module: type[torch.nn.Module],
+) -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"inputs\[0\] and inputs\[1\] must have the same shape, got \(4, 3\) and \(4, 1\)",
+    ):
+        module()(torch.ones(4, 3), torch.ones(4, 1))
+
+
+@pytest.mark.parametrize("module", FUSIONS)
+def test_aggregation_fusion_fewer_dimensions_is_not_broadcast(
+    module: type[torch.nn.Module],
+) -> None:
+    with pytest.raises(ValueError, match=r"got \(4, 3\) and \(3,\)"):
+        module()(torch.ones(4, 3), torch.ones(3))
+
+
+@pytest.mark.parametrize("module", FUSIONS)
+def test_aggregation_fusion_names_the_position_of_the_wrong_input(
+    module: type[torch.nn.Module],
+) -> None:
+    with pytest.raises(ValueError, match=r"inputs\[0\] and inputs\[2\] must have the same shape"):
+        module()(torch.ones(4, 3), torch.ones(4, 3), torch.ones(4, 2))
+
+
+@pytest.mark.parametrize("module", FUSIONS)
+def test_aggregation_fusion_scalar_with_a_vector_is_not_broadcast(
+    module: type[torch.nn.Module],
+) -> None:
+    with pytest.raises(ValueError, match=r"got \(3,\) and \(\)"):
+        module()(torch.ones(3), torch.tensor(1.0))
+
+
+@pytest.mark.parametrize("module", FUSIONS)
+def test_aggregation_fusion_expand_broadcasts_on_purpose(module: type[torch.nn.Module]) -> None:
+    assert module()(torch.ones(4, 3), torch.ones(4, 1).expand(4, 3)).shape == (4, 3)

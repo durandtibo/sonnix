@@ -474,7 +474,7 @@ def test_alpha_activation_channel_dim_1(module: type[torch.nn.Module]) -> None:
 def test_alpha_activation_channel_dim_last_is_the_default_broadcast(
     module: type[torch.nn.Module],
 ) -> None:
-    with pytest.raises(RuntimeError, match=r"size"):
+    with pytest.raises(ValueError, match=r"channel_dim=-1.*num_parameters=3.*\(2, 3, 5\)"):
         module(num_parameters=3)(torch.randn(2, 3, 5))
 
 
@@ -670,3 +670,54 @@ def test_snake_forward_equals_paper_formula(x: float) -> None:
     module = Snake(init=1.5)
     expected = x + math.sin(1.5 * x) ** 2 / 1.5
     assert module(torch.tensor([x], dtype=torch.float64)).item() == pytest.approx(expected)
+
+
+############################################
+#     Tests for the shape of the input     #
+############################################
+
+
+@pytest.mark.parametrize("module", ALPHA_ACTIVATIONS)
+def test_alpha_activation_forward_size_one_dimension_is_not_expanded(
+    module: type[torch.nn.Module],
+) -> None:
+    with pytest.raises(ValueError, match=r"num_parameters=3.*\(4, 1\)"):
+        module(num_parameters=3)(torch.randn(4, 1))
+
+
+@pytest.mark.parametrize("module", ALPHA_ACTIVATIONS)
+def test_alpha_activation_forward_channel_dim_out_of_range_for_1d_input(
+    module: type[torch.nn.Module],
+) -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"channel_dim=1 is out of range for an input with 1 dimensions \(num_parameters=3\)",
+    ):
+        module(num_parameters=3, channel_dim=1)(torch.randn(5))
+
+
+def test_alpha_activation_forward_channel_dim_equal_to_ndim_is_out_of_range() -> None:
+    with pytest.raises(ValueError, match=r"channel_dim=2 is out of range for an input with 2"):
+        Gaussian(num_parameters=3, channel_dim=2)(torch.randn(4, 3))
+
+
+def test_alpha_activation_forward_negative_channel_dim_below_minus_ndim_is_out_of_range() -> None:
+    with pytest.raises(ValueError, match=r"channel_dim=-3 is out of range for an input with 2"):
+        Gaussian(num_parameters=3, channel_dim=-3)(torch.randn(4, 3))
+
+
+def test_alpha_activation_forward_channel_dim_minus_ndim_is_valid() -> None:
+    assert Gaussian(num_parameters=4, channel_dim=-2)(torch.randn(4, 3)).shape == (4, 3)
+
+
+def test_alpha_activation_forward_wrong_size_message() -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"The size of the dimension channel_dim=1 of input must be num_parameters=3, "
+        r"got shape \(2, 4, 5\)",
+    ):
+        Gaussian(num_parameters=3, channel_dim=1)(torch.randn(2, 4, 5))
+
+
+def test_alpha_activation_forward_one_parameter_accepts_any_shape() -> None:
+    assert Gaussian()(torch.randn(4, 1)).shape == (4, 1)

@@ -65,7 +65,11 @@ class BaseAlphaActivation(nn.Module):
         ValueError: if ``num_parameters`` is lower than 1, if ``init``
             is not finite, or if ``init`` is a value that the subclass
             rejects (``Gaussian``, ``Laplacian`` and ``Snake`` reject
-            ``0`` and ``Laplacian`` rejects negative values).
+            ``0`` and ``Laplacian`` rejects negative values). The
+            ``forward`` raises a ``ValueError`` if ``num_parameters`` is
+            greater than 1 and ``channel_dim`` is out of range for the
+            input or the size of this dimension is not
+            ``num_parameters`` (nothing broadcasts).
 
     Example:
         ```pycon
@@ -140,9 +144,26 @@ class BaseAlphaActivation(nn.Module):
             ``alpha`` unchanged if it has one value, otherwise a view
                 of ``alpha`` with size 1 in all the dimensions of the
                 input except ``channel_dim``.
+
+        Raises:
+            ValueError: If ``alpha`` has several values and
+                ``channel_dim`` is out of range for the input, or the
+                size of this dimension is not ``num_parameters``.
         """
         if self.alpha.numel() == 1:
             return self.alpha
+        if not -input.ndim <= self.channel_dim < input.ndim:
+            msg = (
+                f"channel_dim={self.channel_dim} is out of range for an input with "
+                f"{input.ndim} dimensions (num_parameters={self.alpha.numel()})"
+            )
+            raise ValueError(msg)
+        if input.shape[self.channel_dim] != self.alpha.numel():
+            msg = (
+                f"The size of the dimension channel_dim={self.channel_dim} of input must be "
+                f"num_parameters={self.alpha.numel()}, got shape {tuple(input.shape)}"
+            )
+            raise ValueError(msg)
         shape = [1] * input.ndim
         shape[self.channel_dim] = -1
         return self.alpha.view(shape)

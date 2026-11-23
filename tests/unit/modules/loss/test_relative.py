@@ -255,3 +255,20 @@ def test_relative_loss_float16_zero_is_finite() -> None:
     assert loss(torch.zeros(2, dtype=torch.float16), torch.zeros(2, dtype=torch.float16)).equal(
         torch.zeros((), dtype=torch.float16)
     )
+
+
+def test_relative_loss_forward_prediction_and_target_shapes_are_checked_first() -> None:
+    # The check comes before the criterion: ``nn.L1Loss`` would only warn about the broadcast.
+    criterion = RelativeLoss(criterion=nn.L1Loss(reduction="none"))
+    with pytest.raises(
+        ValueError,
+        match=r"prediction and target must have the same shape, got \(4, 3\) and \(4, 1\)",
+    ):
+        criterion(torch.ones(4, 3), torch.ones(4, 1))
+
+
+def test_relative_loss_forward_custom_indicator_shapes_are_checked() -> None:
+    # ``torch.maximum`` broadcasts, so only the check of the module can raise.
+    criterion = RelativeLoss(criterion=nn.L1Loss(reduction="none"), indicator=torch.maximum)
+    with pytest.raises(ValueError, match=r"prediction and target must have the same shape"):
+        criterion(torch.ones(4, 3), torch.ones(4, 1))

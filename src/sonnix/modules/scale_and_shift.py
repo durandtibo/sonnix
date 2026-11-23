@@ -36,11 +36,14 @@ class ScaleAndShift(nn.Module):
         TypeError: if a dimension of ``normalized_shape`` is not an
             integer, or if ``bias`` is not a ``bool``.
         ValueError: if a dimension of ``normalized_shape`` is lower
-            than 1.
+            than 1, or if the last dimensions of the input are not
+            ``normalized_shape`` (a size-1 dimension is not expanded).
 
     Shape:
-        - Input: ``(N, *)``, where ``*`` means any number of dimensions.
-        - Output: ``(N, *)``, same shape as the input.
+        - Input: ``(N, *, normalized_shape)``, where ``*`` means any
+          number of dimensions. The last dimensions are
+          ``normalized_shape``, like ``torch.nn.LayerNorm``.
+        - Output: ``(N, *, normalized_shape)``, same shape as the input.
 
     Example:
         ```pycon
@@ -85,6 +88,12 @@ class ScaleAndShift(nn.Module):
         self.reset_parameters()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:  # noqa: A002
+        if tuple(input.shape[input.ndim - len(self.normalized_shape) :]) != self.normalized_shape:
+            msg = (
+                f"The last dimensions of input must be normalized_shape={self.normalized_shape}, "
+                f"got shape {tuple(input.shape)}"
+            )
+            raise ValueError(msg)
         out = input * self.weight
         if self.bias is not None:
             out = out + self.bias

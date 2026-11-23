@@ -58,6 +58,12 @@ class ModuleCase:
             defining one. The other arguments are keyword-only.
         fixed: The indices of the inputs that the edge tests keep as
             they are (the labels of a binary loss).
+        wrong_inputs: A function that returns inputs with a wrong shape
+            (property P4): the module must raise a ``ValueError`` that
+            names the shapes or the argument. ``None`` if the module
+            accepts any shape or has no shape of its own (the
+            exceptions are listed with a reason in
+            ``tests/integration/modules/test_wrong_inputs.py``).
         edges: The names of the edge inputs (keys of ``EDGE_VALUES``)
             that are valid for the module. A probability is not valid
             at ``1000``, for example.
@@ -72,6 +78,7 @@ class ModuleCase:
     derived: tuple[str, ...] = ()
     positional: tuple[str, ...] = ()
     fixed: tuple[int, ...] = ()
+    wrong_inputs: Callable[[], tuple[torch.Tensor, ...]] | None = None
     edges: tuple[str, ...] = tuple(EDGE_VALUES)
 
     def __repr__(self) -> str:
@@ -114,6 +121,11 @@ def _pair_logits() -> tuple[torch.Tensor, ...]:
         torch.randn(4, 3, generator=generator),
         torch.randint(0, 2, (4, 3), generator=generator).float(),
     )
+
+
+def _wrong_pair() -> tuple[torch.Tensor, ...]:
+    # Two tensors of the same role with different shapes (a size-1 dimension is not expanded).
+    return torch.zeros(4, 3), torch.zeros(4, 1)
 
 
 def _triple_normal() -> tuple[torch.Tensor, ...]:
@@ -179,6 +191,7 @@ def _case(
     has_learnable_option: bool = False,
     derived: tuple[str, ...] = (),
     fixed: tuple[int, ...] = (),
+    wrong_inputs: Callable[[], tuple[torch.Tensor, ...]] | None = None,
     edges: tuple[str, ...] = tuple(EDGE_VALUES),
     **kwargs: object,
 ) -> ModuleCase:
@@ -192,6 +205,7 @@ def _case(
         derived=derived,
         positional=POSITIONAL.get(cls.__name__, ()),
         fixed=fixed,
+        wrong_inputs=wrong_inputs,
         edges=edges,
     )
 
@@ -200,6 +214,8 @@ def _lazy_case(
     cls: type[nn.Module],
     make_inputs: Callable[[], tuple[torch.Tensor, ...]],
     make_args: Callable[[], tuple[object, ...]],
+    *,
+    wrong_inputs: Callable[[], tuple[torch.Tensor, ...]] | None = None,
 ) -> ModuleCase:
     # The arguments are built for every module: a submodule shared between
     # two modules would be modified in place (for example by ``.to(dtype)``).
@@ -208,6 +224,7 @@ def _lazy_case(
         build=lambda **extra: cls(*make_args(), **extra),
         make_inputs=make_inputs,
         positional=POSITIONAL.get(cls.__name__, ()),
+        wrong_inputs=wrong_inputs,
     )
 
 
@@ -235,12 +252,14 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
         _normal(4, 3),
         3,
         other=_builder(sm.DynamicAsinh, 3, alpha_init_value=2.0),
+        wrong_inputs=_normal(4, 2),
     ),
     _case(
         sm.DynamicTanh,
         _normal(4, 3),
         3,
         other=_builder(sm.DynamicTanh, 3, alpha_init_value=2.0),
+        wrong_inputs=_normal(4, 2),
     ),
     _case(sm.Exp, _normal(4, 3)),
     _case(
@@ -293,9 +312,9 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
     _case(sm.SquaredReLU, _normal(4, 3)),
     # layers
     _case(sm.ExU, _normal(5, 3), 3, 4),
-    _case(sm.NLinear, _normal(5, 2, 3), 2, 3, 4),
+    _case(sm.NLinear, _normal(5, 2, 3), 2, 3, 4, wrong_inputs=_normal(5, 3, 3)),
     _lazy_case(sm.ResidualBlock, _normal(4, 3), lambda: (nn.Linear(3, 3),)),
-    _case(sm.ScaleAndShift, _normal(4, 3), 3),
+    _case(sm.ScaleAndShift, _normal(4, 3), 3, wrong_inputs=_normal(4, 2)),
     _case(sm.Squeeze, _normal(4, 1, 3), 1),
     # label and dtype helpers (the output is not differentiable)
     _case(sm.ToBinaryLabel, _normal(4, 3), differentiable=False),
@@ -304,10 +323,10 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
     _case(sm.ToFloat, _normal(4, 3), differentiable=False),
     _case(sm.ToLong, _normal(4, 3), differentiable=False),
     # fusion
-    _case(sm.AverageFusion, _triple_normal),
+    _case(sm.AverageFusion, _triple_normal, wrong_inputs=_wrong_pair),
     _case(sm.ConcatFusion, _triple_normal),
-    _case(sm.MultiplicationFusion, _triple_normal),
-    _case(sm.SumFusion, _triple_normal),
+    _case(sm.MultiplicationFusion, _triple_normal, wrong_inputs=_wrong_pair),
+    _case(sm.SumFusion, _triple_normal, wrong_inputs=_wrong_pair),
     # numerical encoders
     _case(
         sm.AsinhNumericalEncoder,
@@ -315,6 +334,7 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
         torch.ones(3, 2),
         other=_builder(sm.AsinhNumericalEncoder, torch.full((3, 2), 2.0)),
         has_learnable_option=True,
+        wrong_inputs=_normal(4, 2),
     ),
     _case(
         sm.CosSinNumericalEncoder,
@@ -323,6 +343,7 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
         torch.zeros(3, 2),
         other=_builder(sm.CosSinNumericalEncoder, torch.full((3, 2), 2.0), torch.ones(3, 2)),
         has_learnable_option=True,
+        wrong_inputs=_normal(4, 2),
     ),
     _case(
         sm.AsinhCosSinNumericalEncoder,
@@ -331,6 +352,7 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
         torch.zeros(3, 2),
         other=_builder(sm.AsinhCosSinNumericalEncoder, torch.full((3, 2), 2.0), torch.ones(3, 2)),
         has_learnable_option=True,
+        wrong_inputs=_normal(4, 2),
     ),
     _case(
         sm.PiecewiseLinearNumericalEncoder,
@@ -339,17 +361,35 @@ MODULE_CASES: tuple[ModuleCase, ...] = (
         on_duplicate="ignore",
         other=_builder(sm.PiecewiseLinearNumericalEncoder, _OTHER_EDGES),
         derived=("start", "width", "is_step", "lower", "upper"),
+        wrong_inputs=_normal(4, 2),
     ),
     # losses
-    _case(sm.BinaryFocalLoss, _pair_probability, fixed=(1,), edges=_PROBABILITY_EDGES),
-    _case(sm.BinaryFocalLossWithLogits, _pair_logits, fixed=(1,)),
-    _case(sm.BinaryPoly1Loss, _pair_probability, fixed=(1,), edges=_PROBABILITY_EDGES),
-    _case(sm.BinaryPoly1LossWithLogits, _pair_logits, fixed=(1,)),
-    _case(sm.GeneralRobustRegressionLoss, _pair_normal, alpha=1.0),
-    _case(sm.LogCoshLoss, _pair_normal),
-    _case(sm.PoissonRegressionLoss, _pair_positive),
-    _case(sm.QuantileRegressionLoss, _pair_normal),
-    _lazy_case(sm.RelativeLoss, _pair_positive, lambda: (nn.L1Loss(reduction="none"),)),
+    _case(
+        sm.BinaryFocalLoss,
+        _pair_probability,
+        fixed=(1,),
+        edges=_PROBABILITY_EDGES,
+        wrong_inputs=_wrong_pair,
+    ),
+    _case(sm.BinaryFocalLossWithLogits, _pair_logits, fixed=(1,), wrong_inputs=_wrong_pair),
+    _case(
+        sm.BinaryPoly1Loss,
+        _pair_probability,
+        fixed=(1,),
+        edges=_PROBABILITY_EDGES,
+        wrong_inputs=_wrong_pair,
+    ),
+    _case(sm.BinaryPoly1LossWithLogits, _pair_logits, fixed=(1,), wrong_inputs=_wrong_pair),
+    _case(sm.GeneralRobustRegressionLoss, _pair_normal, alpha=1.0, wrong_inputs=_wrong_pair),
+    _case(sm.LogCoshLoss, _pair_normal, wrong_inputs=_wrong_pair),
+    _case(sm.PoissonRegressionLoss, _pair_positive, wrong_inputs=_wrong_pair),
+    _case(sm.QuantileRegressionLoss, _pair_normal, wrong_inputs=_wrong_pair),
+    _lazy_case(
+        sm.RelativeLoss,
+        _pair_positive,
+        lambda: (nn.L1Loss(reduction="none"),),
+        wrong_inputs=_wrong_pair,
+    ),
     _lazy_case(sm.TransformedLoss, _pair_normal, lambda: (nn.MSELoss(), sm.Asinh(), sm.Asinh())),
 )
 

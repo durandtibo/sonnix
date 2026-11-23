@@ -9,16 +9,22 @@ from abc import ABC, abstractmethod
 import torch
 from torch import nn
 
+from sonnix.validation import validate_same_shape
+
 
 class BaseFusion(nn.Module, ABC):
     r"""Define the base class of the modules that fuse several tensors
     into one tensor.
 
-    It checks that there is at least one input, then calls ``fuse``.
-    The subclasses implement ``fuse``.
+    It checks that there is at least one input, and that all the
+    inputs have the same shape (nothing broadcasts), then calls
+    ``fuse``. The subclasses implement ``fuse``. A subclass that
+    accepts inputs of different shapes (``ConcatFusion``) sets the
+    class attribute ``_same_shape`` to ``False``.
 
     Raises:
-        ValueError: if ``forward`` is called without input.
+        ValueError: if ``forward`` is called without input, or if an
+            input does not have the shape of the first input.
 
     Example:
         ```pycon
@@ -35,10 +41,15 @@ class BaseFusion(nn.Module, ABC):
         ```
     """
 
+    _same_shape: bool = True
+
     def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
         if not inputs:
             msg = f"{self.__class__.__qualname__} needs at least one tensor as input"
             raise ValueError(msg)
+        if self._same_shape:
+            for i, x in enumerate(inputs[1:], start=1):
+                validate_same_shape(inputs[0], x, name1="inputs[0]", name2=f"inputs[{i}]")
         return self.fuse(inputs)
 
     @staticmethod

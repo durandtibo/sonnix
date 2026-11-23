@@ -546,3 +546,22 @@ def test_dynamic_norm_state_dict_keys(module: type[BaseDynamicNorm]) -> None:
         "affine.weight",
         "affine.bias",
     ]
+
+
+############################################
+#     Tests for the shape of the input     #
+############################################
+
+
+@pytest.mark.parametrize("module", [DynamicAsinh, DynamicTanh])
+def test_dynamic_norm_forward_size_one_dimension_is_not_expanded(
+    module: type[BaseDynamicNorm],
+) -> None:
+    with pytest.raises(ValueError, match=r"normalized_shape=\(5,\), got shape \(3, 1\)"):
+        module(5)(torch.ones(3, 1))
+
+
+@pytest.mark.parametrize("module", [DynamicAsinh, DynamicTanh])
+def test_dynamic_norm_forward_wrong_last_dimension(module: type[BaseDynamicNorm]) -> None:
+    with pytest.raises(ValueError, match=r"normalized_shape=\(4, 2\), got shape \(3, 2, 4\)"):
+        module((4, 2))(torch.ones(3, 2, 4))
