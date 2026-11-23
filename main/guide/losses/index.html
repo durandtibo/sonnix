@@ -621,6 +621,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#guards-and-the-dtype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guards and the dtype
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#composing-losses" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1262,6 +1273,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#guards-and-the-dtype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guards and the dtype
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#composing-losses" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1346,6 +1368,14 @@ strategies and validates the value, so a custom loss only has to call it:</p>
 
 <span class="n">reduce_loss</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">"batchmean"</span><span class="p">)</span>  <span class="c1"># tensor(3.)</span>
 </code></pre></div>
+<h2 id="guards-and-the-dtype">Guards and the dtype<a class="headerlink" href="#guards-and-the-dtype" title="Permanent link">&para;</a></h2>
+<p>The losses that divide by a quantity or take a logarithm have an <code>eps</code>
+(<code>poisson_regression_loss</code>, <code>relative_loss</code>, <code>absolute_relative_error</code>,
+<code>symmetric_absolute_relative_error</code>). The default <code>1e-8</code> is <code>0</code> in <code>float16</code>, so
+<code>eps</code> is raised to the smallest normal number of the dtype of the tensor
+(<code>6.1e-05</code> in <code>float16</code>) when it is lower. A value that is already large enough
+is kept, and <code>float32</code>, <code>float64</code> and <code>bfloat16</code> are not changed. See
+<a href="../numerical_stability/">Numerical stability</a>.</p>
 <h2 id="composing-losses">Composing losses<a class="headerlink" href="#composing-losses" title="Permanent link">&para;</a></h2>
 <p>A loss that is a composition of a <code>torch.nn</code> criterion and a transform is a
 recipe, not a class.</p>

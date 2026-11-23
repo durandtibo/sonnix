@@ -3425,7 +3425,8 @@ predictions are the logarithm of the rate.</p>
             <td>
               <div class="doc-md-description">
                 <p>An arbitrary small finite, strictly positive number to avoid
-undefined results when the count is zero.</p>
+undefined results when the count is zero. It is raised to the
+smallest normal number of the dtype of <code>prediction</code>.</p>
               </div>
             </td>
             <td>
@@ -3760,7 +3761,8 @@ its options. If <code>None</code>,
             <td>
               <div class="doc-md-description">
                 <p>An arbitrary small finite, strictly positive number to avoid
-undefined results when the indicator is zero.</p>
+undefined results when the indicator is zero. It is raised to
+the smallest normal number of the dtype of the indicator.</p>
               </div>
             </td>
             <td>

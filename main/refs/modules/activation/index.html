@@ -3312,7 +3312,7 @@ elements minus 1 of input.</p>
 
 
         <p>Implement the Gaussian activation layer.</p>
-<p>Formula: <code>exp(-0.5 * x^2 / alpha^2)</code></p>
+<p>Formula: <code>exp(-0.5 * (x / alpha)^2)</code></p>
 <p>Note: the output is <code>nan</code> or <code>inf</code> if <code>alpha</code> reaches <code>0</code>,
 which can happen during training when <code>alpha</code> is learnable.</p>
 <p>This activation layer was proposed in the following paper:</p>
@@ -4202,7 +4202,9 @@ leads to an output tensor without Inf. A <code>NaN</code> input stays
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The maximum value before to compute the exponential.</p>
+                <p>The maximum value before to compute the exponential.
+It is lowered if <code>exp</code> of it is not finite in the dtype
+of the input.</p>
               </div>
             </td>
             <td>
@@ -4367,7 +4369,9 @@ lower than <code>min_val</code> (<code>1e8</code> at <code>0</code> with the def
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The minimum value before to compute the logarithm natural.</p>
+                <p>The minimum value before to compute the logarithm natural.
+It is raised to the smallest normal number of the dtype of
+the input.</p>
               </div>
             </td>
             <td>

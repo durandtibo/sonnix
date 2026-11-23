@@ -1231,6 +1231,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sonnix.utils.resolve_eps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_eps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sonnix.utils.resolve_max_exponent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_max_exponent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#sonnix.utils.unfreeze_module" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1453,6 +1475,28 @@
     <span class="md-ellipsis">
       
         register_tensor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sonnix.utils.resolve_eps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_eps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sonnix.utils.resolve_max_exponent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_max_exponent
       
     </span>
   </a>
@@ -2497,6 +2541,224 @@ parameter, otherwise as a buffer.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">register_tensor</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">"beta"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">learnable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">named_buffers</span><span class="p">()]</span>
 <span class="go">['beta']</span>
+</code></pre></div>
+</details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="sonnix.utils.resolve_eps" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">sonnix.utils.resolve_eps</span>
+
+
+<a href="#sonnix.utils.resolve_eps" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">resolve_eps</span><span class="p">(</span><span class="n">eps</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="float">float</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>Raise a guard to the smallest positive normal number of the
+dtype of a tensor.</p>
+<p>A small guard such as <code>1e-8</code> is <code>0</code> in <code>float16</code> (the
+smallest normal number is <code>6.1e-5</code>), so a division or a
+logarithm guarded by it is not protected. The guard is raised to
+the smallest normal number of the dtype when it is lower. A
+tensor that is not floating point uses the default dtype.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>eps</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The guard, a small strictly positive number.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>tensor</code>
+            </td>
+            <td>
+                  <code><span title="torch.Tensor">Tensor</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The tensor whose dtype is used.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The maximum of <code>eps</code> and the smallest positive normal number
+of the dtype of <code>tensor</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_eps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resolve_eps</span><span class="p">(</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">))</span>
+<span class="go">6.103515625e-05</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resolve_eps</span><span class="p">(</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">1e-08</span>
+</code></pre></div>
+</details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="sonnix.utils.resolve_max_exponent" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">sonnix.utils.resolve_max_exponent</span>
+
+
+<a href="#sonnix.utils.resolve_max_exponent" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">resolve_max_exponent</span><span class="p">(</span>
+    <span class="n">max_val</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="n"><span title="torch.Tensor">Tensor</span></span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="float">float</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>Lower an exponent bound so that <code>exp</code> of it is finite in the
+dtype of a tensor.</p>
+<p><code>exp(20)</code> is <code>inf</code> in <code>float16</code> (the largest number is
+<code>65504</code>). The bound is lowered to <code>log(finfo.max) - 1</code> when it
+is higher: the margin of <code>1</code> is needed because <code>log(65504)</code>
+rounds up in <code>float16</code>. A tensor that is not floating point
+uses the default dtype.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>max_val</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The upper bound of the exponent.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>tensor</code>
+            </td>
+            <td>
+                  <code><span title="torch.Tensor">Tensor</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The tensor whose dtype is used.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The minimum of <code>max_val</code> and <code>log(finfo.max) - 1</code>, where
+<code>finfo</code> is the one of the dtype of <code>tensor</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_max_exponent</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resolve_max_exponent</span><span class="p">(</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">))</span>
+<span class="go">10.089866488461016</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resolve_max_exponent</span><span class="p">(</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">20.0</span>
 </code></pre></div>
 </details>
 

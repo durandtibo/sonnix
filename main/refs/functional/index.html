@@ -2566,8 +2566,10 @@
 
         <p>Compute safely the exponential of the elements.</p>
 <p>The values that are higher than the specified maximum value are
-set to this maximum value. Using a not too large positive value
-leads to an output tensor without Inf. A <code>NaN</code> input stays
+set to this maximum value. The maximum value is lowered to
+<code>log(finfo.max) - 1</code> when <code>exp</code> of it is not finite in the
+dtype of <code>input</code> (<code>10.09</code> in <code>float16</code>, <code>87.7</code> in
+<code>float32</code>), so the output has no Inf. A <code>NaN</code> input stays
 <code>NaN</code>.</p>
 
 
@@ -2614,7 +2616,9 @@ the unclamped input (straight-through estimator).</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The maximum value.</p>
+                <p>The maximum value. It is lowered if <code>exp</code> of it is
+not finite in the dtype of <code>input</code>
+(see <code>sonnix.utils.resolve_max_exponent</code>).</p>
               </div>
             </td>
             <td>
@@ -2818,8 +2822,10 @@ elements, and zero for the negative elements.</p>
 
         <p>Compute safely the natural logarithm of the elements.</p>
 <p>The values that are lower than the specified minimum value are set
-to this minimum value. Using a small positive value leads to an
-output tensor without NaN or Inf. A <code>NaN</code> input stays <code>NaN</code>.</p>
+to this minimum value. The minimum value is raised to the smallest
+positive normal number of the dtype of <code>input</code> when it is lower
+(<code>6.1e-05</code> in <code>float16</code>, as <code>1e-8</code> is <code>0</code> there), so the
+output has no NaN or Inf. A <code>NaN</code> input stays <code>NaN</code>.</p>
 
 
 <details class="note" open>
@@ -2873,7 +2879,9 @@ lower than <code>min_val</code> (<code>1e8</code> at <code>0</code> with the def
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The minimum value.</p>
+                <p>The minimum value. It is raised to the smallest normal
+number of the dtype of <code>input</code>
+(see <code>sonnix.utils.resolve_eps</code>).</p>
               </div>
             </td>
             <td>
@@ -3867,6 +3875,16 @@ function.</p>
 
 <details class="note" open>
   <summary>Note</summary>
+  <p>The difference between the prediction and the target is squared
+and scaled in at least <code>float32</code>, because the square of a
+difference larger than <code>255 * scale</code> overflows in <code>float16</code>.
+The loss is cast back to the dtype of <code>prediction</code>, so it is
+<code>inf</code> if it is larger than the maximum of this dtype (for
+example <code>alpha=2</code> with a difference of <code>300</code> in <code>float16</code>).</p>
+</details>
+
+<details class="note" open>
+  <summary>Note</summary>
   <p>If <code>max_val</code> is set, the loss is clamped, so the gradient is
 zero for the elements whose loss is larger than <code>max_val</code>.</p>
 </details>
@@ -4396,7 +4414,9 @@ non-negative (zero is allowed).</p>
             <td>
               <div class="doc-md-description">
                 <p>An arbitrary small finite, strictly positive number to avoid
-undefined results when the count is zero.</p>
+undefined results when the count is zero. It is raised to the
+smallest normal number of the dtype of <code>prediction</code> (<code>1e-8</code>
+is <code>0</code> in <code>float16</code>).</p>
               </div>
             </td>
             <td>
@@ -4948,7 +4968,8 @@ the target.</p>
             <td>
               <div class="doc-md-description">
                 <p>An arbitrary small finite, strictly positive number to avoid
-undefined results when the indicator is zero.</p>
+undefined results when the indicator is zero. It is raised to
+the smallest normal number of the dtype of <code>indicator</code>.</p>
               </div>
             </td>
             <td>
@@ -6225,7 +6246,8 @@ data type as <code>prediction</code>.</p>
             <td>
               <div class="doc-md-description">
                 <p>An arbitrary small finite, strictly positive number to avoid
-undefined results when the target is zero.</p>
+undefined results when the target is zero. It is raised to the
+smallest normal number of the dtype of <code>target</code>.</p>
               </div>
             </td>
             <td>
@@ -6385,7 +6407,8 @@ data type as <code>prediction</code>.</p>
             <td>
               <div class="doc-md-description">
                 <p>An arbitrary small finite, strictly positive number to avoid
-undefined results when the target is zero.</p>
+undefined results when the target is zero. It is raised to the
+smallest normal number of the dtype of <code>target</code>.</p>
               </div>
             </td>
             <td>
@@ -6483,11 +6506,14 @@ same shape and data type as the inputs.</p>
 
     <div class="doc doc-contents first">
 
-        <p>Compute <code>input ** exponent</code> for non-negative values with a finite
-gradient at zero.</p>
-<p>For an exponent in <code>(0, 1)</code>, the derivative of the power is
-infinite at zero and <code>inf * 0</code> gives a <code>NaN</code> gradient. The
-zeros are masked before the power so the gradient is zero there.</p>
+        <p>Compute <code>input ** exponent</code> with a finite gradient at zero.</p>
+<p>This function is <code>torch.pow</code> with a gradient of <code>0</code> at <code>0</code>
+and nothing else. For an exponent in <code>(0, 1)</code>, the derivative of
+the power is infinite at zero and <code>inf * 0</code> gives a <code>NaN</code>
+gradient. The zeros are masked before the power so the gradient is
+zero there. A negative input is not masked: the result is <code>NaN</code>
+for a non-integer exponent, like <code>torch.pow</code>, and the power for
+an integer exponent (<code>safe_pow(-2, 2)</code> is <code>4</code>).</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -6510,7 +6536,8 @@ zeros are masked before the power so the gradient is zero there.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The non-negative input tensor.</p>
+                <p>The input tensor. Use the absolute value if it can be
+negative and the exponent is not an integer.</p>
               </div>
             </td>
             <td>
@@ -6886,7 +6913,8 @@ data type as <code>prediction</code>.</p>
             <td>
               <div class="doc-md-description">
                 <p>An arbitrary small finite, strictly positive number to avoid
-undefined results when the target is zero.</p>
+undefined results when the target is zero. It is raised to the
+smallest normal number of the dtype of <code>target</code>.</p>
               </div>
             </td>
             <td>
@@ -8121,6 +8149,16 @@ function.</p>
 
 <details class="note" open>
   <summary>Note</summary>
+  <p>The difference between the prediction and the target is squared
+and scaled in at least <code>float32</code>, because the square of a
+difference larger than <code>255 * scale</code> overflows in <code>float16</code>.
+The loss is cast back to the dtype of <code>prediction</code>, so it is
+<code>inf</code> if it is larger than the maximum of this dtype (for
+example <code>alpha=2</code> with a difference of <code>300</code> in <code>float16</code>).</p>
+</details>
+
+<details class="note" open>
+  <summary>Note</summary>
   <p>If <code>max_val</code> is set, the loss is clamped, so the gradient is
 zero for the elements whose loss is larger than <code>max_val</code>.</p>
 </details>
@@ -9200,7 +9238,9 @@ non-negative (zero is allowed).</p>
             <td>
               <div class="doc-md-description">
                 <p>An arbitrary small finite, strictly positive number to avoid
-undefined results when the count is zero.</p>
+undefined results when the count is zero. It is raised to the
+smallest normal number of the dtype of <code>prediction</code> (<code>1e-8</code>
+is <code>0</code> in <code>float16</code>).</p>
               </div>
             </td>
             <td>
@@ -9837,7 +9877,8 @@ the target.</p>
             <td>
               <div class="doc-md-description">
                 <p>An arbitrary small finite, strictly positive number to avoid
-undefined results when the indicator is zero.</p>
+undefined results when the indicator is zero. It is raised to
+the smallest normal number of the dtype of <code>indicator</code>.</p>
               </div>
             </td>
             <td>
@@ -10115,8 +10156,10 @@ undefined results when the indicator is zero.</p>
 
         <p>Compute safely the exponential of the elements.</p>
 <p>The values that are higher than the specified maximum value are
-set to this maximum value. Using a not too large positive value
-leads to an output tensor without Inf. A <code>NaN</code> input stays
+set to this maximum value. The maximum value is lowered to
+<code>log(finfo.max) - 1</code> when <code>exp</code> of it is not finite in the
+dtype of <code>input</code> (<code>10.09</code> in <code>float16</code>, <code>87.7</code> in
+<code>float32</code>), so the output has no Inf. A <code>NaN</code> input stays
 <code>NaN</code>.</p>
 
 
@@ -10163,7 +10206,9 @@ the unclamped input (straight-through estimator).</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The maximum value.</p>
+                <p>The maximum value. It is lowered if <code>exp</code> of it is
+not finite in the dtype of <code>input</code>
+(see <code>sonnix.utils.resolve_max_exponent</code>).</p>
               </div>
             </td>
             <td>
@@ -10282,8 +10327,10 @@ if the input was not clamped (straight-through).</p>
 
         <p>Compute safely the natural logarithm of the elements.</p>
 <p>The values that are lower than the specified minimum value are set
-to this minimum value. Using a small positive value leads to an
-output tensor without NaN or Inf. A <code>NaN</code> input stays <code>NaN</code>.</p>
+to this minimum value. The minimum value is raised to the smallest
+positive normal number of the dtype of <code>input</code> when it is lower
+(<code>6.1e-05</code> in <code>float16</code>, as <code>1e-8</code> is <code>0</code> there), so the
+output has no NaN or Inf. A <code>NaN</code> input stays <code>NaN</code>.</p>
 
 
 <details class="note" open>
@@ -10337,7 +10384,9 @@ lower than <code>min_val</code> (<code>1e8</code> at <code>0</code> with the def
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The minimum value.</p>
+                <p>The minimum value. It is raised to the smallest normal
+number of the dtype of <code>input</code>
+(see <code>sonnix.utils.resolve_eps</code>).</p>
               </div>
             </td>
             <td>
@@ -10448,11 +10497,14 @@ if the input was not clamped (straight-through).</p>
 
     <div class="doc doc-contents ">
 
-        <p>Compute <code>input ** exponent</code> for non-negative values with a finite
-gradient at zero.</p>
-<p>For an exponent in <code>(0, 1)</code>, the derivative of the power is
-infinite at zero and <code>inf * 0</code> gives a <code>NaN</code> gradient. The
-zeros are masked before the power so the gradient is zero there.</p>
+        <p>Compute <code>input ** exponent</code> with a finite gradient at zero.</p>
+<p>This function is <code>torch.pow</code> with a gradient of <code>0</code> at <code>0</code>
+and nothing else. For an exponent in <code>(0, 1)</code>, the derivative of
+the power is infinite at zero and <code>inf * 0</code> gives a <code>NaN</code>
+gradient. The zeros are masked before the power so the gradient is
+zero there. A negative input is not masked: the result is <code>NaN</code>
+for a non-integer exponent, like <code>torch.pow</code>, and the power for
+an integer exponent (<code>safe_pow(-2, 2)</code> is <code>4</code>).</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -10475,7 +10527,8 @@ zeros are masked before the power so the gradient is zero there.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The non-negative input tensor.</p>
+                <p>The input tensor. Use the absolute value if it can be
+negative and the exponent is not an integer.</p>
               </div>
             </td>
             <td>
@@ -10653,7 +10706,8 @@ data type as <code>prediction</code>.</p>
             <td>
               <div class="doc-md-description">
                 <p>An arbitrary small finite, strictly positive number to avoid
-undefined results when the target is zero.</p>
+undefined results when the target is zero. It is raised to the
+smallest normal number of the dtype of <code>target</code>.</p>
               </div>
             </td>
             <td>

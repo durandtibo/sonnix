@@ -632,6 +632,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerical stability
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -648,6 +666,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#not-guaranteed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not guaranteed
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1163,6 +1211,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#not-guaranteed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not guaranteed
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1182,26 +1249,64 @@
 
 
 <h1 id="numerical-stability">Numerical stability<a class="headerlink" href="#numerical-stability" title="Permanent link">&para;</a></h1>
+<p>The guarantees below hold for <code>float16</code>, <code>bfloat16</code>, <code>float32</code> and <code>float64</code>
+(property P6 of the <a href="../../conventions/">conventions</a>): wherever the <code>float32</code>
+result and its gradient can be represented in the dtype, the output and the
+gradient are finite. They are tested on zeros, tiny values and large values for
+every module.</p>
 <ul>
-<li><strong>Large values.</strong> The relative indicators and <code>exp</code>/<code>pow</code> based functions can
-  overflow in half precision. Check the docstring of the function you use, and
-  compare with a <code>float32</code> run.</li>
-<li><strong>Exponential and logarithm.</strong> <code>safe_exp</code> clamps the input before <code>exp</code>, so
-  the output has no <code>inf</code>; it does not remove <code>nan</code>. <code>safe_log</code> clamps the input
-  to <code>min_val</code>; with <code>preserve_gradient=True</code> the gradient of the unclamped
-  function is used, so at <code>x = 0</code> the gradient is <code>1 / min_val</code>, which is large.</li>
-<li><strong>Powers.</strong> <code>safe_pow</code> has a zero gradient at <code>0</code> instead of <code>nan</code>. Use it
-  instead of <code>x ** p</code> or <code>sqrt</code> when the input can be <code>0</code> and a
-  gradient is needed.</li>
-<li><strong>Poisson loss.</strong> <code>poisson_regression_loss</code> expects positive predictions.
-  Apply a positive activation (for example <code>SafeExp</code>, <code>Square</code> or a softplus) to
-  the output of the model.</li>
+<li><strong>Guards follow the dtype.</strong> <code>1e-8</code> is <code>0</code> in <code>float16</code> (the smallest normal
+  number is <code>6.1e-05</code>), so a guard of that size does not protect a division or a
+  logarithm. <code>safe_log</code>, <code>SafeLog</code>, <code>poisson_regression_loss</code>, <code>relative_loss</code>,
+  <code>absolute_relative_error</code> and <code>symmetric_absolute_relative_error</code> raise their
+  <code>min_val</code> or <code>eps</code> to the smallest normal number of the dtype
+  (<code>sonnix.utils.resolve_eps</code>). <code>safe_log(0)</code> is <code>-9.7</code> in <code>float16</code>, not <code>-inf</code>.
+  The attributes and the <code>repr</code> of a module keep the value that was passed.</li>
+<li><strong>Exponential.</strong> <code>safe_exp</code> clamps the input before <code>exp</code>, and lowers
+  <code>max_val</code> to <code>log(finfo.max) - 1</code> when <code>exp</code> of it is not finite in the dtype
+  (<code>sonnix.utils.resolve_max_exponent</code>: <code>10.09</code> in <code>float16</code>, <code>87.7</code> in
+  <code>float32</code>), so the output is finite in every dtype for a finite input. It does
+  not remove <code>nan</code>: a <code>nan</code> input stays <code>nan</code>.</li>
+<li><strong>Logarithm.</strong> <code>safe_log</code> clamps the input to <code>min_val</code>; with
+  <code>preserve_gradient=True</code> the gradient of the unclamped function is used, so
+  at <code>x = 0</code> the gradient is <code>1 / min_val</code>, which is large.</li>
+<li><strong>Powers.</strong> <code>safe_pow</code> is <code>torch.pow</code> with a gradient of <code>0</code> at <code>0</code>, instead
+  of <code>nan</code>, and nothing else: a negative input with a fractional exponent is
+  <code>nan</code>, like <code>torch.pow</code>. Use it instead of <code>x ** p</code> or <code>sqrt</code> when the input
+  can be <code>0</code> and a gradient is needed, and give it the absolute value if the
+  input can be negative.</li>
+<li><strong>Squares.</strong> <code>general_robust_regression_loss</code> squares the difference in at
+  least <code>float32</code> and casts the loss back, because <code>(p - t) / scale</code> squared
+  overflows in <code>float16</code> for a difference above <code>255 * scale</code>. <code>Gaussian</code> computes
+  <code>exp(-0.5 * (x / alpha) ** 2)</code>, so a large <code>x</code> gives a gradient of <code>0</code> for
+  <code>alpha</code> instead of <code>nan</code>.</li>
+<li><strong>Poisson loss.</strong> <code>poisson_regression_loss</code> with <code>log_input=False</code> expects
+  positive predictions (the others are clamped to <code>eps</code>). If the output of the
+  model has no positivity constraint, use <code>log_input=True</code>: the prediction is the
+  logarithm of the rate, the loss is <code>exp(prediction) - target * prediction</code>
+  and <code>eps</code> is not used.</li>
 <li><strong>Learnable <code>alpha</code>.</strong> <code>Gaussian</code> and <code>Laplacian</code> divide by <code>alpha</code>. A
   learnable <code>alpha</code> that reaches <code>0</code> makes the training fail and is hard to
   debug: use a small learning rate for it or keep it fixed.</li>
 <li><strong>Reductions.</strong> <code>mean</code> divides by the number of elements, <code>batchmean</code> by the
   batch size. A loss summed over a large tensor can overflow in <code>float16</code>.</li>
 </ul>
+<h2 id="not-guaranteed">Not guaranteed<a class="headerlink" href="#not-guaranteed" title="Permanent link">&para;</a></h2>
+<p>A result that the dtype cannot represent is not finite, and no guard changes
+that:</p>
+<ul>
+<li>the square of <code>1000</code> in <code>float16</code> (<code>Square</code>, <code>SquaredReLU</code>, an <code>MSELoss</code>
+  inside a <code>RelativeLoss</code>), or a large exponent in <code>Pow</code> and <code>ExU</code>;</li>
+<li><code>exp(100)</code> in <code>float32</code> outside <code>safe_exp</code>;</li>
+<li>the probability variants of the binary losses (<code>binary_focal_loss</code>,
+  <code>binary_poly1_loss</code>) with a prediction of exactly <code>0</code> or <code>1</code> in <code>float16</code>:
+  the <code>binary_cross_entropy</code> of <code>torch</code> divides by <code>0</code> and its gradient is
+  <code>nan</code>. Use the <code>*_with_logits</code> variants;</li>
+<li>a learnable <code>alpha</code> that crosses <code>0</code>;</li>
+<li>a module fed a dtype other than its own: it follows the promotion rules of
+  <code>torch</code>, and <code>NLinear</code> raises like <code>torch.nn.Linear</code>.</li>
+</ul>
+<p>For a loss on <code>float16</code>, compare with a <code>float32</code> run if a value looks wrong.</p>
 
 
 
