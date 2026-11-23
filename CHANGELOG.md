@@ -333,6 +333,15 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
 
 ### Changed
 
+- Simplifications without a change of behaviour (third target state step 5,
+  #463): the probability and the logits variants of `binary_focal_loss` and of
+  `binary_poly1_loss` share one private core each (`_focal`, `_poly1`), so they
+  cannot drift; the `target` paragraph of the four binary loss modules refers to
+  the function instead of copying it; the dead branch of
+  `NLinear.reset_parameters` is removed. `NLinear.forward` keeps `bmm`: an
+  `einsum` was measured slower (`22` against `15` us at `32 x 8 x 16 x 16`, `33`
+  against `28` us at `256 x 16 x 32 x 32`), and the plan says to skip an item
+  whose benchmark regresses.
 - `AsinhNumericalEncoder.create(...)` builds an encoder with spaced scales like
   `CosSinNumericalEncoder.create`, and both `create` methods have a keyword-only
   `n_features` option (review 3.7, #370).

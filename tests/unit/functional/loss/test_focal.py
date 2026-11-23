@@ -7,6 +7,7 @@ import torch
 from coola.utils.tensor import get_available_devices
 
 from sonnix.functional import binary_focal_loss, binary_focal_loss_with_logits
+from sonnix.functional.loss.focal import _focal
 from tests.helpers import make_generator
 
 if TYPE_CHECKING:
@@ -304,4 +305,67 @@ def test_binary_focal_loss_with_logits_soft_target_reduction_none() -> None:
     target = torch.rand(6, 5, generator=generator, dtype=torch.float64)
     assert binary_focal_loss_with_logits(logits, target, reduction="none").allclose(
         binary_focal_loss(logits.sigmoid(), target, reduction="none")
+    )
+
+
+############################
+#     Tests for _focal     #
+############################
+
+CE_LOSS = torch.tensor([0.5, 2.0])
+P_T = torch.tensor([0.5, 0.5])
+TARGET = torch.tensor([1.0, 0.0])
+
+
+def test_focal_without_alpha() -> None:
+    # ce_loss * (1 - p_t) ** 2
+    loss = _focal(CE_LOSS, P_T, TARGET, alpha=None, gamma=2.0, reduction="none")
+    assert loss.equal(torch.tensor([0.125, 0.5]))
+
+
+def test_focal_with_alpha() -> None:
+    # alpha_t * ce_loss * (1 - p_t) ** 2 with alpha_t = [0.25, 0.75]
+    loss = _focal(CE_LOSS, P_T, TARGET, alpha=0.25, gamma=2.0, reduction="none")
+    assert loss.equal(torch.tensor([0.03125, 0.375]))
+
+
+def test_focal_gamma_zero_is_the_cross_entropy() -> None:
+    loss = _focal(CE_LOSS, P_T, TARGET, alpha=None, gamma=0.0, reduction="none")
+    assert loss.equal(CE_LOSS)
+
+
+def test_focal_alpha_zero_keeps_only_the_negative_class() -> None:
+    loss = _focal(CE_LOSS, P_T, TARGET, alpha=0.0, gamma=0.0, reduction="none")
+    assert loss.equal(torch.tensor([0.0, 2.0]))
+
+
+@pytest.mark.parametrize(
+    ("reduction", "expected"),
+    [("sum", 0.625), ("mean", 0.3125), ("batchmean", 0.3125)],
+)
+def test_focal_reduction(reduction: str, expected: float) -> None:
+    loss = _focal(CE_LOSS, P_T, TARGET, alpha=None, gamma=2.0, reduction=reduction)
+    assert loss.equal(torch.tensor(expected))
+
+
+def test_focal_p_t_one_has_a_finite_gradient() -> None:
+    p_t = torch.ones(2, requires_grad=True)
+    _focal(CE_LOSS, p_t, TARGET, alpha=None, gamma=0.5, reduction="sum").backward()
+    assert p_t.grad.equal(torch.zeros(2))
+
+
+def test_focal_does_not_modify_the_inputs() -> None:
+    ce_loss, p_t = CE_LOSS.clone(), P_T.clone()
+    _focal(ce_loss, p_t, TARGET, alpha=0.25, gamma=2.0, reduction="none")
+    assert ce_loss.equal(CE_LOSS)
+    assert p_t.equal(P_T)
+
+
+@pytest.mark.parametrize("alpha", [None, 0.25])
+def test_binary_focal_loss_with_logits_matches_the_probability_variant(alpha: float | None) -> None:
+    generator = make_generator()
+    logits = torch.randn(4, 3, generator=generator)
+    target = torch.randint(0, 2, (4, 3), generator=generator).float()
+    assert binary_focal_loss_with_logits(logits, target, alpha=alpha).allclose(
+        binary_focal_loss(logits.sigmoid(), target, alpha=alpha)
     )
