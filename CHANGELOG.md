@@ -43,7 +43,7 @@ still in alpha (`0.0.1a0`), so breaking changes can happen in any release.
 
 ### Breaking changes
 
-- One public path for `Reduction` (third target state step 4, #PR):
+- One public path for `Reduction` (third target state step 4, #462):
   `sonnix.validation` no longer exports `Reduction`; import it from
   `sonnix.functional` (`from sonnix.functional import Reduction`).
   `VALID_REDUCTIONS` and the validators stay in `sonnix.validation`. The
@@ -253,7 +253,7 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
   `SafeExp`, `SafeLog` and `SafePow` (property P1). A registry test checks that
   the output of every module with a function (the losses, `RectifierAsinhUnit`
   and the three safe operations) equals the output of the function (third
-  target state step 4, #PR).
+  target state step 4, #462).
 - `ModuleCase.wrong_inputs` in the test registry and a test that every module
   raises a `ValueError` on inputs with a wrong shape (the modules that accept
   any shape are listed with the reason), and a `torch.export` test with a
