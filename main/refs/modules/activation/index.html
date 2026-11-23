@@ -1188,17 +1188,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sonnix.modules.SafePow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        SafePow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#sonnix.modules.Sin" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1781,17 +1770,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sonnix.modules.SafePow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        SafePow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#sonnix.modules.Sin" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1935,9 +1913,6 @@ the <a href="../"><code>sonnix.modules</code></a> overview.</p>
 </tr>
 <tr>
 <td><a href="#sonnix.modules.SafeLog"><code>SafeLog</code></a></td>
-</tr>
-<tr>
-<td><a href="#sonnix.modules.SafePow"><code>SafePow</code></a></td>
 </tr>
 <tr>
 <td><a href="#sonnix.modules.Sin"><code>Sin</code></a></td>
@@ -3792,9 +3767,7 @@ ECCV 2022. (http://arxiv.org/pdf/2111.15135)
 exponent (for example <code>Pow(exponent=0.5)</code> on negative inputs),
 and no error is raised. Clamp or shift the inputs if they can be
 negative. The gradient of a power with an exponent in <code>(0, 1)</code>
-is infinite at <code>0</code>: use <code>SafePow</code> to get a gradient of <code>0</code>
-there. <code>Pow</code> is the plain <code>torch.pow</code>, and it is the only one
-that accepts a negative exponent.</p>
+is infinite at <code>0</code>.</p>
 </details>
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -4217,10 +4190,9 @@ elements.</p>
         <p>Implement a <code>torch.nn.Module</code> to compute the exponential of the
 elements.</p>
 <p>The values that are higher than the specified maximum value are
-set to this maximum value. The maximum value is lowered to
-<code>log(finfo.max) - 1</code> when <code>exp</code> of it is not finite in the
-dtype of the input, so the output has no Inf. A <code>NaN</code> input
-stays <code>NaN</code>. See <code>sonnix.functional.safe_exp</code>.</p>
+set to this maximum value. Using a not too large positive value
+leads to an output tensor without Inf. A <code>NaN</code> input stays
+<code>NaN</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -4378,10 +4350,8 @@ default, <code>clamp</code> gives a zero gradient outside the range.</p>
         <p>Implement a <code>torch.nn.Module</code> to compute the logarithm natural
 of the elements.</p>
 <p>The values that are lower than the specified minimum value are set
-to this minimum value. The minimum value is raised to the smallest
-positive normal number of the dtype of the input when it is lower,
-so the output has no NaN or Inf. A <code>NaN</code> input stays <code>NaN</code>.
-See <code>sonnix.functional.safe_log</code>.</p>
+to this minimum value. Using a small positive value leads to an
+output tensor without NaN or Inf. A <code>NaN</code> input stays <code>NaN</code>.</p>
 
 
 <details class="note" open>
@@ -4496,151 +4466,6 @@ default, <code>clamp</code> gives a zero gradient outside the range.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span>
 <span class="go">tensor([[ -9.2103, -11.5129, -13.8155],</span>
 <span class="go">        [-18.4207, -18.4207, -18.4207]])</span>
-</code></pre></div>
-</details>
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="sonnix.modules.SafePow" class="doc doc-heading">
-            <span class="doc doc-object-name doc-class-name">sonnix.modules.SafePow</span>
-
-
-<a href="#sonnix.modules.SafePow" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents first">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="torch.nn.Module">Module</span></code></p>
-
-
-
-        <p>Implement a <code>torch.nn.Module</code> to raise the input to a power with
-a finite gradient at zero.</p>
-<p>This module is <code>torch.pow</code> with a gradient of <code>0</code> at <code>0</code> and
-nothing else: the result is <code>nan</code> for a negative input and a
-non-integer exponent, like <code>torch.pow</code>. For an exponent in
-<code>(0, 1)</code>, the derivative of the power is infinite at zero, and
-<code>Pow</code> gives a <code>NaN</code> gradient there. See
-<code>sonnix.functional.safe_pow</code>.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>exponent</code>
-            </td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The exponent, which must be finite and non-negative.
-<code>Pow</code> accepts a negative exponent.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<details class="shape" open>
-  <summary>Shape</summary>
-  <ul>
-<li>Input: <code>(*)</code>, where <code>*</code> means any number of dimensions.</li>
-<li>Output: <code>(*)</code>, same shape as the input.</li>
-</ul>
-</details>
-
-<p><span class="doc-section-title">Raises:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="TypeError">TypeError</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>If <code>exponent</code> is not a number.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="ValueError">ValueError</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>If <code>exponent</code> is negative or not finite.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<details class="example" open>
-  <summary>Example</summary>
-  <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sonnix.modules</span><span class="w"> </span><span class="kn">import</span> <span class="n">SafePow</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">SafePow</span><span class="p">(</span><span class="n">exponent</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
-<span class="go">SafePow(exponent=0.5)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">m</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span>
-<span class="go">tensor([0., 2., 3.], grad_fn=&lt;WhereBackward0&gt;)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">grad</span>
-<span class="go">tensor([0.0000, 0.2500, 0.1667])</span>
 </code></pre></div>
 </details>
 
