@@ -4,6 +4,7 @@ import doctest
 import importlib
 import inspect
 import re
+import runpy
 from pathlib import Path
 
 import pytest
@@ -179,11 +180,11 @@ def test_readme_examples_run() -> None:
 
 
 @pytest.mark.parametrize("path", GUIDE_FILES, ids=lambda path: path.name)
-def test_guide_python_blocks_run(path: Path) -> None:
-    # The blocks of a file share a namespace, like the cells of a notebook.
-    namespace: dict[str, object] = {}
-    for block in PYTHON_BLOCK.findall(path.read_text()):
-        exec(block, namespace)
+def test_guide_python_blocks_run(path: Path, tmp_path: Path) -> None:
+    # The blocks of a file run as one script, like the cells of a notebook.
+    script = tmp_path / "script.py"
+    script.write_text("\n".join(PYTHON_BLOCK.findall(path.read_text())))
+    runpy.run_path(str(script))
 
 
 def test_python_block_regex_finds_the_blocks() -> None:
