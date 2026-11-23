@@ -334,7 +334,7 @@ reduction="mean")`: the operand is named `loss` and `reduction` is
 ### Changed
 
 - Simplifications without a change of behaviour (third target state step 5,
-  #PR): the probability and the logits variants of `binary_focal_loss` and of
+  #463): the probability and the logits variants of `binary_focal_loss` and of
   `binary_poly1_loss` share one private core each (`_focal`, `_poly1`), so they
   cannot drift; the `target` paragraph of the four binary loss modules refers to
   the function instead of copying it; the dead branch of
